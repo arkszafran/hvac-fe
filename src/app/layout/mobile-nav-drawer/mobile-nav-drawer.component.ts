@@ -36,7 +36,7 @@ import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
               <app-layout-icon [name]="item.icon" />
             </span>
 
-            <span class="min-w-0 text-label font-medium text-text-main">
+            <span [class]="labelClasses(rla.isActive)">
               {{ item.label }}
             </span>
           </a>
@@ -53,19 +53,26 @@ export class AppMobileNavDrawerComponent {
 
   protected navLinkClasses(isActive: boolean): string {
     return classNames(
-      'group flex items-center gap-3 rounded-[1.45rem] border px-3.5 py-3.5 transition duration-200',
+      'group flex items-center gap-3 rounded-[1rem] border px-3.5 py-3.5 transition duration-200',
       isActive
-        ? 'border-primary/12 bg-primary-soft/70 shadow-[0_18px_38px_-28px_rgb(0_102_255/0.38)]'
-        : 'border-black/6 bg-white/74 hover:bg-white',
+        ? 'border-primary/16 bg-[linear-gradient(135deg,_rgb(245_248_255/0.98),_rgb(233_240_255/0.96))] shadow-[0_18px_38px_-28px_rgb(24_74_160/0.38)]'
+        : 'border-border/85 bg-white/84 hover:border-primary/16 hover:bg-primary-soft/34',
     );
   }
 
   protected iconWrapperClasses(isActive: boolean): string {
     return classNames(
-      'flex size-10 shrink-0 items-center justify-center rounded-2xl transition',
+      'flex size-10 shrink-0 items-center justify-center rounded-[0.9rem] border transition',
       isActive
-        ? 'bg-white text-primary shadow-[0_16px_30px_-24px_rgb(0_102_255/0.42)]'
-        : 'bg-surface-muted text-text-muted group-hover:bg-white group-hover:text-text-main',
+        ? 'border-primary/18 bg-[linear-gradient(180deg,_var(--color-primary)_0%,_var(--color-primary-strong)_100%)] text-white shadow-[0_16px_30px_-24px_rgb(24_74_160/0.42)]'
+        : 'border-border/80 bg-surface text-text-muted group-hover:border-primary/16 group-hover:bg-primary-soft/48 group-hover:text-primary-strong',
+    );
+  }
+
+  protected labelClasses(isActive: boolean): string {
+    return classNames(
+      'min-w-0 text-label font-semibold transition duration-200',
+      isActive ? 'text-primary-strong' : 'text-text-main group-hover:text-primary-strong',
     );
   }
 }

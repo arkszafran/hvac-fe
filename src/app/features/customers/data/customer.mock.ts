@@ -3,7 +3,7 @@ import { Customer } from '../models/customer.model';
 export const CUSTOMER_MOCKS: Customer[] = [
   {
     id: 'customer-01',
-    type: 'firma',
+    type: 'company',
     companyName: 'Northwind Cooling',
     fullName: 'Marek Kaleta',
     phone: '+48 501 120 310',
@@ -14,7 +14,7 @@ export const CUSTOMER_MOCKS: Customer[] = [
   },
   {
     id: 'customer-02',
-    type: 'firma',
+    type: 'company',
     companyName: 'Skylab Logistics',
     fullName: 'Anna Nowak',
     phone: '+48 502 880 441',
@@ -25,7 +25,7 @@ export const CUSTOMER_MOCKS: Customer[] = [
   },
   {
     id: 'customer-03',
-    type: 'osoba prywatna',
+    type: 'individual',
     companyName: '',
     fullName: 'Piotr Zalewski',
     phone: '+48 603 455 901',
@@ -36,7 +36,7 @@ export const CUSTOMER_MOCKS: Customer[] = [
   },
   {
     id: 'customer-04',
-    type: 'firma',
+    type: 'company',
     companyName: 'Blue Point Offices',
     fullName: 'Karolina Wrona',
     phone: '+48 604 122 778',
@@ -47,7 +47,7 @@ export const CUSTOMER_MOCKS: Customer[] = [
   },
   {
     id: 'customer-05',
-    type: 'firma',
+    type: 'company',
     companyName: 'NovaMed',
     fullName: 'Pawel Zawada',
     phone: '+48 605 810 224',
@@ -58,7 +58,7 @@ export const CUSTOMER_MOCKS: Customer[] = [
   },
   {
     id: 'customer-06',
-    type: 'osoba prywatna',
+    type: 'individual',
     companyName: '',
     fullName: 'Joanna Lis',
     phone: '+48 606 330 190',
@@ -69,7 +69,7 @@ export const CUSTOMER_MOCKS: Customer[] = [
   },
   {
     id: 'customer-07',
-    type: 'firma',
+    type: 'company',
     companyName: 'Atrium One',
     fullName: 'Marta Kurek',
     phone: '+48 607 210 455',
@@ -80,7 +80,7 @@ export const CUSTOMER_MOCKS: Customer[] = [
   },
   {
     id: 'customer-08',
-    type: 'osoba prywatna',
+    type: 'individual',
     companyName: '',
     fullName: 'Tomasz Banasik',
     phone: '+48 608 778 511',
@@ -91,7 +91,7 @@ export const CUSTOMER_MOCKS: Customer[] = [
   },
   {
     id: 'customer-09',
-    type: 'firma',
+    type: 'company',
     companyName: 'EcoVent Solutions',
     fullName: 'Natalia Bednarz',
     phone: '+48 609 114 930',
@@ -102,7 +102,7 @@ export const CUSTOMER_MOCKS: Customer[] = [
   },
   {
     id: 'customer-10',
-    type: 'firma',
+    type: 'company',
     companyName: 'Green Harbor Apartments',
     fullName: 'Rafal Gorski',
     phone: '+48 510 901 612',
@@ -113,7 +113,7 @@ export const CUSTOMER_MOCKS: Customer[] = [
   },
   {
     id: 'customer-11',
-    type: 'osoba prywatna',
+    type: 'individual',
     companyName: '',
     fullName: 'Ewa Pietrzak',
     phone: '+48 511 245 884',
@@ -124,7 +124,7 @@ export const CUSTOMER_MOCKS: Customer[] = [
   },
   {
     id: 'customer-12',
-    type: 'firma',
+    type: 'company',
     companyName: 'Browar District',
     fullName: 'Damian Czajka',
     phone: '+48 512 632 117',
@@ -135,7 +135,7 @@ export const CUSTOMER_MOCKS: Customer[] = [
   },
   {
     id: 'customer-13',
-    type: 'firma',
+    type: 'company',
     companyName: 'Meridian Hotel',
     fullName: 'Aleksandra Krol',
     phone: '+48 513 904 662',
@@ -146,7 +146,7 @@ export const CUSTOMER_MOCKS: Customer[] = [
   },
   {
     id: 'customer-14',
-    type: 'osoba prywatna',
+    type: 'individual',
     companyName: '',
     fullName: 'Michal Rybak',
     phone: '+48 514 411 573',
@@ -157,7 +157,7 @@ export const CUSTOMER_MOCKS: Customer[] = [
   },
   {
     id: 'customer-15',
-    type: 'firma',
+    type: 'company',
     companyName: 'Polaris Pharma',
     fullName: 'Olga Jablonska',
     phone: '+48 515 720 808',
@@ -168,7 +168,7 @@ export const CUSTOMER_MOCKS: Customer[] = [
   },
   {
     id: 'customer-16',
-    type: 'firma',
+    type: 'company',
     companyName: 'Sunset Retail Park',
     fullName: 'Kamil Stepien',
     phone: '+48 516 308 145',
@@ -179,7 +179,7 @@ export const CUSTOMER_MOCKS: Customer[] = [
   },
   {
     id: 'customer-17',
-    type: 'osoba prywatna',
+    type: 'individual',
     companyName: '',
     fullName: 'Magdalena Kaczmarek',
     phone: '+48 517 994 220',
@@ -190,7 +190,7 @@ export const CUSTOMER_MOCKS: Customer[] = [
   },
   {
     id: 'customer-18',
-    type: 'firma',
+    type: 'company',
     companyName: 'Harborline Services',
     fullName: 'Lukasz Wisniewski',
     phone: '+48 518 560 431',
@@ -201,7 +201,7 @@ export const CUSTOMER_MOCKS: Customer[] = [
   },
   {
     id: 'customer-19',
-    type: 'osoba prywatna',
+    type: 'individual',
     companyName: '',
     fullName: 'Natalia Sobczak',
     phone: '+48 519 103 654',
@@ -212,7 +212,7 @@ export const CUSTOMER_MOCKS: Customer[] = [
   },
   {
     id: 'customer-20',
-    type: 'firma',
+    type: 'company',
     companyName: 'Vertex Offices',
     fullName: 'Sebastian Maj',
     phone: '+48 520 480 902',

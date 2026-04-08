@@ -26,7 +26,7 @@ import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
                 <app-layout-icon [name]="item.icon" />
               </span>
 
-              <span class="min-w-0 text-label font-medium text-text-main">
+              <span [class]="labelClasses(rla.isActive)">
                 {{ item.label }}
               </span>
             </a>
@@ -41,19 +41,26 @@ export class AppSidebarComponent {
 
   protected navLinkClasses(isActive: boolean): string {
     return classNames(
-      'group flex items-center gap-3 rounded-[1.4rem] px-3 py-3 transition duration-200',
+      'group flex items-center gap-3 rounded-[1rem] border px-3 py-3 transition duration-200',
       isActive
-        ? 'bg-[linear-gradient(135deg,_rgb(255_255_255/0.96),_rgb(239_245_255/0.92))] shadow-[0_20px_38px_-28px_rgb(0_102_255/0.38)]'
-        : 'hover:bg-white/76',
+        ? 'border-primary/16 bg-[linear-gradient(135deg,_rgb(245_248_255/0.98),_rgb(233_240_255/0.96))] shadow-[0_18px_36px_-28px_rgb(24_74_160/0.4)]'
+        : 'border-transparent hover:border-border/85 hover:bg-white/88',
     );
   }
 
   protected iconWrapperClasses(isActive: boolean): string {
     return classNames(
-      'flex size-10 shrink-0 items-center justify-center rounded-2xl border transition',
+      'flex size-10 shrink-0 items-center justify-center rounded-[0.9rem] border transition',
       isActive
-        ? 'border-primary/10 bg-primary-soft text-primary'
-        : 'border-black/6 bg-white/84 text-text-muted group-hover:border-black/10 group-hover:bg-white group-hover:text-text-main',
+        ? 'border-primary/18 bg-[linear-gradient(180deg,_var(--color-primary)_0%,_var(--color-primary-strong)_100%)] text-white shadow-[0_16px_28px_-20px_rgb(24_74_160/0.54)]'
+        : 'border-border/80 bg-white text-text-muted group-hover:border-primary/16 group-hover:bg-primary-soft/48 group-hover:text-primary-strong',
+    );
+  }
+
+  protected labelClasses(isActive: boolean): string {
+    return classNames(
+      'min-w-0 text-label font-semibold transition duration-200',
+      isActive ? 'text-primary-strong' : 'text-text-main group-hover:text-primary-strong',
     );
   }
 }

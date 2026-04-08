@@ -23,7 +23,7 @@ export interface UiTabItem {
     <div class="overflow-x-auto">
       <div
         role="tablist"
-        class="inline-flex min-w-full gap-1.5 rounded-[1.45rem] border border-white/70 bg-white/58 p-1.5 shadow-[inset_0_1px_0_rgb(255_255_255/0.82)] backdrop-blur-xl"
+        class="inline-flex min-w-full gap-1.5 rounded-[1rem] border border-border/85 bg-surface/84 p-1.5 shadow-[inset_0_1px_0_rgb(255_255_255/0.84)] backdrop-blur-xl"
       >
         @for (tab of tabs(); track tab.id) {
           <button
@@ -61,18 +61,18 @@ export class UiTabsComponent {
 
   protected tabClasses(id: string): string {
     return classNames(
-      'ui-focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-full px-4 py-2 text-label transition duration-200',
+      'ui-focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-[0.85rem] border px-4 py-2 text-label font-semibold transition duration-200',
       this.stretch() && 'flex-1',
       this.isActive(id)
-        ? 'bg-white text-text-main shadow-[0_10px_24px_-18px_rgb(15_23_42/0.45)]'
-        : 'text-text-muted hover:bg-white/72 hover:text-text-main',
+        ? 'border-primary/16 bg-white text-primary-strong shadow-[0_12px_24px_-18px_rgb(15_23_42/0.24)]'
+        : 'border-transparent text-text-muted hover:border-primary/12 hover:bg-white hover:text-primary-strong',
     );
   }
 
   protected countClasses(id: string): string {
     return classNames(
-      'rounded-full px-2 py-0.5 text-small font-medium',
-      this.isActive(id) ? 'bg-primary-soft text-primary' : 'bg-white/85 text-text-muted',
+      'rounded-[0.65rem] px-2 py-0.5 text-small font-semibold',
+      this.isActive(id) ? 'bg-primary-soft text-primary-strong' : 'bg-white/85 text-text-muted',
     );
   }
 

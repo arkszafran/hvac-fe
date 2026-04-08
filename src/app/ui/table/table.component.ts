@@ -7,16 +7,19 @@ import { classNames } from '../utils/classnames';
 export type UiTableRow = object;
 export type UiTableAlign = 'start' | 'center' | 'end';
 export type UiTableColumnType = 'text' | 'badge';
+export type UiTableCellTone = 'default' | 'primary';
 
 export interface UiTableColumn<T extends UiTableRow = UiTableRow> {
   id: string;
   header: string;
   key?: keyof T & string;
   cell?: (row: T) => string;
+  eyebrow?: (row: T) => string;
   description?: (row: T) => string;
   align?: UiTableAlign;
   type?: UiTableColumnType;
   width?: string;
+  tone?: UiTableCellTone;
   badgeVariant?: UiBadgeVariant | ((value: string, row: T) => UiBadgeVariant);
 }
 
@@ -38,16 +41,18 @@ const MOBILE_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
   imports: [UiBadgeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="overflow-hidden rounded-[1.6rem] border border-black/6 bg-white/84 shadow-card">
+    <div class="overflow-hidden rounded-[1.1rem] border border-border/90 bg-white shadow-card">
       @if (hasRows()) {
         <div class="md:hidden">
           @for (row of data(); track trackRow($index, row)) {
-            <article class="border-b border-black/5 px-4 py-4 last:border-b-0 sm:px-5">
+            <article
+              class="border-b border-border/80 px-4 py-4 transition-colors duration-200 last:border-b-0 hover:bg-primary-soft/28 sm:px-5"
+            >
               <div class="space-y-3">
                 @for (column of columns(); track column.id) {
-                  <div class="grid grid-cols-[minmax(0,0.88fr)_minmax(0,1fr)] gap-3">
+                  <div class="grid grid-cols-[5.25rem_minmax(0,1fr)] gap-x-3.5 gap-y-1 sm:grid-cols-[5.75rem_minmax(0,1fr)]">
                     <p
-                      class="pt-0.5 text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
+                      class="pr-2 pt-0.5 text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted"
                     >
                       {{ column.header }}
                     </p>
@@ -58,13 +63,19 @@ const MOBILE_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
                           {{ resolveCellValue(row, column) }}
                         </ui-badge>
                       } @else {
-                        <p class="text-label text-text-main">
+                        @if (resolveCellEyebrow(row, column)) {
+                          <p class="text-[10px]/4 font-semibold uppercase tracking-[0.18em] text-primary/70">
+                            {{ resolveCellEyebrow(row, column) }}
+                          </p>
+                        }
+
+                        <p [class]="cellValueClasses(column)">
                           {{ resolveCellValue(row, column) }}
                         </p>
                       }
 
                       @if (resolveCellDescription(row, column)) {
-                        <p class="text-small text-text-muted">
+                        <p [class]="cellDescriptionClasses(column)">
                           {{ resolveCellDescription(row, column) }}
                         </p>
                       }
@@ -94,7 +105,7 @@ const MOBILE_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
 
             <tbody class="[&_tr:last-child_td]:border-b-0">
               @for (row of data(); track trackRow($index, row)) {
-                <tr class="transition duration-200 hover:bg-[rgb(250_252_255/0.95)]">
+                <tr class="group/row transition duration-200">
                   @for (column of columns(); track column.id) {
                     <td [class]="cellClasses(column)">
                       <div [class]="desktopCellContentClasses(column)">
@@ -103,13 +114,19 @@ const MOBILE_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
                             {{ resolveCellValue(row, column) }}
                           </ui-badge>
                         } @else {
-                          <p class="text-label text-text-main">
+                          @if (resolveCellEyebrow(row, column)) {
+                            <p class="text-[10px]/4 font-semibold uppercase tracking-[0.18em] text-primary/70">
+                              {{ resolveCellEyebrow(row, column) }}
+                            </p>
+                          }
+
+                          <p [class]="cellValueClasses(column)">
                             {{ resolveCellValue(row, column) }}
                           </p>
                         }
 
                         @if (resolveCellDescription(row, column)) {
-                          <p class="text-small text-text-muted">
+                          <p [class]="cellDescriptionClasses(column)">
                             {{ resolveCellDescription(row, column) }}
                           </p>
                         }
@@ -124,7 +141,7 @@ const MOBILE_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
       } @else {
         <div class="px-5 py-10 text-center sm:px-6">
           <div
-            class="mx-auto flex max-w-sm flex-col items-center rounded-[1.45rem] border border-dashed border-black/10 bg-[linear-gradient(180deg,_rgb(255_255_255/0.92),_rgb(247_249_252/0.88))] px-6 py-8"
+            class="mx-auto flex max-w-sm flex-col items-center rounded-[1rem] border border-dashed border-border/90 bg-[linear-gradient(180deg,_rgb(255_255_255/0.96),_rgb(247_249_252/0.9))] px-6 py-8"
           >
             <div
               class="flex size-11 items-center justify-center rounded-full bg-primary-soft text-primary shadow-[inset_0_1px_0_rgb(255_255_255/0.82)]"
@@ -160,14 +177,14 @@ export class UiTableComponent {
 
   protected headerClasses(column: UiTableColumn<any>): string {
     return classNames(
-      'border-b border-black/6 bg-[rgb(249_251_255/0.92)] px-5 py-3.5 text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted first:pl-6 last:pr-6',
+      'border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted first:pl-6 last:pr-6',
       DESKTOP_ALIGNMENT_CLASSES[column.align ?? 'start'],
     );
   }
 
   protected cellClasses(column: UiTableColumn<any>): string {
     return classNames(
-      'border-b border-black/5 px-5 py-4 align-top first:pl-6 last:pr-6',
+      'border-b border-border/80 bg-white px-5 py-4.5 align-top transition-colors duration-200 first:pl-6 first:border-l-2 first:border-l-transparent last:pr-6 group-hover/row:bg-primary-soft/30 group-hover/row:first:border-l-primary/55',
       DESKTOP_ALIGNMENT_CLASSES[column.align ?? 'start'],
     );
   }
@@ -187,11 +204,35 @@ export class UiTableComponent {
     );
   }
 
+  protected cellValueClasses(column: UiTableColumn<any>): string {
+    return classNames(
+      column.tone === 'primary'
+        ? 'text-[15px]/6 font-semibold tracking-[-0.02em] text-text-main [overflow-wrap:anywhere]'
+        : 'text-label font-medium text-text-main [overflow-wrap:anywhere]',
+      column.align === 'center' && 'text-center',
+      column.align === 'end' && 'text-right',
+    );
+  }
+
+  protected cellDescriptionClasses(column: UiTableColumn<any>): string {
+    return classNames(
+      column.tone === 'primary'
+        ? 'text-[13px]/5 text-text-main/76 [overflow-wrap:anywhere]'
+        : 'text-small text-text-muted [overflow-wrap:anywhere]',
+      column.align === 'center' && 'text-center',
+      column.align === 'end' && 'text-right',
+    );
+  }
+
   protected resolveCellValue(row: UiTableRow, column: UiTableColumn<any>): string {
     const record = row as Record<string, unknown>;
     const rawValue = column.cell ? column.cell(row) : column.key ? record[column.key] : '';
 
     return this.stringifyValue(rawValue);
+  }
+
+  protected resolveCellEyebrow(row: UiTableRow, column: UiTableColumn<any>): string {
+    return column.eyebrow ? this.stringifyValue(column.eyebrow(row)) : '';
   }
 
   protected resolveCellDescription(row: UiTableRow, column: UiTableColumn<any>): string {

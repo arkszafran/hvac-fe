@@ -6,7 +6,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header
-      class="flex flex-col gap-5 border-b border-black/6 pb-7 sm:flex-row sm:items-end sm:justify-between"
+      class="flex flex-col gap-5 rounded-[1.2rem] border border-border/85 bg-[linear-gradient(135deg,_rgb(255_255_255/0.98),_rgb(243_247_255/0.92))] px-5 py-5 shadow-[inset_0_1px_0_rgb(255_255_255/0.82)] sm:flex-row sm:items-end sm:justify-between sm:px-6"
     >
       <div class="max-w-3xl space-y-3">
         @if (eyebrow()) {

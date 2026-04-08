@@ -15,34 +15,29 @@ export class CustomerTableComponent {
 
   protected readonly columns: UiTableColumn<Customer>[] = [
     {
-      id: 'companyName',
-      header: 'Nazwa firmy',
-      key: 'companyName',
-      width: '20%',
+      id: 'client',
+      header: 'Klient',
+      cell: (customer) => customer.companyName || customer.fullName,
+      eyebrow: (customer) => (customer.type === 'company' ? 'Firma' : 'Klient indywidualny'),
+      description: (customer) => (customer.type === 'company' ? customer.fullName : ''),
+      tone: 'primary',
+      width: '34%',
     },
     {
-      id: 'fullName',
-      header: 'Imie i nazwisko',
-      key: 'fullName',
-      width: '17%',
-    },
-    {
-      id: 'phone',
-      header: 'Telefon',
+      id: 'contact',
+      header: 'Kontakt',
       key: 'phone',
-      width: '15%',
-    },
-    {
-      id: 'email',
-      header: 'Email',
-      key: 'email',
-      width: '20%',
+      description: (customer) => customer.email,
+      tone: 'primary',
+      width: '30%',
     },
     {
       id: 'location',
-      header: 'Adres',
-      cell: (customer) => `${customer.address}, ${customer.postalCode} ${customer.city}`,
-      width: '28%',
+      header: 'Lokalizacja',
+      cell: (customer) => customer.city,
+      description: (customer) => `${customer.address}, ${customer.postalCode}`,
+      tone: 'primary',
+      width: '36%',
     },
   ];
 }

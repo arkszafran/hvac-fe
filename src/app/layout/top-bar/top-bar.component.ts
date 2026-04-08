@@ -10,13 +10,13 @@ import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
   imports: [RouterLink, AppLayoutIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <header class="sticky top-0 z-40 border-b border-black/6 bg-[rgb(251_252_254/0.82)] backdrop-blur-xl">
+    <header class="sticky top-0 z-40 border-b border-border/85 bg-[rgb(250_252_255/0.9)] backdrop-blur-xl">
       <div class="ui-shell flex h-16 items-center justify-between gap-3">
         <div class="flex min-w-0 items-center gap-2 sm:gap-3">
           <button
             type="button"
             aria-label="Otworz menu"
-            class="ui-focus-ring inline-flex size-11 items-center justify-center rounded-full border border-black/6 bg-white/86 text-text-main shadow-[0_14px_34px_-24px_rgb(15_23_42/0.42)] backdrop-blur-xl transition hover:bg-white md:hidden"
+            class="ui-focus-ring inline-flex size-11 items-center justify-center rounded-[0.95rem] border border-border/90 bg-white text-text-main shadow-[0_14px_34px_-24px_rgb(15_23_42/0.3)] backdrop-blur-xl transition hover:border-primary/18 hover:bg-primary-soft/45 hover:text-primary-strong md:hidden"
             (click)="menuRequested.emit()"
           >
             <app-layout-icon name="menu" />
@@ -24,7 +24,7 @@ import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
 
           <a routerLink="/dashboard" class="flex min-w-0 items-center gap-3">
             <span
-              class="flex size-10 shrink-0 items-center justify-center rounded-[1.15rem] bg-[linear-gradient(135deg,_color-mix(in_oklab,var(--color-primary-soft),white_18%),_white)] text-label font-semibold tracking-[-0.03em] text-primary shadow-[0_18px_34px_-24px_rgb(0_102_255/0.34)]"
+              class="flex size-10 shrink-0 items-center justify-center rounded-[0.95rem] border border-primary/14 bg-[linear-gradient(180deg,_var(--color-primary)_0%,_var(--color-primary-strong)_100%)] text-label font-semibold tracking-[-0.03em] text-white shadow-[0_18px_34px_-24px_rgb(24_74_160/0.46)]"
             >
               H
             </span>
@@ -44,7 +44,7 @@ import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
           <button
             type="button"
             aria-label="Powiadomienia"
-            class="ui-focus-ring inline-flex size-11 items-center justify-center rounded-full border border-black/6 bg-white/74 text-text-muted shadow-[0_14px_34px_-24px_rgb(15_23_42/0.32)] backdrop-blur-xl transition hover:bg-white hover:text-text-main"
+            class="ui-focus-ring inline-flex size-11 items-center justify-center rounded-[0.95rem] border border-border/90 bg-white text-text-muted shadow-[0_14px_34px_-24px_rgb(15_23_42/0.22)] backdrop-blur-xl transition hover:border-primary/18 hover:bg-primary-soft/45 hover:text-primary-strong"
           >
             <app-layout-icon name="bell" />
           </button>
@@ -52,10 +52,10 @@ import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
           <button
             type="button"
             aria-label="Profil uzytkownika"
-            class="ui-focus-ring inline-flex items-center gap-2 rounded-full border border-black/6 bg-white/86 px-2.5 py-1.5 shadow-[0_14px_34px_-24px_rgb(15_23_42/0.32)] backdrop-blur-xl transition hover:bg-white"
+            class="ui-focus-ring inline-flex items-center gap-2 rounded-[1rem] border border-border/90 bg-white px-2.5 py-1.5 shadow-[0_14px_34px_-24px_rgb(15_23_42/0.22)] backdrop-blur-xl transition hover:border-primary/18 hover:bg-primary-soft/32"
           >
             <span
-              class="flex size-9 items-center justify-center rounded-full bg-[linear-gradient(135deg,_color-mix(in_oklab,var(--color-accent-soft),white_18%),_white)] text-small font-semibold tracking-[0.04em] text-accent"
+              class="flex size-9 items-center justify-center rounded-[0.8rem] bg-[linear-gradient(180deg,_var(--color-accent)_0%,_var(--color-accent-strong)_100%)] text-small font-semibold tracking-[0.04em] text-white shadow-[0_14px_24px_-18px_rgb(214_121_24/0.44)]"
             >
               AK
             </span>

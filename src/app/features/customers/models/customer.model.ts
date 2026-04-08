@@ -1,4 +1,4 @@
-export type CustomerType = 'firma' | 'osoba prywatna';
+export type CustomerType = 'company' | 'individual';
 
 export interface Customer {
   id: string;

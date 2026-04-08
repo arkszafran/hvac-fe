@@ -52,12 +52,12 @@ interface StyleGuideJobRow {
 })
 export class StyleGuidePageComponent {
   protected readonly swatches = [
-    { name: 'Background', note: 'Soft app canvas', color: 'var(--color-background)' },
-    { name: 'Surface', note: 'Cards and overlays', color: 'var(--color-surface)' },
-    { name: 'Primary', note: 'Main CTA blue', color: 'var(--color-primary)' },
-    { name: 'Primary Soft', note: 'Subtle highlights', color: 'var(--color-primary-soft)' },
-    { name: 'Text Main', note: 'High readability', color: 'var(--color-text-main)' },
-    { name: 'Border', note: 'Low-contrast structure', color: 'var(--color-border)' },
+    { name: 'Background', note: 'Chlodne, czyste tlo aplikacji', color: 'var(--color-background)' },
+    { name: 'Surface', note: 'Sekcje, karty i nakladki', color: 'var(--color-surface)' },
+    { name: 'Primary', note: 'Glowny CTA w chlodnym granacie', color: 'var(--color-primary)' },
+    { name: 'Accent', note: 'Pomaranczowy akcent dla priorytetow', color: 'var(--color-accent)' },
+    { name: 'Text Main', note: 'Mocniejsza hierarchia typografii', color: 'var(--color-text-main)' },
+    { name: 'Border', note: 'Czytelniejszy podzial sekcji', color: 'var(--color-border)' },
   ];
 
   protected readonly tabs: UiTabItem[] = [

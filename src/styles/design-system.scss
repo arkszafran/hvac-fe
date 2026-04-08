@@ -1,29 +1,29 @@
 @theme {
-  --font-sans: 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  --font-sans: 'Manrope', 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 
-  --color-background: oklch(0.983 0.003 264);
-  --color-surface: oklch(0.998 0.001 264);
-  --color-surface-muted: oklch(0.973 0.004 264);
-  --color-text-main: oklch(0.255 0.01 264);
-  --color-text-muted: oklch(0.557 0.012 264);
-  --color-border: oklch(0.904 0.006 264);
+  --color-background: oklch(0.976 0.006 255);
+  --color-surface: oklch(0.994 0.003 255);
+  --color-surface-muted: oklch(0.963 0.008 255);
+  --color-text-main: oklch(0.238 0.018 258);
+  --color-text-muted: oklch(0.506 0.017 257);
+  --color-border: oklch(0.885 0.01 255);
 
-  --color-primary: oklch(0.6 0.168 258);
-  --color-primary-strong: oklch(0.556 0.171 258);
-  --color-primary-soft: oklch(0.953 0.024 258);
+  --color-primary: oklch(0.493 0.143 258);
+  --color-primary-strong: oklch(0.424 0.129 258);
+  --color-primary-soft: oklch(0.939 0.028 255);
 
-  --color-accent: oklch(0.627 0.144 240);
-  --color-accent-strong: oklch(0.575 0.15 240);
-  --color-accent-soft: oklch(0.948 0.022 240);
+  --color-accent: oklch(0.741 0.155 55);
+  --color-accent-strong: oklch(0.678 0.156 51);
+  --color-accent-soft: oklch(0.952 0.037 56);
 
-  --color-success: oklch(0.69 0.108 161);
-  --color-success-soft: oklch(0.964 0.026 161);
-  --color-warning: oklch(0.799 0.102 74);
-  --color-warning-soft: oklch(0.974 0.026 74);
-  --color-danger: oklch(0.636 0.17 25);
-  --color-danger-soft: oklch(0.963 0.032 25);
-  --color-info: oklch(0.647 0.117 245);
-  --color-info-soft: oklch(0.958 0.021 245);
+  --color-success: oklch(0.645 0.108 165);
+  --color-success-soft: oklch(0.956 0.029 165);
+  --color-warning: oklch(0.742 0.155 55);
+  --color-warning-soft: oklch(0.96 0.038 56);
+  --color-danger: oklch(0.618 0.186 25);
+  --color-danger-soft: oklch(0.959 0.035 25);
+  --color-info: oklch(0.552 0.124 251);
+  --color-info-soft: oklch(0.947 0.029 252);
 
   --text-display: 1.875rem;
   --text-display--line-height: 2.25rem;
@@ -57,16 +57,16 @@
   --text-label--line-height: 1.25rem;
   --text-label--font-weight: 500;
 
-  --radius-xl: 1.125rem;
-  --radius-2xl: 1.5rem;
-  --radius-3xl: 1.75rem;
+  --radius-xl: 0.875rem;
+  --radius-2xl: 1.125rem;
+  --radius-3xl: 1.375rem;
 
   --shadow-card:
-    0 24px 60px -36px rgb(15 23 42 / 0.24), 0 8px 18px -14px rgb(15 23 42 / 0.14),
-    inset 0 1px 0 rgb(255 255 255 / 0.72);
+    0 20px 48px -32px rgb(15 23 42 / 0.2), 0 10px 24px -18px rgb(15 23 42 / 0.12),
+    inset 0 1px 0 rgb(255 255 255 / 0.76);
   --shadow-floating:
-    0 34px 90px -42px rgb(15 23 42 / 0.3), 0 14px 32px -24px rgb(15 23 42 / 0.18),
-    inset 0 1px 0 rgb(255 255 255 / 0.72);
+    0 26px 72px -40px rgb(15 23 42 / 0.24), 0 16px 36px -24px rgb(15 23 42 / 0.16),
+    inset 0 1px 0 rgb(255 255 255 / 0.76);
 
   --spacing-18: 4.5rem;
   --spacing-22: 5.5rem;
@@ -134,9 +134,10 @@
   body {
     @apply min-h-screen bg-background font-sans text-body text-text-main antialiased;
     background-image:
-      radial-gradient(circle at top, rgb(255 255 255 / 0.92), transparent 32%),
-      radial-gradient(circle at 85% 10%, rgb(126 166 255 / 0.1), transparent 24%),
-      linear-gradient(180deg, #fbfbfd 0%, #f5f7fb 42%, #eef2f8 100%);
+      radial-gradient(circle at top, rgb(255 255 255 / 0.96), transparent 30%),
+      radial-gradient(circle at 82% 8%, rgb(32 78 162 / 0.11), transparent 24%),
+      radial-gradient(circle at 12% 18%, rgb(244 143 42 / 0.07), transparent 18%),
+      linear-gradient(180deg, #fbfcff 0%, #f4f7fc 44%, #edf2f9 100%);
   }
 
   * {
@@ -166,8 +167,9 @@
 @layer components {
   .ui-page {
     background:
-      radial-gradient(circle at top, rgb(255 255 255 / 0.85), transparent 22%),
-      radial-gradient(circle at 100% 0%, rgb(97 146 255 / 0.12), transparent 24%);
+      radial-gradient(circle at top, rgb(255 255 255 / 0.84), transparent 22%),
+      radial-gradient(circle at 100% 0%, rgb(24 74 160 / 0.12), transparent 24%),
+      radial-gradient(circle at 10% 16%, rgb(244 143 42 / 0.06), transparent 18%);
   }
 
   .ui-shell {
@@ -175,19 +177,19 @@
   }
 
   .ui-panel {
-    @apply rounded-[1.75rem] border border-white/70 bg-white/72 shadow-card backdrop-blur-xl;
+    @apply rounded-[1.35rem] border border-border/85 bg-white/78 shadow-card backdrop-blur-xl;
   }
 
   .ui-focus-ring {
-    @apply focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary/18 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent;
+    @apply focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/18 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent;
   }
 
   .ui-kicker {
-    @apply text-[11px]/5 font-semibold uppercase tracking-[0.22em] text-text-muted;
+    @apply text-[11px]/5 font-semibold uppercase tracking-[0.22em] text-primary/72;
   }
 
   .ui-code {
-    @apply overflow-x-auto rounded-[1.35rem] border border-slate-800/90 bg-slate-950 px-4 py-3 text-[13px]/6 text-slate-100;
+    @apply overflow-x-auto rounded-[1.1rem] border border-slate-800/90 bg-slate-950 px-4 py-3 text-[13px]/6 text-slate-100;
   }
 
   .ui-demo-grid {

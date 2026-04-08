@@ -9,11 +9,11 @@ import { UiInputComponent } from '../../../ui';
   imports: [FormsModule, UiInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex w-full justify-start">
-      <div class="w-full max-w-[28rem] lg:max-w-[30rem]">
+    <div class="flex w-full justify-start px-0.5 pt-1 pb-2">
+      <div class="w-full max-w-[30rem] lg:max-w-[32rem]">
         <ui-input
           type="search"
-          placeholder="Szukaj klienta"
+          placeholder="Nazwa firmy, osoba, email lub adres"
           [ngModel]="search()"
           (ngModelChange)="searchChange.emit($event)"
         />

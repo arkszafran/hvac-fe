@@ -12,30 +12,30 @@ import { matchesCustomerSearch } from './utils/customer-search.util';
   imports: [UiButtonComponent, CustomerTableComponent, CustomerToolbarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="space-y-4">
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 class="text-display tracking-[-0.035em] text-text-main">Klienci</h1>
+    <div class="space-y-3">
+      <section class="pb-1">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <h1 class="text-display tracking-[-0.04em] text-text-main">Klienci</h1>
 
-        <div class="flex justify-start sm:justify-end">
-          <ui-button>
-            <span button-icon>
-              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                <path
-                  d="M10 4.5V15.5M4.5 10H15.5"
-                  stroke="currentColor"
-                  stroke-width="1.7"
-                  stroke-linecap="round"
-                />
-              </svg>
-            </span>
-            Dodaj klienta
-          </ui-button>
+          <div class="flex justify-start lg:justify-end">
+            <ui-button size="lg">
+              <span button-icon>
+                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path
+                    d="M10 4.5V15.5M4.5 10H15.5"
+                    stroke="currentColor"
+                    stroke-width="1.7"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </span>
+              Dodaj klienta
+            </ui-button>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div class="pt-1">
-        <app-customer-toolbar [search]="searchQuery()" (searchChange)="searchQuery.set($event)" />
-      </div>
+      <app-customer-toolbar [search]="searchQuery()" (searchChange)="searchQuery.set($event)" />
 
       <app-customer-table [customers]="filteredCustomers()" />
     </div>

@@ -15,13 +15,13 @@ type UiButtonType = 'button' | 'submit' | 'reset';
 
 const VARIANT_CLASSES: Record<UiButtonVariant, string> = {
   primary:
-    'border border-primary/80 bg-[linear-gradient(180deg,_color-mix(in_oklab,var(--color-primary),white_10%)_0%,_var(--color-primary)_100%)] text-white shadow-[0_18px_36px_-20px_rgb(0_102_255/0.6)] hover:bg-primary-strong hover:brightness-[1.03] active:scale-[0.99] disabled:border-primary/40 disabled:bg-primary/60',
+    'border border-primary-strong/90 bg-[linear-gradient(180deg,_color-mix(in_oklab,var(--color-primary),white_8%)_0%,_var(--color-primary-strong)_100%)] text-white shadow-[0_22px_42px_-24px_rgb(24_74_160/0.6)] hover:-translate-y-0.5 hover:brightness-[1.05] hover:shadow-[0_26px_46px_-24px_rgb(24_74_160/0.66)] active:translate-y-0 active:scale-[0.985] disabled:border-primary/35 disabled:bg-primary/60',
   secondary:
-    'border border-black/6 bg-white/84 text-text-main shadow-[0_12px_26px_-24px_rgb(15_23_42/0.5)] backdrop-blur-xl hover:border-black/10 hover:bg-white active:bg-surface-muted/90',
+    'border border-border/90 bg-white text-text-main shadow-[0_14px_26px_-24px_rgb(15_23_42/0.38)] backdrop-blur-xl hover:-translate-y-0.5 hover:border-primary/22 hover:bg-primary-soft/45 hover:text-primary-strong active:translate-y-0 active:bg-primary-soft/60',
   ghost:
-    'border border-transparent bg-transparent text-text-main hover:bg-white/70 hover:text-text-main active:bg-surface-muted/90',
+    'border border-transparent bg-transparent text-text-main hover:bg-primary-soft/52 hover:text-primary-strong active:bg-primary-soft/64',
   danger:
-    'border border-danger/70 bg-[linear-gradient(180deg,_color-mix(in_oklab,var(--color-danger),white_10%)_0%,_var(--color-danger)_100%)] text-white shadow-[0_18px_36px_-24px_rgb(170_40_40/0.45)] hover:brightness-[1.03] active:scale-[0.99] disabled:border-danger/35 disabled:bg-danger/60',
+    'border border-danger/80 bg-[linear-gradient(180deg,_color-mix(in_oklab,var(--color-danger),white_10%)_0%,_var(--color-danger)_100%)] text-white shadow-[0_20px_38px_-24px_rgb(170_40_40/0.45)] hover:-translate-y-0.5 hover:brightness-[1.04] active:translate-y-0 active:scale-[0.985] disabled:border-danger/35 disabled:bg-danger/60',
 };
 
 const SIZE_CLASSES: Record<UiButtonSize, string> = {
@@ -63,7 +63,7 @@ export class UiButtonComponent {
 
   protected readonly buttonClasses = computed(() =>
     classNames(
-      'ui-focus-ring inline-flex select-none items-center justify-center rounded-full font-medium tracking-[-0.01em] transition duration-200 ease-out disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none',
+      'ui-focus-ring inline-flex select-none items-center justify-center rounded-[0.95rem] font-semibold tracking-[-0.01em] transition duration-200 ease-out disabled:cursor-not-allowed disabled:opacity-60 disabled:shadow-none',
       SIZE_CLASSES[this.size()],
       VARIANT_CLASSES[this.variant()],
       this.block() && 'w-full',

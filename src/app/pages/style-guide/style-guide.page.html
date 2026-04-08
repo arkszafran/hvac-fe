@@ -3,29 +3,29 @@
     <div class="ui-panel p-5 sm:p-6 lg:p-8">
       <ui-page-header
         eyebrow="HAVAC UI"
-        title="Spokojny design system dla nowoczesnego SaaS"
-        description="Lzejsza, bardziej premium estetyka: jasne neutrals, czysty niebieski akcent i spokojny rytm interfejsu. Calosc jest mobile first i gotowa pod operacyjna aplikacje HVAC."
+        title="Wyrazisty design system dla operacyjnego SaaS"
+        description="Chlodny granat jako primary, pomaranczowy akcent i bardziej zdecydowane komponenty. System jest nadal lekki, ale ma juz mocniejsze CTA, stany i podzial sekcji."
       >
         <div header-action class="flex items-center gap-3">
-          <ui-badge variant="neutral">Apple-inspired</ui-badge>
+          <ui-badge variant="warning">Accent-led</ui-badge>
           <ui-button>Nowe zlecenie</ui-button>
         </div>
       </ui-page-header>
 
       <section class="mt-6 grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
         <div
-          class="rounded-[1.75rem] border border-white/75 bg-[linear-gradient(180deg,_rgb(255_255_255/0.9),_rgb(255_255_255/0.72))] p-5 shadow-card backdrop-blur-xl sm:p-6"
+          class="rounded-[1.2rem] border border-border/85 bg-[linear-gradient(180deg,_rgb(255_255_255/0.96),_rgb(246_249_255/0.9))] p-5 shadow-card backdrop-blur-xl sm:p-6"
         >
           <div class="flex flex-wrap items-center gap-3">
-            <ui-badge variant="info">Lightweight</ui-badge>
-            <ui-badge variant="neutral">Readable on mobile</ui-badge>
+            <ui-badge variant="info">Primary-first</ui-badge>
+            <ui-badge variant="warning">Action-oriented</ui-badge>
             <ui-badge variant="success">Production-ready base</ui-badge>
           </div>
 
           <div class="mt-6 grid gap-4 sm:grid-cols-3">
             @for (swatch of swatches; track swatch.name) {
-              <div class="rounded-[1.35rem] border border-black/6 bg-white/72 p-4">
-                <div class="h-16 rounded-[1.1rem]" [style.background]="swatch.color"></div>
+              <div class="rounded-[1rem] border border-border/85 bg-white/88 p-4">
+                <div class="h-16 rounded-[0.8rem]" [style.background]="swatch.color"></div>
                 <p class="mt-3 text-label text-text-main">{{ swatch.name }}</p>
                 <p class="text-small text-text-muted">{{ swatch.note }}</p>
               </div>
@@ -36,7 +36,7 @@
         <ui-card>
           <div card-header class="space-y-1">
             <p class="ui-kicker">Typography</p>
-            <h2 class="text-h2 tracking-[-0.025em] text-text-main">Calmer hierarchy</h2>
+            <h2 class="text-h2 tracking-[-0.025em] text-text-main">Sharper hierarchy</h2>
           </div>
 
           <div class="space-y-4">
@@ -69,7 +69,9 @@
     <section class="mt-8 space-y-4">
       <div class="space-y-1">
         <p class="ui-kicker">Buttons and status</p>
-        <h2 class="text-h2 tracking-[-0.025em] text-text-main">Softer actions, quieter chrome</h2>
+        <h2 class="text-h2 tracking-[-0.025em] text-text-main">
+          Mocniejsze akcje i bardziej czytelne statusy
+        </h2>
       </div>
 
       <div class="ui-demo-grid">
@@ -102,7 +104,7 @@
       <div class="space-y-1">
         <p class="ui-kicker">Forms</p>
         <h2 class="text-h2 tracking-[-0.025em] text-text-main">
-          Corrected spacing and cleaner fields
+          Twardsze pola i wyrazniejsze sekcje
         </h2>
       </div>
 
@@ -190,7 +192,7 @@
       <div class="space-y-1">
         <p class="ui-kicker">Data display</p>
         <h2 class="text-h2 tracking-[-0.025em] text-text-main">
-          Responsive table with calmer density
+          Tabela z wyrazniejszym headerem i hoverem
         </h2>
       </div>
 
@@ -217,13 +219,13 @@
           </div>
 
           <div class="grid gap-3 sm:grid-cols-2">
-            <div class="rounded-[1.35rem] border border-black/6 bg-white/72 p-4">
+            <div class="rounded-[1rem] border border-border/85 bg-white/88 p-4">
               <p class="text-small uppercase tracking-[0.18em] text-text-muted">Rekordy</p>
               <p class="mt-2 text-h2 text-text-main">{{ jobsTableRows.length }}</p>
               <p class="mt-1 text-small text-text-muted">Zaplanowane i aktywne wizyty serwisowe.</p>
             </div>
 
-            <div class="rounded-[1.35rem] border border-black/6 bg-white/72 p-4">
+            <div class="rounded-[1rem] border border-border/85 bg-white/88 p-4">
               <p class="text-small uppercase tracking-[0.18em] text-text-muted">Statusy</p>
               <div class="mt-2 flex flex-wrap gap-2">
                 <ui-badge variant="info">Zaplanowane</ui-badge>

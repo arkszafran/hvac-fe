@@ -34,7 +34,7 @@ let nextSelectId = 0;
       @if (label()) {
         <label
           [attr.for]="inputId()"
-          class="flex items-center gap-1 text-[13px]/5 font-medium text-text-muted"
+          class="flex items-center gap-1 text-[13px]/5 font-semibold tracking-[-0.01em] text-text-main"
         >
           <span>{{ label() }}</span>
           @if (required()) {
@@ -113,10 +113,10 @@ export class UiSelectComponent implements ControlValueAccessor {
 
   protected readonly selectClasses = computed(() =>
     classNames(
-      'ui-focus-ring block w-full appearance-none rounded-[1.35rem] border border-black/6 bg-white/88 px-4 py-3.5 pr-11 text-[15px]/6 text-text-main shadow-[inset_0_1px_0_rgb(255_255_255/0.78),0_1px_2px_rgb(15_23_42/0.04)] backdrop-blur-xl transition duration-200 disabled:cursor-not-allowed disabled:border-transparent disabled:bg-surface-muted disabled:text-text-muted',
+      'ui-focus-ring block w-full appearance-none rounded-[0.95rem] border border-border/90 bg-white px-4 py-3.5 pr-11 text-[15px]/6 text-text-main shadow-[inset_0_1px_0_rgb(255_255_255/0.82),0_1px_2px_rgb(15_23_42/0.05)] backdrop-blur-xl transition duration-200 disabled:cursor-not-allowed disabled:border-transparent disabled:bg-surface-muted disabled:text-text-muted',
       this.error()
         ? 'border-danger/55 hover:border-danger/70 focus:border-danger focus-visible:ring-danger/12'
-        : 'hover:border-black/12 hover:bg-white focus:border-primary',
+        : 'hover:border-primary/24 hover:bg-white focus:border-primary',
     ),
   );
 
