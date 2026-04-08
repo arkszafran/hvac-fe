@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 
 import { classNames } from '../utils/classnames';
 
-type UiBadgeVariant = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
+export type UiBadgeVariant = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 
 const VARIANT_CLASSES: Record<UiBadgeVariant, string> = {
   neutral: 'border border-black/6 bg-white/78 text-text-main backdrop-blur-xl',
