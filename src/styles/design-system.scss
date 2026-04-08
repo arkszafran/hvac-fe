@@ -1,0 +1,200 @@
+@theme {
+  --font-sans: 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+
+  --color-background: oklch(0.983 0.003 264);
+  --color-surface: oklch(0.998 0.001 264);
+  --color-surface-muted: oklch(0.973 0.004 264);
+  --color-text-main: oklch(0.255 0.01 264);
+  --color-text-muted: oklch(0.557 0.012 264);
+  --color-border: oklch(0.904 0.006 264);
+
+  --color-primary: oklch(0.6 0.168 258);
+  --color-primary-strong: oklch(0.556 0.171 258);
+  --color-primary-soft: oklch(0.953 0.024 258);
+
+  --color-accent: oklch(0.627 0.144 240);
+  --color-accent-strong: oklch(0.575 0.15 240);
+  --color-accent-soft: oklch(0.948 0.022 240);
+
+  --color-success: oklch(0.69 0.108 161);
+  --color-success-soft: oklch(0.964 0.026 161);
+  --color-warning: oklch(0.799 0.102 74);
+  --color-warning-soft: oklch(0.974 0.026 74);
+  --color-danger: oklch(0.636 0.17 25);
+  --color-danger-soft: oklch(0.963 0.032 25);
+  --color-info: oklch(0.647 0.117 245);
+  --color-info-soft: oklch(0.958 0.021 245);
+
+  --text-display: 1.875rem;
+  --text-display--line-height: 2.25rem;
+  --text-display--font-weight: 600;
+
+  --text-h1: 1.5rem;
+  --text-h1--line-height: 2rem;
+  --text-h1--font-weight: 600;
+
+  --text-h2: 1.25rem;
+  --text-h2--line-height: 1.75rem;
+  --text-h2--font-weight: 600;
+
+  --text-h3: 1.125rem;
+  --text-h3--line-height: 1.5rem;
+  --text-h3--font-weight: 600;
+
+  --text-body-lg: 1rem;
+  --text-body-lg--line-height: 1.625rem;
+  --text-body-lg--font-weight: 500;
+
+  --text-body: 0.875rem;
+  --text-body--line-height: 1.5rem;
+  --text-body--font-weight: 400;
+
+  --text-small: 0.75rem;
+  --text-small--line-height: 1.125rem;
+  --text-small--font-weight: 400;
+
+  --text-label: 0.875rem;
+  --text-label--line-height: 1.25rem;
+  --text-label--font-weight: 500;
+
+  --radius-xl: 1.125rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 1.75rem;
+
+  --shadow-card:
+    0 24px 60px -36px rgb(15 23 42 / 0.24), 0 8px 18px -14px rgb(15 23 42 / 0.14),
+    inset 0 1px 0 rgb(255 255 255 / 0.72);
+  --shadow-floating:
+    0 34px 90px -42px rgb(15 23 42 / 0.3), 0 14px 32px -24px rgb(15 23 42 / 0.18),
+    inset 0 1px 0 rgb(255 255 255 / 0.72);
+
+  --spacing-18: 4.5rem;
+  --spacing-22: 5.5rem;
+  --spacing-26: 6.5rem;
+
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 64rem;
+}
+
+@keyframes ui-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ui-modal-pop {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes ui-sheet-up {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ui-drawer-in {
+  from {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    @apply scroll-smooth bg-background;
+  }
+
+  body {
+    @apply min-h-screen bg-background font-sans text-body text-text-main antialiased;
+    background-image:
+      radial-gradient(circle at top, rgb(255 255 255 / 0.92), transparent 32%),
+      radial-gradient(circle at 85% 10%, rgb(126 166 255 / 0.1), transparent 24%),
+      linear-gradient(180deg, #fbfbfd 0%, #f5f7fb 42%, #eef2f8 100%);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-primary), white 70%);
+    color: var(--color-text-main);
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']),
+  a[href],
+  summary {
+    cursor: pointer;
+  }
+}
+
+@layer components {
+  .ui-page {
+    background:
+      radial-gradient(circle at top, rgb(255 255 255 / 0.85), transparent 22%),
+      radial-gradient(circle at 100% 0%, rgb(97 146 255 / 0.12), transparent 24%);
+  }
+
+  .ui-shell {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .ui-panel {
+    @apply rounded-[1.75rem] border border-white/70 bg-white/72 shadow-card backdrop-blur-xl;
+  }
+
+  .ui-focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-primary/18 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent;
+  }
+
+  .ui-kicker {
+    @apply text-[11px]/5 font-semibold uppercase tracking-[0.22em] text-text-muted;
+  }
+
+  .ui-code {
+    @apply overflow-x-auto rounded-[1.35rem] border border-slate-800/90 bg-slate-950 px-4 py-3 text-[13px]/6 text-slate-100;
+  }
+
+  .ui-demo-grid {
+    @apply grid gap-5 lg:grid-cols-2;
+  }
+
+  .ui-form-stack {
+    @apply grid gap-5;
+  }
+}

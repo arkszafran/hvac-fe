@@ -1,0 +1,17 @@
+# .codex/config.toml
+
+# Ogranicz pracę do workspace projektu
+sandbox_mode = "workspace-write"
+
+# Każde wyjście poza bezpieczny zakres ma wymagać zgody
+approval_policy = "on-request"
+
+# Twardo potraktuj bieżący katalog jako root projektu,
+# zamiast szukać wyżej po parentach
+project_root_markers = []
+
+# Opcjonalne utwardzenie
+allow_login_shell = false
+
+# Nie włączaj dodatkowych katalogów ani full access
+# nie używaj też --add-dir ani --yolo przy uruchamianiu

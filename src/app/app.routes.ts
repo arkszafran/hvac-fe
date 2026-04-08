@@ -1,3 +1,61 @@
 import { Routes } from '@angular/router';
 
-export const routes: Routes = [];
+import { AppShellComponent } from './layout/app-shell/app-shell.component';
+
+export const routes: Routes = [
+  {
+    path: '',
+    component: AppShellComponent,
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'dashboard',
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./pages/dashboard/dashboard.page').then(
+            (module) => module.DashboardPageComponent,
+          ),
+      },
+      {
+        path: 'customers',
+        loadComponent: () =>
+          import('./pages/customers/customers.page').then(
+            (module) => module.CustomersPageComponent,
+          ),
+      },
+      {
+        path: 'requests',
+        loadComponent: () =>
+          import('./pages/requests/requests.page').then(
+            (module) => module.RequestsPageComponent,
+          ),
+      },
+      {
+        path: 'reviews',
+        loadComponent: () =>
+          import('./pages/reviews/reviews.page').then((module) => module.ReviewsPageComponent),
+      },
+      {
+        path: 'settings',
+        loadComponent: () =>
+          import('./pages/settings/settings.page').then(
+            (module) => module.SettingsPageComponent,
+          ),
+      },
+    ],
+  },
+  {
+    path: 'style-guide',
+    loadComponent: () =>
+      import('./pages/style-guide/style-guide.page').then(
+        (module) => module.StyleGuidePageComponent,
+      ),
+  },
+  {
+    path: '**',
+    redirectTo: '',
+  },
+];
