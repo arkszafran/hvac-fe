@@ -40,14 +40,6 @@ const MOBILE_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
   template: `
     <div class="overflow-hidden rounded-[1.6rem] border border-black/6 bg-white/84 shadow-card">
       @if (hasRows()) {
-        <div
-          class="border-b border-black/5 bg-[linear-gradient(180deg,_rgb(255_255_255/0.96),_rgb(247_249_252/0.9))] px-4 py-3.5 sm:px-5 md:hidden"
-        >
-          <p class="text-small text-text-muted">
-            {{ data().length }} {{ data().length === 1 ? 'rekord' : 'rekordy' }}
-          </p>
-        </div>
-
         <div class="md:hidden">
           @for (row of data(); track trackRow($index, row)) {
             <article class="border-b border-black/5 px-4 py-4 last:border-b-0 sm:px-5">
@@ -100,7 +92,7 @@ const MOBILE_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
               </tr>
             </thead>
 
-            <tbody>
+            <tbody class="[&_tr:last-child_td]:border-b-0">
               @for (row of data(); track trackRow($index, row)) {
                 <tr class="transition duration-200 hover:bg-[rgb(250_252_255/0.95)]">
                   @for (column of columns(); track column.id) {
