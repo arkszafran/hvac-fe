@@ -48,13 +48,27 @@
     </div>
 
     <div class="grid gap-4 sm:grid-cols-2">
-      <ui-input label="Data uruchomienia" type="date" formControlName="installationDate" />
-
       <ui-input
-        label="Termin następnego przeglądu"
+        label="Data uruchomienia"
         type="date"
-        formControlName="nextInspectionDate"
+        [required]="requiresInstallationDate()"
+        [error]="validationError('installationDate')"
+        formControlName="installationDate"
       />
+
+      <ui-select
+        label="Gwarancja"
+        [options]="deviceWarrantyMonthOptions"
+        formControlName="warrantyMonths"
+      />
+
+      <div class="sm:col-span-2">
+        <ui-input
+          label="Termin następnego przeglądu"
+          type="date"
+          formControlName="nextInspectionDate"
+        />
+      </div>
     </div>
 
     <div class="grid gap-4 sm:grid-cols-2">

@@ -1,7 +1,7 @@
 <ui-modal
   [open]="open()"
-  title="Dodaj klienta"
-  description="Utwórz nowy profil klienta i od razu przejdź do widoku z jego urządzeniami."
+  [title]="modalTitle()"
+  [description]="modalDescription()"
   (close)="handleClose()"
 >
   <form class="ui-form-stack" [formGroup]="form">
@@ -44,25 +44,23 @@
       formControlName="fullName"
     />
 
-    <div class="grid gap-4 sm:grid-cols-2">
-      <ui-input
-        label="Telefon"
-        required
-        type="tel"
-        placeholder="+48 500 000 000"
-        [error]="validationError('phone')"
-        formControlName="phone"
-      />
+    <ui-input
+      label="Telefon"
+      required
+      type="tel"
+      placeholder="+48 500 000 000"
+      [error]="validationError('phone')"
+      formControlName="phone"
+    />
 
-      <ui-input
-        label="Email"
-        required
-        type="email"
-        placeholder="anna@firma.pl"
-        [error]="validationError('email')"
-        formControlName="email"
-      />
-    </div>
+    <ui-input
+      label="Email"
+      required
+      type="email"
+      placeholder="anna@firma.pl"
+      [error]="validationError('email')"
+      formControlName="email"
+    />
 
     <ui-input
       label="Adres"
@@ -95,6 +93,8 @@
     <ui-button type="button" variant="ghost" [block]="true" (pressed)="handleClose()">
       Anuluj
     </ui-button>
-    <ui-button type="button" [block]="true" (pressed)="handleSubmit()">Zapisz klienta</ui-button>
+    <ui-button type="button" [block]="true" (pressed)="handleSubmit()">
+      {{ submitLabel() }}
+    </ui-button>
   </div>
 </ui-modal>

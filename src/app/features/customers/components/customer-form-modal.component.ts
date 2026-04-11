@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { UiButtonComponent, UiInputComponent, UiModalComponent } from '../../../ui';
@@ -21,6 +21,12 @@ export class CustomerFormModalComponent {
   private readonly formBuilder = inject(FormBuilder);
 
   readonly open = input(false);
+  readonly initialValue = input<CustomerDraft | null>(null);
+  readonly modalTitle = input('Dodaj klienta');
+  readonly modalDescription = input(
+    'Utwórz nowy profil klienta i od razu przejdź do widoku z jego urządzeniami.',
+  );
+  readonly submitLabel = input('Zapisz klienta');
 
   readonly close = output<void>();
   readonly save = output<CustomerDraft>();
@@ -50,8 +56,16 @@ export class CustomerFormModalComponent {
     city: ['', Validators.required],
   });
 
+  constructor() {
+    effect(() => {
+      if (this.open()) {
+        this.resetForm(this.initialValue());
+      }
+    });
+  }
+
   protected handleClose(): void {
-    this.resetForm();
+    this.resetForm(this.initialValue());
     this.close.emit();
   }
 
@@ -69,7 +83,6 @@ export class CustomerFormModalComponent {
       ...draft,
       companyName: draft.type === 'company' ? draft.companyName : '',
     });
-    this.resetForm();
   }
 
   protected validationError(
@@ -99,8 +112,8 @@ export class CustomerFormModalComponent {
     return '';
   }
 
-  private resetForm(): void {
-    this.form.reset(createEmptyCustomerDraft());
+  private resetForm(initialValue: CustomerDraft | null = null): void {
+    this.form.reset(initialValue ?? createEmptyCustomerDraft());
     this.submitAttempted = false;
   }
 }

@@ -256,6 +256,7 @@ export class DeviceDetailViewComponent {
       model: device.model,
       serialNumber: device.serialNumber,
       installationDate: device.installationDate,
+      warrantyMonths: device.warrantyMonths,
       nextInspectionDate: device.nextInspectionDate,
       note: device.note,
       refrigerant: device.refrigerant,
@@ -287,6 +288,10 @@ export class DeviceDetailViewComponent {
       {
         label: 'Data uruchomienia',
         value: this.formatDate(device.installationDate),
+      },
+      {
+        label: 'Gwarancja do',
+        value: this.formatDate(device.warrantyUntil),
       },
       {
         label: 'Numer seryjny',

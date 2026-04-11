@@ -1,28 +1,27 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 
-import {
-  UiButtonComponent,
-  UiCardComponent,
-  UiEmptyStateComponent,
-} from '../../ui';
-import { DeviceListComponent } from './components/device-list.component';
+import { UiButtonComponent, UiCardComponent, UiEmptyStateComponent } from '../../ui';
+import { CustomerFormModalComponent } from './components/customer-form-modal.component';
 import { DeviceFormModalComponent } from './components/device-form-modal.component';
+import { DeviceListComponent } from './components/device-list.component';
 import { CustomersStore } from './data/customers.store';
-import { Customer } from './models/customer.model';
+import { Customer, CustomerDraft } from './models/customer.model';
 import { Device, DeviceDraft } from './models/device.model';
 
 @Component({
   selector: 'app-customer-detail-view',
   standalone: true,
   imports: [
+    RouterLink,
     UiButtonComponent,
     UiCardComponent,
     UiEmptyStateComponent,
-    DeviceListComponent,
+    CustomerFormModalComponent,
     DeviceFormModalComponent,
+    DeviceListComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -30,6 +29,17 @@ import { Device, DeviceDraft } from './models/device.model';
       @if (customer(); as customer) {
         <section class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div class="space-y-1">
+            <nav class="flex flex-wrap items-center gap-2 text-[13px]/5 font-semibold text-text-muted">
+              <a
+                routerLink="/customers"
+                class="text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
+              >
+                Lista klientów
+              </a>
+              <span aria-hidden="true">/</span>
+              <span class="text-text-main">Klient: {{ customerTitle(customer) }}</span>
+            </nav>
+
             <h1 class="text-display tracking-[-0.04em] text-text-main">
               {{ customerTitle(customer) }}
             </h1>
@@ -37,22 +47,8 @@ import { Device, DeviceDraft } from './models/device.model';
           </div>
 
           <div class="flex flex-wrap items-center gap-3">
-            <ui-button variant="secondary" size="sm" (pressed)="navigateToCustomers()">
-              Wróć do listy
-            </ui-button>
-
-            <ui-button size="sm" (pressed)="isDeviceModalOpen.set(true)">
-              <span button-icon>
-                <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-                  <path
-                    d="M10 4.5V15.5M4.5 10H15.5"
-                    stroke="currentColor"
-                    stroke-width="1.7"
-                    stroke-linecap="round"
-                  />
-                </svg>
-              </span>
-              Dodaj urządzenie
+            <ui-button size="sm" (pressed)="isEditCustomerModalOpen.set(true)">
+              Edytuj klienta
             </ui-button>
           </div>
         </section>
@@ -88,7 +84,7 @@ import { Device, DeviceDraft } from './models/device.model';
             >
               <h2 class="text-h3 tracking-[-0.02em] text-text-main">Urządzenia</h2>
 
-              <ui-button variant="secondary" size="sm" (pressed)="isDeviceModalOpen.set(true)">
+              <ui-button variant="secondary" size="sm" (pressed)="isAddDeviceModalOpen.set(true)">
                 Dodaj urządzenie
               </ui-button>
             </div>
@@ -97,22 +93,42 @@ import { Device, DeviceDraft } from './models/device.model';
               <app-device-list
                 [devices]="customer.devices"
                 (deviceSelected)="handleDeviceSelected(customer.id, $event)"
+                (deviceEditRequested)="handleEditDevice($event)"
               />
             } @else {
               <ui-empty-state
                 title="Brak urządzeń"
                 description=""
                 actionLabel="Dodaj urządzenie"
-                (action)="isDeviceModalOpen.set(true)"
+                (action)="isAddDeviceModalOpen.set(true)"
               />
             }
           </ui-card>
         </div>
 
+        <app-customer-form-modal
+          [open]="isEditCustomerModalOpen()"
+          [initialValue]="editableCustomerDraft()"
+          modalTitle="Edytuj klienta"
+          modalDescription="Zaktualizuj dane klienta bez opuszczania widoku szczegółów."
+          submitLabel="Zapisz zmiany"
+          (close)="isEditCustomerModalOpen.set(false)"
+          (save)="handleUpdateCustomer($event)"
+        />
+
         <app-device-form-modal
-          [open]="isDeviceModalOpen()"
-          (close)="isDeviceModalOpen.set(false)"
+          [open]="isAddDeviceModalOpen()"
+          (close)="isAddDeviceModalOpen.set(false)"
           (save)="handleAddDevice($event)"
+        />
+
+        <app-device-form-modal
+          [open]="isEditDeviceModalOpen()"
+          [initialValue]="editableDeviceDraft()"
+          modalTitle="Edytuj urządzenie"
+          submitLabel="Zapisz zmiany"
+          (close)="closeEditDeviceModal()"
+          (save)="handleUpdateDevice($event)"
         />
       } @else {
         <ui-empty-state
@@ -130,7 +146,10 @@ export class CustomerDetailViewComponent {
   private readonly router = inject(Router);
   private readonly customersStore = inject(CustomersStore);
 
-  protected readonly isDeviceModalOpen = signal(false);
+  protected readonly isEditCustomerModalOpen = signal(false);
+  protected readonly isAddDeviceModalOpen = signal(false);
+  protected readonly isEditDeviceModalOpen = signal(false);
+  protected readonly editingDeviceId = signal<string | null>(null);
   protected readonly customerId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
     {
@@ -141,6 +160,57 @@ export class CustomerDetailViewComponent {
   protected readonly customer = computed(() =>
     this.customersStore.getCustomerById(this.customerId()),
   );
+  protected readonly editableCustomerDraft = computed<CustomerDraft | null>(() => {
+    const customer = this.customer();
+
+    if (!customer) {
+      return null;
+    }
+
+    return {
+      type: customer.type,
+      companyName: customer.companyName,
+      fullName: customer.fullName,
+      phone: customer.phone,
+      email: customer.email,
+      address: customer.address,
+      postalCode: customer.postalCode,
+      city: customer.city,
+    };
+  });
+  protected readonly editableDeviceDraft = computed<DeviceDraft | null>(() => {
+    const customer = this.customer();
+    const editingDeviceId = this.editingDeviceId();
+
+    if (!customer || !editingDeviceId) {
+      return null;
+    }
+
+    const device = customer.devices.find((item) => item.id === editingDeviceId);
+
+    if (!device) {
+      return null;
+    }
+
+    return {
+      type: device.type,
+      brand: device.brand,
+      model: device.model,
+      serialNumber: device.serialNumber,
+      installationDate: device.installationDate,
+      warrantyMonths: device.warrantyMonths,
+      nextInspectionDate: device.nextInspectionDate,
+      note: device.note,
+      refrigerant: device.refrigerant,
+      refrigerantAmount: device.refrigerantAmount,
+      location: device.location,
+      hasCustomInstallationAddress: device.hasCustomInstallationAddress,
+      address: device.address,
+      postalCode: device.postalCode,
+      city: device.city,
+      serviceHistory: [...device.serviceHistory],
+    };
+  });
 
   protected customerTitle(customer: Customer): string {
     return customer.companyName || customer.fullName || 'Nowy klient';
@@ -152,6 +222,17 @@ export class CustomerDetailViewComponent {
     const contactLabel = customer.fullName || 'Brak osoby kontaktowej';
 
     return `${customerTypeLabel} - ${contactLabel}`;
+  }
+
+  protected handleUpdateCustomer(customerDraft: CustomerDraft): void {
+    const customer = this.customer();
+
+    if (!customer) {
+      return;
+    }
+
+    this.customersStore.updateCustomer(customer.id, customerDraft);
+    this.isEditCustomerModalOpen.set(false);
   }
 
   protected navigateToCustomers(): void {
@@ -166,10 +247,32 @@ export class CustomerDetailViewComponent {
     }
 
     this.customersStore.addDevice(customer.id, device);
-    this.isDeviceModalOpen.set(false);
+    this.isAddDeviceModalOpen.set(false);
+  }
+
+  protected handleEditDevice(device: Device): void {
+    this.editingDeviceId.set(device.id);
+    this.isEditDeviceModalOpen.set(true);
+  }
+
+  protected handleUpdateDevice(deviceDraft: DeviceDraft): void {
+    const customer = this.customer();
+    const editingDeviceId = this.editingDeviceId();
+
+    if (!customer || !editingDeviceId) {
+      return;
+    }
+
+    this.customersStore.updateDevice(customer.id, editingDeviceId, deviceDraft);
+    this.closeEditDeviceModal();
   }
 
   protected handleDeviceSelected(customerId: string, device: Device): void {
     void this.router.navigate(['/customers', customerId, 'devices', device.id]);
+  }
+
+  protected closeEditDeviceModal(): void {
+    this.isEditDeviceModalOpen.set(false);
+    this.editingDeviceId.set(null);
   }
 }

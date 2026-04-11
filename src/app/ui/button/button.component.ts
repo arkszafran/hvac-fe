@@ -19,7 +19,7 @@ const VARIANT_CLASSES: Record<UiButtonVariant, string> = {
   secondary:
     'border border-border/90 bg-white text-text-main shadow-[0_14px_26px_-24px_rgb(15_23_42/0.38)] backdrop-blur-xl hover:-translate-y-0.5 hover:border-primary/22 hover:bg-primary-soft/45 hover:text-primary-strong active:translate-y-0 active:bg-primary-soft/60',
   ghost:
-    'border border-transparent bg-transparent text-text-main hover:bg-primary-soft/52 hover:text-primary-strong active:bg-primary-soft/64',
+    'border border-border/75 bg-[linear-gradient(180deg,_rgb(248_250_252/0.96)_0%,_rgb(241_245_249/0.86)_100%)] text-text-main shadow-[0_12px_24px_-24px_rgb(15_23_42/0.48)] hover:-translate-y-0.5 hover:border-primary/18 hover:bg-primary-soft/58 hover:text-primary-strong active:translate-y-0 active:bg-primary-soft/68',
   danger:
     'border border-danger/80 bg-[linear-gradient(180deg,_color-mix(in_oklab,var(--color-danger),white_10%)_0%,_var(--color-danger)_100%)] text-white shadow-[0_20px_38px_-24px_rgb(170_40_40/0.45)] hover:-translate-y-0.5 hover:brightness-[1.04] active:translate-y-0 active:scale-[0.985] disabled:border-danger/35 disabled:bg-danger/60',
 };

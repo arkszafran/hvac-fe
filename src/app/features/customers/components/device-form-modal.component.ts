@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output } from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
@@ -13,6 +13,7 @@ import {
   createEmptyDeviceDraft,
   DeviceDraft,
   DEVICE_TYPE_OPTIONS,
+  DEVICE_WARRANTY_MONTH_OPTIONS,
 } from '../models/device.model';
 
 const TEXTAREA_CLASSES =
@@ -48,12 +49,14 @@ export class DeviceFormModalComponent {
   protected readonly textareaClasses = TEXTAREA_CLASSES;
   protected readonly deviceBrandOptions = DEVICE_BRAND_OPTIONS;
   protected readonly deviceTypeOptions = DEVICE_TYPE_OPTIONS;
+  protected readonly deviceWarrantyMonthOptions = DEVICE_WARRANTY_MONTH_OPTIONS;
   protected readonly form = this.formBuilder.nonNullable.group({
     type: ['', Validators.required],
     brand: ['', Validators.required],
     model: ['', Validators.required],
     serialNumber: '',
     installationDate: '',
+    warrantyMonths: '0',
     nextInspectionDate: '',
     note: '',
     refrigerant: '',
@@ -69,6 +72,10 @@ export class DeviceFormModalComponent {
     this.form.controls.hasCustomInstallationAddress.valueChanges,
     { initialValue: this.form.controls.hasCustomInstallationAddress.value },
   );
+  protected readonly warrantyMonths = toSignal(this.form.controls.warrantyMonths.valueChanges, {
+    initialValue: this.form.controls.warrantyMonths.value,
+  });
+  protected readonly requiresInstallationDate = computed(() => Number(this.warrantyMonths()) > 0);
 
   constructor() {
     this.form.controls.hasCustomInstallationAddress.valueChanges
@@ -82,6 +89,14 @@ export class DeviceFormModalComponent {
           });
         }
       });
+
+    this.form.controls.warrantyMonths.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((warrantyMonths) => {
+        this.syncInstallationDateValidator(warrantyMonths);
+      });
+
+    this.syncInstallationDateValidator(this.form.controls.warrantyMonths.value);
 
     effect(() => {
       if (this.open()) {
@@ -106,12 +121,13 @@ export class DeviceFormModalComponent {
     const draft: DeviceDraft = {
       ...this.form.getRawValue(),
       type: this.form.controls.type.getRawValue() as DeviceDraft['type'],
+      warrantyMonths: Number(this.form.controls.warrantyMonths.getRawValue()),
     };
 
     this.save.emit(draft);
   }
 
-  protected validationError(field: 'type' | 'brand' | 'model'): string {
+  protected validationError(field: 'type' | 'brand' | 'model' | 'installationDate'): string {
     const control = this.form.controls[field];
 
     if (!control.invalid || (!this.submitAttempted && !control.touched)) {
@@ -121,6 +137,10 @@ export class DeviceFormModalComponent {
     if (control.hasError('required')) {
       if (field === 'type') {
         return 'Typ urządzenia jest wymagany.';
+      }
+
+      if (field === 'installationDate') {
+        return 'Data uruchomienia jest wymagana, gdy wybrano gwarancję.';
       }
 
       return field === 'brand' ? 'Marka jest wymagana.' : 'Model jest wymagany.';
@@ -138,7 +158,18 @@ export class DeviceFormModalComponent {
         }
       : createEmptyDeviceDraft();
 
-    this.form.reset(draft);
+    this.form.reset({
+      ...draft,
+      warrantyMonths: draft.warrantyMonths.toString(),
+    });
+    this.syncInstallationDateValidator(this.form.controls.warrantyMonths.getRawValue());
     this.submitAttempted = false;
+  }
+
+  private syncInstallationDateValidator(warrantyMonths: string): void {
+    this.form.controls.installationDate.setValidators(
+      Number(warrantyMonths) > 0 ? Validators.required : null,
+    );
+    this.form.controls.installationDate.updateValueAndValidity({ emitEvent: false });
   }
 }
