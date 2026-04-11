@@ -1,0 +1,128 @@
+<ui-modal
+  [open]="open()"
+  [title]="modalTitle()"
+  [description]="modalDescription()"
+  (close)="handleClose()"
+>
+  <form class="ui-form-stack" [formGroup]="form">
+    <ui-select
+      label="Typ urządzenia"
+      placeholder="Wybierz typ urządzenia"
+      [options]="deviceTypeOptions"
+      required
+      [error]="validationError('type')"
+      formControlName="type"
+    />
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <ui-select
+        label="Marka"
+        placeholder="Wybierz markę"
+        required
+        [options]="deviceBrandOptions"
+        [error]="validationError('brand')"
+        formControlName="brand"
+      />
+
+      <ui-input
+        label="Model"
+        required
+        placeholder="np. Stylish FTXA35"
+        [error]="validationError('model')"
+        formControlName="model"
+      />
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <ui-input
+        label="Numer seryjny"
+        placeholder="np. SN-45812"
+        formControlName="serialNumber"
+      />
+
+      <ui-input
+        label="Miejsce montażu"
+        placeholder="np. Salon"
+        formControlName="location"
+      />
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <ui-input label="Data uruchomienia" type="date" formControlName="installationDate" />
+
+      <ui-input
+        label="Termin następnego przeglądu"
+        type="date"
+        formControlName="nextInspectionDate"
+      />
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <ui-input label="Czynnik" placeholder="np. R32" formControlName="refrigerant" />
+
+      <ui-input
+        label="Ilość czynnika"
+        placeholder="np. 1.4 kg"
+        formControlName="refrigerantAmount"
+      />
+    </div>
+
+    <div class="space-y-2.5">
+      <label
+        class="flex cursor-pointer items-start gap-3 rounded-[1.05rem] border border-border/90 bg-white px-4 py-3 transition hover:border-primary/28 hover:bg-primary-soft/24"
+      >
+        <input
+          type="checkbox"
+          formControlName="hasCustomInstallationAddress"
+          class="mt-1 size-4 shrink-0 rounded border-border accent-[var(--color-primary)]"
+        />
+
+        <span class="min-w-0">
+          <span class="block text-label text-text-main">
+            To urządzenie ma inny adres instalacji niż adres klienta
+          </span>
+          <span class="block text-small text-text-muted">
+            Zaznacz, jeśli instalacja jest w innym lokalu, budynku albo mieszkaniu.
+          </span>
+        </span>
+      </label>
+    </div>
+
+    @if (hasCustomInstallationAddress()) {
+      <ui-input
+        label="Adres instalacji"
+        placeholder="ul. Montażowa 7"
+        formControlName="address"
+      />
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <ui-input label="Kod pocztowy" placeholder="00-000" formControlName="postalCode" />
+
+        <ui-input label="Miasto" placeholder="Warszawa" formControlName="city" />
+      </div>
+    }
+
+    <div class="space-y-2.5">
+      <label
+        class="flex items-center gap-1 text-[13px]/5 font-semibold tracking-[-0.01em] text-text-main"
+      >
+        <span>Notatka</span>
+      </label>
+
+      <textarea
+        formControlName="note"
+        placeholder="Np. Jednostka przy salonie, dostęp od strony tarasu."
+        [class]="textareaClasses"
+      ></textarea>
+    </div>
+  </form>
+
+  <div modal-footer class="grid grid-cols-2 gap-3 sm:flex sm:justify-end">
+    <ui-button type="button" variant="ghost" [block]="true" (pressed)="handleClose()">
+      Anuluj
+    </ui-button>
+    <ui-button type="button" [block]="true" (pressed)="handleSubmit()">
+      {{ submitLabel() }}
+    </ui-button>
+  </div>
+</ui-modal>

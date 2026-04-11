@@ -1,9 +1,11 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   booleanAttribute,
   computed,
   forwardRef,
+  inject,
   input,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
@@ -95,9 +97,11 @@ let nextSelectId = 0;
   `,
 })
 export class UiSelectComponent implements ControlValueAccessor {
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+
   readonly inputId = input(`ui-select-${++nextSelectId}`);
   readonly label = input('');
-  readonly placeholder = input('Wybierz opcje');
+  readonly placeholder = input('Wybierz opcję');
   readonly hint = input('');
   readonly error = input('');
   readonly name = input('');
@@ -135,6 +139,7 @@ export class UiSelectComponent implements ControlValueAccessor {
 
   writeValue(value: string | null): void {
     this.value = value ?? '';
+    this.changeDetectorRef.markForCheck();
   }
 
   registerOnChange(fn: (value: string) => void): void {
@@ -147,6 +152,7 @@ export class UiSelectComponent implements ControlValueAccessor {
 
   setDisabledState(isDisabled: boolean): void {
     this.disabledByForms = isDisabled;
+    this.changeDetectorRef.markForCheck();
   }
 
   protected handleChange(event: Event): void {

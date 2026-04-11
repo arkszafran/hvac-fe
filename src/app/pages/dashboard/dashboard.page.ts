@@ -11,9 +11,9 @@ import { AppPlaceholderPageComponent } from '../shared/placeholder-page.componen
     <app-placeholder-page
       eyebrow="Start pracy"
       title="Dashboard"
-      description="Lekki ekran startowy pod codzienna prace firmy HVAC. Na tym etapie zostawiamy tylko czytelny szkielet i miejsce na przyszle widzety."
+      description="Lekki ekran startowy pod codzienną pracę firmy HVAC. Na tym etapie zostawiamy tylko czytelny szkielet i miejsce na przyszłe widżety."
       emptyTitle="Dashboard czeka na pierwsze widoki"
-      emptyDescription="Tu pojawia sie pozniej podsumowanie dnia, szybkie akcje i najwazniejsze statusy zespolu."
+      emptyDescription="Tu pojawi się później podsumowanie dnia, szybkie akcje i najważniejsze statusy zespołu."
       actionLabel="Dodaj widgety"
       [checklist]="checklist"
     />
@@ -21,8 +21,8 @@ import { AppPlaceholderPageComponent } from '../shared/placeholder-page.componen
 })
 export class DashboardPageComponent {
   protected readonly checklist = [
-    'naglowek sekcji gotowy pod KPI i szybkie akcje',
-    'obszar glownej zawartosci przygotowany pod widgety',
+    'nagłówek sekcji gotowy pod KPI i szybkie akcje',
+    'obszar głównej zawartości przygotowany pod widgety',
     'placeholder bez danych biznesowych i bez logiki backendowej',
   ];
 }

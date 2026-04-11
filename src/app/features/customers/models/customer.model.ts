@@ -1,3 +1,5 @@
+import { Device } from './device.model';
+
 export type CustomerType = 'company' | 'individual';
 
 export interface Customer {
@@ -10,4 +12,20 @@ export interface Customer {
   address: string;
   postalCode: string;
   city: string;
+  devices: Device[];
+}
+
+export type CustomerDraft = Omit<Customer, 'id' | 'devices'>;
+
+export function createEmptyCustomerDraft(): CustomerDraft {
+  return {
+    type: 'individual',
+    companyName: '',
+    fullName: '',
+    phone: '',
+    email: '',
+    address: '',
+    postalCode: '',
+    city: '',
+  };
 }

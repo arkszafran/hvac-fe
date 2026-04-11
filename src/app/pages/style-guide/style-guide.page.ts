@@ -52,30 +52,30 @@ interface StyleGuideJobRow {
 })
 export class StyleGuidePageComponent {
   protected readonly swatches = [
-    { name: 'Background', note: 'Chlodne, czyste tlo aplikacji', color: 'var(--color-background)' },
-    { name: 'Surface', note: 'Sekcje, karty i nakladki', color: 'var(--color-surface)' },
-    { name: 'Primary', note: 'Glowny CTA w chlodnym granacie', color: 'var(--color-primary)' },
-    { name: 'Accent', note: 'Pomaranczowy akcent dla priorytetow', color: 'var(--color-accent)' },
+    { name: 'Background', note: 'Chłodne, czyste tło aplikacji', color: 'var(--color-background)' },
+    { name: 'Surface', note: 'Sekcje, karty i nakładki', color: 'var(--color-surface)' },
+    { name: 'Primary', note: 'Główny CTA w chłodnym granacie', color: 'var(--color-primary)' },
+    { name: 'Accent', note: 'Pomarańczowy akcent dla priorytetów', color: 'var(--color-accent)' },
     { name: 'Text Main', note: 'Mocniejsza hierarchia typografii', color: 'var(--color-text-main)' },
-    { name: 'Border', note: 'Czytelniejszy podzial sekcji', color: 'var(--color-border)' },
+    { name: 'Border', note: 'Czytelniejszy podział sekcji', color: 'var(--color-border)' },
   ];
 
   protected readonly tabs: UiTabItem[] = [
-    { id: 'overview', label: 'Przeglad', count: 12 },
+    { id: 'overview', label: 'Przegląd', count: 12 },
     { id: 'schedule', label: 'Harmonogram', count: 7 },
     { id: 'billing', label: 'Rozliczenia', count: 3 },
   ];
 
   protected readonly visitTypeOptions: UiSelectOption[] = [
     { value: 'serwis', label: 'Serwis' },
-    { value: 'przeglad', label: 'Przeglad okresowy' },
-    { value: 'montaz', label: 'Montaz' },
+    { value: 'przeglad', label: 'Przegląd okresowy' },
+    { value: 'montaz', label: 'Montaż' },
   ];
 
   protected readonly regionOptions: UiSelectOption[] = [
     { value: 'warszawa', label: 'Warszawa' },
-    { value: 'lodz', label: 'Lodz' },
-    { value: 'krakow', label: 'Krakow' },
+    { value: 'lodz', label: 'Łódź' },
+    { value: 'krakow', label: 'Kraków' },
   ];
 
   protected readonly jobsTableColumns: UiTableColumn<StyleGuideJobRow>[] = [
@@ -128,45 +128,45 @@ export class StyleGuidePageComponent {
       id: 'job-01',
       client: 'Atrium One',
       location: 'Warszawa, ul. Prosta 18',
-      service: 'Przeglad VRF i czyszczenie jednostek',
+      service: 'Przegląd VRF i czyszczenie jednostek',
       schedule: '08 kwi, 08:30',
-      scheduleNote: '2 technikow, wejscie od recepcji',
+      scheduleNote: '2 techników, wejście od recepcji',
       technician: 'M. Kurek',
       status: 'Zaplanowane',
-      amount: '2 480 zl',
+      amount: '2 480 zł',
     },
     {
       id: 'job-02',
       client: 'Skylab Logistics',
-      location: 'Lodz, ul. Sanitariuszek 72',
+      location: 'Łódź, ul. Sanitariuszek 72',
       service: 'Diagnostyka centrali nawiewnej',
       schedule: '08 kwi, 11:00',
       scheduleNote: 'Priorytet SLA 4h',
       technician: 'A. Maj',
       status: 'W trasie',
-      amount: '1 190 zl',
+      amount: '1 190 zł',
     },
     {
       id: 'job-03',
       client: 'Blue Point Offices',
-      location: 'Krakow, ul. Lubicz 23',
-      service: 'Wymiana sterownika i test wydajnosci',
+      location: 'Kraków, ul. Lubicz 23',
+      service: 'Wymiana sterownika i test wydajności',
       schedule: '08 kwi, 14:30',
       scheduleNote: 'Wymagana akceptacja administratora',
       technician: 'K. Wrona',
       status: 'Oczekuje',
-      amount: '3 760 zl',
+      amount: '3 760 zł',
     },
     {
       id: 'job-04',
       client: 'NovaMed',
-      location: 'Warszawa, ul. Woloska 9',
-      service: 'Kalibracja czujnikow i raport powykonawczy',
+      location: 'Warszawa, ul. Wołoska 9',
+      service: 'Kalibracja czujników i raport powykonawczy',
       schedule: '09 kwi, 09:15',
       scheduleNote: 'Dokumentacja dla audytu',
       technician: 'P. Zawada',
-      status: 'Zakonczone',
-      amount: '980 zl',
+      status: 'Zakończone',
+      amount: '980 zł',
     },
   ];
 
@@ -194,7 +194,7 @@ export class StyleGuidePageComponent {
         return 'info';
       case 'W trasie':
         return 'warning';
-      case 'Zakonczone':
+      case 'Zakończone':
         return 'success';
       default:
         return 'neutral';

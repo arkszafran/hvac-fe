@@ -11,6 +11,7 @@ export interface AppNavigationItem {
   readonly label: string;
   readonly path: string;
   readonly icon: AppNavigationIcon;
+  readonly exact?: boolean;
 }
 
 export const APP_PRODUCT_NAME = 'HAVAC';
@@ -21,25 +22,30 @@ export const APP_NAVIGATION_ITEMS: readonly AppNavigationItem[] = [
     label: 'Dashboard',
     path: '/dashboard',
     icon: 'dashboard',
+    exact: true,
   },
   {
     label: 'Klienci',
     path: '/customers',
     icon: 'customers',
+    exact: false,
   },
   {
-    label: 'Zgloszenia',
+    label: 'Zgłoszenia',
     path: '/requests',
     icon: 'requests',
+    exact: true,
   },
   {
-    label: 'Przeglady',
+    label: 'Przeglądy',
     path: '/reviews',
     icon: 'reviews',
+    exact: true,
   },
   {
     label: 'Ustawienia',
     path: '/settings',
     icon: 'settings',
+    exact: true,
   },
 ];

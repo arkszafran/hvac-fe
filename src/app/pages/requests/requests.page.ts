@@ -9,11 +9,11 @@ import { AppPlaceholderPageComponent } from '../shared/placeholder-page.componen
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-placeholder-page
-      eyebrow="Obsluga zgloszen"
-      title="Zgloszenia"
-      description="Sekcja przewidziana pod przyjmowanie nowych spraw i obsluge prac serwisowych. Na razie zostaje czysty placeholder bez danych."
-      emptyTitle="Zgloszenia sa jeszcze puste"
-      emptyDescription="Pozniej dodamy tu statusy, priorytety, terminy oraz przeplyw pracy dla technikow i biura."
+      eyebrow="Obsługa zgłoszeń"
+      title="Zgłoszenia"
+      description="Sekcja przewidziana pod przyjmowanie nowych spraw i obsługę prac serwisowych. Na razie zostaje czysty placeholder bez danych."
+      emptyTitle="Zgłoszenia są jeszcze puste"
+      emptyDescription="Później dodamy tu statusy, priorytety, terminy oraz przepływ pracy dla techników i biura."
       actionLabel="Dodaj workflow"
       [checklist]="checklist"
     />
@@ -21,8 +21,8 @@ import { AppPlaceholderPageComponent } from '../shared/placeholder-page.componen
 })
 export class RequestsPageComponent {
   protected readonly checklist = [
-    'naglowek przygotowany pod filtry statusow i priorytety',
-    'obszar listy gotowy na przyszly backlog zgloszen',
-    'mobile first layout z prostymi odstepami i czytelnym rytmem',
+    'nagłówek przygotowany pod filtry statusów i priorytety',
+    'obszar listy gotowy na przyszły backlog zgłoszeń',
+    'mobile first layout z prostymi odstępami i czytelnym rytmem',
   ];
 }

@@ -1,11 +1,16 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   HostListener,
+  OnDestroy,
+  OnInit,
   booleanAttribute,
+  inject,
   input,
   output,
 } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 
 let nextModalId = 0;
 
@@ -15,7 +20,7 @@ let nextModalId = 0;
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (open()) {
-      <div class="fixed inset-0 z-50">
+      <div class="fixed inset-0 z-[80]">
         <button
           type="button"
           aria-label="Zamknij modal"
@@ -28,11 +33,11 @@ let nextModalId = 0;
             role="dialog"
             aria-modal="true"
             [attr.aria-labelledby]="title() ? titleId : null"
-            class="relative w-full overflow-hidden rounded-t-3xl border border-border bg-surface shadow-floating motion-safe:animate-[ui-sheet-up_220ms_cubic-bezier(0.16,1,0.3,1)] md:max-w-xl md:rounded-3xl md:motion-safe:animate-[ui-modal-pop_220ms_cubic-bezier(0.16,1,0.3,1)]"
+            class="relative flex max-h-[calc(100dvh-1.5rem)] w-full flex-col overflow-hidden rounded-t-3xl border border-border bg-surface shadow-floating motion-safe:animate-[ui-sheet-up_220ms_cubic-bezier(0.16,1,0.3,1)] sm:max-h-[calc(100dvh-2rem)] md:max-h-[calc(100dvh-3rem)] md:max-w-xl md:rounded-3xl md:motion-safe:animate-[ui-modal-pop_220ms_cubic-bezier(0.16,1,0.3,1)]"
           >
             @if (title() || description()) {
               <div
-                class="flex items-start justify-between gap-4 border-b border-border px-5 py-4 sm:px-6"
+                class="shrink-0 flex items-start justify-between gap-4 border-b border-border px-5 py-4 sm:px-6"
               >
                 <div class="space-y-1">
                   @if (title()) {
@@ -65,11 +70,11 @@ let nextModalId = 0;
               </div>
             }
 
-            <div class="p-5 sm:p-6">
+            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 sm:p-6">
               <ng-content />
             </div>
 
-            <div class="empty:hidden border-t border-border px-5 py-4 sm:px-6">
+            <div class="empty:hidden shrink-0 border-t border-border px-5 py-4 sm:px-6">
               <ng-content select="[modal-footer]" />
             </div>
           </section>
@@ -78,7 +83,10 @@ let nextModalId = 0;
     }
   `,
 })
-export class UiModalComponent {
+export class UiModalComponent implements OnInit, OnDestroy {
+  private readonly document = inject(DOCUMENT);
+  private readonly hostElement = inject(ElementRef<HTMLElement>).nativeElement;
+
   readonly open = input(false, { transform: booleanAttribute });
   readonly title = input('');
   readonly description = input('');
@@ -87,6 +95,14 @@ export class UiModalComponent {
   readonly close = output<void>();
 
   protected readonly titleId = `ui-modal-title-${++nextModalId}`;
+
+  ngOnInit(): void {
+    this.document.body.appendChild(this.hostElement);
+  }
+
+  ngOnDestroy(): void {
+    this.hostElement.remove();
+  }
 
   @HostListener('document:keydown.escape')
   protected handleEscape(): void {

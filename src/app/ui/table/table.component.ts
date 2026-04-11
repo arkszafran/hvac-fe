@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  booleanAttribute,
+  computed,
+  input,
+  output,
+} from '@angular/core';
 
 import { UiBadgeComponent } from '../badge/badge.component';
 import type { UiBadgeVariant } from '../badge/badge.component';
@@ -46,7 +53,12 @@ const MOBILE_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
         <div class="md:hidden">
           @for (row of data(); track trackRow($index, row)) {
             <article
-              class="border-b border-border/80 px-4 py-4 transition-colors duration-200 last:border-b-0 hover:bg-primary-soft/28 sm:px-5"
+              [class]="mobileRowClasses()"
+              [attr.role]="rowClickable() ? 'button' : null"
+              [attr.tabindex]="rowClickable() ? '0' : null"
+              [attr.aria-label]="rowClickable() ? rowActionLabel() : null"
+              (click)="handleRowSelect(row, $event)"
+              (keydown)="handleRowKeydown($event, row)"
             >
               <div class="space-y-3">
                 @for (column of columns(); track column.id) {
@@ -105,7 +117,14 @@ const MOBILE_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
 
             <tbody class="[&_tr:last-child_td]:border-b-0">
               @for (row of data(); track trackRow($index, row)) {
-                <tr class="group/row transition duration-200">
+                <tr
+                  [class]="desktopRowClasses()"
+                  [attr.role]="rowClickable() ? 'button' : null"
+                  [attr.tabindex]="rowClickable() ? '0' : null"
+                  [attr.aria-label]="rowClickable() ? rowActionLabel() : null"
+                  (click)="handleRowSelect(row, $event)"
+                  (keydown)="handleRowKeydown($event, row)"
+                >
                   @for (column of columns(); track column.id) {
                     <td [class]="cellClasses(column)">
                       <div [class]="desktopCellContentClasses(column)">
@@ -168,10 +187,14 @@ const MOBILE_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
 export class UiTableComponent {
   readonly columns = input<UiTableColumn<any>[]>([]);
   readonly data = input<any[]>([]);
-  readonly emptyTitle = input('Brak danych do wyswietlenia');
+  readonly rowClickable = input(false, { transform: booleanAttribute });
+  readonly rowActionLabel = input('Otwórz szczegóły rekordu');
+  readonly emptyTitle = input('Brak danych do wyświetlenia');
   readonly emptyDescription = input(
-    'Po dodaniu rekordow zobaczysz tutaj ich aktualny stan i najwazniejsze szczegoly.',
+    'Po dodaniu rekordów zobaczysz tutaj ich aktualny stan i najważniejsze szczegóły.',
   );
+
+  readonly rowSelected = output<any>();
 
   protected readonly hasRows = computed(() => this.data().length > 0);
 
@@ -179,6 +202,22 @@ export class UiTableComponent {
     return classNames(
       'border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted first:pl-6 last:pr-6',
       DESKTOP_ALIGNMENT_CLASSES[column.align ?? 'start'],
+    );
+  }
+
+  protected mobileRowClasses(): string {
+    return classNames(
+      'border-b border-border/80 px-4 py-4 transition-colors duration-200 last:border-b-0 sm:px-5',
+      this.rowClickable() &&
+        'ui-focus-ring cursor-pointer hover:bg-primary-soft/28 focus-visible:bg-primary-soft/34',
+    );
+  }
+
+  protected desktopRowClasses(): string {
+    return classNames(
+      'group/row transition duration-200',
+      this.rowClickable() &&
+        'ui-focus-ring cursor-pointer hover:bg-primary-soft/18 focus-visible:bg-primary-soft/22',
     );
   }
 
@@ -255,6 +294,30 @@ export class UiTableComponent {
     return typeof rowId === 'string' || typeof rowId === 'number' ? rowId : index;
   }
 
+  protected handleRowSelect(row: UiTableRow, event: Event): void {
+    if (
+      !this.rowClickable() ||
+      this.isInteractiveTarget(event.target, event.currentTarget as HTMLElement | null)
+    ) {
+      return;
+    }
+
+    this.rowSelected.emit(row);
+  }
+
+  protected handleRowKeydown(event: KeyboardEvent, row: UiTableRow): void {
+    if (!this.rowClickable()) {
+      return;
+    }
+
+    if (event.key !== 'Enter' && event.key !== ' ') {
+      return;
+    }
+
+    event.preventDefault();
+    this.rowSelected.emit(row);
+  }
+
   private stringifyValue(value: unknown): string {
     if (value === null || value === undefined || value === '') {
       return '--';
@@ -273,5 +336,20 @@ export class UiTableComponent {
     }
 
     return String(value);
+  }
+
+  private isInteractiveTarget(
+    target: EventTarget | null,
+    currentTarget: HTMLElement | null,
+  ): boolean {
+    if (!(target instanceof HTMLElement)) {
+      return false;
+    }
+
+    const interactiveElement = target.closest(
+      'button, a, input, select, textarea, summary, [role="button"]',
+    );
+
+    return Boolean(interactiveElement && interactiveElement !== currentTarget);
   }
 }

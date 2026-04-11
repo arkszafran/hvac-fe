@@ -1,0 +1,100 @@
+<ui-modal
+  [open]="open()"
+  title="Dodaj klienta"
+  description="Utwórz nowy profil klienta i od razu przejdź do widoku z jego urządzeniami."
+  (close)="handleClose()"
+>
+  <form class="ui-form-stack" [formGroup]="form">
+    <div class="space-y-3">
+      <p class="text-[13px]/5 font-semibold tracking-[-0.01em] text-text-main">Typ klienta</p>
+
+      <div class="grid gap-3 sm:grid-cols-2">
+        @for (option of customerTypeOptions; track option.value) {
+          <label
+            class="flex cursor-pointer items-start gap-3 rounded-[1.05rem] border border-border/90 bg-white px-4 py-3 transition hover:border-primary/28 hover:bg-primary-soft/24"
+          >
+            <input
+              type="radio"
+              name="type"
+              [value]="option.value"
+              formControlName="type"
+              class="mt-1 size-4 shrink-0 accent-[var(--color-primary)]"
+            />
+
+            <span class="min-w-0">
+              <span class="block text-label text-text-main">{{ option.label }}</span>
+              <span class="block text-small text-text-muted">{{ option.description }}</span>
+            </span>
+          </label>
+        }
+      </div>
+    </div>
+
+    @if (form.controls.type.value === 'company') {
+      <ui-input
+        label="Firma"
+        placeholder="np. Klima Serwis Sp. z o.o."
+        formControlName="companyName"
+      />
+    }
+
+    <ui-input
+      label="Imię i nazwisko"
+      placeholder="np. Anna Kowalska"
+      formControlName="fullName"
+    />
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <ui-input
+        label="Telefon"
+        required
+        type="tel"
+        placeholder="+48 500 000 000"
+        [error]="validationError('phone')"
+        formControlName="phone"
+      />
+
+      <ui-input
+        label="Email"
+        required
+        type="email"
+        placeholder="anna@firma.pl"
+        [error]="validationError('email')"
+        formControlName="email"
+      />
+    </div>
+
+    <ui-input
+      label="Adres"
+      required
+      placeholder="ul. Przykładowa 12"
+      [error]="validationError('address')"
+      formControlName="address"
+    />
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <ui-input
+        label="Kod pocztowy"
+        required
+        placeholder="00-000"
+        [error]="validationError('postalCode')"
+        formControlName="postalCode"
+      />
+
+      <ui-input
+        label="Miasto"
+        required
+        placeholder="Warszawa"
+        [error]="validationError('city')"
+        formControlName="city"
+      />
+    </div>
+  </form>
+
+  <div modal-footer class="grid grid-cols-2 gap-3 sm:flex sm:justify-end">
+    <ui-button type="button" variant="ghost" [block]="true" (pressed)="handleClose()">
+      Anuluj
+    </ui-button>
+    <ui-button type="button" [block]="true" (pressed)="handleSubmit()">Zapisz klienta</ui-button>
+  </div>
+</ui-modal>

@@ -10,10 +10,10 @@ import { AppPlaceholderPageComponent } from '../shared/placeholder-page.componen
   template: `
     <app-placeholder-page
       eyebrow="Prace okresowe"
-      title="Przeglady"
-      description="Szkielet pod planowanie i wykonywanie przegladow okresowych. Zostawiamy czytelne miejsce na harmonogramy i zestawy czynnosci."
-      emptyTitle="Przeglady czekaja na konfiguracje"
-      emptyDescription="W nastepnych iteracjach mozemy dolozyc terminy, statusy oraz powtarzalne pakiety serwisowe dla urzadzen."
+      title="Przeglądy"
+      description="Szkielet pod planowanie i wykonywanie przeglądów okresowych. Zostawiamy czytelne miejsce na harmonogramy i zestawy czynności."
+      emptyTitle="Przeglądy czekają na konfigurację"
+      emptyDescription="W następnych iteracjach możemy dołożyć terminy, statusy oraz powtarzalne pakiety serwisowe dla urządzeń."
       actionLabel="Dodaj harmonogram"
       [checklist]="checklist"
     />
@@ -21,8 +21,8 @@ import { AppPlaceholderPageComponent } from '../shared/placeholder-page.componen
 })
 export class ReviewsPageComponent {
   protected readonly checklist = [
-    'miejsce na przyszly kalendarz lub widok listy przegladow',
-    'card przygotowany pod bloki z typami przegladow',
-    'widok pozostaje lekki i bez szczegolow biznesowych',
+    'miejsce na przyszły kalendarz lub widok listy przeglądów',
+    'card przygotowany pod bloki z typami przeglądów',
+    'widok pozostaje lekki i bez szczegółów biznesowych',
   ];
 }

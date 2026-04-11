@@ -19,7 +19,7 @@ import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
               [routerLink]="item.path"
               routerLinkActive
               #rla="routerLinkActive"
-              [routerLinkActiveOptions]="{ exact: true }"
+              [routerLinkActiveOptions]="{ exact: item.exact ?? true }"
               [class]="navLinkClasses(rla.isActive)"
             >
               <span [class]="iconWrapperClasses(rla.isActive)">

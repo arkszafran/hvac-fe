@@ -46,7 +46,7 @@ import { UiButtonComponent } from '../button/button.component';
 })
 export class UiEmptyStateComponent {
   readonly title = input('Brak danych');
-  readonly description = input('Tu pojawia sie elementy, gdy tylko dodasz pierwsze rekordy.');
+  readonly description = input('Tu pojawią się elementy, gdy tylko dodasz pierwsze rekordy.');
   readonly actionLabel = input('');
 
   readonly action = output<void>();

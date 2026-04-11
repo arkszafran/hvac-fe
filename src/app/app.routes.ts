@@ -20,6 +20,20 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'customers/:customerId/devices/:deviceId',
+        loadComponent: () =>
+          import('./pages/customers/device-detail.page').then(
+            (module) => module.DeviceDetailPageComponent,
+          ),
+      },
+      {
+        path: 'customers/:id',
+        loadComponent: () =>
+          import('./pages/customers/customer-detail.page').then(
+            (module) => module.CustomerDetailPageComponent,
+          ),
+      },
+      {
         path: 'customers',
         loadComponent: () =>
           import('./pages/customers/customers.page').then(

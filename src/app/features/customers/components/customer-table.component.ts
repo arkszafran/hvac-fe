@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 
 import { UiTableColumn, UiTableComponent } from '../../../ui';
 import { Customer } from '../models/customer.model';
@@ -8,10 +8,20 @@ import { Customer } from '../models/customer.model';
   standalone: true,
   imports: [UiTableComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: ` <ui-table [columns]="columns" [data]="customers()" emptyTitle="Brak klientow" /> `,
+  template: `
+    <ui-table
+      [columns]="columns"
+      [data]="customers()"
+      [rowClickable]="true"
+      rowActionLabel="Otwórz szczegóły klienta"
+      emptyTitle="Brak klientów"
+      (rowSelected)="customerSelected.emit($event)"
+    />
+  `,
 })
 export class CustomerTableComponent {
   readonly customers = input<Customer[]>([]);
+  readonly customerSelected = output<Customer>();
 
   protected readonly columns: UiTableColumn<Customer>[] = [
     {

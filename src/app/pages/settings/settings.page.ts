@@ -11,18 +11,18 @@ import { AppPlaceholderPageComponent } from '../shared/placeholder-page.componen
     <app-placeholder-page
       eyebrow="Konfiguracja"
       title="Ustawienia"
-      description="Sekcja na ustawienia firmy, zespolu i preferencji systemu. Na tym etapie przygotowujemy tylko modularny kontener pod przyszle formularze."
-      emptyTitle="Ustawienia sa gotowe na konfiguracje"
-      emptyDescription="Tutaj w kolejnym kroku mozemy dodac profile firmy, uprawnienia, integracje i ustawienia aplikacji."
-      actionLabel="Dodaj konfiguracje"
+      description="Sekcja na ustawienia firmy, zespołu i preferencji systemu. Na tym etapie przygotowujemy tylko modularny kontener pod przyszłe formularze."
+      emptyTitle="Ustawienia są gotowe na konfigurację"
+      emptyDescription="Tutaj w kolejnym kroku możemy dodać profile firmy, uprawnienia, integracje i ustawienia aplikacji."
+      actionLabel="Dodaj konfigurację"
       [checklist]="checklist"
     />
   `,
 })
 export class SettingsPageComponent {
   protected readonly checklist = [
-    'miejsce na grupy ustawien i sekcje formularzy',
-    'uklad zgodny z design systemem i gotowy do skalowania',
+    'miejsce na grupy ustawień i sekcje formularzy',
+    'układ zgodny z design systemem i gotowy do skalowania',
     'spokojny placeholder bez ryzyka mieszania logiki biznesowej',
   ];
 }

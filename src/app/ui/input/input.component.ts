@@ -1,16 +1,18 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   booleanAttribute,
   computed,
   forwardRef,
+  inject,
   input,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { classNames } from '../utils/classnames';
 
-type UiInputType = 'text' | 'email' | 'tel' | 'number' | 'password' | 'search';
+type UiInputType = 'text' | 'email' | 'tel' | 'number' | 'password' | 'search' | 'date';
 
 let nextInputId = 0;
 
@@ -69,6 +71,8 @@ let nextInputId = 0;
   `,
 })
 export class UiInputComponent implements ControlValueAccessor {
+  private readonly changeDetectorRef = inject(ChangeDetectorRef);
+
   readonly inputId = input(`ui-input-${++nextInputId}`);
   readonly label = input('');
   readonly placeholder = input('');
@@ -111,6 +115,7 @@ export class UiInputComponent implements ControlValueAccessor {
 
   writeValue(value: string | null): void {
     this.value = value ?? '';
+    this.changeDetectorRef.markForCheck();
   }
 
   registerOnChange(fn: (value: string) => void): void {
@@ -123,6 +128,7 @@ export class UiInputComponent implements ControlValueAccessor {
 
   setDisabledState(isDisabled: boolean): void {
     this.disabledByForms = isDisabled;
+    this.changeDetectorRef.markForCheck();
   }
 
   protected handleInput(event: Event): void {

@@ -1,11 +1,16 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   HostListener,
+  OnDestroy,
+  OnInit,
   booleanAttribute,
+  inject,
   input,
   output,
 } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
 
 let nextDrawerId = 0;
 
@@ -15,7 +20,7 @@ let nextDrawerId = 0;
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (open()) {
-      <div class="fixed inset-0 z-50">
+      <div class="fixed inset-0 z-[80]">
         <button
           type="button"
           aria-label="Zamknij panel"
@@ -80,7 +85,10 @@ let nextDrawerId = 0;
     }
   `,
 })
-export class UiDrawerComponent {
+export class UiDrawerComponent implements OnInit, OnDestroy {
+  private readonly document = inject(DOCUMENT);
+  private readonly hostElement = inject(ElementRef<HTMLElement>).nativeElement;
+
   readonly open = input(false, { transform: booleanAttribute });
   readonly title = input('');
   readonly description = input('');
@@ -89,6 +97,14 @@ export class UiDrawerComponent {
   readonly close = output<void>();
 
   protected readonly titleId = `ui-drawer-title-${++nextDrawerId}`;
+
+  ngOnInit(): void {
+    this.document.body.appendChild(this.hostElement);
+  }
+
+  ngOnDestroy(): void {
+    this.hostElement.remove();
+  }
 
   @HostListener('document:keydown.escape')
   protected handleEscape(): void {
