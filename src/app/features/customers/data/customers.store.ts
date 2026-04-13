@@ -77,6 +77,55 @@ export class CustomersStore {
     return createdDevice;
   }
 
+  saveDeviceWithCustomer(
+    customerSelection: { customerId: string } | { customerDraft: CustomerDraft },
+    deviceDraft: DeviceDraft,
+  ): { customer: Customer; device: Device } | undefined {
+    let result: { customer: Customer; device: Device } | undefined;
+
+    this.customersState.update((customers) => {
+      const device: Device = {
+        id: createEntityId('device'),
+        ...normalizeDeviceDraft(deviceDraft),
+      };
+
+      if ('customerId' in customerSelection) {
+        return customers.map((customer) => {
+          if (customer.id !== customerSelection.customerId) {
+            return customer;
+          }
+
+          const updatedCustomer: Customer = {
+            ...customer,
+            devices: [device, ...customer.devices],
+          };
+
+          result = {
+            customer: updatedCustomer,
+            device,
+          };
+
+          return updatedCustomer;
+        });
+      }
+
+      const createdCustomer: Customer = {
+        id: createEntityId('customer'),
+        devices: [device],
+        ...normalizeCustomerDraft(customerSelection.customerDraft),
+      };
+
+      result = {
+        customer: createdCustomer,
+        device,
+      };
+
+      return [createdCustomer, ...customers];
+    });
+
+    return result;
+  }
+
   updateDevice(customerId: string, deviceId: string, draft: DeviceDraft): Device | undefined {
     let updatedDevice: Device | undefined;
 

@@ -1,6 +1,7 @@
 export type AppNavigationIcon =
   | 'dashboard'
   | 'customers'
+  | 'devices'
   | 'requests'
   | 'reviews'
   | 'settings'
@@ -28,6 +29,12 @@ export const APP_NAVIGATION_ITEMS: readonly AppNavigationItem[] = [
     label: 'Klienci',
     path: '/customers',
     icon: 'customers',
+    exact: false,
+  },
+  {
+    label: 'Urządzenia',
+    path: '/devices',
+    icon: 'devices',
     exact: false,
   },
   {

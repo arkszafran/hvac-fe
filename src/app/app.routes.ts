@@ -20,6 +20,18 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'devices/new',
+        loadComponent: () =>
+          import('./pages/devices/device-create.page').then(
+            (module) => module.DeviceCreatePageComponent,
+          ),
+      },
+      {
+        path: 'devices',
+        loadComponent: () =>
+          import('./pages/devices/devices.page').then((module) => module.DevicesPageComponent),
+      },
+      {
         path: 'customers/:customerId/devices/:deviceId',
         loadComponent: () =>
           import('./pages/customers/device-detail.page').then(

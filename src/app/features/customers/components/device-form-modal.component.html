@@ -33,19 +33,11 @@
       />
     </div>
 
-    <div class="grid gap-4 sm:grid-cols-2">
-      <ui-input
-        label="Numer seryjny"
-        placeholder="np. SN-45812"
-        formControlName="serialNumber"
-      />
-
-      <ui-input
-        label="Miejsce montażu"
-        placeholder="np. Salon"
-        formControlName="location"
-      />
-    </div>
+    <ui-input
+      label="Numer seryjny"
+      placeholder="np. SN-45812"
+      formControlName="serialNumber"
+    />
 
     <div class="grid gap-4 sm:grid-cols-2">
       <ui-input label="Czynnik" placeholder="np. R32" formControlName="refrigerant" />
@@ -54,6 +46,14 @@
         label="Ilość czynnika"
         placeholder="np. 1.4 kg"
         formControlName="refrigerantAmount"
+      />
+    </div>
+
+    <div class="pt-2">
+      <ui-input
+        label="Miejsce montażu"
+        placeholder="np. Salon"
+        formControlName="location"
       />
     </div>
 

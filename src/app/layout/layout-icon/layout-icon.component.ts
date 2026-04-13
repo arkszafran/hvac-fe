@@ -55,6 +55,37 @@ import { AppNavigationIcon } from '../app-navigation';
             stroke-linecap="round"
           />
         }
+        @case ('devices') {
+          <path
+            d="M6.5 7.5C6.5 6.119 7.619 5 9 5H15C16.381 5 17.5 6.119 17.5 7.5V15.5C17.5 16.881 16.381 18 15 18H9C7.619 18 6.5 16.881 6.5 15.5V7.5Z"
+            stroke="currentColor"
+            stroke-width="1.7"
+          />
+          <path
+            d="M8.5 8.5H15.5"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+          />
+          <path
+            d="M10 14.5H14"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+          />
+          <path
+            d="M4.5 9.5V13.5"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+          />
+          <path
+            d="M4.5 11.5H6.5"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+          />
+        }
         @case ('requests') {
           <path
             d="M7.5 5H16.5C18.433 5 20 6.567 20 8.5V15.5C20 17.433 18.433 19 16.5 19H7.5C5.567 19 4 17.433 4 15.5V8.5C4 6.567 5.567 5 7.5 5Z"

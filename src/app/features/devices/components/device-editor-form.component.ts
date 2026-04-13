@@ -1,56 +1,51 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { merge, startWith } from 'rxjs';
 
-import {
-  UiButtonComponent,
-  UiInputComponent,
-  UiModalComponent,
-  UiSelectComponent,
-} from '../../../ui';
-import { DEVICE_BRAND_OPTIONS } from '../data/customer.mock';
+import { UiInputComponent, UiSelectComponent } from '../../../ui';
+import { DEVICE_BRAND_OPTIONS } from '../../customers/data/customer.mock';
 import {
   calculateInspectionDateFromPreset,
   DEVICE_INSPECTIONS_CHECKBOX_DESCRIPTION,
   DEVICE_INSPECTIONS_CHECKBOX_LABEL,
   DEVICE_INSPECTION_PRESET_OPTIONS,
   DeviceInspectionPreset,
-} from '../models/device-inspection.model';
+} from '../../customers/models/device-inspection.model';
 import {
   createEmptyDeviceDraft,
   DeviceDraft,
   DEVICE_TYPE_OPTIONS,
   DEVICE_WARRANTY_MONTH_OPTIONS,
-} from '../models/device.model';
+} from '../../customers/models/device.model';
 
 const TEXTAREA_CLASSES =
   'ui-focus-ring block min-h-32 w-full rounded-[0.95rem] border border-border/90 bg-white px-4 py-3.5 text-[15px]/6 text-text-main shadow-[inset_0_1px_0_rgb(255_255_255/0.82),0_1px_2px_rgb(15_23_42/0.05)] backdrop-blur-xl transition duration-200 placeholder:text-text-muted/78 hover:border-primary/24 hover:bg-white focus:border-primary';
 
 @Component({
-  selector: 'app-device-form-modal',
+  selector: 'app-device-editor-form',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    UiButtonComponent,
-    UiInputComponent,
-    UiModalComponent,
-    UiSelectComponent,
-  ],
+  imports: [ReactiveFormsModule, UiInputComponent, UiSelectComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './device-form-modal.component.html',
+  exportAs: 'deviceEditorForm',
+  templateUrl: './device-editor-form.component.html',
 })
-export class DeviceFormModalComponent {
+export class DeviceEditorFormComponent {
   private readonly formBuilder = inject(FormBuilder);
   private isApplyingInspectionPreset = false;
 
-  readonly open = input(false);
   readonly initialValue = input<DeviceDraft | null>(null);
-  readonly modalTitle = input('Dodaj urządzenie');
-  readonly modalDescription = input('');
-  readonly submitLabel = input('Zapisz urządzenie');
 
-  readonly close = output<void>();
-  readonly save = output<DeviceDraft>();
+  readonly validChange = output<boolean>();
+  readonly draftChange = output<DeviceDraft | null>();
 
   protected submitAttempted = false;
 
@@ -88,7 +83,7 @@ export class DeviceFormModalComponent {
   protected readonly hasScheduledInspections = signal(
     this.form.controls.hasScheduledInspections.value,
   );
-  protected readonly requiresInstallationDate = computed(() => Number(this.warrantyMonths()) > 0);
+  protected readonly requiresInstallationDate = signal(false);
 
   constructor() {
     this.form.controls.hasCustomInstallationAddress.valueChanges
@@ -109,6 +104,7 @@ export class DeviceFormModalComponent {
       .pipe(takeUntilDestroyed())
       .subscribe((warrantyMonths) => {
         this.warrantyMonths.set(warrantyMonths);
+        this.requiresInstallationDate.set(Number(warrantyMonths) > 0);
         this.syncInstallationDateValidator(warrantyMonths);
       });
 
@@ -131,31 +127,31 @@ export class DeviceFormModalComponent {
         this.syncInspectionPresetWithDate();
       });
 
-    this.syncInstallationDateValidator(this.form.controls.warrantyMonths.value);
-    this.syncNextInspectionDateValidator(this.form.controls.hasScheduledInspections.value);
+    merge(this.form.valueChanges, this.form.statusChanges)
+      .pipe(startWith(null), takeUntilDestroyed())
+      .subscribe(() => {
+        this.validChange.emit(this.form.valid);
+        this.draftChange.emit(this.form.valid ? this.currentDraft() : null);
+      });
 
     effect(() => {
-      if (this.open()) {
-        this.resetForm(this.initialValue());
-      }
+      this.resetForm(this.initialValue());
     });
+
+    this.syncInstallationDateValidator(this.form.controls.warrantyMonths.value);
+    this.syncNextInspectionDateValidator(this.form.controls.hasScheduledInspections.value);
+    this.requiresInstallationDate.set(Number(this.form.controls.warrantyMonths.value) > 0);
   }
 
-  protected handleClose(): void {
-    this.resetForm(this.initialValue());
-    this.close.emit();
-  }
-
-  protected handleSubmit(): void {
+  markAllAsTouched(): void {
     this.submitAttempted = true;
     this.form.markAllAsTouched();
+  }
 
-    if (this.form.invalid) {
-      return;
-    }
-
+  currentDraft(): DeviceDraft {
     const { nextInspectionPreset, ...rawValue } = this.form.getRawValue();
-    const draft: DeviceDraft = {
+
+    return {
       ...rawValue,
       type: this.form.controls.type.getRawValue() as DeviceDraft['type'],
       warrantyMonths: Number(this.form.controls.warrantyMonths.getRawValue()),
@@ -163,8 +159,6 @@ export class DeviceFormModalComponent {
         ? this.form.controls.nextInspectionDate.getRawValue().trim()
         : '',
     };
-
-    this.save.emit(draft);
   }
 
   protected validationError(
@@ -215,9 +209,12 @@ export class DeviceFormModalComponent {
     this.hasCustomInstallationAddress.set(this.form.controls.hasCustomInstallationAddress.getRawValue());
     this.warrantyMonths.set(this.form.controls.warrantyMonths.getRawValue());
     this.hasScheduledInspections.set(this.form.controls.hasScheduledInspections.getRawValue());
+    this.requiresInstallationDate.set(Number(this.form.controls.warrantyMonths.getRawValue()) > 0);
     this.syncInstallationDateValidator(this.form.controls.warrantyMonths.getRawValue());
     this.syncNextInspectionDateValidator(this.form.controls.hasScheduledInspections.getRawValue());
     this.submitAttempted = false;
+    this.validChange.emit(this.form.valid);
+    this.draftChange.emit(this.form.valid ? this.currentDraft() : null);
   }
 
   private syncInstallationDateValidator(warrantyMonths: string): void {

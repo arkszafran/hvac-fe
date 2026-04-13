@@ -1,0 +1,94 @@
+<div class="space-y-8">
+  <div>
+    <a
+      routerLink="/devices"
+      class="text-[13px]/5 font-semibold text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
+    >
+      Powrót do listy urządzeń
+    </a>
+  </div>
+
+  <ui-page-header
+    class="block"
+    title="Dodaj urządzenie"
+    description="Najpierw wybierz klienta albo dodaj nowego, a potem uzupełnij dane urządzenia."
+  />
+
+  <ui-card class="block">
+    <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+      <div class="space-y-5">
+        <div class="space-y-2">
+          <p class="text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
+            {{ selectionLabel() }}
+          </p>
+          <div class="space-y-1">
+            <p class="text-h3 tracking-[-0.02em] text-text-main">{{ selectedCustomerTitle() }}</p>
+            @if (selectedCustomerDescription() || selectedCustomerEmail()) {
+              <div class="space-y-0.5">
+                @if (selectedCustomerDescription()) {
+                  <p class="text-body text-text-muted">{{ selectedCustomerDescription() }}</p>
+                }
+                @if (selectedCustomerEmail()) {
+                  <p class="text-body text-text-muted">{{ selectedCustomerEmail() }}</p>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        @if (hasCustomerSelection()) {
+          <section class="space-y-1">
+            <p class="text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
+              Adres klienta
+            </p>
+            <p class="text-label font-medium text-text-main">{{ selectedCustomerAddress() }}</p>
+          </section>
+        }
+      </div>
+
+      <div class="flex flex-wrap gap-3 pt-1 lg:justify-end">
+        <ui-button variant="secondary" size="sm" (pressed)="openCustomerPicker()">
+          Wybierz klienta
+        </ui-button>
+        <ui-button variant="ghost" size="sm" (pressed)="openCustomerCreateModal()">
+          Dodaj klienta
+        </ui-button>
+      </div>
+    </div>
+  </ui-card>
+
+  <ui-card class="block">
+    <div card-header>
+      <h2 class="text-h3 tracking-[-0.02em] text-text-main">Dane urządzenia</h2>
+    </div>
+
+    <app-device-editor-form
+      (validChange)="updateDeviceFormValidity($event)"
+      (draftChange)="updateDeviceDraft($event)"
+    />
+  </ui-card>
+
+  <div class="flex justify-end pt-1">
+    <div class="w-full sm:w-auto">
+      <ui-button size="lg" [block]="true" [disabled]="!canSave()" (pressed)="handleSave()">
+        Zapisz
+      </ui-button>
+    </div>
+  </div>
+
+  <app-device-customer-picker-modal
+    [open]="isCustomerPickerOpen()"
+    [customers]="customers()"
+    (close)="isCustomerPickerOpen.set(false)"
+    (customerSelected)="handleExistingCustomerSelected($event)"
+  />
+
+  <app-customer-form-modal
+    [open]="isCustomerCreateModalOpen()"
+    modalTitle="Dodaj klienta"
+    modalDescription="Nowy klient zostanie zapisany dopiero razem z urządzeniem po kliknięciu Zapisz."
+    submitLabel="Wybierz klienta"
+    (close)="isCustomerCreateModalOpen.set(false)"
+    (save)="handleNewCustomerDraft($event)"
+  />
+</div>
