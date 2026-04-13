@@ -1,68 +1,214 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import { UiButtonComponent, UiInputComponent, UiModalComponent } from '../../../ui';
+import {
+  UiButtonComponent,
+  UiInputComponent,
+  UiModalComponent,
+  UiSelectComponent,
+} from '../../../ui';
+import {
+  calculateInspectionDateFromPreset,
+  DEVICE_INSPECTIONS_CHECKBOX_DESCRIPTION,
+  DEVICE_INSPECTIONS_CHECKBOX_LABEL,
+  DEVICE_INSPECTION_PRESET_OPTIONS,
+  DeviceInspectionPreset,
+} from '../models/device-inspection.model';
+import { DeviceDraft } from '../models/device.model';
 
 @Component({
   selector: 'app-device-next-inspection-modal',
   standalone: true,
-  imports: [ReactiveFormsModule, UiButtonComponent, UiInputComponent, UiModalComponent],
+  imports: [
+    ReactiveFormsModule,
+    UiButtonComponent,
+    UiInputComponent,
+    UiModalComponent,
+    UiSelectComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ui-modal
       [open]="open()"
-      title="Zmień datę następnego przeglądu"
-      description="Ustaw nowy termin kolejnego przeglądu dla tego urządzenia."
+      title="Zmień ustawienia przeglądów"
+      description="Włącz albo wyłącz przeglądy okresowe i ustaw termin najbliższego przeglądu."
       (close)="handleClose()"
     >
       <form class="ui-form-stack" [formGroup]="form">
-        <ui-input
-          label="Następny przegląd"
-          type="date"
-          formControlName="nextInspectionDate"
-        />
+        <div class="space-y-2.5">
+          <label
+            class="flex cursor-pointer items-start gap-3 rounded-[1.05rem] border border-border/90 bg-white px-4 py-3 transition hover:border-primary/28 hover:bg-primary-soft/24"
+          >
+            <input
+              type="checkbox"
+              formControlName="hasScheduledInspections"
+              class="mt-1 size-4 shrink-0 rounded border-border accent-[var(--color-primary)]"
+            />
+
+            <span class="min-w-0">
+              <span class="block text-label text-text-main">{{ inspectionCheckboxLabel }}</span>
+              <span class="block text-small text-text-muted">
+                {{ inspectionCheckboxDescription }}
+              </span>
+            </span>
+          </label>
+        </div>
+
+        @if (form.controls.hasScheduledInspections.value) {
+          <div class="grid gap-4 sm:grid-cols-2">
+            <ui-select
+              label="Następny przegląd za"
+              [options]="inspectionPresetOptions"
+              formControlName="nextInspectionPreset"
+            />
+
+            <ui-input
+              label="Termin następnego przeglądu"
+              type="date"
+              required
+              [error]="validationError()"
+              formControlName="nextInspectionDate"
+            />
+          </div>
+        }
       </form>
 
       <div modal-footer class="grid grid-cols-2 gap-3 sm:flex sm:justify-end">
         <ui-button type="button" variant="ghost" [block]="true" (pressed)="handleClose()">
           Anuluj
         </ui-button>
-        <ui-button type="button" [block]="true" (pressed)="handleSubmit()">Zapisz datę</ui-button>
+        <ui-button type="button" [block]="true" (pressed)="handleSubmit()">
+          Zapisz zmiany
+        </ui-button>
       </div>
     </ui-modal>
   `,
 })
 export class DeviceNextInspectionModalComponent {
   private readonly formBuilder = inject(FormBuilder);
+  private isApplyingInspectionPreset = false;
 
   readonly open = input(false);
+  readonly initialEnabled = input(false);
   readonly initialDate = input('');
 
   readonly close = output<void>();
-  readonly save = output<string>();
+  readonly save = output<Pick<DeviceDraft, 'hasScheduledInspections' | 'nextInspectionDate'>>();
 
+  protected submitAttempted = false;
+  protected readonly inspectionCheckboxLabel = DEVICE_INSPECTIONS_CHECKBOX_LABEL;
+  protected readonly inspectionCheckboxDescription = DEVICE_INSPECTIONS_CHECKBOX_DESCRIPTION;
+  protected readonly inspectionPresetOptions = DEVICE_INSPECTION_PRESET_OPTIONS;
   protected readonly form = this.formBuilder.nonNullable.group({
+    hasScheduledInspections: false,
+    nextInspectionPreset: 'custom' as DeviceInspectionPreset,
     nextInspectionDate: '',
   });
 
   constructor() {
+    this.form.controls.hasScheduledInspections.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((hasScheduledInspections) => {
+        this.syncNextInspectionDateValidator(hasScheduledInspections);
+      });
+
+    this.form.controls.nextInspectionPreset.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((preset) => {
+        this.applyInspectionPreset(preset);
+      });
+
+    this.form.controls.nextInspectionDate.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        this.syncInspectionPresetWithDate();
+      });
+
+    this.syncNextInspectionDateValidator(this.form.controls.hasScheduledInspections.value);
+
     effect(() => {
       if (this.open()) {
-        this.form.reset({
-          nextInspectionDate: this.initialDate(),
-        });
+        this.resetForm();
       }
     });
   }
 
   protected handleClose(): void {
-    this.form.reset({
-      nextInspectionDate: this.initialDate(),
-    });
+    this.resetForm();
     this.close.emit();
   }
 
   protected handleSubmit(): void {
-    this.save.emit(this.form.controls.nextInspectionDate.getRawValue());
+    this.submitAttempted = true;
+    this.form.markAllAsTouched();
+
+    if (this.form.invalid) {
+      return;
+    }
+
+    const hasScheduledInspections = this.form.controls.hasScheduledInspections.getRawValue();
+
+    this.save.emit({
+      hasScheduledInspections,
+      nextInspectionDate: hasScheduledInspections
+        ? this.form.controls.nextInspectionDate.getRawValue().trim()
+        : '',
+    });
+  }
+
+  protected validationError(): string {
+    const control = this.form.controls.nextInspectionDate;
+
+    if (!control.invalid || (!this.submitAttempted && !control.touched)) {
+      return '';
+    }
+
+    return control.hasError('required')
+      ? 'Data następnego przeglądu jest wymagana, gdy przeglądy są włączone.'
+      : '';
+  }
+
+  private resetForm(): void {
+    this.form.reset({
+        hasScheduledInspections: this.initialEnabled(),
+        nextInspectionPreset: 'custom',
+        nextInspectionDate: this.initialDate(),
+      },
+      { emitEvent: false },
+    );
+    this.syncNextInspectionDateValidator(this.form.controls.hasScheduledInspections.getRawValue());
+    this.submitAttempted = false;
+  }
+
+  private syncNextInspectionDateValidator(hasScheduledInspections: boolean): void {
+    this.form.controls.nextInspectionDate.setValidators(
+      hasScheduledInspections ? Validators.required : null,
+    );
+    this.form.controls.nextInspectionDate.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private applyInspectionPreset(preset: DeviceInspectionPreset): void {
+    if (preset === 'custom' || !this.form.controls.hasScheduledInspections.getRawValue()) {
+      return;
+    }
+
+    const calculatedDate = calculateInspectionDateFromPreset(preset);
+
+    this.isApplyingInspectionPreset = true;
+    this.form.controls.nextInspectionDate.setValue(calculatedDate);
+    this.isApplyingInspectionPreset = false;
+  }
+
+  private syncInspectionPresetWithDate(): void {
+    if (this.isApplyingInspectionPreset) {
+      return;
+    }
+
+    if (this.form.controls.nextInspectionPreset.getRawValue() === 'custom') {
+      return;
+    }
+
+    this.form.controls.nextInspectionPreset.setValue('custom', { emitEvent: false });
   }
 }

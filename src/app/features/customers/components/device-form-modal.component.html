@@ -48,6 +48,16 @@
     </div>
 
     <div class="grid gap-4 sm:grid-cols-2">
+      <ui-input label="Czynnik" placeholder="np. R32" formControlName="refrigerant" />
+
+      <ui-input
+        label="Ilość czynnika"
+        placeholder="np. 1.4 kg"
+        formControlName="refrigerantAmount"
+      />
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-2">
       <ui-input
         label="Data uruchomienia"
         type="date"
@@ -61,25 +71,42 @@
         [options]="deviceWarrantyMonthOptions"
         formControlName="warrantyMonths"
       />
+    </div>
 
-      <div class="sm:col-span-2">
+    <div class="space-y-2.5">
+      <label
+        class="flex cursor-pointer items-start gap-3 rounded-[1.05rem] border border-border/90 bg-white px-4 py-3 transition hover:border-primary/28 hover:bg-primary-soft/24"
+      >
+        <input
+          type="checkbox"
+          formControlName="hasScheduledInspections"
+          class="mt-1 size-4 shrink-0 rounded border-border accent-[var(--color-primary)]"
+        />
+
+        <span class="min-w-0">
+          <span class="block text-label text-text-main">{{ inspectionCheckboxLabel }}</span>
+          <span class="block text-small text-text-muted">{{ inspectionCheckboxDescription }}</span>
+        </span>
+      </label>
+    </div>
+
+    @if (hasScheduledInspections()) {
+      <div class="grid gap-4 sm:grid-cols-2">
+        <ui-select
+          label="Następny przegląd za"
+          [options]="inspectionPresetOptions"
+          formControlName="nextInspectionPreset"
+        />
+
         <ui-input
           label="Termin następnego przeglądu"
           type="date"
+          required
+          [error]="validationError('nextInspectionDate')"
           formControlName="nextInspectionDate"
         />
       </div>
-    </div>
-
-    <div class="grid gap-4 sm:grid-cols-2">
-      <ui-input label="Czynnik" placeholder="np. R32" formControlName="refrigerant" />
-
-      <ui-input
-        label="Ilość czynnika"
-        placeholder="np. 1.4 kg"
-        formControlName="refrigerantAmount"
-      />
-    </div>
+    }
 
     <div class="space-y-2.5">
       <label

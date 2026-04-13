@@ -106,7 +106,7 @@ interface DeviceDetailItem {
                       class="ui-focus-ring rounded-md text-[13px]/5 font-semibold text-primary-strong transition hover:text-primary"
                       (click)="isNextInspectionModalOpen.set(true)"
                     >
-                      Zmień datę
+                      Zarządzaj przeglądami
                     </button>
                   </div>
 
@@ -115,6 +115,9 @@ interface DeviceDetailItem {
                   >
                     {{ nextInspectionDateLabel() }}
                   </dd>
+                  <p class="mt-2 text-small text-text-muted">
+                    {{ nextInspectionStatusLabel() }}
+                  </p>
                 </div>
               </dl>
             </ui-card>
@@ -198,6 +201,7 @@ interface DeviceDetailItem {
 
           <app-device-next-inspection-modal
             [open]="isNextInspectionModalOpen()"
+            [initialEnabled]="device.hasScheduledInspections"
             [initialDate]="device.nextInspectionDate"
             (close)="isNextInspectionModalOpen.set(false)"
             (save)="handleUpdateNextInspectionDate($event)"
@@ -257,6 +261,7 @@ export class DeviceDetailViewComponent {
       serialNumber: device.serialNumber,
       installationDate: device.installationDate,
       warrantyMonths: device.warrantyMonths,
+      hasScheduledInspections: device.hasScheduledInspections,
       nextInspectionDate: device.nextInspectionDate,
       note: device.note,
       refrigerant: device.refrigerant,
@@ -310,7 +315,18 @@ export class DeviceDetailViewComponent {
   protected readonly nextInspectionDateLabel = computed(() => {
     const device = this.device();
 
-    return device?.nextInspectionDate ? this.formatDate(device.nextInspectionDate) : 'Brak terminu';
+    if (!device?.hasScheduledInspections) {
+      return 'Przeglądy wyłączone';
+    }
+
+    return device.nextInspectionDate ? this.formatDate(device.nextInspectionDate) : 'Brak terminu';
+  });
+  protected readonly nextInspectionStatusLabel = computed(() => {
+    const device = this.device();
+
+    return device?.hasScheduledInspections
+      ? 'Przeglądy są aktywne dla tego urządzenia.'
+      : 'Włącz przeglądy, aby ustawić termin kolejnej wizyty.';
   });
   protected readonly installationFacts = computed<readonly DeviceDetailItem[]>(() => {
     const device = this.device();
@@ -366,11 +382,13 @@ export class DeviceDetailViewComponent {
     this.isEditDeviceModalOpen.set(false);
   }
 
-  protected handleUpdateNextInspectionDate(nextInspectionDate: string): void {
-    this.customersStore.updateDeviceNextInspectionDate(
+  protected handleUpdateNextInspectionDate(
+    inspectionSettings: Pick<DeviceDraft, 'hasScheduledInspections' | 'nextInspectionDate'>,
+  ): void {
+    this.customersStore.updateDeviceInspectionSettings(
       this.customerId(),
       this.deviceId(),
-      nextInspectionDate,
+      inspectionSettings,
     );
     this.isNextInspectionModalOpen.set(false);
   }

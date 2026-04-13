@@ -17,6 +17,7 @@ export interface Device {
   installationDate: string;
   warrantyMonths: number;
   warrantyUntil: string;
+  hasScheduledInspections: boolean;
   nextInspectionDate: string;
   note: string;
   refrigerant: string;
@@ -67,6 +68,7 @@ export function createEmptyDeviceDraft(): DeviceDraft {
     serialNumber: '',
     installationDate: '',
     warrantyMonths: 0,
+    hasScheduledInspections: false,
     nextInspectionDate: '',
     note: '',
     refrigerant: '',

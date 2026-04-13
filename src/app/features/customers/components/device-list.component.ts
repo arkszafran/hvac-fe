@@ -49,11 +49,7 @@ import { Device, getDeviceTypeLabel } from '../models/device.model';
                 <td class="border-b border-border/80 px-5 py-4.5 group-hover/row:bg-primary-soft/18">
                   <div class="flex flex-col gap-1">
                     <p class="text-[15px]/6 font-semibold tracking-[-0.02em] text-text-main">
-                      @if (device.nextInspectionDate) {
-                        Następny przegląd: {{ formatDate(device.nextInspectionDate) }}
-                      } @else {
-                        Brak zaplanowanego przeglądu
-                      }
+                      {{ inspectionLabel(device) }}
                     </p>
                     <p class="text-[13px]/5 text-text-main/76">
                       Data montażu: {{ formatDate(device.installationDate) }}
@@ -106,13 +102,7 @@ import { Device, getDeviceTypeLabel } from '../models/device.model';
 
               <div class="space-y-0.5 text-[13px]/5 text-text-main">
                 <div>
-                  @if (device.nextInspectionDate) {
-                    <span class="font-semibold">
-                      Następny przegląd: {{ formatDate(device.nextInspectionDate) }}
-                    </span>
-                  } @else {
-                    <span class="font-semibold">Brak zaplanowanego przeglądu</span>
-                  }
+                  <span class="font-semibold">{{ inspectionLabel(device) }}</span>
                 </div>
                 <div>Data montażu: {{ formatDate(device.installationDate) }}</div>
                 <div class="pt-2 text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
@@ -166,5 +156,15 @@ export class DeviceListComponent {
     return [device.address, `${device.postalCode} ${device.city}`.trim()]
       .filter(Boolean)
       .join(', ');
+  }
+
+  protected inspectionLabel(device: Device): string {
+    if (!device.hasScheduledInspections) {
+      return 'Przeglądy wyłączone';
+    }
+
+    return device.nextInspectionDate
+      ? `Następny przegląd: ${this.formatDate(device.nextInspectionDate)}`
+      : 'Przeglądy włączone, brak terminu';
   }
 }

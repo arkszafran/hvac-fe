@@ -199,6 +199,7 @@ export class CustomerDetailViewComponent {
       serialNumber: device.serialNumber,
       installationDate: device.installationDate,
       warrantyMonths: device.warrantyMonths,
+      hasScheduledInspections: device.hasScheduledInspections,
       nextInspectionDate: device.nextInspectionDate,
       note: device.note,
       refrigerant: device.refrigerant,
