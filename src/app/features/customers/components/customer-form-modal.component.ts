@@ -90,9 +90,12 @@ export class CustomerFormModalComponent {
   ): string {
     const control = this.form.controls[field];
 
+    console.log('validation');
     if (!control.invalid || (!this.submitAttempted && !control.touched)) {
       return '';
     }
+
+    console.log('validation - control touched');
 
     if (control.hasError('required')) {
       switch (field) {

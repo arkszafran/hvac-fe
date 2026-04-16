@@ -27,6 +27,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'devices/:deviceId',
+        loadComponent: () =>
+          import('./pages/devices/device-detail.page').then(
+            (module) => module.DeviceDetailPageComponent,
+          ),
+      },
+      {
         path: 'devices',
         loadComponent: () =>
           import('./pages/devices/devices.page').then((module) => module.DevicesPageComponent),

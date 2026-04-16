@@ -47,6 +47,7 @@ import { matchesDeviceSearch } from './utils/device-search.util';
 
       <app-device-table
         [devices]="filteredDevices()"
+        (devicePreviewRequested)="handleDevicePreview($event)"
         (customerPreviewRequested)="selectedCustomer.set($event)"
       />
 
@@ -74,5 +75,9 @@ export class DevicesViewComponent {
 
   protected navigateToCreateDevice(): void {
     void this.router.navigate(['/devices/new']);
+  }
+
+  protected handleDevicePreview(device: { id: string }): void {
+    void this.router.navigate(['/devices', device.id]);
   }
 }

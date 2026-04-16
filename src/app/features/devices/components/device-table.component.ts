@@ -17,7 +17,15 @@ import {
       <div class="overflow-hidden rounded-[1.1rem] border border-border/90 bg-white shadow-card">
         <div class="md:hidden">
           @for (device of devices(); track device.id) {
-            <article class="border-b border-border/80 px-4 py-4 last:border-b-0 sm:px-5">
+            <article
+              class="cursor-pointer border-b border-border/80 px-4 py-4 outline-none transition last:border-b-0 hover:bg-primary-soft/20 focus-visible:bg-primary-soft/20 sm:px-5"
+              tabindex="0"
+              role="button"
+              [attr.aria-label]="'Otwórz szczegóły urządzenia ' + (device.brand || '--') + ' ' + (device.model || '--')"
+              (click)="openDevicePreview(device)"
+              (keydown.enter)="openDevicePreview(device)"
+              (keydown.space)="openDevicePreview(device); $event.preventDefault()"
+            >
               <div class="space-y-3">
                 <div class="grid grid-cols-[5.75rem_minmax(0,1fr)] gap-x-3.5 gap-y-1">
                   <p class="pr-2 pt-0.5 text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">
@@ -53,7 +61,7 @@ import {
                     <button
                       type="button"
                       class="ui-focus-ring text-left text-[15px]/6 font-semibold tracking-[-0.02em] text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
-                      (click)="customerPreviewRequested.emit(device.customer)"
+                      (click)="$event.stopPropagation(); customerPreviewRequested.emit(device.customer)"
                     >
                       {{ getDeviceCustomerName(device) }}
                     </button>
@@ -88,7 +96,15 @@ import {
 
             <tbody class="[&_tr:last-child_td]:border-b-0">
               @for (device of devices(); track device.id) {
-                <tr class="group/row transition duration-200">
+                <tr
+                  class="group/row cursor-pointer transition duration-200 outline-none hover:bg-primary-soft/20 focus-visible:bg-primary-soft/20"
+                  tabindex="0"
+                  role="button"
+                  [attr.aria-label]="'Otwórz szczegóły urządzenia ' + (device.brand || '--') + ' ' + (device.model || '--')"
+                  (click)="openDevicePreview(device)"
+                  (keydown.enter)="openDevicePreview(device)"
+                  (keydown.space)="openDevicePreview(device); $event.preventDefault()"
+                >
                   <td class="border-b border-border/80 bg-white px-5 py-4.5 text-[15px]/6 font-semibold tracking-[-0.02em] text-text-main first:pl-6 group-hover/row:bg-primary-soft/30">
                     {{ device.brand || '--' }}
                   </td>
@@ -113,7 +129,7 @@ import {
                       <button
                         type="button"
                         class="ui-focus-ring w-fit text-left text-[15px]/6 font-semibold tracking-[-0.02em] text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
-                        (click)="customerPreviewRequested.emit(device.customer)"
+                        (click)="$event.stopPropagation(); customerPreviewRequested.emit(device.customer)"
                       >
                         {{ getDeviceCustomerName(device) }}
                       </button>
@@ -155,10 +171,15 @@ import {
 export class DeviceTableComponent {
   readonly devices = input<Device[]>([]);
 
+  readonly devicePreviewRequested = output<Device>();
   readonly customerPreviewRequested = output<Device['customer']>();
 
   protected readonly getDeviceCustomerName = getDeviceCustomerName;
   protected readonly getDeviceCustomerDescription = getDeviceCustomerDescription;
   protected readonly getDeviceInstallationAddress = getDeviceInstallationAddress;
   protected readonly getDeviceInstallationAddressDetails = getDeviceInstallationAddressDetails;
+
+  protected openDevicePreview(device: Device): void {
+    this.devicePreviewRequested.emit(device);
+  }
 }

@@ -15,4 +15,8 @@ export class DevicesStore {
       })),
     ),
   );
+
+  getDeviceById(deviceId: string): Device | undefined {
+    return this.devices().find((device) => device.id === deviceId);
+  }
 }

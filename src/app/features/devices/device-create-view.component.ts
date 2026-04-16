@@ -163,6 +163,6 @@ export class DeviceCreateViewComponent {
       return;
     }
 
-    await this.router.navigate(['/customers', result.customer.id, 'devices', result.device.id]);
+    await this.router.navigate(['/devices', result.device.id]);
   }
 }
