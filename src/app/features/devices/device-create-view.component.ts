@@ -13,6 +13,12 @@ import { CustomerFormModalComponent } from '../customers/components/customer-for
 import { CustomersStore } from '../customers/data/customers.store';
 import { Customer, CustomerDraft } from '../customers/models/customer.model';
 import { DeviceDraft } from '../customers/models/device.model';
+import { InspectionCandidatePickerModalComponent } from '../inspections/components/inspection-candidate-picker-modal.component';
+import { InspectionLinkProposalModalComponent } from '../inspections/components/inspection-link-proposal-modal.component';
+import {
+  DeviceCreateInspectionPlan,
+  InspectionDeviceFlowService,
+} from '../inspections/data/inspection-device-flow.service';
 import { DeviceCustomerPickerModalComponent } from './components/device-customer-picker-modal.component';
 import { DeviceEditorFormComponent } from './components/device-editor-form.component';
 
@@ -31,6 +37,8 @@ type CustomerSelection =
     CustomerFormModalComponent,
     DeviceCustomerPickerModalComponent,
     DeviceEditorFormComponent,
+    InspectionLinkProposalModalComponent,
+    InspectionCandidatePickerModalComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './device-create-view.component.html',
@@ -38,6 +46,7 @@ type CustomerSelection =
 export class DeviceCreateViewComponent {
   private readonly router = inject(Router);
   private readonly customersStore = inject(CustomersStore);
+  private readonly inspectionDeviceFlowService = inject(InspectionDeviceFlowService);
 
   protected readonly deviceForm = viewChild(DeviceEditorFormComponent);
   protected readonly customers = this.customersStore.customers;
@@ -46,6 +55,7 @@ export class DeviceCreateViewComponent {
   protected readonly customerSelection = signal<CustomerSelection | null>(null);
   protected readonly isDeviceFormValid = signal(false);
   protected readonly deviceDraft = signal<DeviceDraft | null>(null);
+  protected readonly pendingInspectionPlan = signal<DeviceCreateInspectionPlan | null>(null);
 
   protected readonly canSave = computed(
     () => this.customerSelection() !== null && this.isDeviceFormValid() && this.deviceDraft() !== null,
@@ -154,15 +164,63 @@ export class DeviceCreateViewComponent {
       return;
     }
 
-    const result =
-      selection.kind === 'existing'
-        ? this.customersStore.saveDeviceWithCustomer({ customerId: selection.customer.id }, deviceDraft)
-        : this.customersStore.saveDeviceWithCustomer({ customerDraft: selection.draft }, deviceDraft);
+    const plan = this.inspectionDeviceFlowService.previewCreateDevice(selection, deviceDraft);
+
+    if (plan.kind === 'single-candidate' || plan.kind === 'candidate-choice') {
+      this.pendingInspectionPlan.set(plan);
+      return;
+    }
+
+    await this.finishCreateDevice(plan);
+  }
+
+  protected closeInspectionPlan(): void {
+    this.pendingInspectionPlan.set(null);
+  }
+
+  protected async createSeparateInspection(): Promise<void> {
+    const plan = this.pendingInspectionPlan();
+
+    if (!plan) {
+      return;
+    }
+
+    await this.finishCreateDevice(plan, { kind: 'create-new' });
+  }
+
+  protected async attachToInspection(inspectionId?: string): Promise<void> {
+    const plan = this.pendingInspectionPlan();
+
+    if (!plan || !inspectionId) {
+      return;
+    }
+
+    await this.finishCreateDevice(plan, { kind: 'attach', inspectionId });
+  }
+
+  private async finishCreateDevice(
+    plan: DeviceCreateInspectionPlan,
+    choice?: { kind: 'create-new' } | { kind: 'attach'; inspectionId: string },
+  ): Promise<void> {
+    const selection = this.customerSelection();
+    const deviceDraft = this.deviceDraft();
+
+    if (!selection || !deviceDraft) {
+      return;
+    }
+
+    const result = this.inspectionDeviceFlowService.commitCreateDevice(
+      selection,
+      deviceDraft,
+      plan,
+      choice,
+    );
 
     if (!result) {
       return;
     }
 
+    this.pendingInspectionPlan.set(null);
     await this.router.navigate(['/devices', result.device.id]);
   }
 }

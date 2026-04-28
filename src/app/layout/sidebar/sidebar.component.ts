@@ -15,21 +15,41 @@ import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
       <div class="sticky top-24 rounded-[1.9rem] border border-white/72 bg-white/62 p-3 shadow-card backdrop-blur-xl">
         <nav class="flex flex-col gap-1.5">
           @for (item of navigationItems; track item.path) {
-            <a
-              [routerLink]="item.path"
-              routerLinkActive
-              #rla="routerLinkActive"
-              [routerLinkActiveOptions]="{ exact: item.exact ?? true }"
-              [class]="navLinkClasses(rla.isActive)"
-            >
-              <span [class]="iconWrapperClasses(rla.isActive)">
-                <app-layout-icon [name]="item.icon" />
-              </span>
+            <div class="space-y-1.5">
+              <a
+                [routerLink]="item.path"
+                [queryParams]="item.queryParams"
+                routerLinkActive
+                #rla="routerLinkActive"
+                [routerLinkActiveOptions]="item.activeMatchOptions ?? { exact: item.exact ?? true }"
+                [class]="navLinkClasses(rla.isActive)"
+              >
+                <span [class]="iconWrapperClasses(rla.isActive)">
+                  <app-layout-icon [name]="item.icon" />
+                </span>
 
-              <span [class]="labelClasses(rla.isActive)">
-                {{ item.label }}
-              </span>
-            </a>
+                <span [class]="labelClasses(rla.isActive)">
+                  {{ item.label }}
+                </span>
+              </a>
+
+              @if (item.children?.length) {
+                <div class="ml-5 space-y-1 pl-5">
+                  @for (child of item.children; track child.label) {
+                    <a
+                      [routerLink]="child.path"
+                      [queryParams]="child.queryParams"
+                      routerLinkActive
+                      #childRla="routerLinkActive"
+                      [routerLinkActiveOptions]="child.activeMatchOptions ?? { exact: true }"
+                      [class]="childLinkClasses(childRla.isActive)"
+                    >
+                      <span>{{ child.label }}</span>
+                    </a>
+                  }
+                </div>
+              }
+            </div>
           }
         </nav>
       </div>
@@ -61,6 +81,15 @@ export class AppSidebarComponent {
     return classNames(
       'min-w-0 text-label font-semibold transition duration-200',
       isActive ? 'text-primary-strong' : 'text-text-main group-hover:text-primary-strong',
+    );
+  }
+
+  protected childLinkClasses(isActive: boolean): string {
+    return classNames(
+      'group flex items-center rounded-[0.85rem] px-3 py-2 text-[13px]/5 font-medium transition duration-200',
+      isActive
+        ? 'bg-primary-soft/52 text-primary-strong'
+        : 'text-text-muted hover:bg-white/86 hover:text-text-main',
     );
   }
 }

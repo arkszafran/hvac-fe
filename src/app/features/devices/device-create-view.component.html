@@ -91,4 +91,37 @@
     (close)="isCustomerCreateModalOpen.set(false)"
     (save)="handleNewCustomerDraft($event)"
   />
+
+  @if (pendingInspectionPlan(); as plan) {
+    @if (plan.kind === 'single-candidate') {
+      <app-inspection-link-proposal-modal
+        [open]="true"
+        [title]="plan.title"
+        [description]="plan.description"
+        [customerName]="plan.customerName"
+        [deviceName]="plan.deviceName"
+        [inspection]="plan.candidate"
+        [primaryActionLabel]="plan.primaryActionLabel"
+        [secondaryActionLabel]="plan.createActionLabel"
+        [cancelLabel]="plan.cancelActionLabel"
+        (close)="closeInspectionPlan()"
+        (confirm)="attachToInspection(plan.candidate.id)"
+        (createSeparate)="createSeparateInspection()"
+      />
+    } @else if (plan.kind === 'candidate-choice') {
+      <app-inspection-candidate-picker-modal
+        [open]="true"
+        [title]="plan.title"
+        [description]="plan.description"
+        [customerName]="plan.customerName"
+        [deviceName]="plan.deviceName"
+        [candidates]="plan.candidates"
+        [createActionLabel]="plan.createActionLabel"
+        [cancelActionLabel]="plan.cancelActionLabel"
+        (close)="closeInspectionPlan()"
+        (inspectionSelected)="attachToInspection($event)"
+        (createNew)="createSeparateInspection()"
+      />
+    }
+  }
 </div>

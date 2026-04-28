@@ -67,9 +67,23 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'reviews',
+        path: 'inspections/:inspectionId',
         loadComponent: () =>
-          import('./pages/reviews/reviews.page').then((module) => module.ReviewsPageComponent),
+          import('./pages/inspections/inspection-detail.page').then(
+            (module) => module.InspectionDetailPageComponent,
+          ),
+      },
+      {
+        path: 'inspections',
+        loadComponent: () =>
+          import('./pages/inspections/inspections.page').then(
+            (module) => module.InspectionsPageComponent,
+          ),
+      },
+      {
+        path: 'reviews',
+        pathMatch: 'full',
+        redirectTo: 'inspections',
       },
       {
         path: 'settings',

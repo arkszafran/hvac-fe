@@ -24,22 +24,43 @@ import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
     >
       <nav class="flex flex-col gap-2">
         @for (item of navigationItems; track item.path) {
-          <a
-            [routerLink]="item.path"
-            routerLinkActive
-            #rla="routerLinkActive"
-            [routerLinkActiveOptions]="{ exact: item.exact ?? true }"
-            [class]="navLinkClasses(rla.isActive)"
-            (click)="close.emit()"
-          >
-            <span [class]="iconWrapperClasses(rla.isActive)">
-              <app-layout-icon [name]="item.icon" />
-            </span>
+          <div class="space-y-1.5">
+            <a
+              [routerLink]="item.path"
+              [queryParams]="item.queryParams"
+              routerLinkActive
+              #rla="routerLinkActive"
+              [routerLinkActiveOptions]="item.activeMatchOptions ?? { exact: item.exact ?? true }"
+              [class]="navLinkClasses(rla.isActive)"
+              (click)="close.emit()"
+            >
+              <span [class]="iconWrapperClasses(rla.isActive)">
+                <app-layout-icon [name]="item.icon" />
+              </span>
 
-            <span [class]="labelClasses(rla.isActive)">
-              {{ item.label }}
-            </span>
-          </a>
+              <span [class]="labelClasses(rla.isActive)">
+                {{ item.label }}
+              </span>
+            </a>
+
+            @if (item.children?.length) {
+              <div class="ml-4 space-y-1 pl-4">
+                @for (child of item.children; track child.label) {
+                  <a
+                    [routerLink]="child.path"
+                    [queryParams]="child.queryParams"
+                    routerLinkActive
+                    #childRla="routerLinkActive"
+                    [routerLinkActiveOptions]="child.activeMatchOptions ?? { exact: true }"
+                    [class]="childLinkClasses(childRla.isActive)"
+                    (click)="close.emit()"
+                  >
+                    <span>{{ child.label }}</span>
+                  </a>
+                }
+              </div>
+            }
+          </div>
         }
       </nav>
     </ui-drawer>
@@ -73,6 +94,15 @@ export class AppMobileNavDrawerComponent {
     return classNames(
       'min-w-0 text-label font-semibold transition duration-200',
       isActive ? 'text-primary-strong' : 'text-text-main group-hover:text-primary-strong',
+    );
+  }
+
+  protected childLinkClasses(isActive: boolean): string {
+    return classNames(
+      'group flex items-center rounded-[0.85rem] px-3 py-2.5 text-[13px]/5 font-medium transition duration-200',
+      isActive
+        ? 'bg-primary-soft/52 text-primary-strong'
+        : 'text-text-muted hover:bg-white/84 hover:text-text-main',
     );
   }
 }
