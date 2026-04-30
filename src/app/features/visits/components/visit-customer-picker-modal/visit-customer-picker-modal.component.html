@@ -1,0 +1,36 @@
+<ui-modal
+  [open]="open()"
+  title="Wybierz klienta"
+  description="Lista klientów z wyszukiwaniem po danych kontaktowych i adresie."
+  (close)="close.emit()"
+>
+  <div class="flex flex-col gap-5">
+    <ui-input
+      type="search"
+      label="Szukaj"
+      placeholder="Nazwa, osoba, telefon, adres"
+      [ngModel]="searchQuery()"
+      (ngModelChange)="searchQuery.set($event)"
+    />
+
+    @if (filteredCustomers().length) {
+      <div class="flex flex-col gap-2">
+        @for (customer of filteredCustomers(); track customer.id) {
+          <button
+            type="button"
+            class="ui-focus-ring block w-full rounded-[1rem] border border-border/85 bg-white px-4 py-3 text-left transition hover:border-primary/24 hover:bg-primary-soft/20"
+            (click)="selectCustomer(customer)"
+          >
+            <span class="block text-label text-text-main">{{ customerName(customer) }}</span>
+            <span class="block text-small text-text-muted">{{ customer.fullName || customer.email || '--' }}</span>
+            <span class="block text-small text-text-muted">{{ customerAddress(customer) }}</span>
+          </button>
+        }
+      </div>
+    } @else {
+      <div class="rounded-[1rem] border border-dashed border-border/90 bg-white/76 px-4 py-5 text-body text-text-muted">
+        Brak klientów pasujących do wyszukiwania.
+      </div>
+    }
+  </div>
+</ui-modal>

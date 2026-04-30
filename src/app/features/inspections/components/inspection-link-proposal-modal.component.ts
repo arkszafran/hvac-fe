@@ -37,7 +37,7 @@ import {
                 {{ getInspectionStatusLabel(inspection.status) }}
               </ui-badge>
               <span class="text-small text-text-muted">
-                {{ inspection.deviceIds.length }} urzadzenia w przegladzie
+                {{ inspection.deviceIds.length }} urządzenia w przeglądzie
               </span>
             </div>
 
@@ -79,13 +79,13 @@ import {
 })
 export class InspectionLinkProposalModalComponent {
   readonly open = input(false);
-  readonly title = input('Dolaczyc do przegladu?');
+  readonly title = input('Dołączyć do przeglądu?');
   readonly description = input('');
   readonly customerName = input('');
   readonly deviceName = input('');
   readonly inspection = input<Inspection | null>(null);
-  readonly primaryActionLabel = input('Dolacz');
-  readonly secondaryActionLabel = input('Utworz osobny przeglad');
+  readonly primaryActionLabel = input('Dołącz');
+  readonly secondaryActionLabel = input('Utwórz osobny przegląd');
   readonly cancelLabel = input('Anuluj');
 
   readonly confirm = output<void>();

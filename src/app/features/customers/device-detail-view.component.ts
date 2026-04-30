@@ -20,6 +20,8 @@ import {
   getInspectionStatusLabel,
   getInspectionStatusVariant,
 } from '../inspections/utils/inspection-ui.util';
+import { VisitsStore } from '../visits/data/visits.store';
+import { getVisitTypeLabel } from '../visits/models/visit.model';
 import { DeviceFormModalComponent } from './components/device-form-modal.component';
 import { DeviceNextInspectionModalComponent } from './components/device-next-inspection-modal.component';
 import { CustomersStore } from './data/customers.store';
@@ -54,6 +56,7 @@ export class DeviceDetailViewComponent {
   private readonly customersStore = inject(CustomersStore);
   private readonly inspectionsStore = inject(InspectionsStore);
   private readonly inspectionDeviceFlowService = inject(InspectionDeviceFlowService);
+  private readonly visitsStore = inject(VisitsStore);
 
   protected readonly isEditDeviceModalOpen = signal(false);
   protected readonly isNextInspectionModalOpen = signal(false);
@@ -74,6 +77,7 @@ export class DeviceDetailViewComponent {
   protected readonly device = computed(() =>
     this.customersStore.getDeviceById(this.customerId(), this.deviceId()),
   );
+  protected readonly deviceVisits = computed(() => this.visitsStore.getVisitsForDevice(this.deviceId()));
   protected readonly activeInspection = computed(() => {
     const device = this.device();
 
@@ -205,6 +209,13 @@ export class DeviceDetailViewComponent {
   protected readonly getDeviceTypeLabel = getDeviceTypeLabel;
   protected readonly getInspectionStatusLabel = getInspectionStatusLabel;
   protected readonly getInspectionStatusVariant = getInspectionStatusVariant;
+  protected readonly getVisitTypeLabel = getVisitTypeLabel;
+
+  protected visitNote(deviceId: string, visitId: string): string {
+    const visit = this.deviceVisits().find((details) => details.visit.id === visitId)?.visit;
+
+    return visit?.devicesNotes.find((item) => item.deviceId === deviceId)?.note || '--';
+  }
 
   protected customerTitle(customer: Customer): string {
     return customer.companyName || customer.fullName || 'Klient';

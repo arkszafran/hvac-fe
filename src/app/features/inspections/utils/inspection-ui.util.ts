@@ -32,15 +32,15 @@ export function getInspectionStatusLabel(status: InspectionStatus): string {
     case 'new':
       return 'Nowy';
     case 'reminder_sent':
-      return 'Przypomnienie wyslane';
+      return 'Przypomnienie wysłane';
     case 'customer_confirmed':
-      return 'Klient potwierdzil';
+      return 'Klient potwierdził';
     case 'customer_not_confirmed':
-      return 'Klient nie potwierdzil';
+      return 'Klient nie potwierdził';
     case 'scheduled':
-      return 'Umowiony';
+      return 'Umówiony';
     case 'completed':
-      return 'Zakonczony';
+      return 'Zakończony';
     case 'cancelled':
       return 'Anulowany';
   }
@@ -68,24 +68,24 @@ export function getInspectionStatusVariant(status: InspectionStatus): UiBadgeVar
 export function getInspectionNextActionLabel(status: InspectionStatus): string {
   switch (status) {
     case 'new':
-      return 'Wyslij przypomnienie';
+      return 'Wyślij przypomnienie';
     case 'reminder_sent':
-      return 'Wyslano przypomnienie';
+      return 'Wysłano przypomnienie';
     case 'customer_confirmed':
-      return 'Zadzwon i ustal termin';
+      return 'Zadzwoń i ustal termin';
     case 'customer_not_confirmed':
-      return 'Zadzwon i przypomnij o przegladzie';
+      return 'Zadzwoń i przypomnij o przeglądzie';
     case 'scheduled':
-      return 'Przeglad umowiony';
+      return 'Przegląd umówiony';
     case 'completed':
-      return 'Zakonczony';
+      return 'Zakończony';
     case 'cancelled':
       return 'Anulowany';
   }
 }
 
 export function getInspectionScheduleActionLabel(status: InspectionStatus): string {
-  return status === 'scheduled' ? 'Zmien termin' : 'Potwierdz termin';
+  return status === 'scheduled' ? 'Zmień termin' : 'Potwierdź termin';
 }
 
 export function canScheduleInspection(status: InspectionStatus): boolean {
@@ -112,6 +112,6 @@ export function buildInspectionShortDescription(input: InspectionSummaryInput): 
 
 export function getInspectionTimelineDescription(inspection: Inspection): string {
   return inspection.plannedDate
-    ? `Umowiony termin: ${formatInspectionDate(inspection.plannedDate)}`
-    : `Okno przegladu: ${formatInspectionWindow(inspection.windowStart, inspection.windowEnd)}`;
+    ? `Umówiony termin: ${formatInspectionDate(inspection.plannedDate)}`
+    : `Okno przeglądu: ${formatInspectionWindow(inspection.windowStart, inspection.windowEnd)}`;
 }

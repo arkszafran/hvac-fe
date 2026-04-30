@@ -1,0 +1,302 @@
+<div class="flex flex-col gap-8">
+  <section class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div class="flex flex-col gap-1">
+      <nav class="flex flex-wrap items-center gap-2 text-[13px]/5 font-semibold text-text-muted">
+        <a
+          routerLink="/visits"
+          class="text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
+        >
+          Lista wizyt
+        </a>
+        <span aria-hidden="true">/</span>
+        <span class="text-text-main">Nowa wizyta</span>
+      </nav>
+
+      <h1 class="text-display tracking-[-0.04em] text-text-main">Dodaj wizytę</h1>
+      <p class="text-body text-text-muted">
+        Wizyta zapisuje notatki, które później tworzą historię urządzeń.
+      </p>
+    </div>
+
+    <ui-button size="sm" (pressed)="submit()">Zapisz wizytę</ui-button>
+  </section>
+
+  @if (hasValidationErrors()) {
+    <div class="rounded-[1rem] border border-danger/30 bg-danger-soft px-4 py-3 text-label text-danger">
+      {{ validationMessage() }}
+    </div>
+  }
+
+  <section class="flex flex-col gap-6">
+    <ui-card>
+      <div card-header>
+        <h2 class="text-h3 tracking-[-0.02em] text-text-main">Rodzaj i data wizyty</h2>
+      </div>
+
+      <div class="flex flex-col gap-5">
+        <ui-select
+          label="Typ wizyty"
+          placeholder="Wybierz typ wizyty"
+          required
+          [options]="visitTypeOptions"
+          [ngModel]="visitType()"
+          (ngModelChange)="setVisitType($event)"
+        />
+
+        <ui-input
+          type="date"
+          label="Data"
+          required
+          [ngModel]="visitDate()"
+          (ngModelChange)="visitDate.set($event)"
+        />
+
+        @if (visitType() === 'inspection') {
+          <div class="mt-1 flex flex-col gap-3 rounded-[1rem] border border-border/80 bg-white px-4 py-4">
+            <p class="text-label text-text-main">Czy to zaplanowany przegląd?</p>
+            <div class="grid gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                class="ui-focus-ring rounded-[0.9rem] border px-4 py-3 text-label transition"
+                [class.border-primary]="scheduledInspectionAnswer() === 'yes'"
+                [class.bg-primary-soft]="scheduledInspectionAnswer() === 'yes'"
+                (click)="setScheduledInspectionAnswer('yes')"
+              >
+                Tak
+              </button>
+              <button
+                type="button"
+                class="ui-focus-ring rounded-[0.9rem] border px-4 py-3 text-label transition"
+                [class.border-primary]="scheduledInspectionAnswer() === 'no'"
+                [class.bg-primary-soft]="scheduledInspectionAnswer() === 'no'"
+                (click)="setScheduledInspectionAnswer('no')"
+              >
+                Nie
+              </button>
+            </div>
+
+            @if (selectedScheduledInspection(); as details) {
+              <div class="rounded-[0.95rem] border border-primary/18 bg-primary-soft/28 px-3 py-3">
+                <p class="text-label text-text-main">{{ customerName(details.customer) }}</p>
+                <p class="text-small text-text-muted">
+                  Wybrano zaplanowany przegląd z {{ details.devices.length }} urządzeniami.
+                </p>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </ui-card>
+
+    @if (canShowCustomerStep()) {
+      <ui-card>
+        <div card-header>
+          <h2 class="text-h3 tracking-[-0.02em] text-text-main">Klient</h2>
+        </div>
+
+        @if (selectedCustomer(); as customer) {
+          <div class="rounded-[1rem] border border-border/80 bg-white px-4 py-4">
+            <p class="text-label text-text-main">{{ customerName(customer) }}</p>
+            <p class="text-small text-text-muted">{{ customer.phone || customer.email || '--' }}</p>
+            <p class="text-small text-text-muted">
+              {{ customer.address || '--' }}, {{ customer.postalCode }} {{ customer.city }}
+            </p>
+          </div>
+        } @else {
+          <ui-empty-state title="Nie wybrano klienta" description="" />
+        }
+
+        @if (!isVisitFromScheduledInspection()) {
+          <div class="mt-4 flex flex-wrap gap-2">
+            <ui-button size="sm" variant="secondary" (pressed)="isCustomerPickerOpen.set(true)">
+              Wybierz klienta
+            </ui-button>
+            <ui-button size="sm" variant="ghost" (pressed)="isCustomerFormOpen.set(true)">
+              Dodaj klienta
+            </ui-button>
+          </div>
+        }
+      </ui-card>
+    }
+
+    @if (selectedCustomer()) {
+      <ui-card>
+        <div card-header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 class="text-h3 tracking-[-0.02em] text-text-main">Urządzenia i notatki</h2>
+          <ui-badge variant="info">{{ deviceEntries().length }}</ui-badge>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          @if (canPickExistingDevices()) {
+            <ui-button size="sm" variant="secondary" (pressed)="isDevicePickerOpen.set(true)">
+              Wybierz urządzenia
+            </ui-button>
+          }
+          @if (canAddNewDevices()) {
+            <ui-button size="sm" variant="ghost" (pressed)="isDeviceFormOpen.set(true)">
+              Dodaj urządzenie
+            </ui-button>
+          }
+        </div>
+
+        @if (deviceEntries().length) {
+          <div class="mt-4 flex flex-col gap-3">
+            @for (entry of deviceEntries(); track entry.key) {
+              <article class="rounded-[1rem] border border-border/80 bg-white px-4 py-3">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p class="text-label text-text-main">{{ entry.label }}</p>
+                    <p class="text-small text-text-muted">{{ entry.description }}</p>
+                  </div>
+
+                  @if (!isVisitFromScheduledInspection()) {
+                    <ui-button size="sm" variant="ghost" (pressed)="removeDevice(entry)">
+                      Usuń
+                    </ui-button>
+                  }
+                </div>
+
+                @if (deviceEntries().length === 1 || !commonNoteEnabled()) {
+                  <div class="mt-3 flex flex-col gap-2">
+                    <label class="text-[13px]/5 font-semibold text-text-main">Notatka</label>
+                    <textarea
+                      [class]="textareaClasses"
+                      [ngModel]="entryNote(entry)"
+                      (ngModelChange)="setDeviceNote(entry.key, $event)"
+                    ></textarea>
+                  </div>
+                }
+              </article>
+            }
+          </div>
+        } @else {
+          <div class="mt-4">
+            <ui-empty-state
+              title="Brak urządzeń"
+              description="Dobierz istniejące urządzenia klienta albo dodaj nowe."
+            />
+          </div>
+        }
+      </ui-card>
+
+      @if (deviceEntries().length > 1) {
+        <ui-card>
+          <div class="flex flex-col gap-4">
+            <label
+              class="flex cursor-pointer items-start gap-3 rounded-[1.05rem] border border-border/90 bg-white px-4 py-3 transition hover:border-primary/28 hover:bg-primary-soft/24"
+            >
+              <input
+                type="checkbox"
+                class="mt-1 size-4 shrink-0 rounded border-border accent-[var(--color-primary)]"
+                [ngModel]="commonNoteEnabled()"
+                (ngModelChange)="commonNoteEnabled.set($event)"
+              />
+              <span>
+                <span class="block text-label text-text-main">Jedna notatka dla wszystkich urządzeń</span>
+                <span class="block text-small text-text-muted">
+                  Po odznaczeniu pokażemy osobną notatkę przy każdym urządzeniu.
+                </span>
+              </span>
+            </label>
+
+            @if (commonNoteEnabled()) {
+              <div class="flex flex-col gap-2">
+                <label class="text-[13px]/5 font-semibold text-text-main">Notatka</label>
+                <textarea
+                  [class]="textareaClasses"
+                  [ngModel]="commonNote()"
+                  (ngModelChange)="commonNote.set($event)"
+                ></textarea>
+              </div>
+            }
+          </div>
+        </ui-card>
+      }
+
+      @if (visitType() === 'inspection') {
+        <ui-card>
+          <div card-header>
+            <h2 class="text-h3 tracking-[-0.02em] text-text-main">Planowanie kolejnego przeglądu</h2>
+          </div>
+
+          <div class="flex flex-col gap-4">
+            <label
+              class="flex cursor-pointer items-start gap-3 rounded-[1.05rem] border border-border/90 bg-white px-4 py-3 transition hover:border-primary/28 hover:bg-primary-soft/24"
+            >
+              <input
+                type="checkbox"
+                class="mt-1 size-4 shrink-0 rounded border-border accent-[var(--color-primary)]"
+                [ngModel]="scheduleNextInspection()"
+                (ngModelChange)="toggleScheduleNextInspection($event)"
+              />
+              <span>
+                <span class="block text-label text-text-main">Zaplanować kolejny przegląd</span>
+                <span class="block text-small text-text-muted">
+                  Zapis aktualizuje datę na urządzeniach i tworzy nowy obiekt przeglądu.
+                </span>
+              </span>
+            </label>
+
+            @if (scheduleNextInspection()) {
+              <div class="grid gap-4 sm:grid-cols-2">
+                <ui-select
+                  label="Okres"
+                  [options]="nextInspectionPeriodOptions"
+                  [ngModel]="nextInspectionPeriod()"
+                  (ngModelChange)="setNextInspectionPeriod($event)"
+                />
+
+                <ui-input
+                  type="date"
+                  label="Data przeglądu"
+                  required
+                  [ngModel]="nextInspectionDate()"
+                  (ngModelChange)="nextInspectionDate.set($event)"
+                />
+              </div>
+            }
+          </div>
+        </ui-card>
+      }
+    }
+  </section>
+
+  <div class="flex justify-end gap-3">
+    <ui-button variant="ghost" (pressed)="navigateToVisits()">Anuluj</ui-button>
+    <ui-button (pressed)="submit()">Zapisz wizytę</ui-button>
+  </div>
+
+  <app-visit-customer-picker-modal
+    [open]="isCustomerPickerOpen()"
+    [customers]="customers()"
+    (close)="isCustomerPickerOpen.set(false)"
+    (customerSelected)="selectCustomer($event)"
+  />
+
+  <app-customer-form-modal
+    [open]="isCustomerFormOpen()"
+    (close)="isCustomerFormOpen.set(false)"
+    (save)="handleCreateCustomer($event)"
+  />
+
+  <app-visit-device-picker-modal
+    [open]="isDevicePickerOpen()"
+    [customer]="selectedCustomer() ?? null"
+    [selectedDeviceIds]="selectedExistingDeviceIds()"
+    (close)="isDevicePickerOpen.set(false)"
+    (selectionSaved)="handleDeviceSelection($event)"
+  />
+
+  <app-device-form-modal
+    [open]="isDeviceFormOpen()"
+    (close)="isDeviceFormOpen.set(false)"
+    (save)="handleAddDevice($event)"
+  />
+
+  <app-visit-scheduled-inspection-picker-modal
+    [open]="isScheduledInspectionPickerOpen()"
+    [inspections]="scheduledInspections()"
+    (close)="isScheduledInspectionPickerOpen.set(false)"
+    (inspectionSelected)="selectScheduledInspection($event)"
+  />
+</div>

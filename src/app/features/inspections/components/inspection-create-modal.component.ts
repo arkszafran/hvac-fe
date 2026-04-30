@@ -34,8 +34,8 @@ export interface InspectionManualDeviceOption {
   template: `
     <ui-modal
       [open]="open()"
-      title="Utworz przeglad"
-      description="Wybierz klienta i urzadzenia kwalifikujace sie do wspolnego przegladu."
+      title="Utwórz przegląd"
+      description="Wybierz klienta i urządzenia kwalifikujące się do wspólnego przeglądu."
       (close)="handleClose()"
     >
       <form class="space-y-5" [formGroup]="form">
@@ -50,10 +50,10 @@ export interface InspectionManualDeviceOption {
         <div class="space-y-3">
           <div>
             <p class="text-[13px]/5 font-semibold tracking-[-0.01em] text-text-main">
-              Urzadzenia klienta
+              Urządzenia klienta
             </p>
             <p class="mt-1 text-small text-text-muted">
-              Pokazujemy tylko urzadzenia z aktywnym terminem przegladu, ktore nie sa jeszcze przypiete do otwartego obiektu.
+              Pokazujemy tylko urządzenia z aktywnym terminem przeglądu, które nie są jeszcze przypięte do otwartego obiektu.
             </p>
           </div>
 
@@ -79,7 +79,7 @@ export interface InspectionManualDeviceOption {
             </div>
           } @else {
             <div class="rounded-[1rem] border border-dashed border-border/90 bg-white/76 px-4 py-5 text-body text-text-muted">
-              Ten klient nie ma teraz urzadzen gotowych do recznego dodania do przegladu.
+              Ten klient nie ma teraz urządzeń gotowych do ręcznego dodania do przeglądu.
             </div>
           }
         </div>
@@ -95,7 +95,7 @@ export interface InspectionManualDeviceOption {
           [disabled]="form.invalid || !selectedDeviceIds().length"
           (pressed)="handleSubmit()"
         >
-          Utworz przeglad
+          Utwórz przegląd
         </ui-button>
       </div>
     </ui-modal>

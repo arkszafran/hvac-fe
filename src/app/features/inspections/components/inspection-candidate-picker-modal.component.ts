@@ -40,7 +40,7 @@ import {
                       {{ getInspectionStatusLabel(inspection.status) }}
                     </ui-badge>
                     <span class="text-small text-text-muted">
-                      {{ inspection.deviceIds.length }} urzadzenia
+                      {{ inspection.deviceIds.length }} urządzenia
                     </span>
                   </div>
 
@@ -50,7 +50,7 @@ import {
                     variant="secondary"
                     (pressed)="inspectionSelected.emit(inspection.id)"
                   >
-                    Wybierz ten przeglad
+                    Wybierz ten przegląd
                   </ui-button>
                 </div>
 
@@ -77,7 +77,7 @@ import {
           </div>
         } @else {
           <div class="rounded-[1rem] border border-dashed border-border/90 bg-white/72 p-5 text-body text-text-muted">
-            Brak innych pasujacych przegladow. Mozesz utworzyc nowy obiekt albo cofnac zmiane.
+            Brak innych pasujących przeglądów. Możesz utworzyć nowy obiekt albo cofnąć zmianę.
           </div>
         }
       </div>
@@ -95,12 +95,12 @@ import {
 })
 export class InspectionCandidatePickerModalComponent {
   readonly open = input(false);
-  readonly title = input('Wybierz przeglad');
+  readonly title = input('Wybierz przegląd');
   readonly description = input('');
   readonly customerName = input('');
   readonly deviceName = input('');
   readonly candidates = input<Inspection[]>([]);
-  readonly createActionLabel = input('Utworz nowy przeglad');
+  readonly createActionLabel = input('Utwórz nowy przegląd');
   readonly cancelActionLabel = input('Anuluj');
 
   readonly inspectionSelected = output<string>();

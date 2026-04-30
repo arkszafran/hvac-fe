@@ -11,6 +11,7 @@ export type AppNavigationIcon =
   | 'customers'
   | 'devices'
   | 'requests'
+  | 'visits'
   | 'reviews'
   | 'settings'
   | 'menu'
@@ -60,19 +61,25 @@ export const APP_NAVIGATION_ITEMS: readonly AppNavigationItem[] = [
     exact: false,
   },
   {
-    label: 'Urzadzenia',
+    label: 'Urządzenia',
     path: '/devices',
     icon: 'devices',
     exact: false,
   },
   {
-    label: 'Zgloszenia',
+    label: 'Zgłoszenia',
     path: '/requests',
     icon: 'requests',
     exact: true,
   },
   {
-    label: 'Przeglady',
+    label: 'Wizyty',
+    path: '/visits',
+    icon: 'visits',
+    exact: false,
+  },
+  {
+    label: 'Przeglądy',
     path: '/inspections',
     queryParams: buildInspectionListViewQueryParams(DEFAULT_INSPECTION_LIST_VIEW_ID),
     icon: 'reviews',

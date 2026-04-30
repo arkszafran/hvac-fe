@@ -67,6 +67,18 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'visits/new',
+        loadComponent: () =>
+          import('./pages/visits/visit-create.page').then(
+            (module) => module.VisitCreatePageComponent,
+          ),
+      },
+      {
+        path: 'visits',
+        loadComponent: () =>
+          import('./pages/visits/visits.page').then((module) => module.VisitsPageComponent),
+      },
+      {
         path: 'inspections/:inspectionId',
         loadComponent: () =>
           import('./pages/inspections/inspection-detail.page').then(

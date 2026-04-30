@@ -171,22 +171,22 @@
       <ui-card>
         <div card-header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 class="text-h3 tracking-[-0.02em] text-text-main">Historia serwisu</h2>
-          <ui-badge variant="info">{{ device.serviceHistory.length }} wpisy</ui-badge>
+          <ui-badge variant="info">{{ deviceVisits().length }} wpisy</ui-badge>
         </div>
 
-        @if (device.serviceHistory.length) {
+        @if (deviceVisits().length) {
           <div class="space-y-3">
-            @for (entry of device.serviceHistory; track entry.id) {
+            @for (details of deviceVisits(); track details.visit.id) {
               <article class="rounded-[1rem] border border-border/80 bg-white/76 px-4 py-3">
                 <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <p class="text-label text-text-main">{{ entry.title }}</p>
-                    <p class="text-small text-text-muted">{{ entry.technician }}</p>
+                    <p class="text-label text-text-main">{{ getVisitTypeLabel(details.visit.type) }}</p>
+                    <p class="text-small text-text-muted">{{ customerTitle(details.customer) }}</p>
                   </div>
-                  <p class="text-small text-text-muted">{{ formatDate(entry.date) }}</p>
+                  <p class="text-small text-text-muted">{{ formatDate(details.visit.date) }}</p>
                 </div>
 
-                <p class="mt-2 text-body text-text-main">{{ entry.note }}</p>
+                <p class="mt-2 text-body text-text-main">{{ visitNote(device.id, details.visit.id) }}</p>
               </article>
             }
           </div>

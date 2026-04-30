@@ -25,6 +25,8 @@ import {
   getInspectionStatusLabel,
   getInspectionStatusVariant,
 } from '../inspections/utils/inspection-ui.util';
+import { VisitsStore } from '../visits/data/visits.store';
+import { getVisitTypeLabel } from '../visits/models/visit.model';
 import { DevicesStore } from './data/devices.store';
 import { Device } from './models/device.model';
 
@@ -214,22 +216,22 @@ interface DeviceDetailItem {
         <ui-card>
           <div card-header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 class="text-h3 tracking-[-0.02em] text-text-main">Historia serwisu</h2>
-            <ui-badge variant="info">{{ device.serviceHistory.length }} wpisy</ui-badge>
+            <ui-badge variant="info">{{ deviceVisits().length }} wpisy</ui-badge>
           </div>
 
-          @if (device.serviceHistory.length) {
+          @if (deviceVisits().length) {
             <div class="space-y-3">
-              @for (entry of device.serviceHistory; track entry.id) {
+              @for (details of deviceVisits(); track details.visit.id) {
                 <article class="rounded-[1rem] border border-border/80 bg-white/76 px-4 py-3">
                   <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <p class="text-label text-text-main">{{ entry.title }}</p>
-                      <p class="text-small text-text-muted">{{ entry.technician }}</p>
+                      <p class="text-label text-text-main">{{ getVisitTypeLabel(details.visit.type) }}</p>
+                      <p class="text-small text-text-muted">{{ customerTitle(details.customer) }}</p>
                     </div>
-                    <p class="text-small text-text-muted">{{ formatDate(entry.date) }}</p>
+                    <p class="text-small text-text-muted">{{ formatDate(details.visit.date) }}</p>
                   </div>
 
-                  <p class="mt-2 text-body text-text-main">{{ entry.note }}</p>
+                  <p class="mt-2 text-body text-text-main">{{ visitNote(device.id, details.visit.id) }}</p>
                 </article>
               }
             </div>
@@ -308,6 +310,7 @@ export class DeviceDetailViewComponent {
   private readonly devicesStore = inject(DevicesStore);
   private readonly inspectionsStore = inject(InspectionsStore);
   private readonly inspectionDeviceFlowService = inject(InspectionDeviceFlowService);
+  private readonly visitsStore = inject(VisitsStore);
 
   protected readonly isEditDeviceModalOpen = signal(false);
   protected readonly isNextInspectionModalOpen = signal(false);
@@ -319,6 +322,7 @@ export class DeviceDetailViewComponent {
   );
 
   protected readonly device = computed(() => this.devicesStore.getDeviceById(this.deviceId()));
+  protected readonly deviceVisits = computed(() => this.visitsStore.getVisitsForDevice(this.deviceId()));
   protected readonly activeInspection = computed(() => {
     const device = this.device();
 
@@ -451,6 +455,13 @@ export class DeviceDetailViewComponent {
   protected readonly getDeviceTypeLabel = getDeviceTypeLabel;
   protected readonly getInspectionStatusLabel = getInspectionStatusLabel;
   protected readonly getInspectionStatusVariant = getInspectionStatusVariant;
+  protected readonly getVisitTypeLabel = getVisitTypeLabel;
+
+  protected visitNote(deviceId: string, visitId: string): string {
+    const visit = this.deviceVisits().find((details) => details.visit.id === visitId)?.visit;
+
+    return visit?.devicesNotes.find((item) => item.deviceId === deviceId)?.note || '--';
+  }
 
   protected customerTitle(customer: Customer): string {
     return customer.companyName || customer.fullName || 'Klient';

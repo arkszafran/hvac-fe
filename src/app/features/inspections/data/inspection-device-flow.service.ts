@@ -105,14 +105,14 @@ export class InspectionDeviceFlowService {
     if (matches.length === 1) {
       return {
         kind: 'single-candidate',
-        title: 'Dolaczyc urzadzenie do istniejacego przegladu?',
+        title: 'Dołączyć urządzenie do istniejącego przeglądu?',
         description:
-          'Nowe urzadzenie pasuje do jednego otwartego przegladu klienta. Mozesz je dolaczyc albo utworzyc osobny przeglad.',
+          'Nowe urządzenie pasuje do jednego otwartego przeglądu klienta. Możesz je dołączyć albo utworzyć osobny przegląd.',
         customerName,
         deviceName: this.getDeviceName(deviceDraft),
         candidate: matches[0],
-        primaryActionLabel: 'Dolacz do istniejacego przegladu',
-        createActionLabel: 'Utworz osobny przeglad',
+        primaryActionLabel: 'Dołącz do istniejącego przeglądu',
+        createActionLabel: 'Utwórz osobny przegląd',
         cancelActionLabel: 'Anuluj',
         transition: 'none',
       };
@@ -120,13 +120,13 @@ export class InspectionDeviceFlowService {
 
     return {
       kind: 'candidate-choice',
-      title: 'Wybierz przeglad dla nowego urzadzenia',
+      title: 'Wybierz przegląd dla nowego urządzenia',
       description:
-        'Znalezlismy kilka otwartych przegladow tego klienta mieszczacych sie w oknie 30 dni. Wybierz, do ktorego przypiac urzadzenie albo utworz nowy przeglad.',
+        'Znaleźliśmy kilka otwartych przeglądów tego klienta mieszczących się w oknie 30 dni. Wybierz, do którego przypiąć urządzenie albo utwórz nowy przegląd.',
       customerName,
       deviceName: this.getDeviceName(deviceDraft),
       candidates: matches,
-      createActionLabel: 'Utworz nowy przeglad',
+      createActionLabel: 'Utwórz nowy przegląd',
       cancelActionLabel: 'Anuluj',
       transition: 'none',
     };
@@ -223,14 +223,14 @@ export class InspectionDeviceFlowService {
       if (currentInspection.status === 'scheduled') {
         return {
           kind: 'candidate-choice',
-          title: 'Zmiana daty utworzy nowy przeglad',
+          title: 'Zmiana daty utworzy nowy przegląd',
           description:
-            'To urzadzenie jest jedynym elementem juz umowionego przegladu. Zmiana daty anuluje aktualny przeglad i utworzy nowy obiekt planowania.',
+            'To urządzenie jest jedynym elementem już umówionego przeglądu. Zmiana daty anuluje aktualny przegląd i utworzy nowy obiekt planowania.',
           customerName: this.getCustomerName(customer),
           deviceName: this.getDeviceName(nextDraft),
           candidates: [],
-          createActionLabel: 'Anuluj obecny i utworz nowy przeglad',
-          cancelActionLabel: 'Cofnij zmiane daty',
+          createActionLabel: 'Anuluj obecny i utwórz nowy przegląd',
+          cancelActionLabel: 'Cofnij zmianę daty',
           transition: 'cancel-current',
           currentInspectionId: currentInspection.id,
         };
@@ -261,20 +261,20 @@ export class InspectionDeviceFlowService {
 
     const description =
       currentInspection.status === 'scheduled'
-        ? 'Nowa data wypada poza 30-dniowym oknem obecnie umowionego przegladu. Urzadzenie trzeba odlaczyc od aktualnego przegladu i przypisac gdzie indziej albo utworzyc nowy.'
-        : 'Nowa data wypada poza 30-dniowym oknem aktualnego przegladu. Wybierz inny otwarty przeglad, utworz nowy albo cofnij zmiane.';
+        ? 'Nowa data wypada poza 30-dniowym oknem obecnie umówionego przeglądu. Urządzenie trzeba odłączyć od aktualnego przeglądu i przypisać gdzie indziej albo utworzyć nowy.'
+        : 'Nowa data wypada poza 30-dniowym oknem aktualnego przeglądu. Wybierz inny otwarty przegląd, utwórz nowy albo cofnij zmianę.';
 
     if (matchingInspections.length === 1) {
       return {
         kind: 'single-candidate',
-        title: 'Przepiac urzadzenie do innego przegladu?',
+        title: 'Przepiąć urządzenie do innego przeglądu?',
         description,
         customerName: this.getCustomerName(customer),
         deviceName: this.getDeviceName(nextDraft),
         candidate: matchingInspections[0],
-        primaryActionLabel: 'Przypisz do tego przegladu',
-        createActionLabel: 'Utworz nowy przeglad',
-        cancelActionLabel: 'Cofnij zmiane daty',
+        primaryActionLabel: 'Przypisz do tego przeglądu',
+        createActionLabel: 'Utwórz nowy przegląd',
+        cancelActionLabel: 'Cofnij zmianę daty',
         transition: 'detach-current',
         currentInspectionId: currentInspection.id,
       };
@@ -282,13 +282,13 @@ export class InspectionDeviceFlowService {
 
     return {
       kind: 'candidate-choice',
-      title: 'Wybierz nowy przeglad dla urzadzenia',
+      title: 'Wybierz nowy przegląd dla urządzenia',
       description,
       customerName: this.getCustomerName(customer),
       deviceName: this.getDeviceName(nextDraft),
       candidates: matchingInspections,
-      createActionLabel: 'Utworz nowy przeglad',
-      cancelActionLabel: 'Cofnij zmiane daty',
+      createActionLabel: 'Utwórz nowy przegląd',
+      cancelActionLabel: 'Cofnij zmianę daty',
       transition: 'detach-current',
       currentInspectionId: currentInspection.id,
     };
@@ -409,29 +409,29 @@ export class InspectionDeviceFlowService {
     if (matches.length === 1) {
       return {
         kind: 'single-candidate',
-        title: 'Dolaczyc urzadzenie do istniejacego przegladu?',
+        title: 'Dołączyć urządzenie do istniejącego przeglądu?',
         description:
-          'Nowa data kwalifikuje to urzadzenie do jednego otwartego przegladu klienta. Mozesz je dolaczyc albo utworzyc osobny przeglad.',
+          'Nowa data kwalifikuje to urządzenie do jednego otwartego przeglądu klienta. Możesz je dołączyć albo utworzyć osobny przegląd.',
         customerName: this.getCustomerName(customer),
         deviceName: this.getDeviceName(nextDraft),
         candidate: matches[0],
-        primaryActionLabel: 'Dolacz do istniejacego przegladu',
-        createActionLabel: 'Utworz osobny przeglad',
-        cancelActionLabel: 'Cofnij zmiane daty',
+        primaryActionLabel: 'Dołącz do istniejącego przeglądu',
+        createActionLabel: 'Utwórz osobny przegląd',
+        cancelActionLabel: 'Cofnij zmianę daty',
         transition: 'none',
       };
     }
 
     return {
       kind: 'candidate-choice',
-      title: 'Wybierz przeglad dla urzadzenia',
+      title: 'Wybierz przegląd dla urządzenia',
       description:
-        'Nowa data pasuje do kilku otwartych przegladow klienta. Wybierz jeden z nich albo utworz nowy przeglad.',
+        'Nowa data pasuje do kilku otwartych przeglądów klienta. Wybierz jeden z nich albo utwórz nowy przegląd.',
       customerName: this.getCustomerName(customer),
       deviceName: this.getDeviceName(nextDraft),
       candidates: matches,
-      createActionLabel: 'Utworz nowy przeglad',
-      cancelActionLabel: 'Cofnij zmiane daty',
+      createActionLabel: 'Utwórz nowy przegląd',
+      cancelActionLabel: 'Cofnij zmianę daty',
       transition: 'none',
     };
   }
@@ -449,7 +449,7 @@ export class InspectionDeviceFlowService {
   private getDeviceName(deviceDraft: Pick<DeviceDraft, 'brand' | 'model'>): string {
     const label = `${deviceDraft.brand} ${deviceDraft.model}`.trim();
 
-    return label || 'Nowe urzadzenie';
+    return label || 'Nowe urządzenie';
   }
 
   private isTrackedActiveInspection(inspection: Inspection): boolean {

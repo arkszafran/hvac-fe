@@ -99,6 +99,31 @@ import { AppNavigationIcon } from '../app-navigation';
             stroke-linecap="round"
           />
         }
+        @case ('visits') {
+          <path
+            d="M7.5 4.5V7.5M16.5 4.5V7.5"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+          />
+          <path
+            d="M5.75 6H18.25C19.216 6 20 6.784 20 7.75V18.25C20 19.216 19.216 20 18.25 20H5.75C4.784 20 4 19.216 4 18.25V7.75C4 6.784 4.784 6 5.75 6Z"
+            stroke="currentColor"
+            stroke-width="1.7"
+          />
+          <path
+            d="M4.5 10H19.5"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+          />
+          <path
+            d="M8 14H12.5M8 17H15.5"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+          />
+        }
         @case ('reviews') {
           <path
             d="M12 4L14.472 9.008L20 9.812L16 13.71L16.944 19.216L12 16.616L7.056 19.216L8 13.71L4 9.812L9.528 9.008L12 4Z"

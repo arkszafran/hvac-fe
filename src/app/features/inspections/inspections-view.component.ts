@@ -10,6 +10,7 @@ import {
   UiCardComponent,
   UiEmptyStateComponent,
   UiInputComponent,
+  UiModalComponent,
   UiSelectComponent,
   UiSelectOption,
 } from '../../ui';
@@ -47,6 +48,7 @@ import {
     UiCardComponent,
     UiEmptyStateComponent,
     UiInputComponent,
+    UiModalComponent,
     UiSelectComponent,
     InspectionCreateModalComponent,
     InspectionScheduleModalComponent,
@@ -55,9 +57,9 @@ import {
   template: `
     <div class="space-y-10">
       <section class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 class="text-display tracking-[-0.035em] text-text-main">Przeglady</h1>
+        <h1 class="text-display tracking-[-0.035em] text-text-main">Przeglądy</h1>
         <ui-button size="sm" (pressed)="isCreateModalOpen.set(true)">
-          Dodaj przeglad
+          Dodaj przegląd
         </ui-button>
       </section>
 
@@ -107,7 +109,7 @@ import {
                       {{ customerName(item.customer) }} • {{ deviceAddress(item.customer, item.device) }}
                     </p>
                     <p class="text-small text-text-muted">
-                      Termin przegladu: {{ formatInspectionDate(item.device.nextInspectionDate) }}
+                      Termin przeglądu: {{ formatInspectionDate(item.device.nextInspectionDate) }}
                     </p>
                   </div>
 
@@ -116,7 +118,7 @@ import {
                     size="sm"
                     (pressed)="createInspectionForDevice(item.customer.id, item.device.id)"
                   >
-                    Dodaj przeglad
+                    Dodaj przegląd
                   </ui-button>
                 </div>
               </ui-card>
@@ -124,8 +126,8 @@ import {
           </div>
         } @else {
           <ui-empty-state
-            title="Brak urzadzen bez przegladu"
-            description="Wszystkie kwalifikujace sie urzadzenia sa juz przypisane do aktywnych obiektow planowania."
+            title="Brak urządzeń bez przeglądu"
+            description="Wszystkie kwalifikujące się urządzenia są już przypisane do aktywnych obiektów planowania."
           />
         }
       } @else if (filteredInspections().length) {
@@ -136,7 +138,7 @@ import {
                 class="ui-focus-ring border-b border-border/80 px-4 py-4 transition-colors duration-200 last:border-b-0 hover:bg-primary-soft/20"
                 role="button"
                 tabindex="0"
-                [attr.aria-label]="'Otworz szczegoly przegladu ' + customerName(details.customer)"
+                [attr.aria-label]="'Otwórz szczegóły przeglądu ' + customerName(details.customer)"
                 (click)="navigateToInspection(details.inspection.id)"
                 (keydown)="handleInspectionKeydown($event, details.inspection.id)"
               >
@@ -204,7 +206,7 @@ import {
                           variant="ghost"
                           (pressed)="handleCompleteButtonPress($event, details.inspection.id)"
                         >
-                          Zakoncz
+                          Zakończ
                         </ui-button>
                       }
                     </div>
@@ -239,7 +241,7 @@ import {
                     class="group/row ui-focus-ring cursor-pointer transition duration-200 hover:bg-primary-soft/18 focus-visible:bg-primary-soft/22"
                     role="button"
                     tabindex="0"
-                    [attr.aria-label]="'Otworz szczegoly przegladu ' + customerName(details.customer)"
+                    [attr.aria-label]="'Otwórz szczegóły przeglądu ' + customerName(details.customer)"
                     (click)="navigateToInspection(details.inspection.id)"
                     (keydown)="handleInspectionKeydown($event, details.inspection.id)"
                   >
@@ -294,7 +296,7 @@ import {
                             variant="ghost"
                             (pressed)="handleCompleteButtonPress($event, details.inspection.id)"
                           >
-                            Zakoncz
+                            Zakończ
                           </ui-button>
                         }
                         @if (!canScheduleFromList(details.inspection.status) && !canCompleteFromList(details.inspection.status)) {
@@ -310,9 +312,9 @@ import {
         </div>
       } @else {
         <ui-empty-state
-          title="Brak przegladow w tym widoku"
-          description="Wybierz inny widok z listy lub dodaj nowy przeglad."
-          actionLabel="Dodaj przeglad"
+          title="Brak przeglądów w tym widoku"
+          description="Wybierz inny widok z listy lub dodaj nowy przegląd."
+          actionLabel="Dodaj przegląd"
           (action)="isCreateModalOpen.set(true)"
         />
       }
@@ -333,6 +335,49 @@ import {
         (close)="closeScheduleModal()"
         (save)="scheduleInspectionFromList($event)"
       />
+
+      <ui-modal
+        [open]="isFinalizeModalOpen()"
+        title="Zakończ przegląd"
+        description="Wybierz, jak zamknąć proces planowania przeglądu."
+        (close)="closeFinalizeModal()"
+      >
+        @if (selectedInspectionForFinalization(); as details) {
+          <div class="flex flex-col gap-4">
+            <div class="rounded-[1rem] border border-border/80 bg-white px-4 py-4">
+              <p class="text-label text-text-main">{{ customerName(details.customer) }}</p>
+              <p class="text-small text-text-muted">{{ inspectionAddressSummary(details) }}</p>
+              <p class="text-small text-text-muted">
+                Urządzenia: {{ details.devices.length }}
+              </p>
+            </div>
+
+            <div class="grid gap-3">
+              <button
+                type="button"
+                class="ui-focus-ring rounded-[1rem] border border-border/85 bg-white px-4 py-4 text-left transition hover:border-danger/28 hover:bg-danger-soft"
+                (click)="cancelFinalizedInspection()"
+              >
+                <span class="block text-label text-text-main">Klient zrezygnował z przeglądów</span>
+                <span class="block text-small text-text-muted">
+                  Przegląd otrzyma status anulowany.
+                </span>
+              </button>
+
+              <button
+                type="button"
+                class="ui-focus-ring rounded-[1rem] border border-border/85 bg-white px-4 py-4 text-left transition hover:border-primary/28 hover:bg-primary-soft/24"
+                (click)="completeInspectionAndCreateVisit()"
+              >
+                <span class="block text-label text-text-main">Wizyta się odbyła</span>
+                <span class="block text-small text-text-muted">
+                  Przegląd zostanie zakończony, a formularz wizyty otworzy się z wybranym klientem i urządzeniami.
+                </span>
+              </button>
+            </div>
+          </div>
+        }
+      </ui-modal>
     </div>
   `,
 })
@@ -350,6 +395,7 @@ export class InspectionsViewComponent {
 
   protected readonly isCreateModalOpen = signal(false);
   protected readonly scheduledInspectionId = signal<string | null>(null);
+  protected readonly finalizingInspectionId = signal<string | null>(null);
   protected readonly searchQuery = signal('');
 
   protected readonly inspectionDetails = this.inspectionsStore.inspectionDetails;
@@ -406,6 +452,14 @@ export class InspectionsViewComponent {
     return inspection.plannedDate || inspection.targetDate || inspection.windowStart || '';
   });
   protected readonly isScheduleModalOpen = computed(() => Boolean(this.scheduledInspectionId()));
+  protected readonly selectedInspectionForFinalization = computed(() => {
+    const inspectionId = this.finalizingInspectionId();
+
+    return inspectionId
+      ? this.inspectionDetails().find((details) => details.inspection.id === inspectionId)
+      : undefined;
+  });
+  protected readonly isFinalizeModalOpen = computed(() => Boolean(this.finalizingInspectionId()));
   protected readonly customerOptions = computed(() =>
     this.filteredOrphanDevices()
       .map((item) => item.customer)
@@ -506,7 +560,38 @@ export class InspectionsViewComponent {
 
   protected handleCompleteButtonPress(event: MouseEvent, inspectionId: string): void {
     event.stopPropagation();
-    this.markCompletedFromList(inspectionId);
+    this.finalizingInspectionId.set(inspectionId);
+  }
+
+  protected closeFinalizeModal(): void {
+    this.finalizingInspectionId.set(null);
+  }
+
+  protected cancelFinalizedInspection(): void {
+    const inspectionId = this.finalizingInspectionId();
+
+    if (!inspectionId) {
+      return;
+    }
+
+    this.inspectionsStore.cancelInspection(inspectionId);
+    this.closeFinalizeModal();
+  }
+
+  protected completeInspectionAndCreateVisit(): void {
+    const inspectionId = this.finalizingInspectionId();
+
+    if (!inspectionId) {
+      return;
+    }
+
+    this.inspectionsStore.markCompleted(inspectionId);
+    this.closeFinalizeModal();
+    void this.router.navigate(['/visits/new'], {
+      queryParams: {
+        inspectionId,
+      },
+    });
   }
 
   protected scheduleActionLabel(status: InspectionStatus): string {

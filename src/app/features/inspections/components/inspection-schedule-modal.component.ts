@@ -11,8 +11,8 @@ import { UiButtonComponent, UiInputComponent, UiModalComponent } from '../../../
   template: `
     <ui-modal
       [open]="open()"
-      title="Ustal termin przegladu"
-      description="Wpisz uzgodniona z klientem date wykonania przegladu."
+      title="Ustal termin przeglądu"
+      description="Wpisz uzgodnioną z klientem datę wykonania przeglądu."
       (close)="handleClose()"
     >
       <form [formGroup]="form">
@@ -85,6 +85,6 @@ export class InspectionScheduleModalComponent {
       return '';
     }
 
-    return 'Data planowanego przegladu jest wymagana.';
+    return 'Data planowanego przeglądu jest wymagana.';
   }
 }

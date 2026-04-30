@@ -56,14 +56,14 @@ import {
                 [queryParams]="listQueryParams()"
                 class="text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
               >
-                Lista przegladow
+                Lista przeglądów
               </a>
               <span aria-hidden="true">/</span>
               <span class="text-text-main">{{ customerName(details.customer) }}</span>
             </nav>
 
             <h1 class="text-display tracking-[-0.04em] text-text-main">
-              Przeglad klienta {{ customerName(details.customer) }}
+              Przegląd klienta {{ customerName(details.customer) }}
             </h1>
             <p class="text-body text-text-muted">
               {{ formatInspectionWindow(details.inspection.windowStart, details.inspection.windowEnd) }}
@@ -89,7 +89,7 @@ import {
                 variant="ghost"
                 (pressed)="markCompleted()"
               >
-                Zakoncz
+                Zakończ
               </ui-button>
             }
           </div>
@@ -98,7 +98,7 @@ import {
         @if (details.conflict; as conflict) {
           <ui-card>
             <div class="rounded-[1rem] border border-danger/30 bg-danger-soft px-4 py-4">
-              <p class="text-label text-danger">Konflikt w przegladzie</p>
+              <p class="text-label text-danger">Konflikt w przeglądzie</p>
               <p class="mt-2 text-body text-text-main">{{ conflict.message }}</p>
             </div>
           </ui-card>
@@ -159,16 +159,16 @@ import {
 
         <ui-card>
           <div card-header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 class="text-h3 tracking-[-0.02em] text-text-main">Urzadzenia</h2>
+            <h2 class="text-h3 tracking-[-0.02em] text-text-main">Urządzenia</h2>
             <div class="flex flex-wrap items-center gap-3">
-              <ui-badge variant="info">{{ details.devices.length }} urzadzenia</ui-badge>
+              <ui-badge variant="info">{{ details.devices.length }} urządzenia</ui-badge>
               <ui-button
                 size="sm"
                 variant="secondary"
                 [disabled]="!canAddDevice()"
                 (pressed)="isAddDeviceModalOpen.set(true)"
               >
-                Dodaj urzadzenie
+                Dodaj urządzenie
               </ui-button>
             </div>
           </div>
@@ -183,7 +183,7 @@ import {
                       {{ deviceAddress(details.customer, device) }}
                     </p>
                     <p class="text-small text-text-muted">
-                      Nastepny przeglad: {{ formatInspectionDate(device.nextInspectionDate) }}
+                      Następny przegląd: {{ formatInspectionDate(device.nextInspectionDate) }}
                     </p>
                   </div>
 
@@ -193,7 +193,7 @@ import {
                       size="sm"
                       (pressed)="navigateToDevice(details.customer.id, device.id)"
                     >
-                      Szczegoly urzadzenia
+                      Szczegóły urządzenia
                     </ui-button>
                     <ui-button
                       variant="ghost"
@@ -201,7 +201,7 @@ import {
                       [disabled]="!canRemoveDevice()"
                       (pressed)="removeDevice(device.id)"
                     >
-                      Usun urzadzenie
+                      Usuń urządzenie
                     </ui-button>
                   </div>
                 </div>
@@ -212,8 +212,8 @@ import {
 
         <ui-modal
           [open]="isAddDeviceModalOpen()"
-          title="Dodaj urzadzenie do przegladu"
-          description="Pokazujemy tylko urzadzenia tego klienta, ktore maja aktywne przeglady, nie naleza do innego otwartego obiektu i mieszcza sie w oknie 30 dni."
+          title="Dodaj urządzenie do przeglądu"
+          description="Pokazujemy tylko urządzenia tego klienta, które mają aktywne przeglądy, nie należą do innego otwartego obiektu i mieszczą się w oknie 30 dni."
           (close)="closeAddDeviceModal()"
         >
           @if (addableDevices().length) {
@@ -240,7 +240,7 @@ import {
             </div>
           } @else {
             <div class="rounded-[1rem] border border-dashed border-border/90 bg-white/76 px-4 py-5 text-body text-text-muted">
-              Brak urzadzen, ktore mozna teraz bezpiecznie dodac do tego przegladu.
+              Brak urządzeń, które można teraz bezpiecznie dodać do tego przeglądu.
             </div>
           }
 
@@ -254,7 +254,7 @@ import {
               [disabled]="!selectedDeviceIds().length"
               (pressed)="attachSelectedDevices()"
             >
-              Dodaj urzadzenia
+              Dodaj urządzenia
             </ui-button>
           </div>
         </ui-modal>
@@ -267,9 +267,9 @@ import {
         />
       } @else {
         <ui-empty-state
-          title="Nie znalezlismy przegladu"
-          description="Sprawdz identyfikator albo wroc do listy przegladow."
-          actionLabel="Wroc do listy przegladow"
+          title="Nie znaleźliśmy przeglądu"
+          description="Sprawdź identyfikator albo wróć do listy przeglądów."
+          actionLabel="Wróć do listy przeglądów"
           (action)="navigateToList()"
         />
       }
