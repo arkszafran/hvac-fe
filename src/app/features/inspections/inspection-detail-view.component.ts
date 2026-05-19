@@ -12,6 +12,7 @@ import {
 } from '../../ui';
 import { Customer } from '../customers/models/customer.model';
 import { Device } from '../customers/models/device.model';
+import { InspectionFinalizeModalComponent } from './components/inspection-finalize-modal.component';
 import { InspectionScheduleModalComponent } from './components/inspection-schedule-modal.component';
 import { InspectionsStore } from './data/inspections.store';
 import { InspectionStatus } from './models/inspection.model';
@@ -42,6 +43,7 @@ import {
     UiCardComponent,
     UiEmptyStateComponent,
     UiModalComponent,
+    InspectionFinalizeModalComponent,
     InspectionScheduleModalComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -87,7 +89,7 @@ import {
               <ui-button
                 size="sm"
                 variant="ghost"
-                (pressed)="markCompleted()"
+                (pressed)="openFinalizeModal()"
               >
                 Zakończ
               </ui-button>
@@ -265,6 +267,12 @@ import {
           (close)="isScheduleModalOpen.set(false)"
           (save)="scheduleInspection($event)"
         />
+
+        <app-inspection-finalize-modal
+          [open]="isFinalizeModalOpen()"
+          [inspectionId]="finalizingInspectionId()"
+          (close)="closeFinalizeModal()"
+        />
       } @else {
         <ui-empty-state
           title="Nie znaleźliśmy przeglądu"
@@ -290,6 +298,7 @@ export class InspectionDetailViewComponent {
     { initialValue: this.route.snapshot.queryParamMap.get('view') },
   );
   protected readonly isScheduleModalOpen = signal(false);
+  protected readonly finalizingInspectionId = signal<string | null>(null);
   protected readonly isAddDeviceModalOpen = signal(false);
   protected readonly selectedDeviceIds = signal<string[]>([]);
   protected readonly details = computed(() =>
@@ -419,14 +428,22 @@ export class InspectionDetailViewComponent {
     this.isScheduleModalOpen.set(false);
   }
 
-  protected markCompleted(): void {
+  protected openFinalizeModal(): void {
     const inspectionId = this.details()?.inspection.id;
 
     if (!inspectionId) {
       return;
     }
 
-    this.inspectionsStore.markCompleted(inspectionId);
+    this.finalizingInspectionId.set(inspectionId);
+  }
+
+  protected closeFinalizeModal(): void {
+    this.finalizingInspectionId.set(null);
+  }
+
+  protected isFinalizeModalOpen(): boolean {
+    return Boolean(this.finalizingInspectionId());
   }
 
   protected toggleDeviceSelection(deviceId: string): void {

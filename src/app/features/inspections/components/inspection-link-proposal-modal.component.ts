@@ -63,14 +63,14 @@ import {
         </div>
       }
 
-      <div modal-footer class="grid gap-3 sm:grid-cols-3">
+      <div modal-footer class="grid gap-3 sm:grid-cols-2">
         <ui-button type="button" variant="ghost" [block]="true" (pressed)="close.emit()">
           {{ cancelLabel() }}
         </ui-button>
         <ui-button type="button" variant="secondary" [block]="true" (pressed)="createSeparate.emit()">
           {{ secondaryActionLabel() }}
         </ui-button>
-        <ui-button type="button" [block]="true" (pressed)="confirm.emit()">
+        <ui-button type="button" class="sm:col-span-2" [block]="true" (pressed)="confirm.emit()">
           {{ primaryActionLabel() }}
         </ui-button>
       </div>

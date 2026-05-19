@@ -46,7 +46,7 @@ import { Device, DeviceDraft } from './models/device.model';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="space-y-8">
+    <div class="flex flex-col gap-8">
       @if (customer(); as customer) {
         <section class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div class="space-y-1">
@@ -64,7 +64,6 @@ import { Device, DeviceDraft } from './models/device.model';
             <h1 class="text-display tracking-[-0.04em] text-text-main">
               {{ customerTitle(customer) }}
             </h1>
-            <p class="text-body text-text-muted">{{ customerSubtitle(customer) }}</p>
           </div>
 
           <div class="flex flex-wrap items-center gap-3">
@@ -86,8 +85,28 @@ import { Device, DeviceDraft } from './models/device.model';
             </div>
 
             <div class="space-y-0.5 text-body text-text-main">
-              <span>{{ customer.phone || '--' }}</span>
-              <div>{{ customer.email || '--' }}</div>
+              @if (customer.phone) {
+                <a
+                  class="ui-focus-ring w-fit text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
+                  [href]="phoneHref(customer.phone)"
+                >
+                  {{ customer.phone }}
+                </a>
+              } @else {
+                <span>--</span>
+              }
+              <div>
+                @if (customer.email) {
+                  <a
+                    class="ui-focus-ring w-fit text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
+                    [href]="emailHref(customer.email)"
+                  >
+                    {{ customer.email }}
+                  </a>
+                } @else {
+                  --
+                }
+              </div>
             </div>
 
             <div class="space-y-0.5 text-body text-text-main">
@@ -151,35 +170,33 @@ import { Device, DeviceDraft } from './models/device.model';
           }
         </ui-card>
 
-        <div class="pt-5">
-          <ui-card padding="sm">
-            <div
-              card-header
-              class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-            >
-              <h2 class="text-h3 tracking-[-0.02em] text-text-main">Urządzenia</h2>
+        <ui-card padding="sm">
+          <div
+            card-header
+            class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <h2 class="text-h3 tracking-[-0.02em] text-text-main">Urządzenia</h2>
 
-              <ui-button variant="secondary" size="sm" (pressed)="isAddDeviceModalOpen.set(true)">
-                Dodaj urządzenie
-              </ui-button>
-            </div>
+            <ui-button variant="secondary" size="sm" (pressed)="isAddDeviceModalOpen.set(true)">
+              Dodaj urządzenie
+            </ui-button>
+          </div>
 
-            @if (customer.devices.length) {
-              <app-device-list
-                [devices]="customer.devices"
-                (deviceSelected)="handleDeviceSelected(customer.id, $event)"
-                (deviceEditRequested)="handleEditDevice($event)"
-              />
-            } @else {
-              <ui-empty-state
-                title="Brak urządzeń"
-                description=""
-                actionLabel="Dodaj urządzenie"
-                (action)="isAddDeviceModalOpen.set(true)"
-              />
-            }
-          </ui-card>
-        </div>
+          @if (customer.devices.length) {
+            <app-device-list
+              [devices]="customer.devices"
+              (deviceSelected)="handleDeviceSelected(customer.id, $event)"
+              (deviceEditRequested)="handleEditDevice($event)"
+            />
+          } @else {
+            <ui-empty-state
+              title="Brak urządzeń"
+              description=""
+              actionLabel="Dodaj urządzenie"
+              (action)="isAddDeviceModalOpen.set(true)"
+            />
+          }
+        </ui-card>
 
         <app-customer-form-modal
           [open]="isEditCustomerModalOpen()"
@@ -373,12 +390,12 @@ export class CustomerDetailViewComponent {
     return customer.companyName || customer.fullName || 'Nowy klient';
   }
 
-  protected customerSubtitle(customer: Customer): string {
-    const customerTypeLabel =
-      customer.type === 'company' ? 'Firma i osoba kontaktowa' : 'Osoba prywatna';
-    const contactLabel = customer.fullName || 'Brak osoby kontaktowej';
+  protected phoneHref(phone: string): string {
+    return `tel:${phone.replace(/[^\d+]/g, '')}`;
+  }
 
-    return `${customerTypeLabel} - ${contactLabel}`;
+  protected emailHref(email: string): string {
+    return `mailto:${email.trim()}`;
   }
 
   protected handleUpdateCustomer(customerDraft: CustomerDraft): void {

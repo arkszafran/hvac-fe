@@ -10,13 +10,13 @@ import {
   UiCardComponent,
   UiEmptyStateComponent,
   UiInputComponent,
-  UiModalComponent,
   UiSelectComponent,
   UiSelectOption,
 } from '../../ui';
 import { Customer } from '../customers/models/customer.model';
 import { Device } from '../customers/models/device.model';
 import { InspectionCreateModalComponent } from './components/inspection-create-modal.component';
+import { InspectionFinalizeModalComponent } from './components/inspection-finalize-modal.component';
 import { InspectionScheduleModalComponent } from './components/inspection-schedule-modal.component';
 import { InspectionDetails, InspectionsStore } from './data/inspections.store';
 import { InspectionStatus } from './models/inspection.model';
@@ -48,9 +48,9 @@ import {
     UiCardComponent,
     UiEmptyStateComponent,
     UiInputComponent,
-    UiModalComponent,
     UiSelectComponent,
     InspectionCreateModalComponent,
+    InspectionFinalizeModalComponent,
     InspectionScheduleModalComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -336,48 +336,11 @@ import {
         (save)="scheduleInspectionFromList($event)"
       />
 
-      <ui-modal
+      <app-inspection-finalize-modal
         [open]="isFinalizeModalOpen()"
-        title="Zakończ przegląd"
-        description="Wybierz, jak zamknąć proces planowania przeglądu."
+        [inspectionId]="finalizingInspectionId()"
         (close)="closeFinalizeModal()"
-      >
-        @if (selectedInspectionForFinalization(); as details) {
-          <div class="flex flex-col gap-4">
-            <div class="rounded-[1rem] border border-border/80 bg-white px-4 py-4">
-              <p class="text-label text-text-main">{{ customerName(details.customer) }}</p>
-              <p class="text-small text-text-muted">{{ inspectionAddressSummary(details) }}</p>
-              <p class="text-small text-text-muted">
-                Urządzenia: {{ details.devices.length }}
-              </p>
-            </div>
-
-            <div class="grid gap-3">
-              <button
-                type="button"
-                class="ui-focus-ring rounded-[1rem] border border-border/85 bg-white px-4 py-4 text-left transition hover:border-danger/28 hover:bg-danger-soft"
-                (click)="cancelFinalizedInspection()"
-              >
-                <span class="block text-label text-text-main">Klient zrezygnował z przeglądów</span>
-                <span class="block text-small text-text-muted">
-                  Przegląd otrzyma status anulowany.
-                </span>
-              </button>
-
-              <button
-                type="button"
-                class="ui-focus-ring rounded-[1rem] border border-border/85 bg-white px-4 py-4 text-left transition hover:border-primary/28 hover:bg-primary-soft/24"
-                (click)="completeInspectionAndCreateVisit()"
-              >
-                <span class="block text-label text-text-main">Wizyta się odbyła</span>
-                <span class="block text-small text-text-muted">
-                  Przegląd zostanie zakończony, a formularz wizyty otworzy się z wybranym klientem i urządzeniami.
-                </span>
-              </button>
-            </div>
-          </div>
-        }
-      </ui-modal>
+      />
     </div>
   `,
 })
@@ -452,13 +415,6 @@ export class InspectionsViewComponent {
     return inspection.plannedDate || inspection.targetDate || inspection.windowStart || '';
   });
   protected readonly isScheduleModalOpen = computed(() => Boolean(this.scheduledInspectionId()));
-  protected readonly selectedInspectionForFinalization = computed(() => {
-    const inspectionId = this.finalizingInspectionId();
-
-    return inspectionId
-      ? this.inspectionDetails().find((details) => details.inspection.id === inspectionId)
-      : undefined;
-  });
   protected readonly isFinalizeModalOpen = computed(() => Boolean(this.finalizingInspectionId()));
   protected readonly customerOptions = computed(() =>
     this.filteredOrphanDevices()
@@ -554,10 +510,6 @@ export class InspectionsViewComponent {
     this.closeScheduleModal();
   }
 
-  protected markCompletedFromList(inspectionId: string): void {
-    this.inspectionsStore.markCompleted(inspectionId);
-  }
-
   protected handleCompleteButtonPress(event: MouseEvent, inspectionId: string): void {
     event.stopPropagation();
     this.finalizingInspectionId.set(inspectionId);
@@ -565,33 +517,6 @@ export class InspectionsViewComponent {
 
   protected closeFinalizeModal(): void {
     this.finalizingInspectionId.set(null);
-  }
-
-  protected cancelFinalizedInspection(): void {
-    const inspectionId = this.finalizingInspectionId();
-
-    if (!inspectionId) {
-      return;
-    }
-
-    this.inspectionsStore.cancelInspection(inspectionId);
-    this.closeFinalizeModal();
-  }
-
-  protected completeInspectionAndCreateVisit(): void {
-    const inspectionId = this.finalizingInspectionId();
-
-    if (!inspectionId) {
-      return;
-    }
-
-    this.inspectionsStore.markCompleted(inspectionId);
-    this.closeFinalizeModal();
-    void this.router.navigate(['/visits/new'], {
-      queryParams: {
-        inspectionId,
-      },
-    });
   }
 
   protected scheduleActionLabel(status: InspectionStatus): string {

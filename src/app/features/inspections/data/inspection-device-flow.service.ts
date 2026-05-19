@@ -111,8 +111,8 @@ export class InspectionDeviceFlowService {
         customerName,
         deviceName: this.getDeviceName(deviceDraft),
         candidate: matches[0],
-        primaryActionLabel: 'Dołącz do istniejącego przeglądu',
-        createActionLabel: 'Utwórz osobny przegląd',
+        primaryActionLabel: 'Dołącz do przeglądu',
+        createActionLabel: 'Osobny przegląd',
         cancelActionLabel: 'Anuluj',
         transition: 'none',
       };
@@ -415,9 +415,9 @@ export class InspectionDeviceFlowService {
         customerName: this.getCustomerName(customer),
         deviceName: this.getDeviceName(nextDraft),
         candidate: matches[0],
-        primaryActionLabel: 'Dołącz do istniejącego przeglądu',
-        createActionLabel: 'Utwórz osobny przegląd',
-        cancelActionLabel: 'Cofnij zmianę daty',
+        primaryActionLabel: 'Dołącz do przeglądu',
+        createActionLabel: 'Osobny przegląd',
+        cancelActionLabel: 'Cofnij datę',
         transition: 'none',
       };
     }

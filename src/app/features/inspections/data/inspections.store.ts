@@ -355,6 +355,23 @@ export class InspectionsStore {
     });
   }
 
+  cancelInspectionAndDisableDeviceInspections(inspectionId: string): Inspection | undefined {
+    const inspection = this.getInspectionById(inspectionId);
+
+    if (!inspection) {
+      return undefined;
+    }
+
+    for (const deviceId of inspection.deviceIds) {
+      this.customersStore.updateDeviceInspectionSettings(inspection.customerId, deviceId, {
+        hasScheduledInspections: false,
+        nextInspectionDate: '',
+      });
+    }
+
+    return this.cancelInspection(inspectionId);
+  }
+
   getNextActionLabel(inspection: Inspection): string {
     return getInspectionNextActionLabel(inspection.status);
   }
