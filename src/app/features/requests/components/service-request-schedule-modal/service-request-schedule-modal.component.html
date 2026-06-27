@@ -1,0 +1,25 @@
+<ui-modal
+  [open]="open()"
+  title="Potwierdź termin wizyty"
+  description="Wpisz datę uzgodnioną z klientem."
+  (close)="handleClose()"
+>
+  <form [formGroup]="form">
+    <ui-input
+      label="Data spotkania"
+      type="date"
+      required
+      [error]="validationError()"
+      formControlName="appointmentDate"
+    />
+  </form>
+
+  <div modal-footer class="grid gap-3 sm:grid-cols-2">
+    <ui-button type="button" variant="ghost" [block]="true" (pressed)="handleClose()">
+      Anuluj
+    </ui-button>
+    <ui-button type="button" [block]="true" (pressed)="handleSubmit()">
+      Zapisz termin
+    </ui-button>
+  </div>
+</ui-modal>

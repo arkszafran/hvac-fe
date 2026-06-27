@@ -111,9 +111,16 @@
             <ui-button size="sm" variant="secondary" (pressed)="isCustomerPickerOpen.set(true)">
               Wybierz klienta
             </ui-button>
-            <ui-button size="sm" variant="ghost" (pressed)="isCustomerFormOpen.set(true)">
-              Dodaj klienta
-            </ui-button>
+            @if (pendingCustomerDraft()) {
+              <ui-button size="sm" variant="ghost" (pressed)="openCustomerEditForm()">
+                Sprawdź dane
+              </ui-button>
+            }
+            @if (!pendingCustomerDraft()) {
+              <ui-button size="sm" variant="ghost" (pressed)="openCustomerCreateForm()">
+                Dodaj klienta
+              </ui-button>
+            }
           </div>
         }
       </ui-card>
@@ -121,9 +128,8 @@
 
     @if (selectedCustomer()) {
       <ui-card>
-        <div card-header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div card-header>
           <h2 class="text-h3 tracking-[-0.02em] text-text-main">Urządzenia i notatki</h2>
-          <ui-badge variant="info">{{ deviceEntries().length }}</ui-badge>
         </div>
 
         <div class="flex flex-wrap gap-2">
@@ -133,7 +139,7 @@
             </ui-button>
           }
           @if (canAddNewDevices()) {
-            <ui-button size="sm" variant="ghost" (pressed)="isDeviceFormOpen.set(true)">
+            <ui-button size="sm" variant="ghost" (pressed)="openNewDeviceForm()">
               Dodaj urządzenie
             </ui-button>
           }
@@ -150,9 +156,20 @@
                   </div>
 
                   @if (!isVisitFromScheduledInspection()) {
-                    <ui-button size="sm" variant="ghost" (pressed)="removeDevice(entry)">
-                      Usuń
-                    </ui-button>
+                    <div class="flex flex-wrap gap-2">
+                      @if (entry.newDevice?.source === 'request') {
+                        <ui-button size="sm" variant="ghost" (pressed)="openDeviceEditForm(entry)">
+                          Sprawdź dane
+                        </ui-button>
+                      } @else if (entry.newDevice) {
+                        <ui-button size="sm" variant="ghost" (pressed)="openDeviceEditForm(entry)">
+                          Edytuj dane
+                        </ui-button>
+                      }
+                      <ui-button size="sm" variant="ghost" (pressed)="removeDevice(entry)">
+                        Usuń
+                      </ui-button>
+                    </div>
                   }
                 </div>
 
@@ -275,8 +292,16 @@
 
   <app-customer-form-modal
     [open]="isCustomerFormOpen()"
-    (close)="isCustomerFormOpen.set(false)"
-    (save)="handleCreateCustomer($event)"
+    [initialValue]="customerFormInitialValue()"
+    [modalTitle]="customerFormMode() === 'edit' ? 'Sprawdź dane klienta' : 'Dodaj klienta'"
+    [modalDescription]="
+      customerFormMode() === 'edit'
+        ? 'Uzupełnij dane klienta przed zapisaniem wizyty.'
+        : 'Utwórz klienta, którego dodasz do wizyty.'
+    "
+    [submitLabel]="customerFormMode() === 'edit' ? 'Zapisz zmiany' : 'Zapisz klienta'"
+    (close)="closeCustomerForm()"
+    (save)="handleCustomerFormSave($event)"
   />
 
   <app-visit-device-picker-modal
@@ -289,8 +314,22 @@
 
   <app-device-form-modal
     [open]="isDeviceFormOpen()"
-    (close)="isDeviceFormOpen.set(false)"
-    (save)="handleAddDevice($event)"
+    [initialValue]="deviceFormInitialValue()"
+    [modalTitle]="
+      editingDeviceEntry()?.newDevice?.source === 'request'
+        ? 'Sprawdź dane urządzenia'
+        : editingDeviceEntry()
+          ? 'Edytuj dane urządzenia'
+          : 'Dodaj urządzenie'
+    "
+    [modalDescription]="
+      editingDeviceEntry()
+        ? 'Uzupełnij dane urządzenia przed zapisaniem wizyty.'
+        : ''
+    "
+    [submitLabel]="editingDeviceEntry() ? 'Zapisz zmiany' : 'Zapisz urządzenie'"
+    (close)="closeDeviceForm()"
+    (save)="handleDeviceFormSave($event)"
   />
 
   <app-visit-scheduled-inspection-picker-modal

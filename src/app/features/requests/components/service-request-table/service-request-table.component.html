@@ -1,0 +1,104 @@
+<ui-table
+  [columns]="columns"
+  [data]="requests()"
+  [rowClickable]="true"
+  rowActionLabel="Otwórz szczegóły zgłoszenia"
+  emptyTitle="Brak zgłoszeń"
+  emptyDescription="Nowe zgłoszenia z formularza i panelu klienta pojawią się tutaj."
+  (rowSelected)="requestSelected.emit($event)"
+>
+  <ng-template uiTableCell="type" let-request>
+    <div class="flex min-w-0 flex-col items-start gap-1.5">
+      <div class="flex flex-wrap items-center gap-2">
+        <ui-badge [variant]="getTypeBadgeVariant(request.requestType)">
+          {{ getTypeLabel(request.requestType) }}
+        </ui-badge>
+        @if (showStatusBadge()) {
+          <ui-badge [variant]="getStatusBadgeVariant(request.status)">
+            {{ getStatusLabel(request.status) }}
+          </ui-badge>
+        }
+      </div>
+
+      @if (request.appointmentDate) {
+        <p class="text-small text-text-muted">
+          Termin: {{ formatAppointmentDate(request) }}
+        </p>
+      }
+    </div>
+  </ng-template>
+
+  <ng-template uiTableCell="phone" let-request>
+    <div class="flex min-w-0 flex-col items-start gap-1">
+      <a
+        [href]="phoneHref(request.customer.phone)"
+        class="ui-focus-ring inline-flex min-h-10 items-center whitespace-nowrap rounded-[0.85rem] border border-border/80 bg-white px-3 text-label font-semibold text-primary-strong transition hover:border-primary/24 hover:bg-primary-soft/32"
+        (click)="$event.stopPropagation()"
+      >
+        {{ request.customer.phone || '--' }}
+      </a>
+      @if (request.customer.email) {
+        <a
+          [href]="emailHref(request.customer.email)"
+          class="ui-focus-ring text-small font-medium text-primary-strong underline decoration-primary/35 underline-offset-4 transition [overflow-wrap:anywhere] hover:text-primary hover:decoration-primary"
+          (click)="$event.stopPropagation()"
+        >
+          {{ request.customer.email }}
+        </a>
+      } @else {
+        <p class="text-small text-text-muted">--</p>
+      }
+    </div>
+  </ng-template>
+
+  <ng-template uiTableCell="actions" let-request>
+    <div
+      class="flex w-full flex-wrap items-center justify-start gap-1.5 text-left lg:flex-col lg:flex-nowrap lg:items-end lg:text-right"
+    >
+      @switch (request.status) {
+        @case ('new') {
+          <ui-button size="xs" variant="ghost" (pressed)="handleCreateVisit($event, request)">
+            Utwórz wizytę
+          </ui-button>
+          <ui-button
+            size="xs"
+            variant="secondary"
+            (pressed)="handleConfirmAppointment($event, request)"
+          >
+            Potwierdź termin wizyty
+          </ui-button>
+          <ui-button size="xs" variant="secondary" (pressed)="handleCancel($event, request)">
+            Anuluj
+          </ui-button>
+        }
+        @case ('scheduled') {
+          <ui-button size="xs" variant="ghost" (pressed)="handleCreateVisit($event, request)">
+            Utwórz wizytę
+          </ui-button>
+          <ui-button
+            size="xs"
+            variant="secondary"
+            (pressed)="handleConfirmAppointment($event, request)"
+          >
+            Zmień termin wizyty
+          </ui-button>
+          <ui-button size="xs" variant="secondary" (pressed)="handleCancel($event, request)">
+            Anuluj
+          </ui-button>
+        }
+        @case ('cancelled') {
+          <ui-button
+            size="xs"
+            variant="secondary"
+            (pressed)="handleConfirmAppointment($event, request)"
+          >
+            Wizyta odbędzie się
+          </ui-button>
+        }
+        @case ('completed') {
+          <span class="text-small text-text-muted">Brak akcji</span>
+        }
+      }
+    </div>
+  </ng-template>
+</ui-table>

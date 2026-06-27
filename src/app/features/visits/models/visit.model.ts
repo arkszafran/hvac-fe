@@ -7,6 +7,7 @@ export interface DeviceNote {
 
 export interface Visit {
   id: string;
+  requestId?: string;
   customerId: string;
   devicesList: string[];
   date: string;
@@ -16,6 +17,7 @@ export interface Visit {
 }
 
 export interface VisitDraft {
+  requestId?: string;
   customerId: string;
   devicesList: string[];
   date: string;

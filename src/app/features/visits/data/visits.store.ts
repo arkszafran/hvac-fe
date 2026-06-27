@@ -60,6 +60,7 @@ export class VisitsStore {
 
     const visit: Visit = {
       id: createEntityId('visit'),
+      requestId: draft.requestId?.trim() || undefined,
       customerId: draft.customerId.trim(),
       devicesList,
       date: draft.date.trim(),

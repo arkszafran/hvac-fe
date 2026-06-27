@@ -1,11 +1,16 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  Directive,
+  TemplateRef,
   booleanAttribute,
   computed,
+  contentChildren,
+  inject,
   input,
   output,
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 
 import { UiBadgeComponent } from '../badge/badge.component';
 import type { UiBadgeVariant } from '../badge/badge.component';
@@ -30,6 +35,20 @@ export interface UiTableColumn<T extends UiTableRow = UiTableRow> {
   badgeVariant?: UiBadgeVariant | ((value: string, row: T) => UiBadgeVariant);
 }
 
+export interface UiTableCellTemplateContext<T extends UiTableRow = UiTableRow> {
+  $implicit: T;
+  row: T;
+  column: UiTableColumn<T>;
+}
+
+@Directive({
+  selector: 'ng-template[uiTableCell]',
+})
+export class UiTableCellTemplateDirective<T extends UiTableRow = UiTableRow> {
+  readonly templateRef = inject<TemplateRef<UiTableCellTemplateContext<T>>>(TemplateRef);
+  readonly columnId = input.required<string>({ alias: 'uiTableCell' });
+}
+
 const DESKTOP_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
   start: 'text-left',
   center: 'text-center',
@@ -45,12 +64,12 @@ const MOBILE_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
 @Component({
   selector: 'ui-table',
   standalone: true,
-  imports: [UiBadgeComponent],
+  imports: [NgTemplateOutlet, UiBadgeComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="overflow-hidden rounded-[1.1rem] border border-border/90 bg-white shadow-card">
       @if (hasRows()) {
-        <div class="md:hidden">
+        <div class="lg:hidden">
           @for (row of data(); track trackRow($index, row)) {
             <article
               [class]="mobileRowClasses()"
@@ -70,7 +89,12 @@ const MOBILE_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
                     </p>
 
                     <div [class]="mobileCellClasses(column)">
-                      @if (column.type === 'badge') {
+                      @if (resolveCellTemplate(column); as cellTemplate) {
+                        <ng-container
+                          [ngTemplateOutlet]="cellTemplate.templateRef"
+                          [ngTemplateOutletContext]="cellTemplateContext(row, column)"
+                        />
+                      } @else if (column.type === 'badge') {
                         <ui-badge [variant]="resolveBadgeVariant(column, row)">
                           {{ resolveCellValue(row, column) }}
                         </ui-badge>
@@ -99,7 +123,7 @@ const MOBILE_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
           }
         </div>
 
-        <div class="hidden overflow-x-auto md:block">
+        <div class="hidden overflow-x-auto lg:block">
           <table class="min-w-full border-separate border-spacing-0">
             <thead>
               <tr>
@@ -128,7 +152,12 @@ const MOBILE_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
                   @for (column of columns(); track column.id) {
                     <td [class]="cellClasses(column)">
                       <div [class]="desktopCellContentClasses(column)">
-                        @if (column.type === 'badge') {
+                        @if (resolveCellTemplate(column); as cellTemplate) {
+                          <ng-container
+                            [ngTemplateOutlet]="cellTemplate.templateRef"
+                            [ngTemplateOutletContext]="cellTemplateContext(row, column)"
+                          />
+                        } @else if (column.type === 'badge') {
                           <ui-badge [variant]="resolveBadgeVariant(column, row)">
                             {{ resolveCellValue(row, column) }}
                           </ui-badge>
@@ -158,9 +187,9 @@ const MOBILE_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
           </table>
         </div>
       } @else {
-        <div class="px-5 py-10 text-center sm:px-6">
+        <div class="flex min-h-[22rem] items-stretch px-5 py-10 text-center sm:px-6">
           <div
-            class="mx-auto flex max-w-sm flex-col items-center rounded-[1rem] border border-dashed border-border/90 bg-[linear-gradient(180deg,_rgb(255_255_255/0.96),_rgb(247_249_252/0.9))] px-6 py-8"
+            class="flex min-h-[18rem] w-full flex-col items-center justify-center rounded-[1rem] border border-dashed border-border/90 bg-[linear-gradient(180deg,_rgb(255_255_255/0.96),_rgb(247_249_252/0.9))] px-6 py-8"
           >
             <div
               class="flex size-11 items-center justify-center rounded-full bg-primary-soft text-primary shadow-[inset_0_1px_0_rgb(255_255_255/0.82)]"
@@ -196,7 +225,20 @@ export class UiTableComponent {
 
   readonly rowSelected = output<any>();
 
+  private readonly customCellTemplates = contentChildren(UiTableCellTemplateDirective, {
+    descendants: true,
+  });
+
   protected readonly hasRows = computed(() => this.data().length > 0);
+  private readonly customCellTemplateMap = computed(() => {
+    const templates = new Map<string, UiTableCellTemplateDirective>();
+
+    for (const cellTemplate of this.customCellTemplates()) {
+      templates.set(cellTemplate.columnId(), cellTemplate);
+    }
+
+    return templates;
+  });
 
   protected headerClasses(column: UiTableColumn<any>): string {
     return classNames(
@@ -286,6 +328,21 @@ export class UiTableComponent {
     }
 
     return column.badgeVariant ?? 'neutral';
+  }
+
+  protected resolveCellTemplate(column: UiTableColumn<any>): UiTableCellTemplateDirective | null {
+    return this.customCellTemplateMap().get(column.id) ?? null;
+  }
+
+  protected cellTemplateContext(
+    row: UiTableRow,
+    column: UiTableColumn<any>,
+  ): UiTableCellTemplateContext {
+    return {
+      $implicit: row,
+      row,
+      column,
+    };
   }
 
   protected trackRow(index: number, row: UiTableRow): string | number {

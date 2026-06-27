@@ -10,7 +10,7 @@ import {
 import { classNames } from '../utils/classnames';
 
 type UiButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
-type UiButtonSize = 'sm' | 'md' | 'lg';
+type UiButtonSize = 'xs' | 'sm' | 'md' | 'lg';
 type UiButtonType = 'button' | 'submit' | 'reset';
 
 const VARIANT_CLASSES: Record<UiButtonVariant, string> = {
@@ -25,6 +25,7 @@ const VARIANT_CLASSES: Record<UiButtonVariant, string> = {
 };
 
 const SIZE_CLASSES: Record<UiButtonSize, string> = {
+  xs: 'min-h-8 px-2.5 text-small',
   sm: 'min-h-10 px-3.5 text-label',
   md: 'min-h-11 px-4.5 text-label',
   lg: 'min-h-12 px-5.5 text-label',
