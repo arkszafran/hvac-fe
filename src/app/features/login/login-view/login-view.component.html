@@ -1,0 +1,66 @@
+<main
+  class="ui-page grid min-h-screen place-items-center px-4 py-8 sm:px-6 lg:px-8"
+  aria-labelledby="login-title"
+>
+  <section class="w-full max-w-md">
+    <div class="mb-7 text-center">
+      <div
+        class="mx-auto mb-4 grid size-14 place-items-center rounded-[1.1rem] border border-primary/18 bg-primary-soft text-h3 font-semibold text-primary-strong shadow-card"
+        aria-hidden="true"
+      >
+        HV
+      </div>
+
+      <h1 id="login-title" class="text-h1 text-text-main">Logowanie</h1>
+    </div>
+
+    <form
+      class="ui-panel grid gap-5 p-5 sm:p-6"
+      novalidate
+      [formGroup]="form"
+      [attr.aria-busy]="isSubmitting() ? 'true' : 'false'"
+      (ngSubmit)="submit()"
+    >
+      @if (serverError()) {
+        <p
+          id="login-error"
+          class="rounded-[0.95rem] border border-danger/25 bg-danger-soft px-4 py-3 text-label font-medium text-danger"
+          role="alert"
+          aria-live="assertive"
+        >
+          {{ serverError() }}
+        </p>
+      }
+
+      <ui-input
+        label="Adres e-mail"
+        type="email"
+        autocomplete="email"
+        required
+        [error]="validationError('email')"
+        formControlName="email"
+      />
+
+      <ui-input
+        label="Hasło"
+        type="password"
+        autocomplete="current-password"
+        required
+        [error]="validationError('password')"
+        formControlName="password"
+      />
+
+      <ui-button type="submit" size="lg" block [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+          <span
+            button-icon
+            class="size-4 animate-spin rounded-full border-2 border-white/35 border-t-white"
+            aria-hidden="true"
+          ></span>
+        }
+
+        {{ isSubmitting() ? 'Logowanie...' : 'Zaloguj' }}
+      </ui-button>
+    </form>
+  </section>
+</main>

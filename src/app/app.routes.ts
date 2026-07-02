@@ -4,6 +4,11 @@ import { AppShellComponent } from './layout/app-shell/app-shell.component';
 
 export const routes: Routes = [
   {
+    path: 'login',
+    loadComponent: () =>
+      import('./pages/login/login.page').then((module) => module.LoginPageComponent),
+  },
+  {
     path: '',
     component: AppShellComponent,
     children: [
