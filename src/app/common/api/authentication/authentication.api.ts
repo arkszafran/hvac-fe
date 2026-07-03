@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 
 import { ApiClientService, ApiRequestOptions } from '../api-client.service';
 import {
+  AuthenticationRefreshResponseDto,
   AuthenticationSessionResponseDto,
   AuthenticationSuccessResponseDto,
   LoginDto,
@@ -28,8 +29,8 @@ export class AuthenticationApi {
     );
   }
 
-  refresh(options?: ApiRequestOptions): Observable<AuthenticationSuccessResponseDto> {
-    return this.api.post<AuthenticationSuccessResponseDto>(
+  refresh(options?: ApiRequestOptions): Observable<AuthenticationRefreshResponseDto> {
+    return this.api.post<AuthenticationRefreshResponseDto>(
       '/authentication/refresh',
       undefined,
       options,

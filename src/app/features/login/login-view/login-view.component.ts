@@ -2,12 +2,12 @@ import { HttpContext } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { SKIP_ERROR_TOAST, SKIP_GLOBAL_LOADER } from '../../../common/api/api-context.tokens';
 import type { ApiError } from '../../../common/api/api-error.model';
-import { AuthenticationApi, type LoginDto } from '../../../common/api/authentication';
+import type { LoginDto } from '../../../common/api/authentication';
+import { AuthService } from '../../../common/authentication';
 import { ToastService, UiButtonComponent, UiInputComponent } from '../../../ui';
 
 type LoginFormField = 'email' | 'password';
@@ -19,10 +19,9 @@ type LoginFormField = 'email' | 'password';
   templateUrl: './login-view.component.html',
 })
 export class LoginViewComponent {
-  private readonly authenticationApi = inject(AuthenticationApi);
+  private readonly authService = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
-  private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
 
   protected readonly form = this.formBuilder.nonNullable.group({
@@ -49,7 +48,7 @@ export class LoginViewComponent {
 
     this.isSubmitting.set(true);
 
-    this.authenticationApi
+    this.authService
       .login(this.loginDto(), {
         context: new HttpContext().set(SKIP_ERROR_TOAST, true).set(SKIP_GLOBAL_LOADER, true),
       })
@@ -62,7 +61,6 @@ export class LoginViewComponent {
       .subscribe({
         next: () => {
           this.toast.success('Zalogowano pomyślnie.');
-          void this.router.navigateByUrl('/dashboard');
         },
         error: (error: unknown) => {
           this.serverError.set(readLoginErrorMessage(error));

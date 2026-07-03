@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 
+import { authChildGuard, authGuard } from './common/authentication';
 import { AppShellComponent } from './layout/app-shell/app-shell.component';
 
 export const routes: Routes = [
@@ -11,6 +12,8 @@ export const routes: Routes = [
   {
     path: '',
     component: AppShellComponent,
+    canActivate: [authGuard],
+    canActivateChild: [authChildGuard],
     children: [
       {
         path: '',
