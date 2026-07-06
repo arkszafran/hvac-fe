@@ -7,7 +7,58 @@ export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () =>
-      import('./pages/login/login.page').then((module) => module.LoginPageComponent),
+      import('./pages/authentication/login/login.page').then(
+        (module) => module.LoginPageComponent,
+      ),
+  },
+  {
+    path: 'auto-login',
+    loadComponent: () =>
+      import('./pages/authentication/auto-login/auto-login.page').then(
+        (module) => module.AutoLoginPageComponent,
+      ),
+  },
+  {
+    path: 'account-blocked',
+    loadComponent: () =>
+      import('./pages/authentication/account-blocked/account-blocked.page').then(
+        (module) => module.AccountBlockedPageComponent,
+      ),
+  },
+  {
+    path: 'account-unlock',
+    loadComponent: () =>
+      import('./pages/authentication/account-unlock/account-unlock.page').then(
+        (module) => module.AccountUnlockPageComponent,
+      ),
+  },
+  {
+    path: 'pin-login',
+    loadComponent: () =>
+      import('./pages/authentication/pin-login/pin-login.page').then(
+        (module) => module.PinLoginPageComponent,
+      ),
+  },
+  {
+    path: 'request-password-reset',
+    loadComponent: () =>
+      import('./pages/authentication/password-reset-request/password-reset-request.page').then(
+        (module) => module.PasswordResetRequestPageComponent,
+      ),
+  },
+  {
+    path: 'password-reset',
+    loadComponent: () =>
+      import('./pages/authentication/password-reset/password-reset.page').then(
+        (module) => module.PasswordResetPageComponent,
+      ),
+  },
+  {
+    path: 'setup-new-credentails',
+    loadComponent: () =>
+      import('./pages/authentication/setup-new-credentials/setup-new-credentials.page').then(
+        (module) => module.SetupNewCredentialsPageComponent,
+      ),
   },
   {
     path: '',

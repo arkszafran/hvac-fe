@@ -1,0 +1,48 @@
+<main
+  class="ui-page grid min-h-screen place-items-center px-4 py-8 sm:px-6 lg:px-8"
+  aria-labelledby="auto-login-title"
+>
+  <section class="w-full max-w-md">
+    <div class="mb-7 text-center">
+      <div
+        class="mx-auto mb-4 grid size-14 place-items-center rounded-[1.1rem] border border-primary/18 bg-primary-soft text-h3 font-semibold text-primary-strong shadow-card"
+        aria-hidden="true"
+      >
+        HV
+      </div>
+
+      <h1 id="auto-login-title" class="text-h1 text-text-main">Logowanie</h1>
+    </div>
+
+    <div class="ui-panel grid gap-5 p-5 text-center sm:p-6">
+      @if (isLoading()) {
+        <div
+          class="inline-flex min-h-6 items-center justify-center gap-2 text-label font-medium text-primary-strong"
+          role="status"
+          aria-live="polite"
+        >
+          <span
+            class="size-4 animate-spin rounded-full border-2 border-primary/30 border-t-primary"
+            aria-hidden="true"
+          ></span>
+          Logowanie z linku...
+        </div>
+      } @else if (errorMessage()) {
+        <p
+          class="rounded-[0.95rem] border border-danger/25 bg-danger-soft px-4 py-3 text-label font-medium text-danger"
+          role="alert"
+          aria-live="assertive"
+        >
+          {{ errorMessage() }}
+        </p>
+
+        <a
+          routerLink="/login"
+          class="ui-focus-ring inline-flex min-h-11 items-center justify-center rounded-[0.95rem] border border-border/90 bg-white px-4.5 text-label font-semibold text-text-main transition duration-200 ease-out hover:-translate-y-0.5 hover:border-primary/22 hover:bg-primary-soft/45 hover:text-primary-strong active:translate-y-0 active:bg-primary-soft/60"
+        >
+          Wroc do logowania
+        </a>
+      }
+    </div>
+  </section>
+</main>

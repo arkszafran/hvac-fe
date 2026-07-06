@@ -9,11 +9,16 @@ import { ApiError } from '../api/api-error.model';
 import { mapApiError } from '../api/api-error.mapper';
 import {
   SKIP_AUTH_REFRESH,
+  SKIP_API_REDIRECT,
   SKIP_ERROR_TOAST,
   SKIP_GLOBAL_LOADER,
 } from '../api/api-context.tokens';
 import { AppLoaderService } from '../loader/app-loader.service';
 import { ToastService } from '../../ui/toast/toast.service';
+
+const ACCOUNT_BLOCKED_ERROR_CODES = new Set(['LOGIN_RETRIES_LIMIT_REACHED', 'ACCOUNT_BLOCKED']);
+const ACCOUNT_BLOCKED_ROUTE = '/account-blocked';
+const PIN_REQUIRED_ERROR_CODE = 'PIN_REQUIRED';
 
 export const apiInterceptor: HttpInterceptorFn = (request, next) => {
   const authService = inject(AuthService);
@@ -30,20 +35,32 @@ export const apiInterceptor: HttpInterceptorFn = (request, next) => {
     catchError((error: unknown) => {
       const apiError = mapApiError(error);
 
-      if (readRedirectTo(apiError.details) !== null) {
-        return handleApiError(apiError, request, router, toast);
+      if (isImmediateAuthRedirectError(apiError)) {
+        return handleApiError(apiError, request, router, toast, authService);
+      }
+
+      if (readRedirectTo(apiError.details) !== null && !request.context.get(SKIP_API_REDIRECT)) {
+        return handleApiError(apiError, request, router, toast, authService);
       }
 
       if (!shouldRefreshSession(request, apiError)) {
-        return handleApiError(apiError, request, router, toast);
+        return handleApiError(apiError, request, router, toast, authService);
       }
 
       return authService.refreshSession().pipe(
-        catchError(() => handleApiError(apiError, request, router, toast)),
+        catchError((refreshError: unknown) => {
+          const refreshApiError = mapApiError(refreshError);
+
+          if (isImmediateAuthRedirectError(refreshApiError)) {
+            return handleApiError(refreshApiError, request, router, toast, authService);
+          }
+
+          return handleApiError(apiError, request, router, toast, authService);
+        }),
         switchMap(() =>
           next(markRequestAsAuthRetried(request)).pipe(
             catchError((retryError: unknown) =>
-              handleApiError(mapApiError(retryError), request, router, toast),
+              handleApiError(mapApiError(retryError), request, router, toast, authService),
             ),
           ),
         ),
@@ -57,15 +74,40 @@ export const apiInterceptor: HttpInterceptorFn = (request, next) => {
   );
 };
 
+function isAccountBlockedError(apiError: ApiError): boolean {
+  return ACCOUNT_BLOCKED_ERROR_CODES.has(apiError.code);
+}
+
+function isPinRequiredError(apiError: ApiError): boolean {
+  return apiError.code === PIN_REQUIRED_ERROR_CODE;
+}
+
+function isImmediateAuthRedirectError(apiError: ApiError): boolean {
+  return isAccountBlockedError(apiError) || isPinRequiredError(apiError);
+}
+
 function handleApiError(
   apiError: ApiError,
   request: HttpRequest<unknown>,
   router: Router,
   toast: ToastService,
+  authService: AuthService,
 ): Observable<never> {
+  if (isAccountBlockedError(apiError)) {
+    void router.navigateByUrl(ACCOUNT_BLOCKED_ROUTE);
+
+    return throwError(() => apiError);
+  }
+
+  if (isPinRequiredError(apiError)) {
+    authService.requirePinLogin();
+
+    return throwError(() => apiError);
+  }
+
   const redirectTo = readRedirectTo(apiError.details);
 
-  if (redirectTo !== null) {
+  if (redirectTo !== null && !request.context.get(SKIP_API_REDIRECT)) {
     void router.navigateByUrl(toAbsoluteRoutePath(redirectTo));
   }
 

@@ -3,6 +3,10 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ApiError, ApiErrorBody } from './api-error.model';
 
 export function mapApiError(error: unknown): ApiError {
+  if (isApiError(error)) {
+    return error;
+  }
+
   if (!(error instanceof HttpErrorResponse)) {
     return {
       status: 0,
@@ -22,6 +26,18 @@ export function mapApiError(error: unknown): ApiError {
     url: error.url ?? undefined,
     raw: error.error,
   };
+}
+
+function isApiError(error: unknown): error is ApiError {
+  if (!isRecord(error)) {
+    return false;
+  }
+
+  return (
+    typeof error['status'] === 'number' &&
+    typeof error['code'] === 'string' &&
+    typeof error['message'] === 'string'
+  );
 }
 
 function readBackendError(body: unknown): ApiErrorBody['error'] | null {

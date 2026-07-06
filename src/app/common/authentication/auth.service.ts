@@ -5,6 +5,7 @@ import { Observable, catchError, map, of, switchMap, tap, throwError } from 'rxj
 
 import {
   SKIP_AUTH_REFRESH,
+  SKIP_API_REDIRECT,
   SKIP_ERROR_TOAST,
   SKIP_GLOBAL_LOADER,
   type ApiRequestOptions,
@@ -14,11 +15,13 @@ import {
   type AuthenticationSessionUserDto,
   type AuthenticationSessionUserStatus,
   type LoginDto,
+  type PinLoginDto,
 } from '../api/authentication';
 import { environment } from '../../../environments/environment';
 
 const NEW_USER_SETUP_PATH = 'setup-new-credentails';
-const BLOCKED_USER_PATH = 'user-blocked';
+const BLOCKED_USER_PATH = 'account-blocked';
+const PIN_LOGIN_PATH = 'pin-login';
 
 interface SessionHandlingOptions {
   shouldRedirect: boolean;
@@ -29,8 +32,10 @@ export class AuthService {
   private readonly authenticationApi = inject(AuthenticationApi);
   private readonly router = inject(Router);
   private readonly sessionUser = signal<AuthenticationSessionUserDto | null>(null);
+  private readonly initialCredentialsPassword = signal<string | null>(null);
 
   readonly user = this.sessionUser.asReadonly();
+  readonly currentInitialCredentialsPassword = this.initialCredentialsPassword.asReadonly();
   readonly isAuthenticated = computed(() => this.user() !== null);
   readonly canAccessProtectedRoutes = computed(() => {
     const user = this.user();
@@ -39,9 +44,21 @@ export class AuthService {
   });
 
   initialize(): Observable<void> {
-    return this.refreshSession({ shouldRedirect: true }).pipe(
+    return this.authenticationApi.refresh({ context: createSilentAuthContext() }).pipe(
+      switchMap(() =>
+        this.loadSession(
+          { shouldRedirect: true },
+          {
+            context: createSilentAuthContext(),
+          },
+        ),
+      ),
       map(() => undefined),
-      catchError(() => of(undefined)),
+      catchError(() => {
+        this.clearSession();
+
+        return of(undefined);
+      }),
     );
   }
 
@@ -53,6 +70,46 @@ export class AuthService {
 
         return throwError(() => error);
       }),
+    );
+  }
+
+  autoLoginWithInitialCredentials(
+    body: LoginDto,
+    options?: ApiRequestOptions,
+  ): Observable<AuthenticationSessionUserDto> {
+    this.initialCredentialsPassword.set(body.password);
+
+    return this.login(body, options).pipe(
+      catchError((error: unknown) => {
+        this.initialCredentialsPassword.set(null);
+
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  pinLogin(
+    body: PinLoginDto,
+    options?: ApiRequestOptions,
+  ): Observable<AuthenticationSessionUserDto> {
+    return this.authenticationApi.pinLogin(body, options).pipe(
+      switchMap(() => this.loadSession({ shouldRedirect: true }, options)),
+      catchError((error: unknown) => {
+        this.clearSession();
+
+        return throwError(() => error);
+      }),
+    );
+  }
+
+  completeInitialCredentialsSetup(): Observable<AuthenticationSessionUserDto> {
+    this.initialCredentialsPassword.set(null);
+
+    return this.loadSession(
+      { shouldRedirect: true },
+      {
+        context: createSilentAuthContext(),
+      },
     );
   }
 
@@ -68,6 +125,11 @@ export class AuthService {
         return throwError(() => error);
       }),
     );
+  }
+
+  requirePinLogin(): void {
+    this.clearSession();
+    this.navigateTo(PIN_LOGIN_PATH);
   }
 
   private loadSession(
@@ -121,6 +183,7 @@ export class AuthService {
 function createSilentAuthContext(): HttpContext {
   return new HttpContext()
     .set(SKIP_AUTH_REFRESH, true)
+    .set(SKIP_API_REDIRECT, true)
     .set(SKIP_ERROR_TOAST, true)
     .set(SKIP_GLOBAL_LOADER, true);
 }
