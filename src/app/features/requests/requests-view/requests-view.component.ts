@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import {
   UiBadgeComponent,
@@ -28,6 +30,7 @@ type RequestStatusFilter = 'all' | ServiceRequestStatus;
   selector: 'app-requests-view',
   imports: [
     FormsModule,
+    TranslocoPipe,
     UiBadgeComponent,
     UiCardComponent,
     UiInputComponent,
@@ -42,34 +45,42 @@ type RequestStatusFilter = 'all' | ServiceRequestStatus;
 export class RequestsViewComponent {
   private readonly router = inject(Router);
   private readonly requestsStore = inject(ServiceRequestsStore);
+  private readonly transloco = inject(TranslocoService);
+  private readonly activeLanguage = toSignal(this.transloco.langChanges$, {
+    initialValue: this.transloco.getActiveLang(),
+  });
 
   protected readonly searchQuery = signal('');
   protected readonly statusFilter = signal<RequestStatusFilter>('new');
   protected readonly selectedRequestId = signal<string | null>(null);
   protected readonly scheduledRequestId = signal<string | null>(null);
   protected readonly requests = this.requestsStore.requests;
-  protected readonly statusFilterOptions: UiSelectOption[] = [
-    {
-      value: 'all',
-      label: 'Wszystkie',
-    },
-    {
-      value: 'new',
-      label: 'Do kontaktu',
-    },
-    {
-      value: 'scheduled',
-      label: 'Umówione',
-    },
-    {
-      value: 'completed',
-      label: 'Zakończone',
-    },
-    {
-      value: 'cancelled',
-      label: 'Anulowane',
-    },
-  ];
+  protected readonly statusFilterOptions = computed<UiSelectOption[]>(() => {
+    this.activeLanguage();
+
+    return [
+      {
+        value: 'all',
+        label: this.transloco.translate('requests.statuses.all'),
+      },
+      {
+        value: 'new',
+        label: getServiceRequestStatusLabel('new', this.transloco),
+      },
+      {
+        value: 'scheduled',
+        label: getServiceRequestStatusLabel('scheduled', this.transloco),
+      },
+      {
+        value: 'completed',
+        label: getServiceRequestStatusLabel('completed', this.transloco),
+      },
+      {
+        value: 'cancelled',
+        label: getServiceRequestStatusLabel('cancelled', this.transloco),
+      },
+    ];
+  });
 
   protected readonly filteredRequests = computed(() => {
     const statusFilter = this.statusFilter();
@@ -130,6 +141,15 @@ export class RequestsViewComponent {
     return this.requests().filter((request) => request.status === status).length;
   }
 
+  protected statusCountLabel(status: ServiceRequestStatus): string {
+    this.activeLanguage();
+
+    return this.transloco.translate('requests.badges.statusCount', {
+      label: getServiceRequestStatusLabel(status, this.transloco),
+      count: this.statusCount(status),
+    });
+  }
+
   protected setStatusFilter(value: string): void {
     this.statusFilter.set(parseStatusFilter(value));
   }
@@ -146,9 +166,9 @@ export class RequestsViewComponent {
 
   private searchText(request: ServiceRequest): string {
     return [
-      getServiceRequestTypeLabel(request.requestType),
-      getServiceRequestStatusLabel(request.status),
-      formatServiceRequestCustomerName(request.customer),
+      getServiceRequestTypeLabel(request.requestType, this.transloco),
+      getServiceRequestStatusLabel(request.status, this.transloco),
+      formatServiceRequestCustomerName(request.customer, this.transloco),
       request.customer.fullName,
       request.customer.companyName,
       request.customer.phone,

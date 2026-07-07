@@ -11,6 +11,7 @@ import {
   output,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
+import { TranslocoService } from '@jsverse/transloco';
 
 import { UiBadgeComponent } from '../badge/badge.component';
 import type { UiBadgeVariant } from '../badge/badge.component';
@@ -75,7 +76,7 @@ const MOBILE_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
               [class]="mobileRowClasses()"
               [attr.role]="rowClickable() ? 'button' : null"
               [attr.tabindex]="rowClickable() ? '0' : null"
-              [attr.aria-label]="rowClickable() ? rowActionLabel() : null"
+              [attr.aria-label]="rowClickable() ? rowActionLabelText() : null"
               (click)="handleRowSelect(row, $event)"
               (keydown)="handleRowKeydown($event, row)"
             >
@@ -145,7 +146,7 @@ const MOBILE_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
                   [class]="desktopRowClasses()"
                   [attr.role]="rowClickable() ? 'button' : null"
                   [attr.tabindex]="rowClickable() ? '0' : null"
-                  [attr.aria-label]="rowClickable() ? rowActionLabel() : null"
+                  [attr.aria-label]="rowClickable() ? rowActionLabelText() : null"
                   (click)="handleRowSelect(row, $event)"
                   (keydown)="handleRowKeydown($event, row)"
                 >
@@ -203,9 +204,9 @@ const MOBILE_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
                 />
               </svg>
             </div>
-            <p class="mt-4 text-label text-text-main">{{ emptyTitle() }}</p>
-            @if (emptyDescription()) {
-              <p class="mt-1 text-body text-text-muted">{{ emptyDescription() }}</p>
+            <p class="mt-4 text-label text-text-main">{{ emptyTitleText() }}</p>
+            @if (emptyDescriptionText()) {
+              <p class="mt-1 text-body text-text-muted">{{ emptyDescriptionText() }}</p>
             }
           </div>
         </div>
@@ -214,14 +215,14 @@ const MOBILE_ALIGNMENT_CLASSES: Record<UiTableAlign, string> = {
   `,
 })
 export class UiTableComponent {
+  private readonly transloco = inject(TranslocoService);
+
   readonly columns = input<UiTableColumn<any>[]>([]);
   readonly data = input<any[]>([]);
   readonly rowClickable = input(false, { transform: booleanAttribute });
-  readonly rowActionLabel = input('Otwórz szczegóły rekordu');
-  readonly emptyTitle = input('Brak danych do wyświetlenia');
-  readonly emptyDescription = input(
-    'Po dodaniu rekordów zobaczysz tutaj ich aktualny stan i najważniejsze szczegóły.',
-  );
+  readonly rowActionLabel = input('');
+  readonly emptyTitle = input('');
+  readonly emptyDescription = input('');
 
   readonly rowSelected = output<any>();
 
@@ -375,6 +376,18 @@ export class UiTableComponent {
     this.rowSelected.emit(row);
   }
 
+  protected rowActionLabelText(): string {
+    return this.rowActionLabel() || this.transloco.translate('ui.table.rowActionLabel');
+  }
+
+  protected emptyTitleText(): string {
+    return this.emptyTitle() || this.transloco.translate('ui.table.emptyTitle');
+  }
+
+  protected emptyDescriptionText(): string {
+    return this.emptyDescription() || this.transloco.translate('ui.table.emptyDescription');
+  }
+
   private stringifyValue(value: unknown): string {
     if (value === null || value === undefined || value === '') {
       return '--';
@@ -385,7 +398,7 @@ export class UiTableComponent {
     }
 
     if (typeof value === 'boolean') {
-      return value ? 'Tak' : 'Nie';
+      return this.transloco.translate(value ? 'common.yes' : 'common.no');
     }
 
     if (value instanceof Date) {

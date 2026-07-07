@@ -1,21 +1,21 @@
 <div class="space-y-6">
   <section class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
     <div>
-      <h1 class="text-display tracking-[-0.04em] text-text-main">Wizyty</h1>
+      <h1 class="text-display tracking-[-0.04em] text-text-main">{{ 'visits.title' | transloco }}</h1>
       <p class="mt-1 text-body text-text-muted">
-        Fizyczne wizyty instalatora u klienta i notatki do historii urządzeń.
+        {{ 'visits.description' | transloco }}
       </p>
     </div>
 
-    <ui-button size="lg" (pressed)="navigateToCreateVisit()">Dodaj wizytę</ui-button>
+    <ui-button size="lg" (pressed)="navigateToCreateVisit()">{{ 'visits.actions.add' | transloco }}</ui-button>
   </section>
 
   <div class="rounded-[1.1rem] border border-border/90 bg-white px-4 py-4 shadow-card">
     <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
       <ui-input
         type="search"
-        label="Szukaj"
-        placeholder="Klient, dane kontaktowe albo adres urządzenia"
+        [label]="'visits.fields.search' | transloco"
+        [placeholder]="'visits.fields.searchPlaceholder' | transloco"
         [ngModel]="searchQuery()"
         (ngModelChange)="searchQuery.set($event)"
       />
@@ -29,10 +29,10 @@
         @for (details of filteredVisits(); track details.visit.id) {
           <article class="border-b border-border/80 px-4 py-4 last:border-b-0">
             <div class="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-x-3 gap-y-1">
-              <p class="text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">Data</p>
+              <p class="text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">{{ 'visits.fields.date' | transloco }}</p>
               <p class="text-label text-text-main">{{ formatDate(details.visit.date) }}</p>
 
-              <p class="text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">Klient</p>
+              <p class="text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">{{ 'visits.fields.customer' | transloco }}</p>
               <div>
                 <a
                   [routerLink]="['/customers', details.customer.id]"
@@ -53,7 +53,7 @@
                 <p class="text-[13px]/5 text-text-main/76">{{ deviceAddressSummary(details) }}</p>
               </div>
 
-              <p class="text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">Urządzenia</p>
+              <p class="text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">{{ 'visits.fields.devices' | transloco }}</p>
               <div class="flex flex-col gap-1 text-body text-text-main">
                 @for (item of deviceItems(details); track item.device.id) {
                   <p>
@@ -70,7 +70,7 @@
                 }
               </div>
 
-              <p class="text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">Typ</p>
+              <p class="text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">{{ 'visits.fields.type' | transloco }}</p>
               <p class="text-body text-text-main">{{ getVisitTypeLabel(details.visit.type) }}</p>
             </div>
           </article>
@@ -82,16 +82,16 @@
           <thead>
             <tr>
               <th class="border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted first:pl-6">
-                Data
+                {{ 'visits.fields.date' | transloco }}
               </th>
               <th class="border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
-                Klient
+                {{ 'visits.fields.customer' | transloco }}
               </th>
               <th class="border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
-                Urządzenia
+                {{ 'visits.fields.devices' | transloco }}
               </th>
               <th class="border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted last:pr-6">
-                Typ
+                {{ 'visits.fields.type' | transloco }}
               </th>
             </tr>
           </thead>
@@ -151,9 +151,9 @@
     </div>
   } @else {
     <ui-empty-state
-      title="Brak wizyt"
-      description="Dodaj pierwszą wizytę po fizycznej wizycie instalatora u klienta."
-      actionLabel="Dodaj wizytę"
+      [title]="'visits.list.emptyTitle' | transloco"
+      [description]="'visits.list.emptyDescription' | transloco"
+      [actionLabel]="'visits.actions.add' | transloco"
       (action)="navigateToCreateVisit()"
     />
   }

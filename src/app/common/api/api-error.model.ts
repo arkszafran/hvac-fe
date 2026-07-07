@@ -2,6 +2,7 @@ export interface ApiError {
   status: number;
   code: string;
   message: string;
+  messageKey?: string;
   details?: unknown;
   url?: string;
   raw?: unknown;

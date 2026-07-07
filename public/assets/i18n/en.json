@@ -1,0 +1,962 @@
+{
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "empty": "None",
+    "notSelected": "Not selected",
+    "notSpecified": "Not specified",
+    "actions": {
+      "cancel": "Cancel",
+      "close": "Close",
+      "save": "Save",
+      "saveChanges": "Save changes",
+      "edit": "Edit",
+      "details": "Details"
+    },
+    "search": {
+      "label": "Search"
+    },
+    "pin": {
+      "keyboard": "PIN keypad",
+      "slots": "Entered PIN digits",
+      "progress": "{{entered}} of {{total}} PIN digits entered.",
+      "digit": "Digit {{digit}}",
+      "delete": "Delete"
+    }
+  },
+  "layout": {
+    "productTagline": "Lightweight SaaS for HVAC service teams",
+    "languageSwitcher": {
+      "label": "Language selection",
+      "changeTo": "Change language to {{language}}"
+    },
+    "navigation": {
+      "dashboard": "Dashboard",
+      "customers": "Customers",
+      "devices": "Devices",
+      "requests": "Requests",
+      "visits": "Visits",
+      "inspections": "Inspections",
+      "settings": "Settings"
+    },
+    "topBar": {
+      "openMenu": "Open menu",
+      "notifications": "Notifications",
+      "userProfile": "User profile"
+    }
+  },
+  "ui": {
+    "emptyState": {
+      "title": "No data",
+      "description": "Items will appear here as soon as you add the first records."
+    },
+    "select": {
+      "placeholder": "Select an option"
+    },
+    "table": {
+      "rowActionLabel": "Open record details",
+      "emptyTitle": "No data to display",
+      "emptyDescription": "After adding records, you will see their current state and key details here."
+    },
+    "toast": {
+      "success": "Done",
+      "error": "An error occurred",
+      "info": "Information",
+      "warning": "Warning"
+    },
+    "drawer": {
+      "close": "Close panel"
+    },
+    "modal": {
+      "close": "Close modal"
+    }
+  },
+  "api": {
+    "errors": {
+      "unknown": "An unexpected error occurred.",
+      "network": "Could not connect to the server.",
+      "unauthorized": "The session has expired or the login details are invalid.",
+      "forbidden": "You do not have permission to perform this operation.",
+      "notFound": "Resource was not found.",
+      "conflict": "These details conflict with an existing resource.",
+      "validation": "Form data needs correction.",
+      "server": "A server error occurred.",
+      "request": "The request ended with an error.",
+      "requestWithMessage": "The request ended with an error."
+    }
+  },
+  "auth": {
+    "fields": {
+      "email": "Email address",
+      "password": "Password",
+      "newPassword": "New password",
+      "repeatNewPassword": "Repeat new password"
+    },
+    "actions": {
+      "backToLogin": "Back to login",
+      "next": "Next",
+      "back": "Back",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "validation": {
+      "emailRequired": "Email address is required.",
+      "emailInvalid": "Enter a valid email address.",
+      "passwordRequired": "Password is required.",
+      "passwordMinLength": "Password must be at least 8 characters long.",
+      "passwordMaxLength": "Password cannot be longer than 100 characters.",
+      "passwordComplexity": "Password must contain at least one uppercase letter and one digit.",
+      "passwordDifferentThanActivation": "Password must be different from the activation-link password.",
+      "passwordConfirmationRequired": "Password confirmation is required.",
+      "passwordMismatch": "Passwords must match."
+    },
+    "errors": {
+      "network": "Could not connect to the server.",
+      "server": "A server error occurred. Try again in a moment."
+    },
+    "login": {
+      "title": "Login",
+      "submit": "Log in",
+      "submitting": "Logging in...",
+      "forgotPassword": "Forgot your password?",
+      "toast": {
+        "success": "Logged in successfully."
+      },
+      "errors": {
+        "genericRetry": "Could not log in. Try again.",
+        "checkCredentials": "Could not log in. Check your details and try again.",
+        "invalidCredentials": "Invalid email address or password.",
+        "validation": "Login details need correction.",
+        "accountBlocked": "The account has been blocked. We sent unlock instructions to the email address."
+      }
+    },
+    "passwordResetRequest": {
+      "title": "Password reset",
+      "hint": "If the link does not arrive right away, give it a moment. You can request a new link once every 5 minutes.",
+      "submit": "Reset password",
+      "submitting": "Sending...",
+      "successMessage": "We sent a password reset link to {{email}}.",
+      "errors": {
+        "sendFailed": "Could not send the password reset link. Try again."
+      }
+    },
+    "passwordReset": {
+      "title": "Change password",
+      "invalidLink": "The password change link is invalid or has expired.",
+      "requestNewLink": "Request a new link",
+      "passwordHint": "Password must be at least 8 characters long and contain at least one uppercase letter and one digit.",
+      "submit": "Change password",
+      "toast": {
+        "success": "Password has been changed. You can log in."
+      },
+      "errors": {
+        "changeFailed": "Could not change the password. Request a new link and try again."
+      }
+    },
+    "setup": {
+      "title": "Set login details",
+      "step": "Step {{current}} of {{total}}",
+      "invalidLink": "Open the activation link again to set the final password and PIN.",
+      "passwordHint": "Password must be 8-100 characters long, contain at least one uppercase letter and one digit, and be different from the activation-link password.",
+      "pinTitle": "Set PIN",
+      "pinDescription": "Set a 4-digit PIN. You will be able to log in to the app with it conveniently.",
+      "pinKeyboard": "PIN setup keypad",
+      "confirmPinTitle": "Confirm PIN",
+      "confirmPinDescription": "Enter the 4-digit PIN again.",
+      "confirmPinKeyboard": "PIN confirmation keypad",
+      "pinMismatch": "The entered PIN does not match the previous one.",
+      "pinLength": "Enter a 4-digit PIN.",
+      "errors": {
+        "missingLinkPassword": "We cannot save login details. Open the activation link again.",
+        "saveFailed": "Could not save login details. Try again."
+      }
+    },
+    "pinLogin": {
+      "title": "PIN",
+      "checking": "Checking PIN...",
+      "keyboard": "Login PIN keypad",
+      "errors": {
+        "failed": "Could not log in with PIN. Try again."
+      }
+    },
+    "autoLogin": {
+      "loading": "Logging in from link...",
+      "invalidLink": "The automatic login link is invalid or has expired.",
+      "errors": {
+        "failed": "Could not log in from the link. Request a new link and try again."
+      }
+    },
+    "accountBlocked": {
+      "title": "Account blocked",
+      "description": "Your account has been blocked. We sent unlock instructions to the email address assigned to the account."
+    },
+    "accountUnlock": {
+      "title": "Account unlock",
+      "loading": "Checking the account unlock link...",
+      "successMessage": "Your account has been unlocked. You can now return to login.",
+      "goToLogin": "Go to login",
+      "invalidLink": "The account unlock link is invalid or has expired.",
+      "toast": {
+        "success": "The account has been unlocked. You can log in."
+      },
+      "errors": {
+        "failed": "Could not unlock the account. Request a new link and try again."
+      }
+    }
+  },
+  "pages": {
+    "placeholder": {
+      "badge": "Placeholder version",
+      "readyEyebrow": "Ready to extend",
+      "readyTitle": "What is already prepared",
+      "footer": "This section is intentionally empty. We can safely add data, forms, and flows in the next steps."
+    },
+    "dashboard": {
+      "eyebrow": "Work start",
+      "title": "Dashboard",
+      "description": "A lightweight start screen for everyday HVAC company work. At this stage we leave a clear structure and space for future widgets.",
+      "emptyTitle": "Dashboard is waiting for the first views",
+      "emptyDescription": "A day summary, quick actions, and the most important team statuses will appear here later.",
+      "actionLabel": "Add widgets",
+      "checklist": {
+        "header": "section header ready for KPIs and quick actions",
+        "content": "main content area prepared for widgets",
+        "placeholder": "placeholder without business data or backend logic"
+      }
+    },
+    "settings": {
+      "eyebrow": "Configuration",
+      "title": "Settings",
+      "description": "A section for company, team, and system preference settings. At this stage we prepare only a modular container for future forms.",
+      "emptyTitle": "Settings are ready for configuration",
+      "emptyDescription": "In the next step we can add company profiles, permissions, integrations, and application settings here.",
+      "actionLabel": "Add configuration",
+      "checklist": {
+        "groups": "space for setting groups and form sections",
+        "layout": "layout aligned with the design system and ready to scale",
+        "placeholder": "calm placeholder without mixing business logic"
+      }
+    },
+    "reviews": {
+      "eyebrow": "Periodic work",
+      "title": "Inspections",
+      "description": "A structure for planning and performing periodic inspections. We leave clear space for schedules and task sets.",
+      "emptyTitle": "Inspections are waiting for configuration",
+      "emptyDescription": "In the next iterations we can add dates, statuses, and repeatable service packages for devices.",
+      "actionLabel": "Add schedule",
+      "checklist": {
+        "calendar": "space for a future calendar or inspection list view",
+        "cards": "card prepared for blocks with inspection types",
+        "lightweight": "the view remains lightweight and without business details"
+      }
+    },
+    "styleGuide": {
+      "hero": {
+        "title": "Expressive design system for operational SaaS",
+        "description": "Cool navy as primary, an orange accent, and more decisive components. The system is still lightweight, but now has stronger CTAs, states, and section separation.",
+        "newOrder": "New job"
+      },
+      "swatches": {
+        "background": "Cool, clean application background",
+        "surface": "Sections, cards, and overlays",
+        "primary": "Main CTA in cool navy",
+        "accent": "Orange accent for priorities",
+        "textMain": "Stronger typography hierarchy",
+        "border": "Clearer section separation"
+      },
+      "tabs": {
+        "overview": "Overview",
+        "schedule": "Schedule",
+        "billing": "Billing"
+      },
+      "regions": {
+        "warsaw": "Warsaw",
+        "lodz": "Lodz",
+        "krakow": "Krakow"
+      },
+      "sections": {
+        "buttonsTitle": "Stronger actions and clearer statuses",
+        "formsTitle": "Firmer fields and clearer sections",
+        "jobFormTitle": "Job form",
+        "overviewTitle": "Day overview",
+        "overviewDescription": "Key tasks, priorities, and active teams.",
+        "scheduleDescription": "Visit layout and team load view.",
+        "billingDescription": "Invoice, advance payment, and pending payment status.",
+        "tableTitle": "Daily jobs table",
+        "tableSectionTitle": "Table with a clearer header and hover state",
+        "tableDescription": "Column configuration controls headers, alignment, and cell type, while mobile automatically switches to readable cards.",
+        "demoConfigTitle": "Demo configuration",
+        "demoConfigDescription": "Mocks reflect a typical operational view: customer, date, technician, status, and amount.",
+        "records": "Records",
+        "recordsDescription": "Scheduled and active service visits."
+      },
+      "actions": {
+        "addCustomer": "Add customer",
+        "saveDraft": "Save draft",
+        "showDetails": "Show details",
+        "deleteEntry": "Delete entry",
+        "openModal": "Open modal",
+        "openDrawer": "Open drawer",
+        "clear": "Clear",
+        "applyFilters": "Apply filters",
+        "addFirstTemplate": "Add first template"
+      },
+      "form": {
+        "jobName": "Job name",
+        "jobNamePlaceholder": "e.g. Office air conditioning inspection",
+        "jobNameHint": "The technician will see this name in the mobile app.",
+        "contactPerson": "Contact person",
+        "contactPlaceholder": "e.g. Anna Kowalska",
+        "visitType": "Visit type",
+        "visitTypePlaceholder": "Select type",
+        "phoneError": "Enter a phone number in the correct format.",
+        "companyName": "Company name",
+        "drawerTitle": "Schedule filters",
+        "drawerDescription": "Example of a calm sheet for mobile work-view filtering.",
+        "region": "Region",
+        "taskType": "Task type",
+        "activeFilters": "Active filters",
+        "allRegions": "All regions",
+        "allTypes": "All types"
+      },
+      "empty": {
+        "title": "No active seasonal inspections",
+        "description": "After adding the first template, you will see task sets, team statuses, and quick actions here."
+      },
+      "modalDescription": "A subtle modal for quickly starting a job or creating a new company.",
+      "jobs": {
+        "headers": {
+          "scope": "Scope",
+          "schedule": "Date",
+          "technician": "Technician",
+          "amount": "Amount"
+        },
+        "status": {
+          "planned": "Planned",
+          "onRoute": "On route",
+          "waiting": "Waiting",
+          "completed": "Completed"
+        },
+        "job01": {
+          "service": "VRF inspection and unit cleaning",
+          "schedule": "Apr 08, 08:30",
+          "note": "2 technicians, entrance from reception",
+          "amount": "2,480 PLN"
+        },
+        "job02": {
+          "location": "Lodz, Sanitariuszek 72",
+          "service": "Supply air unit diagnostics",
+          "schedule": "Apr 08, 11:00",
+          "note": "SLA 4h priority",
+          "amount": "1,190 PLN"
+        },
+        "job03": {
+          "location": "Krakow, Lubicz 23",
+          "service": "Controller replacement and performance test",
+          "schedule": "Apr 08, 14:30",
+          "note": "Administrator approval required",
+          "amount": "3,760 PLN"
+        },
+        "job04": {
+          "location": "Warsaw, Woloska 9",
+          "service": "Sensor calibration and completion report",
+          "schedule": "Apr 09, 09:15",
+          "note": "Audit documentation",
+          "amount": "980 PLN"
+        }
+      }
+    }
+  },
+  "visits": {
+    "title": "Visits",
+    "description": "Physical installer visits at the customer's site and notes for device history.",
+    "actions": {
+      "add": "Add visit",
+      "save": "Save visit",
+      "chooseCustomer": "Choose customer",
+      "addCustomer": "Add customer",
+      "chooseDevices": "Choose devices",
+      "addDevice": "Add device",
+      "checkData": "Check details",
+      "editData": "Edit details",
+      "remove": "Remove",
+      "select": "Select"
+    },
+    "fields": {
+      "search": "Search",
+      "searchPlaceholder": "Customer, contact details, or device address",
+      "date": "Date",
+      "customer": "Customer",
+      "devices": "Devices",
+      "type": "Type",
+      "visitType": "Visit type",
+      "visitTypePlaceholder": "Select visit type",
+      "note": "Note",
+      "period": "Period",
+      "inspectionDate": "Inspection date"
+    },
+    "list": {
+      "emptyTitle": "No visits",
+      "emptyDescription": "Add the first visit after a physical installer visit at the customer's site."
+    },
+    "create": {
+      "breadcrumbs": {
+        "list": "Visit list",
+        "new": "New visit"
+      },
+      "title": "Add visit",
+      "description": "A visit saves notes that later create the device history.",
+      "sections": {
+        "typeAndDate": "Visit type and date",
+        "customer": "Customer",
+        "devicesAndNotes": "Devices and notes",
+        "nextInspection": "Next inspection planning"
+      },
+      "scheduledInspectionQuestion": "Is this a scheduled inspection?",
+      "selectedScheduledInspection": "Selected a scheduled inspection with {{count}} devices.",
+      "emptyDevicesDescription": "Select existing customer devices or add new ones.",
+      "commonNoteLabel": "One note for all devices",
+      "commonNoteDescription": "After clearing this, we will show a separate note for each device.",
+      "scheduleNextLabel": "Schedule the next inspection",
+      "scheduleNextDescription": "Saving updates the date on devices and creates a new inspection object.",
+      "newDevice": "New device",
+      "newDeviceDescription": "It will be added when the visit is saved",
+      "customerModal": {
+        "editTitle": "Check customer details",
+        "editDescription": "Complete the customer details before saving the visit.",
+        "createDescription": "Create the customer you will add to the visit."
+      },
+      "deviceModal": {
+        "checkTitle": "Check device details",
+        "editTitle": "Edit device details",
+        "editDescription": "Complete the device details before saving the visit."
+      },
+      "validation": {
+        "visitType": "Select the visit type.",
+        "scheduledInspection": "Choose whether the inspection was scheduled.",
+        "customer": "Choose or add a customer.",
+        "device": "Add at least one device.",
+        "nextInspectionDate": "Enter the next inspection date.",
+        "required": "Complete the required visit details."
+      },
+      "requestNotes": {
+        "year": "Device year: {{year}}.",
+        "error": "Request error: {{error}}."
+      }
+    },
+    "types": {
+      "installation": "Installation",
+      "repair": "Repair",
+      "inspection": "Inspection"
+    },
+    "customerPicker": {
+      "title": "Choose customer",
+      "description": "Customer list with search by contact details and address.",
+      "searchPlaceholder": "Name, person, phone, address",
+      "empty": "No customers match the search."
+    },
+    "devicePicker": {
+      "title": "Choose devices",
+      "description": "You can select more than one customer device.",
+      "searchPlaceholder": "Brand, model, serial number, address",
+      "empty": "No devices for the selected customer."
+    },
+    "scheduledInspectionPicker": {
+      "title": "Choose scheduled inspection",
+      "description": "We show inspections with scheduled status.",
+      "searchPlaceholder": "Customer, address, or device",
+      "empty": "No scheduled inspections to choose from."
+    }
+  },
+  "requests": {
+    "title": "Requests",
+    "description": "Cases from the customer panel and website form before a customer visit.",
+    "fields": {
+      "search": "Search",
+      "searchPlaceholder": "Customer, phone, address, or device",
+      "status": "Status",
+      "requestType": "Request type",
+      "customerAndAddress": "Customer and address",
+      "customerType": "Customer type",
+      "contactPerson": "Contact person",
+      "company": "Company",
+      "appointmentDate": "Appointment date",
+      "createdAt": "Created",
+      "buildingType": "Building type",
+      "rooms": "Rooms",
+      "requestPhotos": "Request photos",
+      "room": "Room {{index}}",
+      "area": "Area",
+      "height": "Height",
+      "outdoorUnitPlace": "Outdoor unit place",
+      "unitDistance": "Unit distance",
+      "floor": "Floor",
+      "displayedError": "Error displayed on the device",
+      "year": "Year",
+      "refrigerantType": "Refrigerant type",
+      "nameplatePhotos": "Nameplate photos"
+    },
+    "actions": {
+      "createVisit": "Create visit",
+      "confirmAppointment": "Confirm visit date",
+      "changeAppointment": "Change visit date",
+      "visitWillHappen": "Visit will happen",
+      "download": "Download"
+    },
+    "types": {
+      "installation": "Installation",
+      "repair": "Repair",
+      "inspection": "Inspection"
+    },
+    "statuses": {
+      "all": "All",
+      "new": "To contact",
+      "scheduled": "Scheduled",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "sources": {
+      "customerPanel": "Customer panel",
+      "websiteForm": "Website form"
+    },
+    "customerTypes": {
+      "company": "Company",
+      "individual": "Private person"
+    },
+    "buildingTypes": {
+      "apartmentBlock": "Apartment block",
+      "house": "House",
+      "officeBuilding": "Office building"
+    },
+    "outdoorUnitPlaces": {
+      "wall": "Wall",
+      "balcony": "Balcony"
+    },
+    "badges": {
+      "statusCount": "{{label}}: {{count}}"
+    },
+    "table": {
+      "rowActionLabel": "Open request details",
+      "emptyTitle": "No requests",
+      "emptyDescription": "New requests from the form and customer panel will appear here.",
+      "appointment": "Date: {{date}}",
+      "noActions": "No actions"
+    },
+    "scheduleModal": {
+      "title": "Confirm visit date",
+      "description": "Enter the date agreed with the customer.",
+      "appointmentDate": "Appointment date",
+      "save": "Save date",
+      "validation": "Appointment date is required."
+    },
+    "details": {
+      "title": "Request: {{type}}",
+      "fallbackTitle": "Request",
+      "installation": "Installation",
+      "repair": "Repair",
+      "inspection": "Inspection",
+      "deviceWithIndex": "Device {{index}}: {{device}}",
+      "roomPhotos": "Room photos",
+      "emptyAttachments": "No attachments",
+      "emptyPhotos": "No photos"
+    }
+  },
+  "inspections": {
+    "title": "Inspections",
+    "quickNavigation": "Quick navigation",
+    "searchPlaceholder": "Customer or address",
+    "openDetailsAria": "Open inspection details for {{customer}}",
+    "addressesPrefix": "Addresses: {{addresses}}",
+    "actions": {
+      "add": "Add inspection",
+      "complete": "Complete",
+      "create": "Create inspection",
+      "addDevice": "Add device",
+      "addDevices": "Add devices",
+      "deviceDetails": "Device details",
+      "removeDevice": "Remove device",
+      "selectInspection": "Select this inspection"
+    },
+    "fields": {
+      "customer": "Customer",
+      "contactDetails": "Contact details",
+      "plannedDate": "Planned date",
+      "inspectionDate": "Inspection date",
+      "devices": "Devices"
+    },
+    "table": {
+      "date": "Date",
+      "customer": "Customer",
+      "phone": "Phone",
+      "actions": "Actions"
+    },
+    "empty": {
+      "orphanDevicesTitle": "No devices without inspection",
+      "orphanDevicesDescription": "All eligible devices are already assigned to active planning cases.",
+      "viewTitle": "No inspections in this view",
+      "viewDescription": "Choose another view from the list or add a new inspection."
+    },
+    "orphanDevices": {
+      "nextInspection": "Inspection date: {{date}}"
+    },
+    "status": {
+      "new": "New",
+      "reminderSent": "Reminder sent",
+      "customerConfirmed": "Customer confirmed",
+      "customerNotConfirmed": "Customer did not confirm",
+      "scheduled": "Scheduled",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "nextActions": {
+      "sendReminder": "Send reminder",
+      "reminderSent": "Reminder sent",
+      "callAndSchedule": "Call and schedule",
+      "callAndRemind": "Call and remind about inspection",
+      "scheduled": "Inspection scheduled",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "scheduleActions": {
+      "changeDate": "Change date",
+      "confirmDate": "Confirm date"
+    },
+    "summary": {
+      "plannedDate": "Date: {{date}}",
+      "targetDate": "Target date: {{date}}",
+      "shortDescription": "{{status}} • {{window}} • {{deviceCount}} devices • {{plannedLabel}}"
+    },
+    "timeline": {
+      "plannedDate": "Scheduled date: {{date}}",
+      "window": "Inspection window: {{window}}"
+    },
+    "detail": {
+      "backToList": "Inspection list",
+      "title": "Customer inspection {{customer}}",
+      "conflictTitle": "Inspection conflict",
+      "unconfirmedDate": "Date not confirmed",
+      "deviceCount": "{{count}} devices",
+      "nextInspection": "Next inspection: {{date}}",
+      "addDeviceModalTitle": "Add device to inspection",
+      "addDeviceModalDescription": "We show only this customer's devices that have active inspections, are not assigned to another open object, and fit within the 30-day window.",
+      "noAddableDevices": "No devices can be safely added to this inspection right now.",
+      "notFoundTitle": "We could not find the inspection",
+      "notFoundDescription": "Check the identifier or return to the inspection list.",
+      "backToInspections": "Back to inspection list"
+    },
+    "scheduleModal": {
+      "title": "Set inspection date",
+      "description": "Enter the inspection date agreed with the customer.",
+      "save": "Save date",
+      "validation": "Planned inspection date is required."
+    },
+    "finalizeModal": {
+      "title": "Complete inspection",
+      "description": "Choose how to close the inspection planning process.",
+      "devices": "Devices: {{count}}",
+      "cancelTitle": "Customer resigned from inspections",
+      "cancelDescription": "The inspection will receive cancelled status.",
+      "completeTitle": "The visit took place",
+      "completeDescription": "The inspection will be completed and the visit form will open with the selected customer and devices."
+    },
+    "createModal": {
+      "title": "Create inspection",
+      "description": "Choose a customer and devices eligible for a shared inspection.",
+      "customerDevices": "Customer devices",
+      "customerDevicesDescription": "We show only devices with an active inspection date that are not already attached to an open object.",
+      "emptyDevices": "This customer has no devices ready to be manually added to an inspection right now."
+    },
+    "linkProposal": {
+      "defaultTitle": "Attach to inspection?",
+      "primaryAction": "Attach",
+      "secondaryAction": "Create separate inspection",
+      "devicesInInspection": "{{count}} devices in inspection"
+    },
+    "candidatePicker": {
+      "defaultTitle": "Choose inspection",
+      "createAction": "Create new inspection",
+      "empty": "No other matching inspections. You can create a new object or undo the change."
+    },
+    "conflicts": {
+      "missingDevice": "Some devices assigned to the inspection no longer exist in the database.",
+      "deviceNotEligible": "One of the devices is no longer eligible for an active periodic inspection.",
+      "dateWindow": "The planned date covers more than 30 days and requires devices to be reorganized."
+    },
+    "flow": {
+      "attachExistingTitle": "Attach device to an existing inspection?",
+      "newDeviceSingleDescription": "The new device matches one open customer inspection. You can attach it or create a separate inspection.",
+      "newDeviceChoiceTitle": "Choose inspection for the new device",
+      "newDeviceChoiceDescription": "We found several open customer inspections within the 30-day window. Choose where to attach the device or create a new inspection.",
+      "attachToInspection": "Attach to inspection",
+      "separateInspection": "Separate inspection",
+      "createNewInspection": "Create new inspection",
+      "dateChangeCreatesNewTitle": "Date change will create a new inspection",
+      "dateChangeCreatesNewDescription": "This device is the only item in an already scheduled inspection. Changing the date cancels the current inspection and creates a new planning object.",
+      "cancelCurrentAndCreateNew": "Cancel current and create new inspection",
+      "undoDateChange": "Undo date change",
+      "scheduledDateOutOfWindow": "The new date is outside the 30-day window of the currently scheduled inspection. The device must be detached from the current inspection and assigned elsewhere or a new one must be created.",
+      "dateOutOfWindow": "The new date is outside the 30-day window of the current inspection. Choose another open inspection, create a new one, or undo the change.",
+      "moveToOtherTitle": "Move device to another inspection?",
+      "assignToInspection": "Assign to this inspection",
+      "chooseNewInspectionTitle": "Choose new inspection for the device",
+      "newDateSingleDescription": "The new date qualifies this device for one open customer inspection. You can attach it or create a separate inspection.",
+      "undoDate": "Undo date",
+      "newDateChoiceTitle": "Choose inspection for the device",
+      "newDateChoiceDescription": "The new date matches several open customer inspections. Choose one or create a new inspection."
+    },
+    "views": {
+      "planned": {
+        "label": "Planned",
+        "description": "New inspections and inspections after a reminder has been sent."
+      },
+      "contact": {
+        "label": "To contact",
+        "description": "Inspections after customer response that require further contact."
+      },
+      "scheduled": {
+        "label": "Scheduled",
+        "description": "Inspections with a confirmed execution date."
+      },
+      "closed": {
+        "label": "Closed",
+        "description": "History of completed or cancelled cases."
+      },
+      "orphanDevices": {
+        "label": "Devices without inspection",
+        "description": "Devices eligible for inspection but not assigned to a planning case."
+      }
+    }
+  },
+  "customers": {
+    "title": "Customers",
+    "fallbackName": "Customer",
+    "newCustomer": "New customer",
+    "searchPlaceholder": "Company name, person, email, or address",
+    "actions": {
+      "add": "Add customer",
+      "edit": "Edit customer"
+    },
+    "detail": {
+      "planning": "Planning",
+      "activeInspections": "Active inspections",
+      "noActiveInspectionsTitle": "No active inspections",
+      "noActiveInspectionsDescription": "When the customer's devices have active inspection dates, you will see grouped matters here.",
+      "editModalDescription": "Update customer details without leaving the detail view.",
+      "notFoundTitle": "We could not find this customer",
+      "notFoundDescription": "The profile may not exist yet or the identifier is invalid."
+    },
+    "types": {
+      "individual": {
+        "label": "Private person",
+        "shortLabel": "Individual customer",
+        "description": "Individual customer with a home address or private unit."
+      },
+      "company": {
+        "label": "Company",
+        "shortLabel": "Company",
+        "description": "Business customer with a company name and contact person."
+      }
+    },
+    "table": {
+      "rowActionLabel": "Open customer details",
+      "emptyTitle": "No customers",
+      "client": "Customer",
+      "contact": "Contact",
+      "location": "Location"
+    },
+    "form": {
+      "defaultModalTitle": "Add customer",
+      "defaultModalDescription": "Create a new customer profile and go straight to the view with their devices.",
+      "defaultSubmitLabel": "Save customer",
+      "type": "Customer type",
+      "company": "Company",
+      "companyPlaceholder": "e.g. Klima Service Ltd.",
+      "fullName": "Full name",
+      "fullNamePlaceholder": "e.g. Anna Kowalska",
+      "phone": "Phone",
+      "email": "Email",
+      "address": "Address",
+      "addressPlaceholder": "Example St. 12",
+      "postalCode": "Postal code",
+      "city": "City",
+      "cityPlaceholder": "Warsaw"
+    },
+    "validation": {
+      "addressRequired": "Address is required.",
+      "postalCodeRequired": "Postal code is required.",
+      "cityRequired": "City is required.",
+      "phoneRequired": "Phone is required.",
+      "emailRequired": "Email is required."
+    }
+  },
+  "devices": {
+    "title": "Devices",
+    "searchPlaceholder": "Brand, model, customer, or installation address",
+    "actions": {
+      "add": "Add device",
+      "edit": "Edit device",
+      "manageInspections": "Manage inspections",
+      "openInspectionProcess": "Open inspection process",
+      "goToPlanning": "Go to planning"
+    },
+    "types": {
+      "airConditioning": "Air conditioning",
+      "heatPump": "Heat pump",
+      "ventilation": "Ventilation"
+    },
+    "warranty": {
+      "option": "{{months}} ({{years}})",
+      "monthsFew": "{{months}} months",
+      "monthsMany": "{{months}} months",
+      "halfYear": "0.5 year",
+      "oneYear": "1 year",
+      "yearsFew": "{{years}} years",
+      "yearsMany": "{{years}} years"
+    },
+    "inspections": {
+      "checkboxLabel": "Enable periodic inspections",
+      "checkboxDescription": "After enabling, you need to set the nearest inspection date and reminders will be sent.",
+      "disabled": "Inspections disabled",
+      "enabledNoDate": "Inspections enabled, no date",
+      "nextInspection": "Next inspection: {{date}}",
+      "presets": {
+        "custom": "Selected date",
+        "sixMonths": "6 months",
+        "twelveMonths": "12 months"
+      }
+    },
+    "form": {
+      "defaultModalTitle": "Add device",
+      "defaultSubmitLabel": "Save device",
+      "type": "Device type",
+      "typePlaceholder": "Select device type",
+      "brand": "Brand",
+      "brandPlaceholder": "Select brand",
+      "model": "Model",
+      "modelPlaceholder": "e.g. Stylish FTXA35",
+      "serialNumber": "Serial number",
+      "serialNumberPlaceholder": "e.g. SN-45812",
+      "refrigerant": "Refrigerant",
+      "refrigerantPlaceholder": "e.g. R32",
+      "refrigerantAmount": "Refrigerant amount",
+      "refrigerantAmountPlaceholder": "e.g. 1.4 kg",
+      "location": "Installation place",
+      "locationPlaceholder": "e.g. Living room",
+      "installationDate": "Commissioning date",
+      "warranty": "Warranty",
+      "nextInspectionPreset": "Next inspection in",
+      "nextInspectionDate": "Next inspection date",
+      "customAddressLabel": "This device has a different installation address than the customer",
+      "customAddressDescription": "Select this if the installation is in another unit, building, or apartment.",
+      "installationAddress": "Installation address",
+      "installationAddressPlaceholder": "Installation St. 7",
+      "note": "Note",
+      "notePlaceholder": "e.g. Unit by the living room, access from the terrace side."
+    },
+    "table": {
+      "device": "Device",
+      "brand": "Brand",
+      "model": "Model",
+      "address": "Address",
+      "customer": "Customer",
+      "dates": "Dates",
+      "installationPlace": "Installation place",
+      "actions": "Actions",
+      "openDetailsAria": "Open device details {{device}}",
+      "emptyTitle": "No devices",
+      "emptyDescription": "After adding devices, you will see the brand, model, installation address, and linked customer here."
+    },
+    "customerModal": {
+      "title": "Customer details",
+      "description": "Preview of customer details linked to the device.",
+      "customer": "Customer",
+      "contact": "Contact",
+      "address": "Address",
+      "allCustomerDevices": "All customer devices"
+    },
+    "customerPicker": {
+      "title": "Choose customer",
+      "description": "Select the customer this new device will be assigned to."
+    },
+    "detail": {
+      "breadcrumbs": {
+        "customerList": "Customer list",
+        "deviceList": "Device list",
+        "customer": "Customer: {{customer}}",
+        "device": "Device"
+      },
+      "sections": {
+        "deviceData": "Device data",
+        "mainInfo": "Key information",
+        "inspectionService": "Inspection service",
+        "planningStatus": "Planning status",
+        "planningProcess": "Planning process",
+        "installation": "Installation",
+        "locationAndNotes": "Location and notes",
+        "serviceHistory": "Service history"
+      },
+      "fields": {
+        "brand": "Brand",
+        "model": "Model",
+        "installationDate": "Commissioning date",
+        "warrantyUntil": "Warranty until",
+        "serialNumber": "Serial number",
+        "refrigerant": "Refrigerant",
+        "refrigerantAmount": "Refrigerant amount",
+        "installationAddress": "Installation address",
+        "installationPlace": "Installation place",
+        "note": "Note",
+        "nextInspection": "Next inspection"
+      },
+      "nextInspectionDisabled": "Inspections disabled",
+      "noInspectionDate": "No date",
+      "inspectionActive": "Inspections are active for this device.",
+      "inspectionSetupPrompt": "Enable inspections to set the next visit date.",
+      "devicesInProcess": "Devices in process: {{count}}",
+      "processDescription": "Contact and schedule details are managed in the linked inspection process.",
+      "missingProcessTitle": "No service process has been created for this date yet.",
+      "missingProcessDescription": "Inspections are enabled, but the device is not currently part of any open planning process.",
+      "noPlanningTitle": "No planning process",
+      "noPlanningDescription": "Inspections are disabled or the device does not have a next inspection date yet.",
+      "noNote": "No additional note for this device.",
+      "entriesCount": "{{count}} entries",
+      "noServiceHistoryTitle": "No service history",
+      "noServiceHistoryDescription": "After the first service visits are completed, you will see the full device history here.",
+      "notFoundDeviceTitle": "We could not find this device",
+      "notFoundDeviceDescription": "Check the identifier or return to the device list.",
+      "notFoundCustomerDeviceDescription": "Check the identifier or return to the customer's device list.",
+      "notFoundCustomerTitle": "We could not find this customer",
+      "notFoundCustomerDescription": "This profile does not exist or no longer has an assigned device.",
+      "backToCustomer": "Back to customer",
+      "backToCustomers": "Back to customer list",
+      "backToDevices": "Back to device list"
+    },
+    "serialNumberLabel": "Serial number: {{serialNumber}}",
+    "installationDateLabel": "Installation date: {{date}}",
+    "customerAddress": "Customer address",
+    "sameAddressAsCustomer": "Installation address is the same as the customer address",
+    "validation": {
+      "typeRequired": "Device type is required.",
+      "installationDateRequired": "Commissioning date is required when warranty is selected.",
+      "nextInspectionDateRequired": "Next inspection date is required when inspections are enabled.",
+      "brandRequired": "Brand is required.",
+      "modelRequired": "Model is required."
+    },
+    "nextInspectionModal": {
+      "title": "Change inspection settings",
+      "description": "Enable or disable periodic inspections and set the nearest inspection date."
+    },
+    "create": {
+      "backToList": "Back to devices",
+      "title": "Add device",
+      "description": "Select an existing customer or add a new one, then complete the device details.",
+      "deviceData": "Device details",
+      "pendingCustomerDescription": "The new customer will be saved together with the device.",
+      "noCustomerSelected": "No customer selected",
+      "selectedCustomer": "Selected customer",
+      "newCustomerToSave": "New customer to save",
+      "chooseCustomer": "Choose customer",
+      "newCustomerModalDescription": "Complete the customer details you want to assign to the device."
+    }
+  }
+}

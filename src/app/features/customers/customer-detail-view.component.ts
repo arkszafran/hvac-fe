@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { map } from 'rxjs';
 
 import {
@@ -17,6 +18,7 @@ import {
   InspectionDeviceFlowService,
 } from '../inspections/data/inspection-device-flow.service';
 import { InspectionsStore } from '../inspections/data/inspections.store';
+import { InspectionStatus } from '../inspections/models/inspection.model';
 import {
   formatInspectionWindow,
   getInspectionStatusLabel,
@@ -34,6 +36,7 @@ import { Device, DeviceDraft } from './models/device.model';
   standalone: true,
   imports: [
     RouterLink,
+    TranslocoPipe,
     UiBadgeComponent,
     UiButtonComponent,
     UiCardComponent,
@@ -55,10 +58,10 @@ import { Device, DeviceDraft } from './models/device.model';
                 routerLink="/customers"
                 class="text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
               >
-                Lista klientów
+                {{ 'devices.detail.breadcrumbs.customerList' | transloco }}
               </a>
               <span aria-hidden="true">/</span>
-              <span class="text-text-main">Klient: {{ customerTitle(customer) }}</span>
+              <span class="text-text-main">{{ 'devices.detail.breadcrumbs.customer' | transloco: { customer: customerTitle(customer) } }}</span>
             </nav>
 
             <h1 class="text-display tracking-[-0.04em] text-text-main">
@@ -68,7 +71,7 @@ import { Device, DeviceDraft } from './models/device.model';
 
           <div class="flex flex-wrap items-center gap-3">
             <ui-button size="sm" (pressed)="isEditCustomerModalOpen.set(true)">
-              Edytuj klienta
+              {{ 'customers.actions.edit' | transloco }}
             </ui-button>
           </div>
         </section>
@@ -122,8 +125,8 @@ import { Device, DeviceDraft } from './models/device.model';
             class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
           >
             <div>
-              <p class="ui-kicker">Planowanie</p>
-              <h2 class="text-h3 tracking-[-0.02em] text-text-main">Aktywne przeglądy</h2>
+              <p class="ui-kicker">{{ 'customers.detail.planning' | transloco }}</p>
+              <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'customers.detail.activeInspections' | transloco }}</h2>
             </div>
             <ui-badge variant="info">{{ activeInspections().length }}</ui-badge>
           </div>
@@ -139,7 +142,7 @@ import { Device, DeviceDraft } from './models/device.model';
                           {{ getInspectionStatusLabel(details.inspection.status) }}
                         </ui-badge>
                         <span class="text-small text-text-muted">
-                          {{ details.devices.length }} urządzenia
+                          {{ 'inspections.detail.deviceCount' | transloco: { count: details.devices.length } }}
                         </span>
                       </div>
 
@@ -147,7 +150,7 @@ import { Device, DeviceDraft } from './models/device.model';
                         {{ formatInspectionWindow(details.inspection.windowStart, details.inspection.windowEnd) }}
                       </p>
                       <p class="text-small text-text-muted">
-                        {{ details.inspection.plannedDate ? 'Termin: ' + formatDate(details.inspection.plannedDate) : 'Termin niepotwierdzony' }}
+                        {{ details.inspection.plannedDate ? ('inspections.summary.plannedDate' | transloco: { date: formatDate(details.inspection.plannedDate) }) : ('inspections.detail.unconfirmedDate' | transloco) }}
                       </p>
                     </div>
 
@@ -156,7 +159,7 @@ import { Device, DeviceDraft } from './models/device.model';
                       variant="ghost"
                       (pressed)="navigateToInspection(details.inspection.id)"
                     >
-                      Szczegóły przeglądu
+                      {{ 'common.actions.details' | transloco }}
                     </ui-button>
                   </div>
                 </article>
@@ -164,8 +167,8 @@ import { Device, DeviceDraft } from './models/device.model';
             </div>
           } @else {
             <ui-empty-state
-              title="Brak aktywnych przeglądów"
-              description="Gdy urządzenia klienta będą miały aktywne terminy przeglądów, zobaczysz tutaj pogrupowane sprawy."
+              [title]="'customers.detail.noActiveInspectionsTitle' | transloco"
+              [description]="'customers.detail.noActiveInspectionsDescription' | transloco"
             />
           }
         </ui-card>
@@ -175,10 +178,10 @@ import { Device, DeviceDraft } from './models/device.model';
             card-header
             class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
           >
-            <h2 class="text-h3 tracking-[-0.02em] text-text-main">Urządzenia</h2>
+            <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'devices.title' | transloco }}</h2>
 
             <ui-button variant="secondary" size="sm" (pressed)="isAddDeviceModalOpen.set(true)">
-              Dodaj urządzenie
+              {{ 'devices.actions.add' | transloco }}
             </ui-button>
           </div>
 
@@ -190,9 +193,9 @@ import { Device, DeviceDraft } from './models/device.model';
             />
           } @else {
             <ui-empty-state
-              title="Brak urządzeń"
+              [title]="'devices.table.emptyTitle' | transloco"
               description=""
-              actionLabel="Dodaj urządzenie"
+              [actionLabel]="'devices.actions.add' | transloco"
               (action)="isAddDeviceModalOpen.set(true)"
             />
           }
@@ -201,9 +204,9 @@ import { Device, DeviceDraft } from './models/device.model';
         <app-customer-form-modal
           [open]="isEditCustomerModalOpen()"
           [initialValue]="editableCustomerDraft()"
-          modalTitle="Edytuj klienta"
-          modalDescription="Zaktualizuj dane klienta bez opuszczania widoku szczegółów."
-          submitLabel="Zapisz zmiany"
+          [modalTitle]="'customers.actions.edit' | transloco"
+          [modalDescription]="'customers.detail.editModalDescription' | transloco"
+          [submitLabel]="'common.actions.saveChanges' | transloco"
           (close)="isEditCustomerModalOpen.set(false)"
           (save)="handleUpdateCustomer($event)"
         />
@@ -217,8 +220,8 @@ import { Device, DeviceDraft } from './models/device.model';
         <app-device-form-modal
           [open]="isEditDeviceModalOpen()"
           [initialValue]="editableDeviceDraft()"
-          modalTitle="Edytuj urządzenie"
-          submitLabel="Zapisz zmiany"
+          [modalTitle]="'devices.actions.edit' | transloco"
+          [submitLabel]="'common.actions.saveChanges' | transloco"
           (close)="closeEditDeviceModal()"
           (save)="handleUpdateDevice($event)"
         />
@@ -290,9 +293,9 @@ import { Device, DeviceDraft } from './models/device.model';
         }
       } @else {
         <ui-empty-state
-          title="Nie znaleźliśmy tego klienta"
-          description="Profil może jeszcze nie istnieć albo identyfikator jest nieprawidłowy."
-          actionLabel="Wróć do listy klientów"
+          [title]="'customers.detail.notFoundTitle' | transloco"
+          [description]="'customers.detail.notFoundDescription' | transloco"
+          [actionLabel]="'devices.detail.backToCustomers' | transloco"
           (action)="navigateToCustomers()"
         />
       }
@@ -305,6 +308,7 @@ export class CustomerDetailViewComponent {
   private readonly customersStore = inject(CustomersStore);
   private readonly inspectionsStore = inject(InspectionsStore);
   private readonly inspectionDeviceFlowService = inject(InspectionDeviceFlowService);
+  private readonly transloco = inject(TranslocoService);
 
   protected readonly isEditCustomerModalOpen = signal(false);
   protected readonly isAddDeviceModalOpen = signal(false);
@@ -382,12 +386,14 @@ export class CustomerDetailViewComponent {
     };
   });
 
-  protected readonly getInspectionStatusLabel = getInspectionStatusLabel;
+  protected getInspectionStatusLabel(status: InspectionStatus): string {
+    return getInspectionStatusLabel(status, this.transloco);
+  }
   protected readonly getInspectionStatusVariant = getInspectionStatusVariant;
   protected readonly formatInspectionWindow = formatInspectionWindow;
 
   protected customerTitle(customer: Customer): string {
-    return customer.companyName || customer.fullName || 'Nowy klient';
+    return customer.companyName || customer.fullName || this.transloco.translate('customers.newCustomer');
   }
 
   protected phoneHref(phone: string): string {
@@ -539,7 +545,7 @@ export class CustomerDetailViewComponent {
       return value;
     }
 
-    return new Intl.DateTimeFormat('pl-PL').format(parsedDate);
+    return new Intl.DateTimeFormat(this.transloco.getActiveLang() === 'pl' ? 'pl-PL' : 'en-US').format(parsedDate);
   }
 
   private editingDevice(): Device | undefined {

@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import {
   UiButtonComponent,
@@ -24,8 +26,8 @@ import {
 } from '../../../requests/models/service-request.model';
 import { VisitsStore } from '../../data/visits.store';
 import {
-  VISIT_TYPE_OPTIONS,
   VisitType,
+  createVisitTypeOptions,
   getVisitTypeLabel,
 } from '../../models/visit.model';
 import { VisitCustomerPickerModalComponent } from '../visit-customer-picker-modal/visit-customer-picker-modal.component';
@@ -55,6 +57,7 @@ const TEXTAREA_CLASSES =
   imports: [
     FormsModule,
     RouterLink,
+    TranslocoPipe,
     UiButtonComponent,
     UiCardComponent,
     UiEmptyStateComponent,
@@ -76,16 +79,25 @@ export class VisitCreateViewComponent {
   private readonly inspectionsStore = inject(InspectionsStore);
   private readonly serviceRequestsStore = inject(ServiceRequestsStore);
   private readonly visitsStore = inject(VisitsStore);
+  private readonly transloco = inject(TranslocoService);
+  private readonly activeLanguage = toSignal(this.transloco.langChanges$, {
+    initialValue: this.transloco.getActiveLang(),
+  });
 
   protected readonly textareaClasses = TEXTAREA_CLASSES;
-  protected readonly visitTypeOptions: UiSelectOption[] = VISIT_TYPE_OPTIONS.map((option) => ({
-    value: option.value,
-    label: option.label,
-  }));
-  protected readonly nextInspectionPeriodOptions: UiSelectOption[] = [
-    { value: '6', label: '6 miesięcy' },
-    { value: '12', label: '12 miesięcy' },
-  ];
+  protected readonly visitTypeOptions = computed<UiSelectOption[]>(() => {
+    this.activeLanguage();
+
+    return createVisitTypeOptions(this.transloco);
+  });
+  protected readonly nextInspectionPeriodOptions = computed<UiSelectOption[]>(() => {
+    this.activeLanguage();
+
+    return [
+      { value: '6', label: this.transloco.translate('devices.inspections.presets.sixMonths') },
+      { value: '12', label: this.transloco.translate('devices.inspections.presets.twelveMonths') },
+    ];
+  });
 
   protected readonly visitType = signal<VisitType | ''>('');
   protected readonly visitDate = signal(this.today());
@@ -161,6 +173,7 @@ export class VisitCreateViewComponent {
     Boolean(this.selectedCustomer()) && !this.isVisitFromScheduledInspection(),
   );
   protected readonly deviceEntries = computed<VisitDeviceEntry[]>(() => {
+    this.activeLanguage();
     const customer = this.selectedCustomer();
     const existingDevices = customer?.devices ?? [];
     const existingEntries = this.selectedExistingDeviceIds()
@@ -175,8 +188,11 @@ export class VisitCreateViewComponent {
     const draftEntries = this.newDeviceDrafts().map((newDevice) => ({
       key: newDevice.tempId,
       newDevice,
-      label: `${newDevice.draft.brand} ${newDevice.draft.model}`.trim() || 'Nowe urządzenie',
-      description: newDevice.draft.location || 'Zostanie dodane przy zapisie wizyty',
+      label:
+        `${newDevice.draft.brand} ${newDevice.draft.model}`.trim() ||
+        this.transloco.translate('visits.create.newDevice'),
+      description:
+        newDevice.draft.location || this.transloco.translate('visits.create.newDeviceDescription'),
     }));
 
     return [...existingEntries, ...draftEntries];
@@ -205,7 +221,11 @@ export class VisitCreateViewComponent {
         !this.nextInspectionDate().trim())),
   );
 
-  protected readonly getVisitTypeLabel = getVisitTypeLabel;
+  protected getVisitTypeLabel(type: VisitType): string {
+    this.activeLanguage();
+
+    return getVisitTypeLabel(type, this.transloco);
+  }
 
   constructor() {
     const prefilledRequestId = this.route.snapshot.queryParamMap.get('requestId');
@@ -490,7 +510,11 @@ export class VisitCreateViewComponent {
   }
 
   protected customerName(customer: Customer | undefined): string {
-    return customer ? customer.companyName || customer.fullName || 'Klient' : 'Nie wybrano';
+    if (!customer) {
+      return this.transloco.translate('common.notSelected');
+    }
+
+    return customer.companyName || customer.fullName || this.transloco.translate('customers.fallbackName');
   }
 
   protected entryNote(entry: VisitDeviceEntry): string {
@@ -507,26 +531,26 @@ export class VisitCreateViewComponent {
     }
 
     if (!this.visitType()) {
-      return 'Wybierz typ wizyty.';
+      return this.transloco.translate('visits.create.validation.visitType');
     }
 
     if (this.visitType() === 'inspection' && this.scheduledInspectionAnswer() === 'unset') {
-      return 'Wybierz, czy przegląd był zaplanowany.';
+      return this.transloco.translate('visits.create.validation.scheduledInspection');
     }
 
     if (!this.selectedCustomer()) {
-      return 'Wybierz lub dodaj klienta.';
+      return this.transloco.translate('visits.create.validation.customer');
     }
 
     if (!this.deviceEntries().length) {
-      return 'Dodaj przynajmniej jedno urządzenie.';
+      return this.transloco.translate('visits.create.validation.device');
     }
 
     if (this.scheduleNextInspection() && !this.nextInspectionDate().trim()) {
-      return 'Podaj datę kolejnego przeglądu.';
+      return this.transloco.translate('visits.create.validation.nextInspectionDate');
     }
 
-    return 'Uzupełnij wymagane dane wizyty.';
+    return this.transloco.translate('visits.create.validation.required');
   }
 
   private noteForEntry(entry: VisitDeviceEntry): string {
@@ -691,8 +715,12 @@ export class VisitCreateViewComponent {
 
   private deviceDraftFromRequest(device: ServiceRequestDevice): DeviceDraft {
     const draft = createEmptyDeviceDraft();
-    const yearNote = device.year ? `Rok urządzenia: ${device.year}.` : '';
-    const errorNote = device.displayedError ? `Błąd ze zgłoszenia: ${device.displayedError}.` : '';
+    const yearNote = device.year
+      ? this.transloco.translate('visits.create.requestNotes.year', { year: device.year })
+      : '';
+    const errorNote = device.displayedError
+      ? this.transloco.translate('visits.create.requestNotes.error', { error: device.displayedError })
+      : '';
 
     return {
       ...draft,
@@ -730,7 +758,7 @@ export class VisitCreateViewComponent {
   }
 
   private deviceName(device: Device): string {
-    return `${device.brand} ${device.model}`.trim() || 'Urządzenie';
+    return `${device.brand} ${device.model}`.trim() || this.transloco.translate('devices.table.device');
   }
 
   private deviceAddress(customer: Customer | undefined, device: Device): string {

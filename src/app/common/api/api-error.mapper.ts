@@ -11,7 +11,8 @@ export function mapApiError(error: unknown): ApiError {
     return {
       status: 0,
       code: 'UNKNOWN_ERROR',
-      message: 'Wystapil nieoczekiwany blad.',
+      message: '',
+      messageKey: 'api.errors.unknown',
       raw: error,
     };
   }
@@ -21,7 +22,8 @@ export function mapApiError(error: unknown): ApiError {
   return {
     status: error.status,
     code: backendError?.code ?? fallbackCode(error.status),
-    message: backendError?.message ?? fallbackMessage(error),
+    message: backendError?.message ?? '',
+    messageKey: backendError ? undefined : fallbackMessageKey(error),
     details: backendError?.details,
     url: error.url ?? undefined,
     raw: error.error,
@@ -88,36 +90,36 @@ function fallbackCode(status: number): string {
   }
 }
 
-function fallbackMessage(error: HttpErrorResponse): string {
+function fallbackMessageKey(error: HttpErrorResponse): string {
   if (error.status === 0) {
-    return 'Nie udalo sie polaczyc z serwerem.';
+    return 'api.errors.network';
   }
 
   if (error.status === 401) {
-    return 'Sesja wygasla albo dane logowania sa nieprawidlowe.';
+    return 'api.errors.unauthorized';
   }
 
   if (error.status === 403) {
-    return 'Brak uprawnien do wykonania tej operacji.';
+    return 'api.errors.forbidden';
   }
 
   if (error.status === 404) {
-    return 'Nie znaleziono zasobu.';
+    return 'api.errors.notFound';
   }
 
   if (error.status === 409) {
-    return 'Te dane konfliktuja z istniejacym zasobem.';
+    return 'api.errors.conflict';
   }
 
   if (error.status === 422) {
-    return 'Dane formularza wymagaja poprawy.';
+    return 'api.errors.validation';
   }
 
   if (error.status >= 500) {
-    return 'Wystapil blad serwera.';
+    return 'api.errors.server';
   }
 
-  return error.message || 'Request zakonczyl sie bledem.';
+  return error.message ? 'api.errors.requestWithMessage' : 'api.errors.request';
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -1,6 +1,7 @@
 import { HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslocoService } from '@jsverse/transloco';
 import { Observable, catchError, finalize, switchMap, throwError } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
@@ -25,6 +26,7 @@ export const apiInterceptor: HttpInterceptorFn = (request, next) => {
   const loader = inject(AppLoaderService);
   const router = inject(Router);
   const toast = inject(ToastService);
+  const transloco = inject(TranslocoService);
   const shouldShowLoader = !request.context.get(SKIP_GLOBAL_LOADER);
 
   if (shouldShowLoader) {
@@ -36,15 +38,15 @@ export const apiInterceptor: HttpInterceptorFn = (request, next) => {
       const apiError = mapApiError(error);
 
       if (isImmediateAuthRedirectError(apiError)) {
-        return handleApiError(apiError, request, router, toast, authService);
+        return handleApiError(apiError, request, router, toast, authService, transloco);
       }
 
       if (readRedirectTo(apiError.details) !== null && !request.context.get(SKIP_API_REDIRECT)) {
-        return handleApiError(apiError, request, router, toast, authService);
+        return handleApiError(apiError, request, router, toast, authService, transloco);
       }
 
       if (!shouldRefreshSession(request, apiError)) {
-        return handleApiError(apiError, request, router, toast, authService);
+        return handleApiError(apiError, request, router, toast, authService, transloco);
       }
 
       return authService.refreshSession().pipe(
@@ -52,15 +54,22 @@ export const apiInterceptor: HttpInterceptorFn = (request, next) => {
           const refreshApiError = mapApiError(refreshError);
 
           if (isImmediateAuthRedirectError(refreshApiError)) {
-            return handleApiError(refreshApiError, request, router, toast, authService);
+            return handleApiError(refreshApiError, request, router, toast, authService, transloco);
           }
 
-          return handleApiError(apiError, request, router, toast, authService);
+          return handleApiError(apiError, request, router, toast, authService, transloco);
         }),
         switchMap(() =>
           next(markRequestAsAuthRetried(request)).pipe(
             catchError((retryError: unknown) =>
-              handleApiError(mapApiError(retryError), request, router, toast, authService),
+              handleApiError(
+                mapApiError(retryError),
+                request,
+                router,
+                toast,
+                authService,
+                transloco,
+              ),
             ),
           ),
         ),
@@ -92,6 +101,7 @@ function handleApiError(
   router: Router,
   toast: ToastService,
   authService: AuthService,
+  transloco: TranslocoService,
 ): Observable<never> {
   if (isAccountBlockedError(apiError)) {
     void router.navigateByUrl(ACCOUNT_BLOCKED_ROUTE);
@@ -112,7 +122,7 @@ function handleApiError(
   }
 
   if (!request.context.get(SKIP_ERROR_TOAST)) {
-    toast.error(apiError.message);
+    toast.error(apiError.message || transloco.translate(apiError.messageKey ?? 'api.errors.unknown'));
   }
 
   return throwError(() => apiError);

@@ -1,16 +1,19 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslocoService } from '@jsverse/transloco';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 import { UiButtonComponent, UiInputComponent, UiModalComponent } from '../../../../ui';
 
 @Component({
   selector: 'app-service-request-schedule-modal',
-  imports: [ReactiveFormsModule, UiButtonComponent, UiInputComponent, UiModalComponent],
+  imports: [ReactiveFormsModule, TranslocoPipe, UiButtonComponent, UiInputComponent, UiModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './service-request-schedule-modal.component.html',
 })
 export class ServiceRequestScheduleModalComponent {
   private readonly formBuilder = inject(FormBuilder);
+  private readonly transloco = inject(TranslocoService);
 
   readonly open = input(false);
   readonly initialDate = input('');
@@ -58,6 +61,6 @@ export class ServiceRequestScheduleModalComponent {
       return '';
     }
 
-    return 'Data spotkania jest wymagana.';
+    return this.transloco.translate('requests.scheduleModal.validation');
   }
 }

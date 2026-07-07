@@ -11,19 +11,21 @@ import {
   output,
 } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 let nextModalId = 0;
 
 @Component({
   selector: 'ui-modal',
   standalone: true,
+  imports: [TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (open()) {
       <div class="fixed inset-0 z-[80]">
         <button
           type="button"
-          aria-label="Zamknij modal"
+          [attr.aria-label]="'ui.modal.close' | transloco"
           class="absolute inset-0 bg-slate-950/42 backdrop-blur-[2px] motion-safe:animate-[ui-fade-in_180ms_ease-out]"
           (click)="handleBackdropClick()"
         ></button>
@@ -56,6 +58,7 @@ let nextModalId = 0;
                 <button
                   type="button"
                   class="ui-focus-ring inline-flex size-10 items-center justify-center rounded-full text-text-muted transition hover:bg-surface-muted hover:text-text-main"
+                  [attr.aria-label]="'ui.modal.close' | transloco"
                   (click)="close.emit()"
                 >
                   <svg viewBox="0 0 20 20" fill="none" class="size-4">

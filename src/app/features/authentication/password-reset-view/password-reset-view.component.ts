@@ -18,6 +18,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { finalize } from 'rxjs';
 
 import { SKIP_ERROR_TOAST, SKIP_GLOBAL_LOADER } from '../../../common/api/api-context.tokens';
@@ -35,7 +36,7 @@ import {
 
 @Component({
   selector: 'app-password-reset-view',
-  imports: [ReactiveFormsModule, RouterLink, UiButtonComponent, UiInputComponent],
+  imports: [ReactiveFormsModule, RouterLink, TranslocoPipe, UiButtonComponent, UiInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './password-reset-view.component.html',
 })
@@ -46,6 +47,7 @@ export class PasswordResetViewComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly transloco = inject(TranslocoService);
 
   protected readonly form = this.formBuilder.nonNullable.group(
     {
@@ -95,14 +97,14 @@ export class PasswordResetViewComponent implements OnInit {
       )
       .subscribe({
         next: () => {
-          this.toast.success('Haslo zostalo zmienione. Mozesz sie zalogowac.');
+          this.toast.success(this.transloco.translate('auth.passwordReset.toast.success'));
           void this.router.navigateByUrl('/login');
         },
         error: (error: unknown) => {
           this.serverError.set(
             readAuthenticationErrorMessage(
               error,
-              'Nie udalo sie zmienic hasla. Popros o nowy link i sprobuj ponownie.',
+              this.transloco.translate('auth.passwordReset.errors.changeFailed'),
             ),
           );
         },
@@ -117,15 +119,15 @@ export class PasswordResetViewComponent implements OnInit {
     }
 
     if (control.hasError('required')) {
-      return 'Haslo jest wymagane.';
+      return this.transloco.translate('auth.validation.passwordRequired');
     }
 
     if (control.hasError('minlength')) {
-      return 'Haslo musi miec co najmniej 8 znakow.';
+      return this.transloco.translate('auth.validation.passwordMinLength');
     }
 
     if (control.hasError('passwordComplexity')) {
-      return 'Haslo musi zawierac co najmniej jedna duza litere i jedna cyfre.';
+      return this.transloco.translate('auth.validation.passwordComplexity');
     }
 
     return '';
@@ -143,11 +145,11 @@ export class PasswordResetViewComponent implements OnInit {
     }
 
     if (control.hasError('required')) {
-      return 'Potwierdzenie hasla jest wymagane.';
+      return this.transloco.translate('auth.validation.passwordConfirmationRequired');
     }
 
     if (this.form.hasError('passwordMismatch')) {
-      return 'Hasla musza byc takie same.';
+      return this.transloco.translate('auth.validation.passwordMismatch');
     }
 
     return '';

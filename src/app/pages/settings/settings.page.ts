@@ -1,28 +1,39 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { AppPlaceholderPageComponent } from '../shared/placeholder-page.component';
 
 @Component({
   selector: 'app-settings-page',
   standalone: true,
-  imports: [AppPlaceholderPageComponent],
+  imports: [TranslocoPipe, AppPlaceholderPageComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-placeholder-page
-      eyebrow="Konfiguracja"
-      title="Ustawienia"
-      description="Sekcja na ustawienia firmy, zespołu i preferencji systemu. Na tym etapie przygotowujemy tylko modularny kontener pod przyszłe formularze."
-      emptyTitle="Ustawienia są gotowe na konfigurację"
-      emptyDescription="Tutaj w kolejnym kroku możemy dodać profile firmy, uprawnienia, integracje i ustawienia aplikacji."
-      actionLabel="Dodaj konfigurację"
-      [checklist]="checklist"
+      [eyebrow]="'pages.settings.eyebrow' | transloco"
+      [title]="'pages.settings.title' | transloco"
+      [description]="'pages.settings.description' | transloco"
+      [emptyTitle]="'pages.settings.emptyTitle' | transloco"
+      [emptyDescription]="'pages.settings.emptyDescription' | transloco"
+      [actionLabel]="'pages.settings.actionLabel' | transloco"
+      [checklist]="checklist()"
     />
   `,
 })
 export class SettingsPageComponent {
-  protected readonly checklist = [
-    'miejsce na grupy ustawień i sekcje formularzy',
-    'układ zgodny z design systemem i gotowy do skalowania',
-    'spokojny placeholder bez ryzyka mieszania logiki biznesowej',
-  ];
+  private readonly transloco = inject(TranslocoService);
+  private readonly activeLanguage = toSignal(this.transloco.langChanges$, {
+    initialValue: this.transloco.getActiveLang(),
+  });
+
+  protected readonly checklist = computed(() => {
+    this.activeLanguage();
+
+    return [
+      this.transloco.translate('pages.settings.checklist.groups'),
+      this.transloco.translate('pages.settings.checklist.layout'),
+      this.transloco.translate('pages.settings.checklist.placeholder'),
+    ];
+  });
 }

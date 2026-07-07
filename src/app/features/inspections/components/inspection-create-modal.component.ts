@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslocoPipe } from '@jsverse/transloco';
 import { startWith } from 'rxjs';
 
 import { UiButtonComponent, UiModalComponent, UiSelectComponent } from '../../../ui';
@@ -29,20 +30,20 @@ export interface InspectionManualDeviceOption {
 @Component({
   selector: 'app-inspection-create-modal',
   standalone: true,
-  imports: [ReactiveFormsModule, UiButtonComponent, UiModalComponent, UiSelectComponent],
+  imports: [ReactiveFormsModule, TranslocoPipe, UiButtonComponent, UiModalComponent, UiSelectComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ui-modal
       [open]="open()"
-      title="Utwórz przegląd"
-      description="Wybierz klienta i urządzenia kwalifikujące się do wspólnego przeglądu."
+      [title]="'inspections.createModal.title' | transloco"
+      [description]="'inspections.createModal.description' | transloco"
       (close)="handleClose()"
     >
       <form class="space-y-5" [formGroup]="form">
         <ui-select
-          label="Klient"
+          [label]="'inspections.fields.customer' | transloco"
           required
-          placeholder="Wybierz klienta"
+          [placeholder]="'devices.customerPicker.title' | transloco"
           [options]="customerSelectOptions()"
           formControlName="customerId"
         />
@@ -50,10 +51,10 @@ export interface InspectionManualDeviceOption {
         <div class="space-y-3">
           <div>
             <p class="text-[13px]/5 font-semibold tracking-[-0.01em] text-text-main">
-              Urządzenia klienta
+              {{ 'inspections.createModal.customerDevices' | transloco }}
             </p>
             <p class="mt-1 text-small text-text-muted">
-              Pokazujemy tylko urządzenia z aktywnym terminem przeglądu, które nie są jeszcze przypięte do otwartego obiektu.
+              {{ 'inspections.createModal.customerDevicesDescription' | transloco }}
             </p>
           </div>
 
@@ -79,7 +80,7 @@ export interface InspectionManualDeviceOption {
             </div>
           } @else {
             <div class="rounded-[1rem] border border-dashed border-border/90 bg-white/76 px-4 py-5 text-body text-text-muted">
-              Ten klient nie ma teraz urządzeń gotowych do ręcznego dodania do przeglądu.
+              {{ 'inspections.createModal.emptyDevices' | transloco }}
             </div>
           }
         </div>
@@ -87,7 +88,7 @@ export interface InspectionManualDeviceOption {
 
       <div modal-footer class="grid gap-3 sm:grid-cols-2">
         <ui-button type="button" variant="ghost" [block]="true" (pressed)="handleClose()">
-          Anuluj
+          {{ 'common.actions.cancel' | transloco }}
         </ui-button>
         <ui-button
           type="button"
@@ -95,7 +96,7 @@ export interface InspectionManualDeviceOption {
           [disabled]="form.invalid || !selectedDeviceIds().length"
           (pressed)="handleSubmit()"
         >
-          Utwórz przegląd
+          {{ 'inspections.actions.create' | transloco }}
         </ui-button>
       </div>
     </ui-modal>

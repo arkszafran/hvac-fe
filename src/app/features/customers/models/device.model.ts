@@ -1,3 +1,5 @@
+import { TranslocoService } from '@jsverse/transloco';
+
 export type DeviceType = 'air-conditioning' | 'heat-pump' | 'ventilation' | '';
 
 export interface DeviceServiceHistoryEntry {
@@ -32,10 +34,10 @@ export interface Device {
 
 export type DeviceDraft = Omit<Device, 'id' | 'warrantyUntil'>;
 
-export const DEVICE_TYPE_OPTIONS: Array<{ value: DeviceType; label: string }> = [
-  { value: 'air-conditioning', label: 'Klimatyzacja' },
-  { value: 'heat-pump', label: 'Pompa ciepła' },
-  { value: 'ventilation', label: 'Rekuperacja' },
+export const DEVICE_TYPE_OPTIONS: Array<{ value: DeviceType; labelKey: string }> = [
+  { value: 'air-conditioning', labelKey: 'devices.types.airConditioning' },
+  { value: 'heat-pump', labelKey: 'devices.types.heatPump' },
+  { value: 'ventilation', labelKey: 'devices.types.ventilation' },
 ];
 
 const DEVICE_WARRANTY_MONTH_VALUES = [
@@ -54,11 +56,6 @@ const DEVICE_WARRANTY_MONTH_VALUES = [
   132,
   144,
 ] as const;
-
-export const DEVICE_WARRANTY_MONTH_OPTIONS = DEVICE_WARRANTY_MONTH_VALUES.map((months) => ({
-  value: months.toString(),
-  label: formatWarrantyOptionLabel(months),
-}));
 
 export function createEmptyDeviceDraft(): DeviceDraft {
   return {
@@ -82,52 +79,75 @@ export function createEmptyDeviceDraft(): DeviceDraft {
   };
 }
 
-export function getDeviceTypeLabel(type: DeviceType): string {
+export function createDeviceTypeOptions(transloco: TranslocoService): Array<{
+  value: DeviceType;
+  label: string;
+}> {
+  return DEVICE_TYPE_OPTIONS.map((option) => ({
+    value: option.value,
+    label: transloco.translate(option.labelKey),
+  }));
+}
+
+export function createDeviceWarrantyMonthOptions(transloco: TranslocoService): Array<{
+  value: string;
+  label: string;
+}> {
+  return DEVICE_WARRANTY_MONTH_VALUES.map((months) => ({
+    value: months.toString(),
+    label: formatWarrantyOptionLabel(months, transloco),
+  }));
+}
+
+export function getDeviceTypeLabel(type: DeviceType, transloco: TranslocoService): string {
   switch (type) {
     case 'air-conditioning':
-      return 'Klimatyzacja';
+      return transloco.translate('devices.types.airConditioning');
     case 'heat-pump':
-      return 'Pompa ciepła';
+      return transloco.translate('devices.types.heatPump');
     case 'ventilation':
-      return 'Rekuperacja';
+      return transloco.translate('devices.types.ventilation');
     default:
-      return 'Nie określono';
+      return transloco.translate('common.notSpecified');
   }
 }
 
-function formatWarrantyOptionLabel(months: number): string {
+function formatWarrantyOptionLabel(months: number, transloco: TranslocoService): string {
   if (months === 0) {
-    return 'Brak';
+    return transloco.translate('common.empty');
   }
 
-  return `${formatMonthsLabel(months)} (${formatYearsLabel(months)})`;
+  return transloco.translate('devices.warranty.option', {
+    months: formatMonthsLabel(months, transloco),
+    years: formatYearsLabel(months, transloco),
+  });
 }
 
-function formatMonthsLabel(months: number): string {
+function formatMonthsLabel(months: number, transloco: TranslocoService): string {
   const mod10 = months % 10;
   const mod100 = months % 100;
 
   if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) {
-    return `${months} miesiące`;
+    return transloco.translate('devices.warranty.monthsFew', { months });
   }
 
-  return `${months} miesięcy`;
+  return transloco.translate('devices.warranty.monthsMany', { months });
 }
 
-function formatYearsLabel(months: number): string {
+function formatYearsLabel(months: number, transloco: TranslocoService): string {
   if (months === 6) {
-    return '0,5 roku';
+    return transloco.translate('devices.warranty.halfYear');
   }
 
   const years = months / 12;
 
   if (years === 1) {
-    return '1 rok';
+    return transloco.translate('devices.warranty.oneYear');
   }
 
   if (years >= 2 && years <= 4) {
-    return `${years} lata`;
+    return transloco.translate('devices.warranty.yearsFew', { years });
   }
 
-  return `${years} lat`;
+  return transloco.translate('devices.warranty.yearsMany', { years });
 }

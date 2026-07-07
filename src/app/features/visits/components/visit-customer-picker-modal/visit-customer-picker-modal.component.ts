@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { UiInputComponent, UiModalComponent } from '../../../../ui';
 import { Customer } from '../../../customers/models/customer.model';
@@ -7,11 +8,13 @@ import { Customer } from '../../../customers/models/customer.model';
 @Component({
   selector: 'app-visit-customer-picker-modal',
   standalone: true,
-  imports: [FormsModule, UiInputComponent, UiModalComponent],
+  imports: [FormsModule, TranslocoPipe, UiInputComponent, UiModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './visit-customer-picker-modal.component.html',
 })
 export class VisitCustomerPickerModalComponent {
+  private readonly transloco = inject(TranslocoService);
+
   readonly open = input(false);
   readonly customers = input<Customer[]>([]);
 
@@ -44,7 +47,7 @@ export class VisitCustomerPickerModalComponent {
   }
 
   protected customerName(customer: Customer): string {
-    return customer.companyName || customer.fullName || 'Klient';
+    return customer.companyName || customer.fullName || this.transloco.translate('customers.fallbackName');
   }
 
   protected customerAddress(customer: Customer): string {

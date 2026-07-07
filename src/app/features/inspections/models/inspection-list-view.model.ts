@@ -11,8 +11,8 @@ export type InspectionListViewId =
 
 export interface InspectionListViewDefinition {
   id: InspectionListViewId;
-  label: string;
-  description: string;
+  labelKey: string;
+  descriptionKey: string;
   statuses: readonly InspectionStatus[];
   includesOrphanDevices?: boolean;
 }
@@ -22,32 +22,32 @@ export const DEFAULT_INSPECTION_LIST_VIEW_ID: InspectionListViewId = 'contact';
 export const INSPECTION_LIST_VIEWS: readonly InspectionListViewDefinition[] = [
   {
     id: 'planned',
-    label: 'Planowane',
-    description: 'Nowe przeglądy oraz przeglądy po wysłaniu przypomnienia.',
+    labelKey: 'inspections.views.planned.label',
+    descriptionKey: 'inspections.views.planned.description',
     statuses: ['new', 'reminder_sent'],
   },
   {
     id: 'contact',
-    label: 'Do kontaktu',
-    description: 'Przeglądy po reakcji klienta, wymagające dalszego kontaktu.',
+    labelKey: 'inspections.views.contact.label',
+    descriptionKey: 'inspections.views.contact.description',
     statuses: ['customer_confirmed', 'customer_not_confirmed'],
   },
   {
     id: 'scheduled',
-    label: 'Umówione',
-    description: 'Przeglądy z ustalonym terminem wykonania.',
+    labelKey: 'inspections.views.scheduled.label',
+    descriptionKey: 'inspections.views.scheduled.description',
     statuses: ['scheduled'],
   },
   {
     id: 'closed',
-    label: 'Zakończone',
-    description: 'Historia spraw zakończonych lub anulowanych.',
+    labelKey: 'inspections.views.closed.label',
+    descriptionKey: 'inspections.views.closed.description',
     statuses: ['completed', 'cancelled'],
   },
   {
     id: 'orphan-devices',
-    label: 'Urządzenia bez przeglądu',
-    description: 'Urządzenia kwalifikujące się do przeglądu, ale bez przypisanej sprawy.',
+    labelKey: 'inspections.views.orphanDevices.label',
+    descriptionKey: 'inspections.views.orphanDevices.description',
     statuses: [],
     includesOrphanDevices: true,
   },

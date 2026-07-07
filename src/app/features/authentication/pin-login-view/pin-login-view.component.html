@@ -11,7 +11,7 @@
         HV
       </div>
 
-      <h1 id="pin-login-title" class="text-h1 text-text-main">PIN</h1>
+      <h1 id="pin-login-title" class="text-h1 text-text-main">{{ 'auth.pinLogin.title' | transloco }}</h1>
     </div>
 
     <div
@@ -39,14 +39,14 @@
             class="size-4 animate-spin rounded-full border-2 border-primary/30 border-t-primary"
             aria-hidden="true"
           ></span>
-          Sprawdzanie PIN...
+          {{ 'auth.pinLogin.checking' | transloco }}
         </div>
       }
 
       <app-pin-code-input
         [value]="pin()"
         [disabled]="isSubmitting()"
-        ariaLabel="Klawiatura PIN logowania"
+        [ariaLabel]="'auth.pinLogin.keyboard' | transloco"
         (pinChange)="updatePin($event)"
         (pinComplete)="submitPin($event)"
       />

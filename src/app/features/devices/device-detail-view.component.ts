@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { map } from 'rxjs';
 
 import {
@@ -13,7 +14,7 @@ import { DeviceFormModalComponent } from '../customers/components/device-form-mo
 import { DeviceNextInspectionModalComponent } from '../customers/components/device-next-inspection-modal.component';
 import { CustomersStore } from '../customers/data/customers.store';
 import { Customer } from '../customers/models/customer.model';
-import { DeviceDraft, getDeviceTypeLabel } from '../customers/models/device.model';
+import { DeviceDraft, getDeviceTypeLabel as readDeviceTypeLabel } from '../customers/models/device.model';
 import { InspectionCandidatePickerModalComponent } from '../inspections/components/inspection-candidate-picker-modal.component';
 import { InspectionLinkProposalModalComponent } from '../inspections/components/inspection-link-proposal-modal.component';
 import {
@@ -21,17 +22,18 @@ import {
   InspectionDeviceFlowService,
 } from '../inspections/data/inspection-device-flow.service';
 import { InspectionsStore } from '../inspections/data/inspections.store';
+import { InspectionStatus } from '../inspections/models/inspection.model';
 import {
   getInspectionStatusLabel,
   getInspectionStatusVariant,
 } from '../inspections/utils/inspection-ui.util';
 import { VisitsStore } from '../visits/data/visits.store';
-import { getVisitTypeLabel } from '../visits/models/visit.model';
+import { getVisitTypeLabel, VisitType } from '../visits/models/visit.model';
 import { DevicesStore } from './data/devices.store';
 import { Device } from './models/device.model';
 
 interface DeviceDetailItem {
-  label: string;
+  labelKey: string;
   value: string;
 }
 
@@ -40,6 +42,7 @@ interface DeviceDetailItem {
   standalone: true,
   imports: [
     RouterLink,
+    TranslocoPipe,
     UiBadgeComponent,
     UiButtonComponent,
     UiCardComponent,
@@ -60,10 +63,10 @@ interface DeviceDetailItem {
                 routerLink="/devices"
                 class="text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
               >
-                Lista urządzeń
+                {{ 'devices.detail.breadcrumbs.deviceList' | transloco }}
               </a>
               <span aria-hidden="true">/</span>
-              <span class="text-text-main">Urządzenie</span>
+              <span class="text-text-main">{{ 'devices.detail.breadcrumbs.device' | transloco }}</span>
             </nav>
 
             <h1 class="text-display tracking-[-0.04em] text-text-main">
@@ -76,7 +79,7 @@ interface DeviceDetailItem {
 
           <div class="flex flex-wrap items-center gap-3">
             <ui-button size="sm" (pressed)="isEditDeviceModalOpen.set(true)">
-              Edytuj urządzenie
+              {{ 'devices.actions.edit' | transloco }}
             </ui-button>
           </div>
         </section>
@@ -84,15 +87,15 @@ interface DeviceDetailItem {
         <section class="grid gap-4 xl:grid-cols-[minmax(0,1.18fr)_minmax(320px,0.82fr)]">
           <ui-card>
             <div card-header class="space-y-1">
-              <p class="ui-kicker">Dane urządzenia</p>
-              <h2 class="text-h3 tracking-[-0.02em] text-text-main">Najważniejsze informacje</h2>
+              <p class="ui-kicker">{{ 'devices.detail.sections.deviceData' | transloco }}</p>
+              <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'devices.detail.sections.mainInfo' | transloco }}</h2>
             </div>
 
             <dl class="grid gap-3 sm:grid-cols-2">
-              @for (item of deviceOverviewItems(); track item.label) {
+              @for (item of deviceOverviewItems(); track item.labelKey) {
                 <div class="rounded-[1rem] bg-surface/52 px-4 py-3">
                   <dt class="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">
-                    {{ item.label }}
+                    {{ item.labelKey | transloco }}
                   </dt>
                   <dd
                     class="mt-2 rounded-[0.95rem] bg-white px-3.5 py-2 text-body font-semibold text-text-main shadow-[0_10px_20px_-18px_rgb(15_23_42/0.5)]"
@@ -105,7 +108,7 @@ interface DeviceDetailItem {
               <div class="rounded-[1rem] bg-surface/52 px-4 py-3 sm:col-span-2">
                 <div class="flex items-start justify-between gap-3">
                   <dt class="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">
-                    Następny przegląd
+                    {{ 'devices.detail.fields.nextInspection' | transloco }}
                   </dt>
 
                   <button
@@ -113,7 +116,7 @@ interface DeviceDetailItem {
                     class="ui-focus-ring rounded-md text-[13px]/5 font-semibold text-primary-strong transition hover:text-primary"
                     (click)="isNextInspectionModalOpen.set(true)"
                   >
-                    Zarządzaj przeglądami
+                    {{ 'devices.actions.manageInspections' | transloco }}
                   </button>
                 </div>
 
@@ -131,8 +134,8 @@ interface DeviceDetailItem {
 
           <ui-card>
             <div card-header class="space-y-1">
-              <p class="ui-kicker">Obsługa przeglądu</p>
-              <h2 class="text-h3 tracking-[-0.02em] text-text-main">Status planowania</h2>
+              <p class="ui-kicker">{{ 'devices.detail.sections.inspectionService' | transloco }}</p>
+              <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'devices.detail.sections.planningStatus' | transloco }}</h2>
             </div>
 
             @if (activeInspection(); as inspection) {
@@ -142,37 +145,37 @@ interface DeviceDetailItem {
                     {{ getInspectionStatusLabel(inspection.status) }}
                   </ui-badge>
                   <span class="text-small text-text-muted">
-                    Proces planowania
+                    {{ 'devices.detail.sections.planningProcess' | transloco }}
                   </span>
                 </div>
 
                 <div class="rounded-[1rem] border border-border/80 bg-white p-4 shadow-card">
                   <p class="text-label text-text-main">
-                    Liczba urządzeń w procesie: {{ inspection.deviceIds.length }}
+                    {{ 'devices.detail.devicesInProcess' | transloco: { count: inspection.deviceIds.length } }}
                   </p>
                   <p class="mt-2 text-small text-text-muted">
-                    Szczegóły kontaktu i terminu są prowadzone w powiązanym procesie przeglądu.
+                    {{ 'devices.detail.processDescription' | transloco }}
                   </p>
                 </div>
 
                 <ui-button variant="secondary" size="sm" (pressed)="navigateToInspection(inspection.id)">
-                  Otwórz proces przeglądu
+                  {{ 'devices.actions.openInspectionProcess' | transloco }}
                 </ui-button>
               </div>
             } @else if (requiresInspectionAttention()) {
               <div class="space-y-3 rounded-[1rem] border border-warning/30 bg-warning-soft px-4 py-4">
-                <p class="text-label text-accent-strong">Nie utworzono jeszcze procesu obsługi dla tego terminu.</p>
+                <p class="text-label text-accent-strong">{{ 'devices.detail.missingProcessTitle' | transloco }}</p>
                 <p class="text-body text-text-main">
-                  Przeglądy są włączone, ale urządzenie nie należy teraz do żadnego otwartego procesu planowania.
+                  {{ 'devices.detail.missingProcessDescription' | transloco }}
                 </p>
                 <ui-button variant="secondary" size="sm" (pressed)="navigateToInspections()">
-                  Przejdź do planowania
+                  {{ 'devices.actions.goToPlanning' | transloco }}
                 </ui-button>
               </div>
             } @else {
               <ui-empty-state
-                title="Brak procesu planowania"
-                description="Przeglądy są wyłączone albo urządzenie nie ma jeszcze ustawionej daty następnego przeglądu."
+                [title]="'devices.detail.noPlanningTitle' | transloco"
+                [description]="'devices.detail.noPlanningDescription' | transloco"
               />
             }
           </ui-card>
@@ -180,16 +183,16 @@ interface DeviceDetailItem {
 
         <ui-card>
           <div card-header class="space-y-1">
-            <p class="ui-kicker">Instalacja</p>
-            <h2 class="text-h3 tracking-[-0.02em] text-text-main">Lokalizacja i notatki</h2>
+            <p class="ui-kicker">{{ 'devices.detail.sections.installation' | transloco }}</p>
+            <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'devices.detail.sections.locationAndNotes' | transloco }}</h2>
           </div>
 
           <div class="space-y-5">
             <dl class="space-y-4">
-              @for (item of installationFacts(); track item.label) {
+              @for (item of installationFacts(); track item.labelKey) {
                 <div class="border-b border-border/60 pb-4 last:border-b-0 last:pb-0">
                   <dt class="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">
-                    {{ item.label }}
+                    {{ item.labelKey | transloco }}
                   </dt>
                   <dd
                     class="mt-2 whitespace-pre-line rounded-[0.95rem] bg-white px-3.5 py-2 text-body font-semibold text-text-main shadow-[0_10px_20px_-18px_rgb(15_23_42/0.5)]"
@@ -202,12 +205,12 @@ interface DeviceDetailItem {
 
             <div class="rounded-[1.15rem] border border-border/70 bg-surface/56 px-4 py-4">
               <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">
-                Notatka
+                {{ 'devices.detail.fields.note' | transloco }}
               </p>
               <p
                 class="mt-2 rounded-[0.95rem] bg-white px-3.5 py-3 text-body font-semibold text-text-main shadow-[0_10px_20px_-18px_rgb(15_23_42/0.5)]"
               >
-                {{ device.note || 'Brak dodatkowej notatki do tego urządzenia.' }}
+                {{ device.note || ('devices.detail.noNote' | transloco) }}
               </p>
             </div>
           </div>
@@ -215,8 +218,8 @@ interface DeviceDetailItem {
 
         <ui-card>
           <div card-header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 class="text-h3 tracking-[-0.02em] text-text-main">Historia serwisu</h2>
-            <ui-badge variant="info">{{ deviceVisits().length }} wpisy</ui-badge>
+            <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'devices.detail.sections.serviceHistory' | transloco }}</h2>
+            <ui-badge variant="info">{{ 'devices.detail.entriesCount' | transloco: { count: deviceVisits().length } }}</ui-badge>
           </div>
 
           @if (deviceVisits().length) {
@@ -237,8 +240,8 @@ interface DeviceDetailItem {
             </div>
           } @else {
             <ui-empty-state
-              title="Brak historii serwisu"
-              description="Po wykonaniu pierwszych wizyt serwisowych zobaczysz tutaj pełną historię urządzenia."
+              [title]="'devices.detail.noServiceHistoryTitle' | transloco"
+              [description]="'devices.detail.noServiceHistoryDescription' | transloco"
             />
           }
         </ui-card>
@@ -246,8 +249,8 @@ interface DeviceDetailItem {
         <app-device-form-modal
           [open]="isEditDeviceModalOpen()"
           [initialValue]="editableDeviceDraft()"
-          modalTitle="Edytuj urządzenie"
-          submitLabel="Zapisz zmiany"
+          [modalTitle]="'devices.actions.edit' | transloco"
+          [submitLabel]="'common.actions.saveChanges' | transloco"
           (close)="isEditDeviceModalOpen.set(false)"
           (save)="handleUpdateDevice($event)"
         />
@@ -294,9 +297,9 @@ interface DeviceDetailItem {
         }
       } @else {
         <ui-empty-state
-          title="Nie znaleźliśmy tego urządzenia"
-          description="Sprawdź identyfikator albo wróć do listy urządzeń."
-          actionLabel="Wróć do listy urządzeń"
+          [title]="'devices.detail.notFoundDeviceTitle' | transloco"
+          [description]="'devices.detail.notFoundDeviceDescription' | transloco"
+          [actionLabel]="'devices.detail.backToDevices' | transloco"
           (action)="navigateToDevices()"
         />
       }
@@ -311,6 +314,10 @@ export class DeviceDetailViewComponent {
   private readonly inspectionsStore = inject(InspectionsStore);
   private readonly inspectionDeviceFlowService = inject(InspectionDeviceFlowService);
   private readonly visitsStore = inject(VisitsStore);
+  private readonly transloco = inject(TranslocoService);
+  private readonly activeLanguage = toSignal(this.transloco.langChanges$, {
+    initialValue: this.transloco.getActiveLang(),
+  });
 
   protected readonly isEditDeviceModalOpen = signal(false);
   protected readonly isNextInspectionModalOpen = signal(false);
@@ -363,6 +370,7 @@ export class DeviceDetailViewComponent {
     };
   });
   protected readonly deviceOverviewItems = computed<readonly DeviceDetailItem[]>(() => {
+    this.activeLanguage();
     const device = this.device();
 
     if (!device) {
@@ -371,52 +379,57 @@ export class DeviceDetailViewComponent {
 
     return [
       {
-        label: 'Marka',
+        labelKey: 'devices.detail.fields.brand',
         value: this.formatValue(device.brand),
       },
       {
-        label: 'Model',
+        labelKey: 'devices.detail.fields.model',
         value: this.formatValue(device.model),
       },
       {
-        label: 'Data uruchomienia',
+        labelKey: 'devices.detail.fields.installationDate',
         value: this.formatDate(device.installationDate),
       },
       {
-        label: 'Gwarancja do',
+        labelKey: 'devices.detail.fields.warrantyUntil',
         value: this.formatDate(device.warrantyUntil),
       },
       {
-        label: 'Numer seryjny',
+        labelKey: 'devices.detail.fields.serialNumber',
         value: this.formatValue(device.serialNumber),
       },
       {
-        label: 'Czynnik',
+        labelKey: 'devices.detail.fields.refrigerant',
         value: this.formatValue(device.refrigerant),
       },
       {
-        label: 'Ilość czynnika',
+        labelKey: 'devices.detail.fields.refrigerantAmount',
         value: this.formatValue(device.refrigerantAmount),
       },
     ];
   });
   protected readonly nextInspectionDateLabel = computed(() => {
+    this.activeLanguage();
     const device = this.device();
 
     if (!device?.hasScheduledInspections) {
-      return 'Przeglądy wyłączone';
+      return this.transloco.translate('devices.detail.nextInspectionDisabled');
     }
 
-    return device.nextInspectionDate ? this.formatDate(device.nextInspectionDate) : 'Brak terminu';
+    return device.nextInspectionDate
+      ? this.formatDate(device.nextInspectionDate)
+      : this.transloco.translate('devices.detail.noInspectionDate');
   });
   protected readonly nextInspectionStatusLabel = computed(() => {
+    this.activeLanguage();
     const device = this.device();
 
     return device?.hasScheduledInspections
-      ? 'Przeglądy są aktywne dla tego urządzenia.'
-      : 'Włącz przeglądy, aby ustawić termin kolejnej wizyty.';
+      ? this.transloco.translate('devices.detail.inspectionActive')
+      : this.transloco.translate('devices.detail.inspectionSetupPrompt');
   });
   protected readonly installationFacts = computed<readonly DeviceDetailItem[]>(() => {
+    this.activeLanguage();
     const device = this.device();
 
     if (!device) {
@@ -425,11 +438,11 @@ export class DeviceDetailViewComponent {
 
     return [
       {
-        label: 'Adres instalacji',
+        labelKey: 'devices.detail.fields.installationAddress',
         value: this.installationAddress(),
       },
       {
-        label: 'Miejsce montażu',
+        labelKey: 'devices.detail.fields.installationPlace',
         value: this.formatValue(device.location),
       },
     ];
@@ -452,10 +465,14 @@ export class DeviceDetailViewComponent {
     return addressLines.length ? addressLines.join('\n') : '--';
   });
 
-  protected readonly getDeviceTypeLabel = getDeviceTypeLabel;
-  protected readonly getInspectionStatusLabel = getInspectionStatusLabel;
+  protected getInspectionStatusLabel(status: InspectionStatus): string {
+    return getInspectionStatusLabel(status, this.transloco);
+  }
   protected readonly getInspectionStatusVariant = getInspectionStatusVariant;
-  protected readonly getVisitTypeLabel = getVisitTypeLabel;
+
+  protected getVisitTypeLabel(type: VisitType): string {
+    return getVisitTypeLabel(type, this.transloco);
+  }
 
   protected visitNote(deviceId: string, visitId: string): string {
     const visit = this.deviceVisits().find((details) => details.visit.id === visitId)?.visit;
@@ -464,7 +481,11 @@ export class DeviceDetailViewComponent {
   }
 
   protected customerTitle(customer: Customer): string {
-    return customer.companyName || customer.fullName || 'Klient';
+    return customer.companyName || customer.fullName || this.transloco.translate('customers.fallbackName');
+  }
+
+  protected getDeviceTypeLabel(type: DeviceDraft['type']): string {
+    return readDeviceTypeLabel(type, this.transloco);
   }
 
   protected navigateToDevices(): void {
@@ -536,7 +557,7 @@ export class DeviceDetailViewComponent {
       return value;
     }
 
-    return new Intl.DateTimeFormat('pl-PL').format(parsedDate);
+    return new Intl.DateTimeFormat(this.activeLanguage() === 'pl' ? 'pl-PL' : 'en-US').format(parsedDate);
   }
 
   private processDeviceUpdate(deviceDraft: DeviceDraft): void {

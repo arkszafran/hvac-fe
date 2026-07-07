@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 import { UiButtonComponent } from '../../ui';
 import { CustomerFormModalComponent } from './components/customer-form-modal.component';
@@ -13,6 +14,7 @@ import { matchesCustomerSearch } from './utils/customer-search.util';
   selector: 'app-customers-view',
   standalone: true,
   imports: [
+    TranslocoPipe,
     UiButtonComponent,
     CustomerFormModalComponent,
     CustomerTableComponent,
@@ -23,7 +25,9 @@ import { matchesCustomerSearch } from './utils/customer-search.util';
     <div class="space-y-3">
       <section class="pb-1">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <h1 class="text-display tracking-[-0.04em] text-text-main">Klienci</h1>
+          <h1 class="text-display tracking-[-0.04em] text-text-main">
+            {{ 'customers.title' | transloco }}
+          </h1>
 
           <div class="flex justify-start lg:justify-end">
             <ui-button size="lg" (pressed)="isCreateCustomerModalOpen.set(true)">
@@ -37,7 +41,7 @@ import { matchesCustomerSearch } from './utils/customer-search.util';
                   />
                 </svg>
               </span>
-              Dodaj klienta
+              {{ 'customers.actions.add' | transloco }}
             </ui-button>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 
 import { CustomersStore } from '../../customers/data/customers.store';
 import { Customer } from '../../customers/models/customer.model';
@@ -33,6 +34,7 @@ export interface DeviceWithoutInspection {
 @Injectable({ providedIn: 'root' })
 export class InspectionsStore {
   private readonly customersStore = inject(CustomersStore);
+  private readonly transloco = inject(TranslocoService);
   private readonly inspectionsState = signal<Inspection[]>(
     this.customersStore.customers().flatMap((customer) => groupCustomerDevicesIntoInspections(customer)),
   );
@@ -373,7 +375,7 @@ export class InspectionsStore {
   }
 
   getNextActionLabel(inspection: Inspection): string {
-    return getInspectionNextActionLabel(inspection.status);
+    return getInspectionNextActionLabel(inspection.status, this.transloco);
   }
 
   private patchInspection(

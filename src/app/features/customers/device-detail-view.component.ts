@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { map } from 'rxjs';
 
 import {
@@ -16,20 +17,21 @@ import {
   InspectionDeviceFlowService,
 } from '../inspections/data/inspection-device-flow.service';
 import { InspectionsStore } from '../inspections/data/inspections.store';
+import { InspectionStatus } from '../inspections/models/inspection.model';
 import {
   getInspectionStatusLabel,
   getInspectionStatusVariant,
 } from '../inspections/utils/inspection-ui.util';
 import { VisitsStore } from '../visits/data/visits.store';
-import { getVisitTypeLabel } from '../visits/models/visit.model';
+import { getVisitTypeLabel, VisitType } from '../visits/models/visit.model';
 import { DeviceFormModalComponent } from './components/device-form-modal.component';
 import { DeviceNextInspectionModalComponent } from './components/device-next-inspection-modal.component';
 import { CustomersStore } from './data/customers.store';
 import { Customer } from './models/customer.model';
-import { DeviceDraft, getDeviceTypeLabel } from './models/device.model';
+import { DeviceDraft, getDeviceTypeLabel as readDeviceTypeLabel } from './models/device.model';
 
 interface DeviceDetailItem {
-  label: string;
+  labelKey: string;
   value: string;
 }
 
@@ -38,6 +40,7 @@ interface DeviceDetailItem {
   standalone: true,
   imports: [
     RouterLink,
+    TranslocoPipe,
     UiBadgeComponent,
     UiButtonComponent,
     UiCardComponent,
@@ -57,6 +60,10 @@ export class DeviceDetailViewComponent {
   private readonly inspectionsStore = inject(InspectionsStore);
   private readonly inspectionDeviceFlowService = inject(InspectionDeviceFlowService);
   private readonly visitsStore = inject(VisitsStore);
+  private readonly transloco = inject(TranslocoService);
+  private readonly activeLanguage = toSignal(this.transloco.langChanges$, {
+    initialValue: this.transloco.getActiveLang(),
+  });
 
   protected readonly isEditDeviceModalOpen = signal(false);
   protected readonly isNextInspectionModalOpen = signal(false);
@@ -118,6 +125,7 @@ export class DeviceDetailViewComponent {
     };
   });
   protected readonly deviceOverviewItems = computed<readonly DeviceDetailItem[]>(() => {
+    this.activeLanguage();
     const device = this.device();
 
     if (!device) {
@@ -126,52 +134,57 @@ export class DeviceDetailViewComponent {
 
     return [
       {
-        label: 'Marka',
+        labelKey: 'devices.detail.fields.brand',
         value: this.formatValue(device.brand),
       },
       {
-        label: 'Model',
+        labelKey: 'devices.detail.fields.model',
         value: this.formatValue(device.model),
       },
       {
-        label: 'Data uruchomienia',
+        labelKey: 'devices.detail.fields.installationDate',
         value: this.formatDate(device.installationDate),
       },
       {
-        label: 'Gwarancja do',
+        labelKey: 'devices.detail.fields.warrantyUntil',
         value: this.formatDate(device.warrantyUntil),
       },
       {
-        label: 'Numer seryjny',
+        labelKey: 'devices.detail.fields.serialNumber',
         value: this.formatValue(device.serialNumber),
       },
       {
-        label: 'Czynnik',
+        labelKey: 'devices.detail.fields.refrigerant',
         value: this.formatValue(device.refrigerant),
       },
       {
-        label: 'Ilość czynnika',
+        labelKey: 'devices.detail.fields.refrigerantAmount',
         value: this.formatValue(device.refrigerantAmount),
       },
     ];
   });
   protected readonly nextInspectionDateLabel = computed(() => {
+    this.activeLanguage();
     const device = this.device();
 
     if (!device?.hasScheduledInspections) {
-      return 'Przeglądy wyłączone';
+      return this.transloco.translate('devices.detail.nextInspectionDisabled');
     }
 
-    return device.nextInspectionDate ? this.formatDate(device.nextInspectionDate) : 'Brak terminu';
+    return device.nextInspectionDate
+      ? this.formatDate(device.nextInspectionDate)
+      : this.transloco.translate('devices.detail.noInspectionDate');
   });
   protected readonly nextInspectionStatusLabel = computed(() => {
+    this.activeLanguage();
     const device = this.device();
 
     return device?.hasScheduledInspections
-      ? 'Przeglądy są aktywne dla tego urządzenia.'
-      : 'Włącz przeglądy, aby ustawić termin kolejnej wizyty.';
+      ? this.transloco.translate('devices.detail.inspectionActive')
+      : this.transloco.translate('devices.detail.inspectionSetupPrompt');
   });
   protected readonly installationFacts = computed<readonly DeviceDetailItem[]>(() => {
+    this.activeLanguage();
     const device = this.device();
 
     if (!device) {
@@ -180,11 +193,11 @@ export class DeviceDetailViewComponent {
 
     return [
       {
-        label: 'Adres instalacji',
+        labelKey: 'devices.detail.fields.installationAddress',
         value: this.installationAddress(),
       },
       {
-        label: 'Miejsce montażu',
+        labelKey: 'devices.detail.fields.installationPlace',
         value: this.formatValue(device.location),
       },
     ];
@@ -206,10 +219,14 @@ export class DeviceDetailViewComponent {
     return addressLines.length ? addressLines.join('\n') : '--';
   });
 
-  protected readonly getDeviceTypeLabel = getDeviceTypeLabel;
-  protected readonly getInspectionStatusLabel = getInspectionStatusLabel;
+  protected getInspectionStatusLabel(status: InspectionStatus): string {
+    return getInspectionStatusLabel(status, this.transloco);
+  }
   protected readonly getInspectionStatusVariant = getInspectionStatusVariant;
-  protected readonly getVisitTypeLabel = getVisitTypeLabel;
+
+  protected getVisitTypeLabel(type: VisitType): string {
+    return getVisitTypeLabel(type, this.transloco);
+  }
 
   protected visitNote(deviceId: string, visitId: string): string {
     const visit = this.deviceVisits().find((details) => details.visit.id === visitId)?.visit;
@@ -218,7 +235,11 @@ export class DeviceDetailViewComponent {
   }
 
   protected customerTitle(customer: Customer): string {
-    return customer.companyName || customer.fullName || 'Klient';
+    return customer.companyName || customer.fullName || this.transloco.translate('customers.fallbackName');
+  }
+
+  protected getDeviceTypeLabel(type: DeviceDraft['type']): string {
+    return readDeviceTypeLabel(type, this.transloco);
   }
 
   protected navigateToCustomer(customerId: string): void {
@@ -294,7 +315,7 @@ export class DeviceDetailViewComponent {
       return value;
     }
 
-    return new Intl.DateTimeFormat('pl-PL').format(parsedDate);
+    return new Intl.DateTimeFormat(this.activeLanguage() === 'pl' ? 'pl-PL' : 'en-US').format(parsedDate);
   }
 
   private processDeviceUpdate(deviceDraft: DeviceDraft): void {

@@ -1,15 +1,15 @@
 <div>
   <section class="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
     <div>
-      <h1 class="text-display tracking-[-0.04em] text-text-main">Zgłoszenia</h1>
+      <h1 class="text-display tracking-[-0.04em] text-text-main">{{ 'requests.title' | transloco }}</h1>
       <p class="mt-1 max-w-3xl text-body text-text-muted">
-        Sprawy z panelu klienta i formularza ze strony przed wizytą u klienta.
+        {{ 'requests.description' | transloco }}
       </p>
     </div>
 
     <div class="flex flex-wrap gap-2">
-      <ui-badge variant="info">Do kontaktu: {{ statusCount('new') }}</ui-badge>
-      <ui-badge variant="warning">Umówione: {{ statusCount('scheduled') }}</ui-badge>
+      <ui-badge variant="info">{{ statusCountLabel('new') }}</ui-badge>
+      <ui-badge variant="warning">{{ statusCountLabel('scheduled') }}</ui-badge>
     </div>
   </section>
 
@@ -17,16 +17,16 @@
     <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(13rem,16rem)] lg:items-end">
       <ui-input
         type="search"
-        label="Szukaj"
-        placeholder="Klient, telefon, adres albo urządzenie"
+        [label]="'requests.fields.search' | transloco"
+        [placeholder]="'requests.fields.searchPlaceholder' | transloco"
         [ngModel]="searchQuery()"
         (ngModelChange)="searchQuery.set($event)"
       />
 
       <ui-select
-        label="Status"
+        [label]="'requests.fields.status' | transloco"
         placeholder=""
-        [options]="statusFilterOptions"
+        [options]="statusFilterOptions()"
         [ngModel]="statusFilter()"
         (ngModelChange)="setStatusFilter($event)"
       />

@@ -20,35 +20,35 @@
 
         <dl class="mt-4 grid gap-3 sm:grid-cols-2">
           <div>
-            <dt class="text-small font-semibold text-text-muted">Klient</dt>
+            <dt class="text-small font-semibold text-text-muted">{{ 'customers.table.client' | transloco }}</dt>
             <dd class="text-label text-text-main">
               {{ formatCustomerName(item.customer) }}
             </dd>
           </div>
 
           <div>
-            <dt class="text-small font-semibold text-text-muted">Typ klienta</dt>
+            <dt class="text-small font-semibold text-text-muted">{{ 'requests.fields.customerType' | transloco }}</dt>
             <dd class="text-label text-text-main">
               {{ getCustomerTypeLabel(item.customer.customerType) }}
             </dd>
           </div>
 
           <div>
-            <dt class="text-small font-semibold text-text-muted">Osoba kontaktowa</dt>
+            <dt class="text-small font-semibold text-text-muted">{{ 'requests.fields.contactPerson' | transloco }}</dt>
             <dd class="text-label text-text-main">
               {{ item.customer.fullName || '--' }}
             </dd>
           </div>
 
           <div>
-            <dt class="text-small font-semibold text-text-muted">Firma</dt>
+            <dt class="text-small font-semibold text-text-muted">{{ 'requests.fields.company' | transloco }}</dt>
             <dd class="text-label text-text-main">
               {{ item.customer.companyName || '--' }}
             </dd>
           </div>
 
           <div>
-            <dt class="text-small font-semibold text-text-muted">Telefon</dt>
+            <dt class="text-small font-semibold text-text-muted">{{ 'customers.form.phone' | transloco }}</dt>
             <dd>
               <a
                 [href]="phoneHref(item.customer.phone)"
@@ -60,28 +60,28 @@
           </div>
 
           <div>
-            <dt class="text-small font-semibold text-text-muted">E-mail</dt>
+            <dt class="text-small font-semibold text-text-muted">{{ 'customers.form.email' | transloco }}</dt>
             <dd class="text-label text-text-main [overflow-wrap:anywhere]">
               {{ item.customer.email || '--' }}
             </dd>
           </div>
 
           <div class="sm:col-span-2">
-            <dt class="text-small font-semibold text-text-muted">Adres</dt>
+            <dt class="text-small font-semibold text-text-muted">{{ 'customers.form.address' | transloco }}</dt>
             <dd class="text-label text-text-main">
               {{ formatCustomerAddress(item.customer) }}
             </dd>
           </div>
 
           <div>
-            <dt class="text-small font-semibold text-text-muted">Data spotkania</dt>
+            <dt class="text-small font-semibold text-text-muted">{{ 'requests.fields.appointmentDate' | transloco }}</dt>
             <dd class="text-label text-text-main">
               {{ formatAppointmentDate(item) }}
             </dd>
           </div>
 
           <div>
-            <dt class="text-small font-semibold text-text-muted">Utworzono</dt>
+            <dt class="text-small font-semibold text-text-muted">{{ 'requests.fields.createdAt' | transloco }}</dt>
             <dd class="text-label text-text-main">
               {{ formatDate(item.createdAt.slice(0, 10)) }}
             </dd>
@@ -91,7 +91,7 @@
 
       @if (item.note) {
         <section class="rounded-[1rem] border border-border/85 bg-white px-4 py-4">
-          <h3 class="text-label text-text-main">Notatka</h3>
+          <h3 class="text-label text-text-main">{{ 'devices.detail.fields.note' | transloco }}</h3>
           <p class="mt-2 text-body text-text-muted">
             {{ item.note }}
           </p>
@@ -101,16 +101,16 @@
       @if (asInstallation(item); as installationRequest) {
         <section class="space-y-3">
           <div class="rounded-[1rem] border border-border/85 bg-white px-4 py-4">
-            <h3 class="text-label text-text-main">Montaż</h3>
+            <h3 class="text-label text-text-main">{{ 'requests.details.installation' | transloco }}</h3>
             <dl class="mt-3 grid gap-3 sm:grid-cols-2">
               <div>
-                <dt class="text-small font-semibold text-text-muted">Typ budynku</dt>
+                <dt class="text-small font-semibold text-text-muted">{{ 'requests.fields.buildingType' | transloco }}</dt>
                 <dd class="text-label text-text-main">
                   {{ getBuildingTypeLabel(installationRequest.installation.buildingType) }}
                 </dd>
               </div>
               <div>
-                <dt class="text-small font-semibold text-text-muted">Pomieszczenia</dt>
+                <dt class="text-small font-semibold text-text-muted">{{ 'requests.fields.rooms' | transloco }}</dt>
                 <dd class="text-label text-text-main">
                   {{ installationRequest.installation.rooms.length }}
                 </dd>
@@ -118,12 +118,12 @@
             </dl>
 
             <div class="mt-4">
-              <p class="text-small font-semibold text-text-muted">Zdjęcia do zgłoszenia</p>
+              <p class="text-small font-semibold text-text-muted">{{ 'requests.fields.requestPhotos' | transloco }}</p>
               <ng-container
                 [ngTemplateOutlet]="attachmentPreviewList"
                 [ngTemplateOutletContext]="{
                   attachments: installationRequest.installation.photos,
-                  emptyLabel: 'Brak załączników'
+                  emptyLabel: ('requests.details.emptyAttachments' | transloco)
                 }"
               />
             </div>
@@ -131,36 +131,36 @@
 
           @for (room of installationRequest.installation.rooms; track room.id; let index = $index) {
             <article class="rounded-[1rem] border border-border/85 bg-white px-4 py-4">
-              <h4 class="text-label text-text-main">Pomieszczenie {{ index + 1 }}</h4>
+              <h4 class="text-label text-text-main">{{ 'requests.fields.room' | transloco: { index: index + 1 } }}</h4>
               <dl class="mt-3 grid gap-3 sm:grid-cols-2">
                 <div>
-                  <dt class="text-small font-semibold text-text-muted">Powierzchnia</dt>
+                  <dt class="text-small font-semibold text-text-muted">{{ 'requests.fields.area' | transloco }}</dt>
                   <dd class="text-label text-text-main">
                     {{ formatOptional(room.area, ' m²') }}
                   </dd>
                 </div>
                 <div>
-                  <dt class="text-small font-semibold text-text-muted">Wysokość</dt>
+                  <dt class="text-small font-semibold text-text-muted">{{ 'requests.fields.height' | transloco }}</dt>
                   <dd class="text-label text-text-main">
                     {{ formatOptional(room.height, ' m') }}
                   </dd>
                 </div>
                 <div>
                   <dt class="text-small font-semibold text-text-muted">
-                    Miejsce jednostki zewnętrznej
+                    {{ 'requests.fields.outdoorUnitPlace' | transloco }}
                   </dt>
                   <dd class="text-label text-text-main">
                     {{ getOutdoorUnitPlaceLabel(room.outdoorUnitPlace) }}
                   </dd>
                 </div>
                 <div>
-                  <dt class="text-small font-semibold text-text-muted">Odległość jednostek</dt>
+                  <dt class="text-small font-semibold text-text-muted">{{ 'requests.fields.unitDistance' | transloco }}</dt>
                   <dd class="text-label text-text-main">
                     {{ formatOptional(room.estimatedDistanceToOutdoorUnit, ' m') }}
                   </dd>
                 </div>
                 <div>
-                  <dt class="text-small font-semibold text-text-muted">Piętro</dt>
+                  <dt class="text-small font-semibold text-text-muted">{{ 'requests.fields.floor' | transloco }}</dt>
                   <dd class="text-label text-text-main">
                     {{ formatOptional(room.floor) }}
                   </dd>
@@ -168,12 +168,12 @@
               </dl>
 
               <div class="mt-4">
-                <p class="text-small font-semibold text-text-muted">Zdjęcia pomieszczenia</p>
+                <p class="text-small font-semibold text-text-muted">{{ 'requests.details.roomPhotos' | transloco }}</p>
                 <ng-container
                   [ngTemplateOutlet]="attachmentPreviewList"
                   [ngTemplateOutletContext]="{
                     attachments: room.photos,
-                    emptyLabel: 'Brak zdjęć'
+                    emptyLabel: ('requests.details.emptyPhotos' | transloco)
                   }"
                 />
               </div>
@@ -184,11 +184,11 @@
 
       @if (asRepair(item); as repairRequest) {
         <section class="space-y-3">
-          <h3 class="px-1 text-label text-text-main">Naprawa</h3>
+          <h3 class="px-1 text-label text-text-main">{{ 'requests.details.repair' | transloco }}</h3>
           @for (device of repairRequest.repair.devices; track device.id; let index = $index) {
             <article class="rounded-[1rem] border border-border/85 bg-white px-4 py-4">
               <h4 class="text-label text-text-main">
-                Urządzenie {{ index + 1 }}: {{ formatDeviceName(device) }}
+                {{ 'requests.details.deviceWithIndex' | transloco: { index: index + 1, device: formatDeviceName(device) } }}
               </h4>
               <ng-container
                 [ngTemplateOutlet]="deviceDetails"
@@ -197,7 +197,7 @@
               <dl class="mt-3">
                 <div>
                   <dt class="text-small font-semibold text-text-muted">
-                    Błąd wyświetlany na urządzeniu
+                    {{ 'requests.fields.displayedError' | transloco }}
                   </dt>
                   <dd class="text-label text-text-main">
                     {{ device.displayedError || '--' }}
@@ -215,11 +215,11 @@
 
       @if (asInspection(item); as inspectionRequest) {
         <section class="space-y-3">
-          <h3 class="px-1 text-label text-text-main">Przegląd</h3>
+          <h3 class="px-1 text-label text-text-main">{{ 'requests.details.inspection' | transloco }}</h3>
           @for (device of inspectionRequest.inspection.devices; track device.id; let index = $index) {
             <article class="rounded-[1rem] border border-border/85 bg-white px-4 py-4">
               <h4 class="text-label text-text-main">
-                Urządzenie {{ index + 1 }}: {{ formatDeviceName(device) }}
+                {{ 'requests.details.deviceWithIndex' | transloco: { index: index + 1, device: formatDeviceName(device) } }}
               </h4>
               <ng-container
                 [ngTemplateOutlet]="deviceDetails"
@@ -238,31 +238,31 @@
     <ng-template #deviceDetails let-device="device">
       <dl class="mt-3 grid gap-3 sm:grid-cols-2">
         <div>
-          <dt class="text-small font-semibold text-text-muted">Typ urządzenia</dt>
+          <dt class="text-small font-semibold text-text-muted">{{ 'devices.form.type' | transloco }}</dt>
           <dd class="text-label text-text-main">{{ getDeviceTypeLabel(device.type) }}</dd>
         </div>
         <div>
-          <dt class="text-small font-semibold text-text-muted">Marka</dt>
+          <dt class="text-small font-semibold text-text-muted">{{ 'devices.form.brand' | transloco }}</dt>
           <dd class="text-label text-text-main">{{ device.brand || '--' }}</dd>
         </div>
         <div>
-          <dt class="text-small font-semibold text-text-muted">Model</dt>
+          <dt class="text-small font-semibold text-text-muted">{{ 'devices.form.model' | transloco }}</dt>
           <dd class="text-label text-text-main">{{ device.model || '--' }}</dd>
         </div>
         <div>
-          <dt class="text-small font-semibold text-text-muted">Numer seryjny</dt>
+          <dt class="text-small font-semibold text-text-muted">{{ 'devices.form.serialNumber' | transloco }}</dt>
           <dd class="text-label text-text-main">{{ device.serialNumber || '--' }}</dd>
         </div>
         <div>
-          <dt class="text-small font-semibold text-text-muted">Rok</dt>
+          <dt class="text-small font-semibold text-text-muted">{{ 'requests.fields.year' | transloco }}</dt>
           <dd class="text-label text-text-main">{{ formatOptional(device.year) }}</dd>
         </div>
         <div>
-          <dt class="text-small font-semibold text-text-muted">Rodzaj czynnika</dt>
+          <dt class="text-small font-semibold text-text-muted">{{ 'requests.fields.refrigerantType' | transloco }}</dt>
           <dd class="text-label text-text-main">{{ device.refrigerant || '--' }}</dd>
         </div>
         <div>
-          <dt class="text-small font-semibold text-text-muted">Ilość czynnika</dt>
+          <dt class="text-small font-semibold text-text-muted">{{ 'devices.form.refrigerantAmount' | transloco }}</dt>
           <dd class="text-label text-text-main">{{ device.refrigerantAmount || '--' }}</dd>
         </div>
       </dl>
@@ -270,12 +270,12 @@
 
     <ng-template #deviceAttachments let-attachments="attachments">
       <div class="mt-4">
-        <p class="text-small font-semibold text-text-muted">Zdjęcia tabliczki znamionowej</p>
+        <p class="text-small font-semibold text-text-muted">{{ 'requests.fields.nameplatePhotos' | transloco }}</p>
         <ng-container
           [ngTemplateOutlet]="attachmentPreviewList"
           [ngTemplateOutletContext]="{
             attachments: attachments,
-            emptyLabel: 'Brak zdjęć'
+            emptyLabel: ('requests.details.emptyPhotos' | transloco)
           }"
         />
       </div>
@@ -331,10 +331,10 @@
         [attr.download]="attachment.fileName"
         class="ui-focus-ring inline-flex min-h-11 items-center justify-center rounded-[0.95rem] border border-primary-strong/90 bg-[linear-gradient(180deg,_color-mix(in_oklab,var(--color-primary),white_8%)_0%,_var(--color-primary-strong)_100%)] px-4.5 text-label font-semibold tracking-[-0.01em] text-white shadow-[0_22px_42px_-24px_rgb(24_74_160/0.6)] transition duration-200 ease-out hover:-translate-y-0.5 hover:brightness-[1.05] active:translate-y-0 active:scale-[0.985]"
       >
-        Pobierz
+        {{ 'requests.actions.download' | transloco }}
       </a>
       <ui-button type="button" variant="ghost" [block]="true" (pressed)="closeAttachmentPreview()">
-        Zamknij
+        {{ 'common.actions.close' | transloco }}
       </ui-button>
     </div>
   </ui-modal>

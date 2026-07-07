@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 import { classNames } from '../../ui/utils/classnames';
 import { APP_NAVIGATION_ITEMS } from '../app-navigation';
@@ -8,7 +9,7 @@ import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, AppLayoutIconComponent],
+  imports: [RouterLink, RouterLinkActive, TranslocoPipe, AppLayoutIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <aside class="hidden md:block">
@@ -29,13 +30,13 @@ import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
                 </span>
 
                 <span [class]="labelClasses(rla.isActive)">
-                  {{ item.label }}
+                  {{ item.labelKey | transloco }}
                 </span>
               </a>
 
               @if (item.children?.length) {
                 <div class="ml-5 space-y-1 pl-5">
-                  @for (child of item.children; track child.label) {
+                  @for (child of item.children; track child.labelKey) {
                     <a
                       [routerLink]="child.path"
                       [queryParams]="child.queryParams"
@@ -44,7 +45,7 @@ import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
                       [routerLinkActiveOptions]="child.activeMatchOptions ?? { exact: true }"
                       [class]="childLinkClasses(childRla.isActive)"
                     >
-                      <span>{{ child.label }}</span>
+                      <span>{{ child.labelKey | transloco }}</span>
                     </a>
                   }
                 </div>

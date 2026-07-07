@@ -1,14 +1,14 @@
 <ui-modal
   [open]="open()"
-  title="Wybierz klienta"
-  description="Lista klientów z wyszukiwaniem po danych kontaktowych i adresie."
+  [title]="'visits.customerPicker.title' | transloco"
+  [description]="'visits.customerPicker.description' | transloco"
   (close)="close.emit()"
 >
   <div class="flex flex-col gap-5">
     <ui-input
       type="search"
-      label="Szukaj"
-      placeholder="Nazwa, osoba, telefon, adres"
+      [label]="'visits.fields.search' | transloco"
+      [placeholder]="'visits.customerPicker.searchPlaceholder' | transloco"
       [ngModel]="searchQuery()"
       (ngModelChange)="searchQuery.set($event)"
     />
@@ -29,7 +29,7 @@
       </div>
     } @else {
       <div class="rounded-[1rem] border border-dashed border-border/90 bg-white/76 px-4 py-5 text-body text-text-muted">
-        Brak klientów pasujących do wyszukiwania.
+        {{ 'visits.customerPicker.empty' | transloco }}
       </div>
     }
   </div>

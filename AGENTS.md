@@ -121,3 +121,6 @@ When generating code for this project:
 - Minimize re-rendering by avoiding the creation of new objects/arrays in templates.
 - Load data incrementally or with pagination for large datasets.
   
+
+### Translations
+- Use transloco for all texts in application, never use strings inside templates

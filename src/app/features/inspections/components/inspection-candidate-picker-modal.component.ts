@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { UiBadgeComponent, UiButtonComponent, UiModalComponent } from '../../../ui';
 import { Inspection } from '../models/inspection.model';
@@ -12,19 +13,19 @@ import {
 @Component({
   selector: 'app-inspection-candidate-picker-modal',
   standalone: true,
-  imports: [UiBadgeComponent, UiButtonComponent, UiModalComponent],
+  imports: [TranslocoPipe, UiBadgeComponent, UiButtonComponent, UiModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ui-modal
       [open]="open()"
-      [title]="title()"
+      [title]="modalTitle()"
       [description]="description()"
       (close)="close.emit()"
     >
       <div class="space-y-4">
         <div class="rounded-[1rem] border border-border/80 bg-surface/62 p-4">
           <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">
-            Klient
+            {{ 'inspections.fields.customer' | transloco }}
           </p>
           <p class="mt-2 text-h3 tracking-[-0.02em] text-text-main">{{ customerName() }}</p>
           <p class="mt-1 text-body text-text-muted">{{ deviceName() }}</p>
@@ -40,7 +41,7 @@ import {
                       {{ getInspectionStatusLabel(inspection.status) }}
                     </ui-badge>
                     <span class="text-small text-text-muted">
-                      {{ inspection.deviceIds.length }} urządzenia
+                      {{ 'inspections.detail.deviceCount' | transloco: { count: inspection.deviceIds.length } }}
                     </span>
                   </div>
 
@@ -50,14 +51,14 @@ import {
                     variant="secondary"
                     (pressed)="inspectionSelected.emit(inspection.id)"
                   >
-                    Wybierz ten przegląd
+                    {{ 'inspections.actions.selectInspection' | transloco }}
                   </ui-button>
                 </div>
 
                 <dl class="mt-4 grid gap-3 sm:grid-cols-2">
                   <div>
                     <dt class="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">
-                      Planowany termin
+                      {{ 'inspections.fields.plannedDate' | transloco }}
                     </dt>
                     <dd class="mt-1 text-label text-text-main">
                       {{ formatInspectionWindow(inspection.windowStart, inspection.windowEnd) }}
@@ -65,7 +66,7 @@ import {
                   </div>
                   <div>
                     <dt class="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">
-                      Termin przeglądu
+                      {{ 'inspections.fields.inspectionDate' | transloco }}
                     </dt>
                     <dd class="mt-1 text-label text-text-main">
                       {{ formatInspectionDate(inspection.plannedDate || inspection.targetDate) }}
@@ -77,31 +78,33 @@ import {
           </div>
         } @else {
           <div class="rounded-[1rem] border border-dashed border-border/90 bg-white/72 p-5 text-body text-text-muted">
-            Brak innych pasujących przeglądów. Możesz utworzyć nowy obiekt albo cofnąć zmianę.
+            {{ 'inspections.candidatePicker.empty' | transloco }}
           </div>
         }
       </div>
 
       <div modal-footer class="grid gap-3 sm:grid-cols-2">
         <ui-button type="button" variant="ghost" [block]="true" (pressed)="close.emit()">
-          {{ cancelActionLabel() }}
+          {{ closeLabel() }}
         </ui-button>
         <ui-button type="button" [block]="true" (pressed)="createNew.emit()">
-          {{ createActionLabel() }}
+          {{ createLabel() }}
         </ui-button>
       </div>
     </ui-modal>
   `,
 })
 export class InspectionCandidatePickerModalComponent {
+  private readonly transloco = inject(TranslocoService);
+
   readonly open = input(false);
-  readonly title = input('Wybierz przegląd');
+  readonly title = input('');
   readonly description = input('');
   readonly customerName = input('');
   readonly deviceName = input('');
   readonly candidates = input<Inspection[]>([]);
-  readonly createActionLabel = input('Utwórz nowy przegląd');
-  readonly cancelActionLabel = input('Anuluj');
+  readonly createActionLabel = input('');
+  readonly cancelActionLabel = input('');
 
   readonly inspectionSelected = output<string>();
   readonly createNew = output<void>();
@@ -109,6 +112,21 @@ export class InspectionCandidatePickerModalComponent {
 
   protected readonly formatInspectionDate = formatInspectionDate;
   protected readonly formatInspectionWindow = formatInspectionWindow;
-  protected readonly getInspectionStatusLabel = getInspectionStatusLabel;
   protected readonly getInspectionStatusVariant = getInspectionStatusVariant;
+
+  protected modalTitle(): string {
+    return this.title() || this.transloco.translate('inspections.candidatePicker.defaultTitle');
+  }
+
+  protected createLabel(): string {
+    return this.createActionLabel() || this.transloco.translate('inspections.candidatePicker.createAction');
+  }
+
+  protected closeLabel(): string {
+    return this.cancelActionLabel() || this.transloco.translate('common.actions.cancel');
+  }
+
+  protected getInspectionStatusLabel(status: Inspection['status']): string {
+    return getInspectionStatusLabel(status, this.transloco);
+  }
 }

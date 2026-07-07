@@ -11,7 +11,9 @@
         HV
       </div>
 
-      <h1 id="account-unlock-title" class="text-h1 text-text-main">Odblokowanie konta</h1>
+      <h1 id="account-unlock-title" class="text-h1 text-text-main">
+        {{ 'auth.accountUnlock.title' | transloco }}
+      </h1>
     </div>
 
     <div class="ui-panel grid gap-5 p-5 text-center sm:p-6">
@@ -23,20 +25,20 @@
               aria-hidden="true"
             ></span>
 
-            <p class="text-body text-text-muted">Sprawdzamy link do odblokowania konta...</p>
+            <p class="text-body text-text-muted">{{ 'auth.accountUnlock.loading' | transloco }}</p>
           </div>
         }
 
         @case ('success') {
           <p class="text-body text-text-muted">
-            Twoje konto zostalo odblokowane. Mozesz teraz wrocic do logowania.
+            {{ 'auth.accountUnlock.successMessage' | transloco }}
           </p>
 
           <a
             routerLink="/login"
             class="ui-focus-ring inline-flex min-h-11 items-center justify-center rounded-[0.95rem] border border-primary/25 bg-primary-soft/55 px-4.5 text-label font-semibold text-primary-strong transition duration-200 ease-out hover:-translate-y-0.5 hover:border-primary/35 hover:bg-primary-soft active:translate-y-0"
           >
-            Przejdz do logowania
+            {{ 'auth.accountUnlock.goToLogin' | transloco }}
           </a>
         }
 
@@ -45,14 +47,14 @@
             class="rounded-[0.95rem] border border-danger/25 bg-danger-soft px-4 py-3 text-label font-medium text-danger"
             role="alert"
           >
-            Link do odblokowania konta jest niepoprawny albo wygasl.
+            {{ 'auth.accountUnlock.invalidLink' | transloco }}
           </p>
 
           <a
             routerLink="/login"
             class="ui-focus-ring inline-flex min-h-11 items-center justify-center rounded-[0.95rem] border border-border/90 bg-white px-4.5 text-label font-semibold text-text-main transition duration-200 ease-out hover:-translate-y-0.5 hover:border-primary/22 hover:bg-primary-soft/45 hover:text-primary-strong active:translate-y-0 active:bg-primary-soft/60"
           >
-            Wroc do logowania
+            {{ 'auth.actions.backToLogin' | transloco }}
           </a>
         }
 
@@ -69,7 +71,7 @@
             routerLink="/login"
             class="ui-focus-ring inline-flex min-h-11 items-center justify-center rounded-[0.95rem] border border-border/90 bg-white px-4.5 text-label font-semibold text-text-main transition duration-200 ease-out hover:-translate-y-0.5 hover:border-primary/22 hover:bg-primary-soft/45 hover:text-primary-strong active:translate-y-0 active:bg-primary-soft/60"
           >
-            Wroc do logowania
+            {{ 'auth.actions.backToLogin' | transloco }}
           </a>
         }
       }

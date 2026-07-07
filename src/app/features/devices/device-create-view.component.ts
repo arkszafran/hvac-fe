@@ -7,6 +7,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { UiButtonComponent, UiCardComponent, UiPageHeaderComponent } from '../../ui';
 import { CustomerFormModalComponent } from '../customers/components/customer-form-modal.component';
@@ -31,6 +32,7 @@ type CustomerSelection =
   standalone: true,
   imports: [
     RouterLink,
+    TranslocoPipe,
     UiButtonComponent,
     UiCardComponent,
     UiPageHeaderComponent,
@@ -47,6 +49,7 @@ export class DeviceCreateViewComponent {
   private readonly router = inject(Router);
   private readonly customersStore = inject(CustomersStore);
   private readonly inspectionDeviceFlowService = inject(InspectionDeviceFlowService);
+  private readonly transloco = inject(TranslocoService);
 
   protected readonly deviceForm = viewChild(DeviceEditorFormComponent);
   protected readonly customers = this.customersStore.customers;
@@ -91,12 +94,16 @@ export class DeviceCreateViewComponent {
     const selection = this.customerSelection();
 
     if (!selection) {
-      return 'Nie wybrano klienta';
+      return this.transloco.translate('devices.create.noCustomerSelected');
     }
 
     return selection.kind === 'existing'
-      ? selection.customer.companyName || selection.customer.fullName || 'Klient'
-      : selection.draft.companyName || selection.draft.fullName || 'Nowy klient';
+      ? selection.customer.companyName ||
+          selection.customer.fullName ||
+          this.transloco.translate('customers.fallbackName')
+      : selection.draft.companyName ||
+          selection.draft.fullName ||
+          this.transloco.translate('customers.newCustomer');
   }
 
   protected selectedCustomerDescription(): string {
@@ -110,7 +117,7 @@ export class DeviceCreateViewComponent {
       return selection.customer.phone || '--';
     }
 
-    return 'Nowy klient zostanie zapisany razem z urządzeniem w jednym żądaniu.';
+    return this.transloco.translate('devices.create.pendingCustomerDescription');
   }
 
   protected selectedCustomerEmail(): string {
@@ -148,7 +155,11 @@ export class DeviceCreateViewComponent {
       return '';
     }
 
-    return selection.kind === 'existing' ? 'Wybrany klient' : 'Nowy klient do zapisania';
+    return this.transloco.translate(
+      selection.kind === 'existing'
+        ? 'devices.create.selectedCustomer'
+        : 'devices.create.newCustomerToSave',
+    );
   }
 
   protected hasCustomerSelection(): boolean {

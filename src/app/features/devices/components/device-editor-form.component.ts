@@ -1,30 +1,32 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  computed,
   effect,
   inject,
   input,
   output,
   signal,
 } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { merge, startWith } from 'rxjs';
 
 import { UiInputComponent, UiSelectComponent } from '../../../ui';
 import { DEVICE_BRAND_OPTIONS } from '../../customers/data/customer.mock';
 import {
   calculateInspectionDateFromPreset,
-  DEVICE_INSPECTIONS_CHECKBOX_DESCRIPTION,
-  DEVICE_INSPECTIONS_CHECKBOX_LABEL,
-  DEVICE_INSPECTION_PRESET_OPTIONS,
+  createDeviceInspectionPresetOptions,
+  DEVICE_INSPECTIONS_CHECKBOX_DESCRIPTION_KEY,
+  DEVICE_INSPECTIONS_CHECKBOX_LABEL_KEY,
   DeviceInspectionPreset,
 } from '../../customers/models/device-inspection.model';
 import {
+  createDeviceTypeOptions,
   createEmptyDeviceDraft,
+  createDeviceWarrantyMonthOptions,
   DeviceDraft,
-  DEVICE_TYPE_OPTIONS,
-  DEVICE_WARRANTY_MONTH_OPTIONS,
 } from '../../customers/models/device.model';
 
 const TEXTAREA_CLASSES =
@@ -33,13 +35,14 @@ const TEXTAREA_CLASSES =
 @Component({
   selector: 'app-device-editor-form',
   standalone: true,
-  imports: [ReactiveFormsModule, UiInputComponent, UiSelectComponent],
+  imports: [ReactiveFormsModule, TranslocoPipe, UiInputComponent, UiSelectComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   exportAs: 'deviceEditorForm',
   templateUrl: './device-editor-form.component.html',
 })
 export class DeviceEditorFormComponent {
   private readonly formBuilder = inject(FormBuilder);
+  private readonly transloco = inject(TranslocoService);
   private isApplyingInspectionPreset = false;
 
   readonly initialValue = input<DeviceDraft | null>(null);
@@ -49,13 +52,29 @@ export class DeviceEditorFormComponent {
 
   protected submitAttempted = false;
 
+  private readonly activeLanguage = toSignal(this.transloco.langChanges$, {
+    initialValue: this.transloco.getActiveLang(),
+  });
+
   protected readonly textareaClasses = TEXTAREA_CLASSES;
   protected readonly deviceBrandOptions = DEVICE_BRAND_OPTIONS;
-  protected readonly deviceTypeOptions = DEVICE_TYPE_OPTIONS;
-  protected readonly deviceWarrantyMonthOptions = DEVICE_WARRANTY_MONTH_OPTIONS;
-  protected readonly inspectionCheckboxLabel = DEVICE_INSPECTIONS_CHECKBOX_LABEL;
-  protected readonly inspectionCheckboxDescription = DEVICE_INSPECTIONS_CHECKBOX_DESCRIPTION;
-  protected readonly inspectionPresetOptions = DEVICE_INSPECTION_PRESET_OPTIONS;
+  protected readonly inspectionCheckboxLabelKey = DEVICE_INSPECTIONS_CHECKBOX_LABEL_KEY;
+  protected readonly inspectionCheckboxDescriptionKey = DEVICE_INSPECTIONS_CHECKBOX_DESCRIPTION_KEY;
+  protected readonly deviceTypeOptions = computed(() => {
+    this.activeLanguage();
+
+    return createDeviceTypeOptions(this.transloco);
+  });
+  protected readonly deviceWarrantyMonthOptions = computed(() => {
+    this.activeLanguage();
+
+    return createDeviceWarrantyMonthOptions(this.transloco);
+  });
+  protected readonly inspectionPresetOptions = computed(() => {
+    this.activeLanguage();
+
+    return createDeviceInspectionPresetOptions(this.transloco);
+  });
   protected readonly form = this.formBuilder.nonNullable.group({
     type: ['', Validators.required],
     brand: ['', Validators.required],
@@ -172,18 +191,20 @@ export class DeviceEditorFormComponent {
 
     if (control.hasError('required')) {
       if (field === 'type') {
-        return 'Typ urządzenia jest wymagany.';
+        return this.transloco.translate('devices.validation.typeRequired');
       }
 
       if (field === 'installationDate') {
-        return 'Data uruchomienia jest wymagana, gdy wybrano gwarancję.';
+        return this.transloco.translate('devices.validation.installationDateRequired');
       }
 
       if (field === 'nextInspectionDate') {
-        return 'Data następnego przeglądu jest wymagana, gdy przeglądy są włączone.';
+        return this.transloco.translate('devices.validation.nextInspectionDateRequired');
       }
 
-      return field === 'brand' ? 'Marka jest wymagana.' : 'Model jest wymagany.';
+      return this.transloco.translate(
+        field === 'brand' ? 'devices.validation.brandRequired' : 'devices.validation.modelRequired',
+      );
     }
 
     return '';

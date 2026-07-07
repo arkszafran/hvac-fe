@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 
 import { UiButtonComponent } from '../button/button.component';
 
@@ -27,10 +28,10 @@ import { UiButtonComponent } from '../button/button.component';
 
       <div class="mx-auto mt-5 max-w-md space-y-2">
         <h3 class="text-h2 text-text-main">
-          {{ title() }}
+          {{ titleText() }}
         </h3>
         <p class="text-body text-text-muted">
-          {{ description() }}
+          {{ descriptionText() }}
         </p>
       </div>
 
@@ -45,9 +46,19 @@ import { UiButtonComponent } from '../button/button.component';
   `,
 })
 export class UiEmptyStateComponent {
-  readonly title = input('Brak danych');
-  readonly description = input('Tu pojawią się elementy, gdy tylko dodasz pierwsze rekordy.');
+  private readonly transloco = inject(TranslocoService);
+
+  readonly title = input('');
+  readonly description = input('');
   readonly actionLabel = input('');
 
   readonly action = output<void>();
+
+  protected titleText(): string {
+    return this.title() || this.transloco.translate('ui.emptyState.title');
+  }
+
+  protected descriptionText(): string {
+    return this.description() || this.transloco.translate('ui.emptyState.description');
+  }
 }

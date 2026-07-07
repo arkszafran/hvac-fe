@@ -18,7 +18,7 @@ export type AppNavigationIcon =
   | 'bell';
 
 export interface AppNavigationChildItem {
-  readonly label: string;
+  readonly labelKey: string;
   readonly path: string;
   readonly queryParams?: Params;
   readonly activeMatchOptions?: IsActiveMatchOptions;
@@ -31,7 +31,6 @@ export interface AppNavigationItem extends AppNavigationChildItem {
 }
 
 export const APP_PRODUCT_NAME = 'HAVAC';
-export const APP_PRODUCT_TAGLINE = 'Lekki SaaS dla serwisu HVAC';
 
 const EXACT_QUERY_MATCH: IsActiveMatchOptions = {
   paths: 'exact',
@@ -49,51 +48,51 @@ const SECTION_MATCH: IsActiveMatchOptions = {
 
 export const APP_NAVIGATION_ITEMS: readonly AppNavigationItem[] = [
   {
-    label: 'Dashboard',
+    labelKey: 'layout.navigation.dashboard',
     path: '/dashboard',
     icon: 'dashboard',
     exact: true,
   },
   {
-    label: 'Klienci',
+    labelKey: 'layout.navigation.customers',
     path: '/customers',
     icon: 'customers',
     exact: false,
   },
   {
-    label: 'Urządzenia',
+    labelKey: 'layout.navigation.devices',
     path: '/devices',
     icon: 'devices',
     exact: false,
   },
   {
-    label: 'Zgłoszenia',
+    labelKey: 'layout.navigation.requests',
     path: '/requests',
     icon: 'requests',
     exact: true,
   },
   {
-    label: 'Wizyty',
+    labelKey: 'layout.navigation.visits',
     path: '/visits',
     icon: 'visits',
     exact: false,
   },
   {
-    label: 'Przeglądy',
+    labelKey: 'layout.navigation.inspections',
     path: '/inspections',
     queryParams: buildInspectionListViewQueryParams(DEFAULT_INSPECTION_LIST_VIEW_ID),
     icon: 'reviews',
     exact: false,
     activeMatchOptions: SECTION_MATCH,
     children: INSPECTION_LIST_VIEWS.map((view) => ({
-      label: view.label,
+      labelKey: view.labelKey,
       path: '/inspections',
       queryParams: buildInspectionListViewQueryParams(view.id),
       activeMatchOptions: EXACT_QUERY_MATCH,
     })),
   },
   {
-    label: 'Ustawienia',
+    labelKey: 'layout.navigation.settings',
     path: '/settings',
     icon: 'settings',
     exact: true,

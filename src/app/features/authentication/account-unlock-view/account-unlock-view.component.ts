@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { SKIP_ERROR_TOAST, SKIP_GLOBAL_LOADER } from '../../../common/api/api-context.tokens';
 import { AuthenticationApi, type UnlockAccountDto } from '../../../common/api/authentication';
@@ -24,7 +25,7 @@ type AccountUnlockState = 'loading' | 'success' | 'invalid' | 'error';
 
 @Component({
   selector: 'app-account-unlock-view',
-  imports: [RouterLink],
+  imports: [RouterLink, TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './account-unlock-view.component.html',
 })
@@ -33,6 +34,7 @@ export class AccountUnlockViewComponent implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly document = inject(DOCUMENT);
   private readonly toast = inject(ToastService);
+  private readonly transloco = inject(TranslocoService);
 
   protected readonly state = signal<AccountUnlockState>('loading');
   protected readonly serverError = signal('');
@@ -61,14 +63,14 @@ export class AccountUnlockViewComponent implements OnInit {
       .subscribe({
         next: () => {
           this.state.set('success');
-          this.toast.success('Konto zostalo odblokowane. Mozesz sie zalogowac.');
+          this.toast.success(this.transloco.translate('auth.accountUnlock.toast.success'));
         },
         error: (error: unknown) => {
           this.state.set('error');
           this.serverError.set(
             readAuthenticationErrorMessage(
               error,
-              'Nie udalo sie odblokowac konta. Popros o nowy link i sprobuj ponownie.',
+              this.transloco.translate('auth.accountUnlock.errors.failed'),
             ),
           );
         },

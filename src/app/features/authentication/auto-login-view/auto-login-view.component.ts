@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { finalize } from 'rxjs';
 
 import { SKIP_ERROR_TOAST, SKIP_GLOBAL_LOADER } from '../../../common/api/api-context.tokens';
@@ -19,7 +20,7 @@ import { parseAutoLoginFragment } from '../utils/auto-login-fragment.util';
 
 @Component({
   selector: 'app-auto-login-view',
-  imports: [RouterLink],
+  imports: [RouterLink, TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './auto-login-view.component.html',
 })
@@ -27,6 +28,7 @@ export class AutoLoginViewComponent implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly transloco = inject(TranslocoService);
 
   protected readonly isLoading = signal(true);
   protected readonly errorMessage = signal('');
@@ -37,7 +39,7 @@ export class AutoLoginViewComponent implements OnInit {
 
     if (credentials === null) {
       this.isLoading.set(false);
-      this.errorMessage.set('Link do automatycznego logowania jest niepoprawny albo wygasl.');
+      this.errorMessage.set(this.transloco.translate('auth.autoLogin.invalidLink'));
       return;
     }
 
@@ -56,7 +58,7 @@ export class AutoLoginViewComponent implements OnInit {
           this.errorMessage.set(
             readAuthenticationErrorMessage(
               error,
-              'Nie udalo sie zalogowac z linku. Popros o nowy link i sprobuj ponownie.',
+              this.transloco.translate('auth.autoLogin.errors.failed'),
             ),
           );
         },

@@ -1,4 +1,5 @@
 import { Injectable, inject } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 
 import { CustomersStore } from '../../customers/data/customers.store';
 import { Customer, CustomerDraft } from '../../customers/models/customer.model';
@@ -73,6 +74,7 @@ export type DeviceUpdateInspectionPlan =
 export class InspectionDeviceFlowService {
   private readonly customersStore = inject(CustomersStore);
   private readonly inspectionsStore = inject(InspectionsStore);
+  private readonly transloco = inject(TranslocoService);
 
   previewCreateDevice(
     customerSelection: DeviceCustomerSelection,
@@ -105,29 +107,27 @@ export class InspectionDeviceFlowService {
     if (matches.length === 1) {
       return {
         kind: 'single-candidate',
-        title: 'Dołączyć urządzenie do istniejącego przeglądu?',
-        description:
-          'Nowe urządzenie pasuje do jednego otwartego przeglądu klienta. Możesz je dołączyć albo utworzyć osobny przegląd.',
+        title: this.transloco.translate('inspections.flow.attachExistingTitle'),
+        description: this.transloco.translate('inspections.flow.newDeviceSingleDescription'),
         customerName,
         deviceName: this.getDeviceName(deviceDraft),
         candidate: matches[0],
-        primaryActionLabel: 'Dołącz do przeglądu',
-        createActionLabel: 'Osobny przegląd',
-        cancelActionLabel: 'Anuluj',
+        primaryActionLabel: this.transloco.translate('inspections.flow.attachToInspection'),
+        createActionLabel: this.transloco.translate('inspections.flow.separateInspection'),
+        cancelActionLabel: this.transloco.translate('common.actions.cancel'),
         transition: 'none',
       };
     }
 
     return {
       kind: 'candidate-choice',
-      title: 'Wybierz przegląd dla nowego urządzenia',
-      description:
-        'Znaleźliśmy kilka otwartych przeglądów tego klienta mieszczących się w oknie 30 dni. Wybierz, do którego przypiąć urządzenie albo utwórz nowy przegląd.',
+      title: this.transloco.translate('inspections.flow.newDeviceChoiceTitle'),
+      description: this.transloco.translate('inspections.flow.newDeviceChoiceDescription'),
       customerName,
       deviceName: this.getDeviceName(deviceDraft),
       candidates: matches,
-      createActionLabel: 'Utwórz nowy przegląd',
-      cancelActionLabel: 'Anuluj',
+      createActionLabel: this.transloco.translate('inspections.flow.createNewInspection'),
+      cancelActionLabel: this.transloco.translate('common.actions.cancel'),
       transition: 'none',
     };
   }
@@ -223,14 +223,13 @@ export class InspectionDeviceFlowService {
       if (currentInspection.status === 'scheduled') {
         return {
           kind: 'candidate-choice',
-          title: 'Zmiana daty utworzy nowy przegląd',
-          description:
-            'To urządzenie jest jedynym elementem już umówionego przeglądu. Zmiana daty anuluje aktualny przegląd i utworzy nowy obiekt planowania.',
+          title: this.transloco.translate('inspections.flow.dateChangeCreatesNewTitle'),
+          description: this.transloco.translate('inspections.flow.dateChangeCreatesNewDescription'),
           customerName: this.getCustomerName(customer),
           deviceName: this.getDeviceName(nextDraft),
           candidates: [],
-          createActionLabel: 'Anuluj obecny i utwórz nowy przegląd',
-          cancelActionLabel: 'Cofnij zmianę daty',
+          createActionLabel: this.transloco.translate('inspections.flow.cancelCurrentAndCreateNew'),
+          cancelActionLabel: this.transloco.translate('inspections.flow.undoDateChange'),
           transition: 'cancel-current',
           currentInspectionId: currentInspection.id,
         };
@@ -261,20 +260,20 @@ export class InspectionDeviceFlowService {
 
     const description =
       currentInspection.status === 'scheduled'
-        ? 'Nowa data wypada poza 30-dniowym oknem obecnie umówionego przeglądu. Urządzenie trzeba odłączyć od aktualnego przeglądu i przypisać gdzie indziej albo utworzyć nowy.'
-        : 'Nowa data wypada poza 30-dniowym oknem aktualnego przeglądu. Wybierz inny otwarty przegląd, utwórz nowy albo cofnij zmianę.';
+        ? this.transloco.translate('inspections.flow.scheduledDateOutOfWindow')
+        : this.transloco.translate('inspections.flow.dateOutOfWindow');
 
     if (matchingInspections.length === 1) {
       return {
         kind: 'single-candidate',
-        title: 'Przepiąć urządzenie do innego przeglądu?',
+        title: this.transloco.translate('inspections.flow.moveToOtherTitle'),
         description,
         customerName: this.getCustomerName(customer),
         deviceName: this.getDeviceName(nextDraft),
         candidate: matchingInspections[0],
-        primaryActionLabel: 'Przypisz do tego przeglądu',
-        createActionLabel: 'Utwórz nowy przegląd',
-        cancelActionLabel: 'Cofnij zmianę daty',
+        primaryActionLabel: this.transloco.translate('inspections.flow.assignToInspection'),
+        createActionLabel: this.transloco.translate('inspections.flow.createNewInspection'),
+        cancelActionLabel: this.transloco.translate('inspections.flow.undoDateChange'),
         transition: 'detach-current',
         currentInspectionId: currentInspection.id,
       };
@@ -282,13 +281,13 @@ export class InspectionDeviceFlowService {
 
     return {
       kind: 'candidate-choice',
-      title: 'Wybierz nowy przegląd dla urządzenia',
+      title: this.transloco.translate('inspections.flow.chooseNewInspectionTitle'),
       description,
       customerName: this.getCustomerName(customer),
       deviceName: this.getDeviceName(nextDraft),
       candidates: matchingInspections,
-      createActionLabel: 'Utwórz nowy przegląd',
-      cancelActionLabel: 'Cofnij zmianę daty',
+      createActionLabel: this.transloco.translate('inspections.flow.createNewInspection'),
+      cancelActionLabel: this.transloco.translate('inspections.flow.undoDateChange'),
       transition: 'detach-current',
       currentInspectionId: currentInspection.id,
     };
@@ -378,13 +377,16 @@ export class InspectionDeviceFlowService {
   }
 
   describeInspection(inspection: Inspection): string {
-    return buildInspectionShortDescription({
-      status: inspection.status,
-      windowStart: inspection.windowStart,
-      windowEnd: inspection.windowEnd,
-      plannedDate: inspection.plannedDate,
-      deviceCount: inspection.deviceIds.length,
-    });
+    return buildInspectionShortDescription(
+      {
+        status: inspection.status,
+        windowStart: inspection.windowStart,
+        windowEnd: inspection.windowEnd,
+        plannedDate: inspection.plannedDate,
+        deviceCount: inspection.deviceIds.length,
+      },
+      this.transloco,
+    );
   }
 
   private createStandalonePlan(
@@ -409,29 +411,27 @@ export class InspectionDeviceFlowService {
     if (matches.length === 1) {
       return {
         kind: 'single-candidate',
-        title: 'Dołączyć urządzenie do istniejącego przeglądu?',
-        description:
-          'Nowa data kwalifikuje to urządzenie do jednego otwartego przeglądu klienta. Możesz je dołączyć albo utworzyć osobny przegląd.',
+        title: this.transloco.translate('inspections.flow.attachExistingTitle'),
+        description: this.transloco.translate('inspections.flow.newDateSingleDescription'),
         customerName: this.getCustomerName(customer),
         deviceName: this.getDeviceName(nextDraft),
         candidate: matches[0],
-        primaryActionLabel: 'Dołącz do przeglądu',
-        createActionLabel: 'Osobny przegląd',
-        cancelActionLabel: 'Cofnij datę',
+        primaryActionLabel: this.transloco.translate('inspections.flow.attachToInspection'),
+        createActionLabel: this.transloco.translate('inspections.flow.separateInspection'),
+        cancelActionLabel: this.transloco.translate('inspections.flow.undoDate'),
         transition: 'none',
       };
     }
 
     return {
       kind: 'candidate-choice',
-      title: 'Wybierz przegląd dla urządzenia',
-      description:
-        'Nowa data pasuje do kilku otwartych przeglądów klienta. Wybierz jeden z nich albo utwórz nowy przegląd.',
+      title: this.transloco.translate('inspections.flow.newDateChoiceTitle'),
+      description: this.transloco.translate('inspections.flow.newDateChoiceDescription'),
       customerName: this.getCustomerName(customer),
       deviceName: this.getDeviceName(nextDraft),
       candidates: matches,
-      createActionLabel: 'Utwórz nowy przegląd',
-      cancelActionLabel: 'Cofnij zmianę daty',
+      createActionLabel: this.transloco.translate('inspections.flow.createNewInspection'),
+      cancelActionLabel: this.transloco.translate('inspections.flow.undoDateChange'),
       transition: 'none',
     };
   }
@@ -439,17 +439,19 @@ export class InspectionDeviceFlowService {
   private getSelectionCustomerName(selection: DeviceCustomerSelection): string {
     return selection.kind === 'existing'
       ? this.getCustomerName(selection.customer)
-      : selection.draft.companyName || selection.draft.fullName || 'Nowy klient';
+      : selection.draft.companyName ||
+          selection.draft.fullName ||
+          this.transloco.translate('customers.newCustomer');
   }
 
   private getCustomerName(customer: Customer): string {
-    return customer.companyName || customer.fullName || 'Klient';
+    return customer.companyName || customer.fullName || this.transloco.translate('customers.fallbackName');
   }
 
   private getDeviceName(deviceDraft: Pick<DeviceDraft, 'brand' | 'model'>): string {
     const label = `${deviceDraft.brand} ${deviceDraft.model}`.trim();
 
-    return label || 'Nowe urządzenie';
+    return label || this.transloco.translate('visits.create.newDevice');
   }
 
   private isTrackedActiveInspection(inspection: Inspection): boolean {

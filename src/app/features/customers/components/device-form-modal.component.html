@@ -1,14 +1,14 @@
 <ui-modal
   [open]="open()"
-  [title]="modalTitle()"
+  [title]="modalTitle() || ('devices.form.defaultModalTitle' | transloco)"
   [description]="modalDescription()"
   (close)="handleClose()"
 >
   <form class="ui-form-stack" [formGroup]="form">
     <ui-select
-      label="Typ urządzenia"
-      placeholder="Wybierz typ urządzenia"
-      [options]="deviceTypeOptions"
+      [label]="'devices.form.type' | transloco"
+      [placeholder]="'devices.form.typePlaceholder' | transloco"
+      [options]="deviceTypeOptions()"
       required
       [error]="validationError('type')"
       formControlName="type"
@@ -16,8 +16,8 @@
 
     <div class="grid gap-4 sm:grid-cols-2">
       <ui-select
-        label="Marka"
-        placeholder="Wybierz markę"
+        [label]="'devices.form.brand' | transloco"
+        [placeholder]="'devices.form.brandPlaceholder' | transloco"
         required
         [options]="deviceBrandOptions"
         [error]="validationError('brand')"
@@ -25,41 +25,45 @@
       />
 
       <ui-input
-        label="Model"
+        [label]="'devices.form.model' | transloco"
         required
-        placeholder="np. Stylish FTXA35"
+        [placeholder]="'devices.form.modelPlaceholder' | transloco"
         [error]="validationError('model')"
         formControlName="model"
       />
     </div>
 
     <ui-input
-      label="Numer seryjny"
-      placeholder="np. SN-45812"
+      [label]="'devices.form.serialNumber' | transloco"
+      [placeholder]="'devices.form.serialNumberPlaceholder' | transloco"
       formControlName="serialNumber"
     />
 
     <div class="grid gap-4 sm:grid-cols-2">
-      <ui-input label="Czynnik" placeholder="np. R32" formControlName="refrigerant" />
+      <ui-input
+        [label]="'devices.form.refrigerant' | transloco"
+        [placeholder]="'devices.form.refrigerantPlaceholder' | transloco"
+        formControlName="refrigerant"
+      />
 
       <ui-input
-        label="Ilość czynnika"
-        placeholder="np. 1.4 kg"
+        [label]="'devices.form.refrigerantAmount' | transloco"
+        [placeholder]="'devices.form.refrigerantAmountPlaceholder' | transloco"
         formControlName="refrigerantAmount"
       />
     </div>
 
     <div class="pt-2">
       <ui-input
-        label="Miejsce montażu"
-        placeholder="np. Salon"
+        [label]="'devices.form.location' | transloco"
+        [placeholder]="'devices.form.locationPlaceholder' | transloco"
         formControlName="location"
       />
     </div>
 
     <div class="grid gap-4 sm:grid-cols-2">
       <ui-input
-        label="Data uruchomienia"
+        [label]="'devices.form.installationDate' | transloco"
         type="date"
         [required]="requiresInstallationDate()"
         [error]="validationError('installationDate')"
@@ -67,8 +71,8 @@
       />
 
       <ui-select
-        label="Gwarancja"
-        [options]="deviceWarrantyMonthOptions"
+        [label]="'devices.form.warranty' | transloco"
+        [options]="deviceWarrantyMonthOptions()"
         formControlName="warrantyMonths"
       />
     </div>
@@ -84,8 +88,8 @@
         />
 
         <span class="min-w-0">
-          <span class="block text-label text-text-main">{{ inspectionCheckboxLabel }}</span>
-          <span class="block text-small text-text-muted">{{ inspectionCheckboxDescription }}</span>
+          <span class="block text-label text-text-main">{{ inspectionCheckboxLabelKey | transloco }}</span>
+          <span class="block text-small text-text-muted">{{ inspectionCheckboxDescriptionKey | transloco }}</span>
         </span>
       </label>
     </div>
@@ -93,13 +97,13 @@
     @if (hasScheduledInspections()) {
       <div class="grid gap-4 sm:grid-cols-2">
         <ui-select
-          label="Następny przegląd za"
-          [options]="inspectionPresetOptions"
+          [label]="'devices.form.nextInspectionPreset' | transloco"
+          [options]="inspectionPresetOptions()"
           formControlName="nextInspectionPreset"
         />
 
         <ui-input
-          label="Termin następnego przeglądu"
+          [label]="'devices.form.nextInspectionDate' | transloco"
           type="date"
           required
           [error]="validationError('nextInspectionDate')"
@@ -120,26 +124,34 @@
 
         <span class="min-w-0">
           <span class="block text-label text-text-main">
-            To urządzenie ma inny adres instalacji niż adres klienta
+            {{ 'devices.form.customAddressLabel' | transloco }}
           </span>
           <span class="block text-small text-text-muted">
-            Zaznacz, jeśli instalacja jest w innym lokalu, budynku albo mieszkaniu.
+            {{ 'devices.form.customAddressDescription' | transloco }}
           </span>
         </span>
       </label>
     </div>
 
     @if (hasCustomInstallationAddress()) {
-      <ui-input
-        label="Adres instalacji"
-        placeholder="ul. Montażowa 7"
+    <ui-input
+      [label]="'devices.form.installationAddress' | transloco"
+      [placeholder]="'devices.form.installationAddressPlaceholder' | transloco"
         formControlName="address"
       />
 
       <div class="grid gap-4 sm:grid-cols-2">
-        <ui-input label="Kod pocztowy" placeholder="00-000" formControlName="postalCode" />
+      <ui-input
+        [label]="'customers.form.postalCode' | transloco"
+        placeholder="00-000"
+        formControlName="postalCode"
+      />
 
-        <ui-input label="Miasto" placeholder="Warszawa" formControlName="city" />
+      <ui-input
+        [label]="'customers.form.city' | transloco"
+        [placeholder]="'customers.form.cityPlaceholder' | transloco"
+        formControlName="city"
+      />
       </div>
     }
 
@@ -147,12 +159,12 @@
       <label
         class="flex items-center gap-1 text-[13px]/5 font-semibold tracking-[-0.01em] text-text-main"
       >
-        <span>Notatka</span>
+      <span>{{ 'devices.form.note' | transloco }}</span>
       </label>
 
       <textarea
-        formControlName="note"
-        placeholder="Np. Jednostka przy salonie, dostęp od strony tarasu."
+      formControlName="note"
+      [placeholder]="'devices.form.notePlaceholder' | transloco"
         [class]="textareaClasses"
       ></textarea>
     </div>
@@ -160,10 +172,10 @@
 
   <div modal-footer class="grid grid-cols-2 gap-3 sm:flex sm:justify-end">
     <ui-button type="button" variant="ghost" [block]="true" (pressed)="handleClose()">
-      Anuluj
+      {{ 'common.actions.cancel' | transloco }}
     </ui-button>
     <ui-button type="button" [block]="true" (pressed)="handleSubmit()">
-      {{ submitLabel() }}
+      {{ submitLabel() || ('devices.form.defaultSubmitLabel' | transloco) }}
     </ui-button>
   </div>
 </ui-modal>

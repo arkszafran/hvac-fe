@@ -1,14 +1,14 @@
 <ui-modal
   [open]="open()"
-  title="Wybierz urządzenia"
-  description="Możesz zaznaczyć więcej niż jedno urządzenie klienta."
+  [title]="'visits.devicePicker.title' | transloco"
+  [description]="'visits.devicePicker.description' | transloco"
   (close)="close.emit()"
 >
   <div class="space-y-4">
     <ui-input
       type="search"
-      label="Szukaj"
-      placeholder="Marka, model, numer seryjny, adres"
+      [label]="'visits.fields.search' | transloco"
+      [placeholder]="'visits.devicePicker.searchPlaceholder' | transloco"
       [ngModel]="searchQuery()"
       (ngModelChange)="searchQuery.set($event)"
     />
@@ -35,17 +35,17 @@
       </div>
     } @else {
       <div class="rounded-[1rem] border border-dashed border-border/90 bg-white/76 px-4 py-5 text-body text-text-muted">
-        Brak urządzeń dla wybranego klienta.
+        {{ 'visits.devicePicker.empty' | transloco }}
       </div>
     }
   </div>
 
   <div modal-footer class="grid grid-cols-2 gap-3 sm:flex sm:justify-end">
     <ui-button type="button" variant="ghost" [block]="true" (pressed)="close.emit()">
-      Anuluj
+      {{ 'common.actions.cancel' | transloco }}
     </ui-button>
     <ui-button type="button" [block]="true" (pressed)="saveSelection()">
-      Wybierz
+      {{ 'visits.actions.select' | transloco }}
     </ui-button>
   </div>
 </ui-modal>

@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { finalize } from 'rxjs';
 
 import type { ApiError } from '../../../common/api/api-error.model';
@@ -15,7 +16,7 @@ type LoginFormField = 'email' | 'password';
 
 @Component({
   selector: 'app-login-view',
-  imports: [ReactiveFormsModule, RouterLink, UiButtonComponent, UiInputComponent],
+  imports: [ReactiveFormsModule, RouterLink, TranslocoPipe, UiButtonComponent, UiInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './login-view.component.html',
 })
@@ -24,6 +25,7 @@ export class LoginViewComponent {
   private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
   private readonly toast = inject(ToastService);
+  private readonly transloco = inject(TranslocoService);
 
   protected readonly form = this.formBuilder.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -61,10 +63,10 @@ export class LoginViewComponent {
       )
       .subscribe({
         next: () => {
-          this.toast.success('Zalogowano pomyslnie.');
+          this.toast.success(this.transloco.translate('auth.login.toast.success'));
         },
         error: (error: unknown) => {
-          this.serverError.set(readLoginErrorMessage(error));
+          this.serverError.set(readLoginErrorMessage(error, this.transloco));
         },
       });
   }
@@ -77,11 +79,13 @@ export class LoginViewComponent {
     }
 
     if (control.hasError('required')) {
-      return field === 'email' ? 'Adres e-mail jest wymagany.' : 'Haslo jest wymagane.';
+      return this.transloco.translate(
+        field === 'email' ? 'auth.validation.emailRequired' : 'auth.validation.passwordRequired',
+      );
     }
 
     if (field === 'email' && control.hasError('email')) {
-      return 'Podaj poprawny adres e-mail.';
+      return this.transloco.translate('auth.validation.emailInvalid');
     }
 
     return '';
@@ -95,37 +99,40 @@ export class LoginViewComponent {
   }
 }
 
-function readLoginErrorMessage(error: unknown): string {
+function readLoginErrorMessage(error: unknown, transloco: TranslocoService): string {
   if (!isApiError(error)) {
-    return 'Nie udalo sie zalogowac. Sprobuj ponownie.';
+    return transloco.translate('auth.login.errors.genericRetry');
   }
 
-  const messageByCode = readLoginErrorMessageByCode(error.code);
+  const messageByCode = readLoginErrorMessageByCode(error.code, transloco);
 
   if (messageByCode !== null) {
     return messageByCode;
   }
 
   if (error.status === 0) {
-    return 'Nie udalo sie polaczyc z serwerem.';
+    return transloco.translate('auth.errors.network');
   }
 
   if (error.status === 401) {
-    return 'Nieprawidlowy adres e-mail lub haslo.';
+    return transloco.translate('auth.login.errors.invalidCredentials');
   }
 
   if (error.status >= 500) {
-    return 'Wystapil blad serwera. Sprobuj ponownie za chwile.';
+    return transloco.translate('auth.errors.server');
   }
 
-  return 'Nie udalo sie zalogowac. Sprawdz dane i sprobuj ponownie.';
+  return transloco.translate('auth.login.errors.checkCredentials');
 }
 
-function readLoginErrorMessageByCode(code: string): string | null {
+function readLoginErrorMessageByCode(
+  code: string,
+  transloco: TranslocoService,
+): string | null {
   switch (code) {
     case 'BAD_REQUEST':
     case 'VALIDATION_ERROR':
-      return 'Dane logowania wymagaja poprawy.';
+      return transloco.translate('auth.login.errors.validation');
     case 'INVALID_CREDENTIALS':
     case 'INVALID_EMAIL_OR_PASSWORD':
     case 'INVALID_LOGIN_CREDENTIALS':
@@ -133,14 +140,14 @@ function readLoginErrorMessageByCode(code: string): string | null {
     case 'UNAUTHORIZED':
     case 'USER_NOT_FOUND':
     case 'WRONG_PASSWORD':
-      return 'Nieprawidlowy adres e-mail lub haslo.';
+      return transloco.translate('auth.login.errors.invalidCredentials');
     case 'LOGIN_RETRIES_LIMIT_REACHED':
     case 'ACCOUNT_BLOCKED':
-      return 'Konto zostalo zablokowane. Instrukcje odblokowania wyslalismy na adres e-mail.';
+      return transloco.translate('auth.login.errors.accountBlocked');
     case 'NETWORK_ERROR':
-      return 'Nie udalo sie polaczyc z serwerem.';
+      return transloco.translate('auth.errors.network');
     case 'SERVER_ERROR':
-      return 'Wystapil blad serwera. Sprobuj ponownie za chwile.';
+      return transloco.translate('auth.errors.server');
     default:
       return null;
   }

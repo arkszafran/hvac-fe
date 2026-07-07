@@ -1,15 +1,17 @@
 <ui-modal
   [open]="open()"
-  [title]="modalTitle()"
-  [description]="modalDescription()"
+  [title]="modalTitle() || ('customers.form.defaultModalTitle' | transloco)"
+  [description]="modalDescription() || ('customers.form.defaultModalDescription' | transloco)"
   (close)="handleClose()"
 >
   <form class="ui-form-stack" [formGroup]="form">
     <div class="space-y-3">
-      <p class="text-[13px]/5 font-semibold tracking-[-0.01em] text-text-main">Typ klienta</p>
+      <p class="text-[13px]/5 font-semibold tracking-[-0.01em] text-text-main">
+        {{ 'customers.form.type' | transloco }}
+      </p>
 
       <div class="grid gap-3 sm:grid-cols-2">
-        @for (option of customerTypeOptions; track option.value) {
+        @for (option of customerTypeOptions(); track option.value) {
           <label
             class="flex cursor-pointer items-start gap-3 rounded-[1.05rem] border border-border/90 bg-white px-4 py-3 transition hover:border-primary/28 hover:bg-primary-soft/24"
           >
@@ -32,20 +34,20 @@
 
     @if (form.controls.type.value === 'company') {
       <ui-input
-        label="Firma"
-        placeholder="np. Klima Serwis Sp. z o.o."
+        [label]="'customers.form.company' | transloco"
+        [placeholder]="'customers.form.companyPlaceholder' | transloco"
         formControlName="companyName"
       />
     }
 
     <ui-input
-      label="Imię i nazwisko"
-      placeholder="np. Anna Kowalska"
+      [label]="'customers.form.fullName' | transloco"
+      [placeholder]="'customers.form.fullNamePlaceholder' | transloco"
       formControlName="fullName"
     />
 
     <ui-input
-      label="Telefon"
+      [label]="'customers.form.phone' | transloco"
       required
       type="tel"
       placeholder="+48 500 000 000"
@@ -54,7 +56,7 @@
     />
 
     <ui-input
-      label="Email"
+      [label]="'customers.form.email' | transloco"
       required
       type="email"
       placeholder="anna@firma.pl"
@@ -63,16 +65,16 @@
     />
 
     <ui-input
-      label="Adres"
+      [label]="'customers.form.address' | transloco"
       required
-      placeholder="ul. Przykładowa 12"
+      [placeholder]="'customers.form.addressPlaceholder' | transloco"
       [error]="validationError('address')"
       formControlName="address"
     />
 
     <div class="grid gap-4 sm:grid-cols-2">
       <ui-input
-        label="Kod pocztowy"
+        [label]="'customers.form.postalCode' | transloco"
         required
         placeholder="00-000"
         [error]="validationError('postalCode')"
@@ -80,9 +82,9 @@
       />
 
       <ui-input
-        label="Miasto"
+        [label]="'customers.form.city' | transloco"
         required
-        placeholder="Warszawa"
+        [placeholder]="'customers.form.cityPlaceholder' | transloco"
         [error]="validationError('city')"
         formControlName="city"
       />
@@ -91,10 +93,10 @@
 
   <div modal-footer class="grid grid-cols-2 gap-3 sm:flex sm:justify-end">
     <ui-button type="button" variant="ghost" [block]="true" (pressed)="handleClose()">
-      Anuluj
+      {{ 'common.actions.cancel' | transloco }}
     </ui-button>
     <ui-button type="button" [block]="true" (pressed)="handleSubmit()">
-      {{ submitLabel() }}
+      {{ submitLabel() || ('customers.form.defaultSubmitLabel' | transloco) }}
     </ui-button>
   </div>
 </ui-modal>

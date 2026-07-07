@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { UiInputComponent, UiModalComponent } from '../../../../ui';
 import { InspectionDetails } from '../../../inspections/data/inspections.store';
@@ -8,11 +9,13 @@ import { formatInspectionDate } from '../../../inspections/utils/inspection-ui.u
 @Component({
   selector: 'app-visit-scheduled-inspection-picker-modal',
   standalone: true,
-  imports: [FormsModule, UiInputComponent, UiModalComponent],
+  imports: [FormsModule, TranslocoPipe, UiInputComponent, UiModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './visit-scheduled-inspection-picker-modal.component.html',
 })
 export class VisitScheduledInspectionPickerModalComponent {
+  private readonly transloco = inject(TranslocoService);
+
   readonly open = input(false);
   readonly inspections = input<InspectionDetails[]>([]);
 
@@ -41,7 +44,7 @@ export class VisitScheduledInspectionPickerModalComponent {
   protected readonly formatInspectionDate = formatInspectionDate;
 
   protected customerName(details: InspectionDetails): string {
-    return details.customer.companyName || details.customer.fullName || 'Klient';
+    return details.customer.companyName || details.customer.fullName || this.transloco.translate('customers.fallbackName');
   }
 
   protected devicesLabel(details: InspectionDetails): string {

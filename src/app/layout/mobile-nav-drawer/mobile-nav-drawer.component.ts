@@ -6,6 +6,7 @@ import {
   output,
 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 import { classNames } from '../../ui/utils/classnames';
 import { UiDrawerComponent } from '../../ui';
@@ -15,7 +16,7 @@ import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
 @Component({
   selector: 'app-mobile-nav-drawer',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, UiDrawerComponent, AppLayoutIconComponent],
+  imports: [RouterLink, RouterLinkActive, TranslocoPipe, UiDrawerComponent, AppLayoutIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ui-drawer
@@ -39,13 +40,13 @@ import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
               </span>
 
               <span [class]="labelClasses(rla.isActive)">
-                {{ item.label }}
+                {{ item.labelKey | transloco }}
               </span>
             </a>
 
             @if (item.children?.length) {
               <div class="ml-4 space-y-1 pl-4">
-                @for (child of item.children; track child.label) {
+                @for (child of item.children; track child.labelKey) {
                   <a
                     [routerLink]="child.path"
                     [queryParams]="child.queryParams"
@@ -55,7 +56,7 @@ import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
                     [class]="childLinkClasses(childRla.isActive)"
                     (click)="close.emit()"
                   >
-                    <span>{{ child.label }}</span>
+                    <span>{{ child.labelKey | transloco }}</span>
                   </a>
                 }
               </div>

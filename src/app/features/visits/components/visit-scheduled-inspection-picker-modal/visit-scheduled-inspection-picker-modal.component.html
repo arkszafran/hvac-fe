@@ -1,14 +1,14 @@
 <ui-modal
   [open]="open()"
-  title="Wybierz zaplanowany przegląd"
-  description="Pokazujemy przeglądy ze statusem zaplanowany."
+  [title]="'visits.scheduledInspectionPicker.title' | transloco"
+  [description]="'visits.scheduledInspectionPicker.description' | transloco"
   (close)="close.emit()"
 >
   <div class="space-y-4">
     <ui-input
       type="search"
-      label="Szukaj"
-      placeholder="Klient, adres albo urządzenie"
+      [label]="'visits.fields.search' | transloco"
+      [placeholder]="'visits.scheduledInspectionPicker.searchPlaceholder' | transloco"
       [ngModel]="searchQuery()"
       (ngModelChange)="searchQuery.set($event)"
     />
@@ -31,7 +31,7 @@
       </div>
     } @else {
       <div class="rounded-[1rem] border border-dashed border-border/90 bg-white/76 px-4 py-5 text-body text-text-muted">
-        Brak zaplanowanych przeglądów do wyboru.
+        {{ 'visits.scheduledInspectionPicker.empty' | transloco }}
       </div>
     }
   </div>

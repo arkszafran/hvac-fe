@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { UiButtonComponent, UiModalComponent } from '../../../ui';
 import { Customer } from '../../customers/models/customer.model';
@@ -7,20 +8,20 @@ import { Customer } from '../../customers/models/customer.model';
 @Component({
   selector: 'app-device-customer-modal',
   standalone: true,
-  imports: [UiButtonComponent, UiModalComponent],
+  imports: [TranslocoPipe, UiButtonComponent, UiModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ui-modal
       [open]="open()"
-      title="Szczegóły klienta"
-      description="Podgląd danych klienta powiązanego z urządzeniem."
+      [title]="'devices.customerModal.title' | transloco"
+      [description]="'devices.customerModal.description' | transloco"
       (close)="close.emit()"
     >
       @if (customer(); as customer) {
         <div class="space-y-5">
           <section class="space-y-1">
             <p class="text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
-              Klient
+              {{ 'devices.customerModal.customer' | transloco }}
             </p>
             <p class="text-[15px]/6 font-semibold tracking-[-0.02em] text-text-main">
               {{ customerTitle(customer) }}
@@ -29,7 +30,7 @@ import { Customer } from '../../customers/models/customer.model';
               <p class="text-[13px]/5 text-text-main/76">{{ customer.fullName }}</p>
             } @else {
               <p class="text-[13px]/5 text-text-main/76">
-                {{ customer.type === 'company' ? 'Firma' : 'Klient indywidualny' }}
+                {{ (customer.type === 'company' ? 'customers.types.company.shortLabel' : 'customers.types.individual.shortLabel') | transloco }}
               </p>
             }
           </section>
@@ -37,7 +38,7 @@ import { Customer } from '../../customers/models/customer.model';
           <div class="grid gap-4 sm:grid-cols-2">
             <section class="space-y-1">
               <p class="text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
-                Kontakt
+                {{ 'devices.customerModal.contact' | transloco }}
               </p>
               <p class="text-label font-medium text-text-main">{{ customer.phone || '--' }}</p>
               <p class="text-small text-text-muted">{{ customer.email || '--' }}</p>
@@ -45,7 +46,7 @@ import { Customer } from '../../customers/models/customer.model';
 
             <section class="space-y-1">
               <p class="text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
-                Adres
+                {{ 'devices.customerModal.address' | transloco }}
               </p>
               <p class="text-label font-medium text-text-main">{{ customer.address || '--' }}</p>
               <p class="text-small text-text-muted">
@@ -58,15 +59,16 @@ import { Customer } from '../../customers/models/customer.model';
 
       <div modal-footer class="flex flex-wrap justify-end gap-3">
         <ui-button variant="ghost" (pressed)="navigateToCustomerDevices()">
-          Wszystkie urządzenia klienta
+          {{ 'devices.customerModal.allCustomerDevices' | transloco }}
         </ui-button>
-        <ui-button variant="secondary" (pressed)="close.emit()">Zamknij</ui-button>
+        <ui-button variant="secondary" (pressed)="close.emit()">{{ 'common.actions.close' | transloco }}</ui-button>
       </div>
     </ui-modal>
   `,
 })
 export class DeviceCustomerModalComponent {
   private readonly router = inject(Router);
+  private readonly transloco = inject(TranslocoService);
 
   readonly open = input(false);
   readonly customer = input<Customer | null>(null);
@@ -74,7 +76,7 @@ export class DeviceCustomerModalComponent {
   readonly close = output<void>();
 
   protected customerTitle(customer: Customer): string {
-    return customer.companyName || customer.fullName || 'Klient';
+    return customer.companyName || customer.fullName || this.transloco.translate('customers.fallbackName');
   }
 
   protected postalAndCity(customer: Customer): string {

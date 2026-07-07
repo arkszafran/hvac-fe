@@ -1,0 +1,962 @@
+{
+  "common": {
+    "yes": "Tak",
+    "no": "Nie",
+    "empty": "Brak",
+    "notSelected": "Nie wybrano",
+    "notSpecified": "Nie określono",
+    "actions": {
+      "cancel": "Anuluj",
+      "close": "Zamknij",
+      "save": "Zapisz",
+      "saveChanges": "Zapisz zmiany",
+      "edit": "Edytuj",
+      "details": "Szczegóły"
+    },
+    "search": {
+      "label": "Szukaj"
+    },
+    "pin": {
+      "keyboard": "Klawiatura PIN",
+      "slots": "Wpisane cyfry PIN",
+      "progress": "{{entered}} z {{total}} cyfr PIN wpisane.",
+      "digit": "Cyfra {{digit}}",
+      "delete": "Kasuj"
+    }
+  },
+  "layout": {
+    "productTagline": "Lekki SaaS dla serwisu HVAC",
+    "languageSwitcher": {
+      "label": "Wybór języka",
+      "changeTo": "Zmień język na {{language}}"
+    },
+    "navigation": {
+      "dashboard": "Dashboard",
+      "customers": "Klienci",
+      "devices": "Urządzenia",
+      "requests": "Zgłoszenia",
+      "visits": "Wizyty",
+      "inspections": "Przeglądy",
+      "settings": "Ustawienia"
+    },
+    "topBar": {
+      "openMenu": "Otwórz menu",
+      "notifications": "Powiadomienia",
+      "userProfile": "Profil użytkownika"
+    }
+  },
+  "ui": {
+    "emptyState": {
+      "title": "Brak danych",
+      "description": "Tu pojawią się elementy, gdy tylko dodasz pierwsze rekordy."
+    },
+    "select": {
+      "placeholder": "Wybierz opcję"
+    },
+    "table": {
+      "rowActionLabel": "Otwórz szczegóły rekordu",
+      "emptyTitle": "Brak danych do wyświetlenia",
+      "emptyDescription": "Po dodaniu rekordów zobaczysz tutaj ich aktualny stan i najważniejsze szczegóły."
+    },
+    "toast": {
+      "success": "Gotowe",
+      "error": "Wystąpił błąd",
+      "info": "Informacja",
+      "warning": "Uwaga"
+    },
+    "drawer": {
+      "close": "Zamknij panel"
+    },
+    "modal": {
+      "close": "Zamknij modal"
+    }
+  },
+  "api": {
+    "errors": {
+      "unknown": "Wystąpił nieoczekiwany błąd.",
+      "network": "Nie udało się połączyć z serwerem.",
+      "unauthorized": "Sesja wygasła albo dane logowania są nieprawidłowe.",
+      "forbidden": "Brak uprawnień do wykonania tej operacji.",
+      "notFound": "Nie znaleziono zasobu.",
+      "conflict": "Te dane konfliktują z istniejącym zasobem.",
+      "validation": "Dane formularza wymagają poprawy.",
+      "server": "Wystąpił błąd serwera.",
+      "request": "Żądanie zakończyło się błędem.",
+      "requestWithMessage": "Żądanie zakończyło się błędem."
+    }
+  },
+  "auth": {
+    "fields": {
+      "email": "Adres e-mail",
+      "password": "Hasło",
+      "newPassword": "Nowe hasło",
+      "repeatNewPassword": "Powtórz nowe hasło"
+    },
+    "actions": {
+      "backToLogin": "Wróć do logowania",
+      "next": "Dalej",
+      "back": "Wstecz",
+      "save": "Zapisz",
+      "saving": "Zapisywanie..."
+    },
+    "validation": {
+      "emailRequired": "Adres e-mail jest wymagany.",
+      "emailInvalid": "Podaj poprawny adres e-mail.",
+      "passwordRequired": "Hasło jest wymagane.",
+      "passwordMinLength": "Hasło musi mieć co najmniej 8 znaków.",
+      "passwordMaxLength": "Hasło nie może być dłuższe niż 100 znaków.",
+      "passwordComplexity": "Hasło musi zawierać co najmniej jedną dużą literę i jedną cyfrę.",
+      "passwordDifferentThanActivation": "Hasło musi być inne niż hasło z linku aktywacyjnego.",
+      "passwordConfirmationRequired": "Potwierdzenie hasła jest wymagane.",
+      "passwordMismatch": "Hasła muszą być takie same."
+    },
+    "errors": {
+      "network": "Nie udało się połączyć z serwerem.",
+      "server": "Wystąpił błąd serwera. Spróbuj ponownie za chwilę."
+    },
+    "login": {
+      "title": "Logowanie",
+      "submit": "Zaloguj",
+      "submitting": "Logowanie...",
+      "forgotPassword": "Nie pamiętasz hasła?",
+      "toast": {
+        "success": "Zalogowano pomyślnie."
+      },
+      "errors": {
+        "genericRetry": "Nie udało się zalogować. Spróbuj ponownie.",
+        "checkCredentials": "Nie udało się zalogować. Sprawdź dane i spróbuj ponownie.",
+        "invalidCredentials": "Nieprawidłowy adres e-mail lub hasło.",
+        "validation": "Dane logowania wymagają poprawy.",
+        "accountBlocked": "Konto zostało zablokowane. Instrukcje odblokowania wysłaliśmy na adres e-mail."
+      }
+    },
+    "passwordResetRequest": {
+      "title": "Reset hasła",
+      "hint": "Jeśli link nie dotrze od razu, daj mu chwilę. Nowy link możesz zamówić raz na 5 minut.",
+      "submit": "Przypomnij hasło",
+      "submitting": "Wysyłanie...",
+      "successMessage": "Na adres {{email}} wysłaliśmy link do resetowania hasła.",
+      "errors": {
+        "sendFailed": "Nie udało się wysłać linku resetowania hasła. Spróbuj ponownie."
+      }
+    },
+    "passwordReset": {
+      "title": "Zmień hasło",
+      "invalidLink": "Link do zmiany hasła jest niepoprawny albo wygasł.",
+      "requestNewLink": "Poproś o nowy link",
+      "passwordHint": "Hasło musi mieć co najmniej 8 znaków, zawierać co najmniej jedną dużą literę i jedną cyfrę.",
+      "submit": "Zmień hasło",
+      "toast": {
+        "success": "Hasło zostało zmienione. Możesz się zalogować."
+      },
+      "errors": {
+        "changeFailed": "Nie udało się zmienić hasła. Poproś o nowy link i spróbuj ponownie."
+      }
+    },
+    "setup": {
+      "title": "Ustaw dane logowania",
+      "step": "Krok {{current}} z {{total}}",
+      "invalidLink": "Otwórz link aktywacyjny ponownie, żeby ustawić docelowe hasło i PIN.",
+      "passwordHint": "Hasło musi mieć 8-100 znaków, zawierać co najmniej jedną dużą literę i jedną cyfrę oraz być inne niż hasło z linku aktywacyjnego.",
+      "pinTitle": "Ustaw PIN",
+      "pinDescription": "Ustal 4-cyfrowy PIN. Będziesz mógł wygodnie logować się nim do aplikacji.",
+      "pinKeyboard": "Klawiatura ustalania PIN",
+      "confirmPinTitle": "Potwierdź PIN",
+      "confirmPinDescription": "Wpisz ponownie 4-cyfrowy PIN.",
+      "confirmPinKeyboard": "Klawiatura potwierdzenia PIN",
+      "pinMismatch": "Podany PIN nie jest zgodny z poprzednim.",
+      "pinLength": "Wprowadź 4-cyfrowy PIN.",
+      "errors": {
+        "missingLinkPassword": "Nie możemy zapisać danych logowania. Otwórz link aktywacyjny ponownie.",
+        "saveFailed": "Nie udało się zapisać danych logowania. Spróbuj ponownie."
+      }
+    },
+    "pinLogin": {
+      "title": "PIN",
+      "checking": "Sprawdzanie PIN...",
+      "keyboard": "Klawiatura PIN logowania",
+      "errors": {
+        "failed": "Nie udało się zalogować PIN-em. Spróbuj ponownie."
+      }
+    },
+    "autoLogin": {
+      "loading": "Logowanie z linku...",
+      "invalidLink": "Link do automatycznego logowania jest niepoprawny albo wygasł.",
+      "errors": {
+        "failed": "Nie udało się zalogować z linku. Poproś o nowy link i spróbuj ponownie."
+      }
+    },
+    "accountBlocked": {
+      "title": "Konto zablokowane",
+      "description": "Twoje konto zostało zablokowane. Instrukcje odblokowania wysłaliśmy na adres e-mail przypisany do konta."
+    },
+    "accountUnlock": {
+      "title": "Odblokowanie konta",
+      "loading": "Sprawdzamy link do odblokowania konta...",
+      "successMessage": "Twoje konto zostało odblokowane. Możesz teraz wrócić do logowania.",
+      "goToLogin": "Przejdź do logowania",
+      "invalidLink": "Link do odblokowania konta jest niepoprawny albo wygasł.",
+      "toast": {
+        "success": "Konto zostało odblokowane. Możesz się zalogować."
+      },
+      "errors": {
+        "failed": "Nie udało się odblokować konta. Poproś o nowy link i spróbuj ponownie."
+      }
+    }
+  },
+  "pages": {
+    "placeholder": {
+      "badge": "Wersja placeholder",
+      "readyEyebrow": "Gotowe pod rozbudowę",
+      "readyTitle": "Co już przygotowaliśmy",
+      "footer": "Ta sekcja jest celowo pusta. Możemy bezpiecznie dołożyć dane, formularze i przepływy w kolejnych krokach."
+    },
+    "dashboard": {
+      "eyebrow": "Start pracy",
+      "title": "Dashboard",
+      "description": "Lekki ekran startowy pod codzienną pracę firmy HVAC. Na tym etapie zostawiamy tylko czytelny szkielet i miejsce na przyszłe widżety.",
+      "emptyTitle": "Dashboard czeka na pierwsze widoki",
+      "emptyDescription": "Tu pojawi się później podsumowanie dnia, szybkie akcje i najważniejsze statusy zespołu.",
+      "actionLabel": "Dodaj widgety",
+      "checklist": {
+        "header": "nagłówek sekcji gotowy pod KPI i szybkie akcje",
+        "content": "obszar głównej zawartości przygotowany pod widgety",
+        "placeholder": "placeholder bez danych biznesowych i bez logiki backendowej"
+      }
+    },
+    "settings": {
+      "eyebrow": "Konfiguracja",
+      "title": "Ustawienia",
+      "description": "Sekcja na ustawienia firmy, zespołu i preferencji systemu. Na tym etapie przygotowujemy tylko modularny kontener pod przyszłe formularze.",
+      "emptyTitle": "Ustawienia są gotowe na konfigurację",
+      "emptyDescription": "Tutaj w kolejnym kroku możemy dodać profile firmy, uprawnienia, integracje i ustawienia aplikacji.",
+      "actionLabel": "Dodaj konfigurację",
+      "checklist": {
+        "groups": "miejsce na grupy ustawień i sekcje formularzy",
+        "layout": "układ zgodny z design systemem i gotowy do skalowania",
+        "placeholder": "spokojny placeholder bez ryzyka mieszania logiki biznesowej"
+      }
+    },
+    "reviews": {
+      "eyebrow": "Prace okresowe",
+      "title": "Przeglądy",
+      "description": "Szkielet pod planowanie i wykonywanie przeglądów okresowych. Zostawiamy czytelne miejsce na harmonogramy i zestawy czynności.",
+      "emptyTitle": "Przeglądy czekają na konfigurację",
+      "emptyDescription": "W następnych iteracjach możemy dołożyć terminy, statusy oraz powtarzalne pakiety serwisowe dla urządzeń.",
+      "actionLabel": "Dodaj harmonogram",
+      "checklist": {
+        "calendar": "miejsce na przyszły kalendarz lub widok listy przeglądów",
+        "cards": "card przygotowany pod bloki z typami przeglądów",
+        "lightweight": "widok pozostaje lekki i bez szczegółów biznesowych"
+      }
+    },
+    "styleGuide": {
+      "hero": {
+        "title": "Wyrazisty design system dla operacyjnego SaaS",
+        "description": "Chłodny granat jako primary, pomarańczowy akcent i bardziej zdecydowane komponenty. System jest nadal lekki, ale ma już mocniejsze CTA, stany i podział sekcji.",
+        "newOrder": "Nowe zlecenie"
+      },
+      "swatches": {
+        "background": "Chłodne, czyste tło aplikacji",
+        "surface": "Sekcje, karty i nakładki",
+        "primary": "Główny CTA w chłodnym granacie",
+        "accent": "Pomarańczowy akcent dla priorytetów",
+        "textMain": "Mocniejsza hierarchia typografii",
+        "border": "Czytelniejszy podział sekcji"
+      },
+      "tabs": {
+        "overview": "Przegląd",
+        "schedule": "Harmonogram",
+        "billing": "Rozliczenia"
+      },
+      "regions": {
+        "warsaw": "Warszawa",
+        "lodz": "Łódź",
+        "krakow": "Kraków"
+      },
+      "sections": {
+        "buttonsTitle": "Mocniejsze akcje i bardziej czytelne statusy",
+        "formsTitle": "Twardsze pola i wyraźniejsze sekcje",
+        "jobFormTitle": "Formularz zlecenia",
+        "overviewTitle": "Przegląd dnia",
+        "overviewDescription": "Najważniejsze zadania, priorytety i aktywne ekipy.",
+        "scheduleDescription": "Widok ułożenia wizyt i obciążenia zespołu.",
+        "billingDescription": "Status faktur, zaliczek i oczekujących płatności.",
+        "tableTitle": "Tabela zleceń dnia",
+        "tableSectionTitle": "Tabela z wyraźniejszym headerem i hoverem",
+        "tableDescription": "Konfiguracja kolumn steruje nagłówkami, wyrównaniem i typem komórki, a na mobile widok automatycznie przechodzi w czytelne karty.",
+        "demoConfigTitle": "Konfiguracja demo",
+        "demoConfigDescription": "Mocki odzwierciedlają typowy widok operacyjny: klient, termin, technik, status i kwota.",
+        "records": "Rekordy",
+        "recordsDescription": "Zaplanowane i aktywne wizyty serwisowe."
+      },
+      "actions": {
+        "addCustomer": "Dodaj klienta",
+        "saveDraft": "Zapisz szkic",
+        "showDetails": "Pokaż szczegóły",
+        "deleteEntry": "Usuń wpis",
+        "openModal": "Otwórz modal",
+        "openDrawer": "Otwórz drawer",
+        "clear": "Wyczyść",
+        "applyFilters": "Zastosuj filtry",
+        "addFirstTemplate": "Dodaj pierwszy szablon"
+      },
+      "form": {
+        "jobName": "Nazwa zlecenia",
+        "jobNamePlaceholder": "np. Przegląd klimatyzacji biura",
+        "jobNameHint": "Tę nazwę zobaczy technik w aplikacji mobilnej.",
+        "contactPerson": "Osoba kontaktowa",
+        "contactPlaceholder": "np. Anna Kowalska",
+        "visitType": "Typ wizyty",
+        "visitTypePlaceholder": "Wybierz typ",
+        "phoneError": "Wprowadź numer telefonu w poprawnym formacie.",
+        "companyName": "Nazwa firmy",
+        "drawerTitle": "Filtry harmonogramu",
+        "drawerDescription": "Przykład spokojnego sheetu pod mobilne filtrowanie widoku pracy.",
+        "region": "Region",
+        "taskType": "Typ zadania",
+        "activeFilters": "Aktywne filtry",
+        "allRegions": "Wszystkie regiony",
+        "allTypes": "Wszystkie typy"
+      },
+      "empty": {
+        "title": "Brak aktywnych przeglądów sezonowych",
+        "description": "Po dodaniu pierwszego szablonu zobaczysz tutaj zestawy zadań, statusy ekip i szybkie akcje."
+      },
+      "modalDescription": "Delikatny modal do szybkiego rozpoczęcia zlecenia lub utworzenia nowej firmy.",
+      "jobs": {
+        "headers": {
+          "scope": "Zakres",
+          "schedule": "Termin",
+          "technician": "Technik",
+          "amount": "Kwota"
+        },
+        "status": {
+          "planned": "Zaplanowane",
+          "onRoute": "W trasie",
+          "waiting": "Oczekuje",
+          "completed": "Zakończone"
+        },
+        "job01": {
+          "service": "Przegląd VRF i czyszczenie jednostek",
+          "schedule": "08 kwi, 08:30",
+          "note": "2 techników, wejście od recepcji",
+          "amount": "2 480 zł"
+        },
+        "job02": {
+          "location": "Łódź, ul. Sanitariuszek 72",
+          "service": "Diagnostyka centrali nawiewnej",
+          "schedule": "08 kwi, 11:00",
+          "note": "Priorytet SLA 4h",
+          "amount": "1 190 zł"
+        },
+        "job03": {
+          "location": "Kraków, ul. Lubicz 23",
+          "service": "Wymiana sterownika i test wydajności",
+          "schedule": "08 kwi, 14:30",
+          "note": "Wymagana akceptacja administratora",
+          "amount": "3 760 zł"
+        },
+        "job04": {
+          "location": "Warszawa, ul. Wołoska 9",
+          "service": "Kalibracja czujników i raport powykonawczy",
+          "schedule": "09 kwi, 09:15",
+          "note": "Dokumentacja dla audytu",
+          "amount": "980 zł"
+        }
+      }
+    }
+  },
+  "visits": {
+    "title": "Wizyty",
+    "description": "Fizyczne wizyty instalatora u klienta i notatki do historii urządzeń.",
+    "actions": {
+      "add": "Dodaj wizytę",
+      "save": "Zapisz wizytę",
+      "chooseCustomer": "Wybierz klienta",
+      "addCustomer": "Dodaj klienta",
+      "chooseDevices": "Wybierz urządzenia",
+      "addDevice": "Dodaj urządzenie",
+      "checkData": "Sprawdź dane",
+      "editData": "Edytuj dane",
+      "remove": "Usuń",
+      "select": "Wybierz"
+    },
+    "fields": {
+      "search": "Szukaj",
+      "searchPlaceholder": "Klient, dane kontaktowe albo adres urządzenia",
+      "date": "Data",
+      "customer": "Klient",
+      "devices": "Urządzenia",
+      "type": "Typ",
+      "visitType": "Typ wizyty",
+      "visitTypePlaceholder": "Wybierz typ wizyty",
+      "note": "Notatka",
+      "period": "Okres",
+      "inspectionDate": "Data przeglądu"
+    },
+    "list": {
+      "emptyTitle": "Brak wizyt",
+      "emptyDescription": "Dodaj pierwszą wizytę po fizycznej wizycie instalatora u klienta."
+    },
+    "create": {
+      "breadcrumbs": {
+        "list": "Lista wizyt",
+        "new": "Nowa wizyta"
+      },
+      "title": "Dodaj wizytę",
+      "description": "Wizyta zapisuje notatki, które później tworzą historię urządzeń.",
+      "sections": {
+        "typeAndDate": "Rodzaj i data wizyty",
+        "customer": "Klient",
+        "devicesAndNotes": "Urządzenia i notatki",
+        "nextInspection": "Planowanie kolejnego przeglądu"
+      },
+      "scheduledInspectionQuestion": "Czy to zaplanowany przegląd?",
+      "selectedScheduledInspection": "Wybrano zaplanowany przegląd z {{count}} urządzeniami.",
+      "emptyDevicesDescription": "Dobierz istniejące urządzenia klienta albo dodaj nowe.",
+      "commonNoteLabel": "Jedna notatka dla wszystkich urządzeń",
+      "commonNoteDescription": "Po odznaczeniu pokażemy osobną notatkę przy każdym urządzeniu.",
+      "scheduleNextLabel": "Zaplanować kolejny przegląd",
+      "scheduleNextDescription": "Zapis aktualizuje datę na urządzeniach i tworzy nowy obiekt przeglądu.",
+      "newDevice": "Nowe urządzenie",
+      "newDeviceDescription": "Zostanie dodane przy zapisie wizyty",
+      "customerModal": {
+        "editTitle": "Sprawdź dane klienta",
+        "editDescription": "Uzupełnij dane klienta przed zapisaniem wizyty.",
+        "createDescription": "Utwórz klienta, którego dodasz do wizyty."
+      },
+      "deviceModal": {
+        "checkTitle": "Sprawdź dane urządzenia",
+        "editTitle": "Edytuj dane urządzenia",
+        "editDescription": "Uzupełnij dane urządzenia przed zapisaniem wizyty."
+      },
+      "validation": {
+        "visitType": "Wybierz typ wizyty.",
+        "scheduledInspection": "Wybierz, czy przegląd był zaplanowany.",
+        "customer": "Wybierz lub dodaj klienta.",
+        "device": "Dodaj przynajmniej jedno urządzenie.",
+        "nextInspectionDate": "Podaj datę kolejnego przeglądu.",
+        "required": "Uzupełnij wymagane dane wizyty."
+      },
+      "requestNotes": {
+        "year": "Rok urządzenia: {{year}}.",
+        "error": "Błąd ze zgłoszenia: {{error}}."
+      }
+    },
+    "types": {
+      "installation": "Montaż",
+      "repair": "Naprawa",
+      "inspection": "Przegląd"
+    },
+    "customerPicker": {
+      "title": "Wybierz klienta",
+      "description": "Lista klientów z wyszukiwaniem po danych kontaktowych i adresie.",
+      "searchPlaceholder": "Nazwa, osoba, telefon, adres",
+      "empty": "Brak klientów pasujących do wyszukiwania."
+    },
+    "devicePicker": {
+      "title": "Wybierz urządzenia",
+      "description": "Możesz zaznaczyć więcej niż jedno urządzenie klienta.",
+      "searchPlaceholder": "Marka, model, numer seryjny, adres",
+      "empty": "Brak urządzeń dla wybranego klienta."
+    },
+    "scheduledInspectionPicker": {
+      "title": "Wybierz zaplanowany przegląd",
+      "description": "Pokazujemy przeglądy ze statusem zaplanowany.",
+      "searchPlaceholder": "Klient, adres albo urządzenie",
+      "empty": "Brak zaplanowanych przeglądów do wyboru."
+    }
+  },
+  "requests": {
+    "title": "Zgłoszenia",
+    "description": "Sprawy z panelu klienta i formularza ze strony przed wizytą u klienta.",
+    "fields": {
+      "search": "Szukaj",
+      "searchPlaceholder": "Klient, telefon, adres albo urządzenie",
+      "status": "Status",
+      "requestType": "Typ zgłoszenia",
+      "customerAndAddress": "Klient i adres",
+      "customerType": "Typ klienta",
+      "contactPerson": "Osoba kontaktowa",
+      "company": "Firma",
+      "appointmentDate": "Data spotkania",
+      "createdAt": "Utworzono",
+      "buildingType": "Typ budynku",
+      "rooms": "Pomieszczenia",
+      "requestPhotos": "Zdjęcia do zgłoszenia",
+      "room": "Pomieszczenie {{index}}",
+      "area": "Powierzchnia",
+      "height": "Wysokość",
+      "outdoorUnitPlace": "Miejsce jednostki zewnętrznej",
+      "unitDistance": "Odległość jednostek",
+      "floor": "Piętro",
+      "displayedError": "Błąd wyświetlany na urządzeniu",
+      "year": "Rok",
+      "refrigerantType": "Rodzaj czynnika",
+      "nameplatePhotos": "Zdjęcia tabliczki znamionowej"
+    },
+    "actions": {
+      "createVisit": "Utwórz wizytę",
+      "confirmAppointment": "Potwierdź termin wizyty",
+      "changeAppointment": "Zmień termin wizyty",
+      "visitWillHappen": "Wizyta odbędzie się",
+      "download": "Pobierz"
+    },
+    "types": {
+      "installation": "Montaż",
+      "repair": "Naprawa",
+      "inspection": "Przegląd"
+    },
+    "statuses": {
+      "all": "Wszystkie",
+      "new": "Do kontaktu",
+      "scheduled": "Umówione",
+      "completed": "Zakończone",
+      "cancelled": "Anulowane"
+    },
+    "sources": {
+      "customerPanel": "Panel klienta",
+      "websiteForm": "Formularz na stronie"
+    },
+    "customerTypes": {
+      "company": "Firma",
+      "individual": "Osoba prywatna"
+    },
+    "buildingTypes": {
+      "apartmentBlock": "Blok",
+      "house": "Dom",
+      "officeBuilding": "Biurowiec"
+    },
+    "outdoorUnitPlaces": {
+      "wall": "Ściana",
+      "balcony": "Balkon"
+    },
+    "badges": {
+      "statusCount": "{{label}}: {{count}}"
+    },
+    "table": {
+      "rowActionLabel": "Otwórz szczegóły zgłoszenia",
+      "emptyTitle": "Brak zgłoszeń",
+      "emptyDescription": "Nowe zgłoszenia z formularza i panelu klienta pojawią się tutaj.",
+      "appointment": "Termin: {{date}}",
+      "noActions": "Brak akcji"
+    },
+    "scheduleModal": {
+      "title": "Potwierdź termin wizyty",
+      "description": "Wpisz datę uzgodnioną z klientem.",
+      "appointmentDate": "Data spotkania",
+      "save": "Zapisz termin",
+      "validation": "Data spotkania jest wymagana."
+    },
+    "details": {
+      "title": "Zgłoszenie: {{type}}",
+      "fallbackTitle": "Zgłoszenie",
+      "installation": "Montaż",
+      "repair": "Naprawa",
+      "inspection": "Przegląd",
+      "deviceWithIndex": "Urządzenie {{index}}: {{device}}",
+      "roomPhotos": "Zdjęcia pomieszczenia",
+      "emptyAttachments": "Brak załączników",
+      "emptyPhotos": "Brak zdjęć"
+    }
+  },
+  "inspections": {
+    "title": "Przeglądy",
+    "quickNavigation": "Szybka nawigacja",
+    "searchPlaceholder": "Klient lub adres",
+    "openDetailsAria": "Otwórz szczegóły przeglądu {{customer}}",
+    "addressesPrefix": "Adresy: {{addresses}}",
+    "actions": {
+      "add": "Dodaj przegląd",
+      "complete": "Zakończ",
+      "create": "Utwórz przegląd",
+      "addDevice": "Dodaj urządzenie",
+      "addDevices": "Dodaj urządzenia",
+      "deviceDetails": "Szczegóły urządzenia",
+      "removeDevice": "Usuń urządzenie",
+      "selectInspection": "Wybierz ten przegląd"
+    },
+    "fields": {
+      "customer": "Klient",
+      "contactDetails": "Dane kontaktowe",
+      "plannedDate": "Planowany termin",
+      "inspectionDate": "Termin przeglądu",
+      "devices": "Urządzenia"
+    },
+    "table": {
+      "date": "Termin",
+      "customer": "Klient",
+      "phone": "Telefon",
+      "actions": "Akcje"
+    },
+    "empty": {
+      "orphanDevicesTitle": "Brak urządzeń bez przeglądu",
+      "orphanDevicesDescription": "Wszystkie kwalifikujące się urządzenia są już przypisane do aktywnych obiektów planowania.",
+      "viewTitle": "Brak przeglądów w tym widoku",
+      "viewDescription": "Wybierz inny widok z listy lub dodaj nowy przegląd."
+    },
+    "orphanDevices": {
+      "nextInspection": "Termin przeglądu: {{date}}"
+    },
+    "status": {
+      "new": "Nowy",
+      "reminderSent": "Przypomnienie wysłane",
+      "customerConfirmed": "Klient potwierdził",
+      "customerNotConfirmed": "Klient nie potwierdził",
+      "scheduled": "Umówiony",
+      "completed": "Zakończony",
+      "cancelled": "Anulowany"
+    },
+    "nextActions": {
+      "sendReminder": "Wyślij przypomnienie",
+      "reminderSent": "Wysłano przypomnienie",
+      "callAndSchedule": "Zadzwoń i ustal termin",
+      "callAndRemind": "Zadzwoń i przypomnij o przeglądzie",
+      "scheduled": "Przegląd umówiony",
+      "completed": "Zakończony",
+      "cancelled": "Anulowany"
+    },
+    "scheduleActions": {
+      "changeDate": "Zmień termin",
+      "confirmDate": "Potwierdź termin"
+    },
+    "summary": {
+      "plannedDate": "Termin: {{date}}",
+      "targetDate": "Data docelowa: {{date}}",
+      "shortDescription": "{{status}} • {{window}} • {{deviceCount}} urz. • {{plannedLabel}}"
+    },
+    "timeline": {
+      "plannedDate": "Umówiony termin: {{date}}",
+      "window": "Okno przeglądu: {{window}}"
+    },
+    "detail": {
+      "backToList": "Lista przeglądów",
+      "title": "Przegląd klienta {{customer}}",
+      "conflictTitle": "Konflikt w przeglądzie",
+      "unconfirmedDate": "Termin niepotwierdzony",
+      "deviceCount": "{{count}} urządzenia",
+      "nextInspection": "Następny przegląd: {{date}}",
+      "addDeviceModalTitle": "Dodaj urządzenie do przeglądu",
+      "addDeviceModalDescription": "Pokazujemy tylko urządzenia tego klienta, które mają aktywne przeglądy, nie należą do innego otwartego obiektu i mieszczą się w oknie 30 dni.",
+      "noAddableDevices": "Brak urządzeń, które można teraz bezpiecznie dodać do tego przeglądu.",
+      "notFoundTitle": "Nie znaleźliśmy przeglądu",
+      "notFoundDescription": "Sprawdź identyfikator albo wróć do listy przeglądów.",
+      "backToInspections": "Wróć do listy przeglądów"
+    },
+    "scheduleModal": {
+      "title": "Ustal termin przeglądu",
+      "description": "Wpisz uzgodnioną z klientem datę wykonania przeglądu.",
+      "save": "Zapisz termin",
+      "validation": "Data planowanego przeglądu jest wymagana."
+    },
+    "finalizeModal": {
+      "title": "Zakończ przegląd",
+      "description": "Wybierz, jak zamknąć proces planowania przeglądu.",
+      "devices": "Urządzenia: {{count}}",
+      "cancelTitle": "Klient zrezygnował z przeglądów",
+      "cancelDescription": "Przegląd otrzyma status anulowany.",
+      "completeTitle": "Wizyta się odbyła",
+      "completeDescription": "Przegląd zostanie zakończony, a formularz wizyty otworzy się z wybranym klientem i urządzeniami."
+    },
+    "createModal": {
+      "title": "Utwórz przegląd",
+      "description": "Wybierz klienta i urządzenia kwalifikujące się do wspólnego przeglądu.",
+      "customerDevices": "Urządzenia klienta",
+      "customerDevicesDescription": "Pokazujemy tylko urządzenia z aktywnym terminem przeglądu, które nie są jeszcze przypięte do otwartego obiektu.",
+      "emptyDevices": "Ten klient nie ma teraz urządzeń gotowych do ręcznego dodania do przeglądu."
+    },
+    "linkProposal": {
+      "defaultTitle": "Dołączyć do przeglądu?",
+      "primaryAction": "Dołącz",
+      "secondaryAction": "Utwórz osobny przegląd",
+      "devicesInInspection": "{{count}} urządzenia w przeglądzie"
+    },
+    "candidatePicker": {
+      "defaultTitle": "Wybierz przegląd",
+      "createAction": "Utwórz nowy przegląd",
+      "empty": "Brak innych pasujących przeglądów. Możesz utworzyć nowy obiekt albo cofnąć zmianę."
+    },
+    "conflicts": {
+      "missingDevice": "Część urządzeń przypisanych do przeglądu nie istnieje już w bazie.",
+      "deviceNotEligible": "Jedno z urządzeń nie kwalifikuje się już do aktywnego przeglądu okresowego.",
+      "dateWindow": "Planowany termin obejmuje ponad 30 dni i wymaga ponownego uporządkowania urządzeń."
+    },
+    "flow": {
+      "attachExistingTitle": "Dołączyć urządzenie do istniejącego przeglądu?",
+      "newDeviceSingleDescription": "Nowe urządzenie pasuje do jednego otwartego przeglądu klienta. Możesz je dołączyć albo utworzyć osobny przegląd.",
+      "newDeviceChoiceTitle": "Wybierz przegląd dla nowego urządzenia",
+      "newDeviceChoiceDescription": "Znaleźliśmy kilka otwartych przeglądów tego klienta mieszczących się w oknie 30 dni. Wybierz, do którego przypiąć urządzenie albo utwórz nowy przegląd.",
+      "attachToInspection": "Dołącz do przeglądu",
+      "separateInspection": "Osobny przegląd",
+      "createNewInspection": "Utwórz nowy przegląd",
+      "dateChangeCreatesNewTitle": "Zmiana daty utworzy nowy przegląd",
+      "dateChangeCreatesNewDescription": "To urządzenie jest jedynym elementem już umówionego przeglądu. Zmiana daty anuluje aktualny przegląd i utworzy nowy obiekt planowania.",
+      "cancelCurrentAndCreateNew": "Anuluj obecny i utwórz nowy przegląd",
+      "undoDateChange": "Cofnij zmianę daty",
+      "scheduledDateOutOfWindow": "Nowa data wypada poza 30-dniowym oknem obecnie umówionego przeglądu. Urządzenie trzeba odłączyć od aktualnego przeglądu i przypisać gdzie indziej albo utworzyć nowy.",
+      "dateOutOfWindow": "Nowa data wypada poza 30-dniowym oknem aktualnego przeglądu. Wybierz inny otwarty przegląd, utwórz nowy albo cofnij zmianę.",
+      "moveToOtherTitle": "Przepiąć urządzenie do innego przeglądu?",
+      "assignToInspection": "Przypisz do tego przeglądu",
+      "chooseNewInspectionTitle": "Wybierz nowy przegląd dla urządzenia",
+      "newDateSingleDescription": "Nowa data kwalifikuje to urządzenie do jednego otwartego przeglądu klienta. Możesz je dołączyć albo utworzyć osobny przegląd.",
+      "undoDate": "Cofnij datę",
+      "newDateChoiceTitle": "Wybierz przegląd dla urządzenia",
+      "newDateChoiceDescription": "Nowa data pasuje do kilku otwartych przeglądów klienta. Wybierz jeden z nich albo utwórz nowy przegląd."
+    },
+    "views": {
+      "planned": {
+        "label": "Planowane",
+        "description": "Nowe przeglądy oraz przeglądy po wysłaniu przypomnienia."
+      },
+      "contact": {
+        "label": "Do kontaktu",
+        "description": "Przeglądy po reakcji klienta, wymagające dalszego kontaktu."
+      },
+      "scheduled": {
+        "label": "Umówione",
+        "description": "Przeglądy z ustalonym terminem wykonania."
+      },
+      "closed": {
+        "label": "Zakończone",
+        "description": "Historia spraw zakończonych lub anulowanych."
+      },
+      "orphanDevices": {
+        "label": "Urządzenia bez przeglądu",
+        "description": "Urządzenia kwalifikujące się do przeglądu, ale bez przypisanej sprawy."
+      }
+    }
+  },
+  "customers": {
+    "title": "Klienci",
+    "fallbackName": "Klient",
+    "newCustomer": "Nowy klient",
+    "searchPlaceholder": "Nazwa firmy, osoba, email lub adres",
+    "actions": {
+      "add": "Dodaj klienta",
+      "edit": "Edytuj klienta"
+    },
+    "detail": {
+      "planning": "Planowanie",
+      "activeInspections": "Aktywne przeglądy",
+      "noActiveInspectionsTitle": "Brak aktywnych przeglądów",
+      "noActiveInspectionsDescription": "Gdy urządzenia klienta będą miały aktywne terminy przeglądów, zobaczysz tutaj pogrupowane sprawy.",
+      "editModalDescription": "Zaktualizuj dane klienta bez opuszczania widoku szczegółów.",
+      "notFoundTitle": "Nie znaleźliśmy tego klienta",
+      "notFoundDescription": "Profil może jeszcze nie istnieć albo identyfikator jest nieprawidłowy."
+    },
+    "types": {
+      "individual": {
+        "label": "Osoba prywatna",
+        "shortLabel": "Klient indywidualny",
+        "description": "Klient indywidualny z adresem domowym lub prywatnym lokalem."
+      },
+      "company": {
+        "label": "Firma",
+        "shortLabel": "Firma",
+        "description": "Klient biznesowy z nazwą firmy i osobą kontaktową."
+      }
+    },
+    "table": {
+      "rowActionLabel": "Otwórz szczegóły klienta",
+      "emptyTitle": "Brak klientów",
+      "client": "Klient",
+      "contact": "Kontakt",
+      "location": "Lokalizacja"
+    },
+    "form": {
+      "defaultModalTitle": "Dodaj klienta",
+      "defaultModalDescription": "Utwórz nowy profil klienta i od razu przejdź do widoku z jego urządzeniami.",
+      "defaultSubmitLabel": "Zapisz klienta",
+      "type": "Typ klienta",
+      "company": "Firma",
+      "companyPlaceholder": "np. Klima Serwis Sp. z o.o.",
+      "fullName": "Imię i nazwisko",
+      "fullNamePlaceholder": "np. Anna Kowalska",
+      "phone": "Telefon",
+      "email": "Email",
+      "address": "Adres",
+      "addressPlaceholder": "ul. Przykładowa 12",
+      "postalCode": "Kod pocztowy",
+      "city": "Miasto",
+      "cityPlaceholder": "Warszawa"
+    },
+    "validation": {
+      "addressRequired": "Adres jest wymagany.",
+      "postalCodeRequired": "Kod pocztowy jest wymagany.",
+      "cityRequired": "Miasto jest wymagane.",
+      "phoneRequired": "Telefon jest wymagany.",
+      "emailRequired": "E-mail jest wymagany."
+    }
+  },
+  "devices": {
+    "title": "Urządzenia",
+    "searchPlaceholder": "Marka, model, klient lub adres instalacji",
+    "actions": {
+      "add": "Dodaj urządzenie",
+      "edit": "Edytuj urządzenie",
+      "manageInspections": "Zarządzaj przeglądami",
+      "openInspectionProcess": "Otwórz proces przeglądu",
+      "goToPlanning": "Przejdź do planowania"
+    },
+    "types": {
+      "airConditioning": "Klimatyzacja",
+      "heatPump": "Pompa ciepła",
+      "ventilation": "Rekuperacja"
+    },
+    "warranty": {
+      "option": "{{months}} ({{years}})",
+      "monthsFew": "{{months}} miesiące",
+      "monthsMany": "{{months}} miesięcy",
+      "halfYear": "0,5 roku",
+      "oneYear": "1 rok",
+      "yearsFew": "{{years}} lata",
+      "yearsMany": "{{years}} lat"
+    },
+    "inspections": {
+      "checkboxLabel": "Włącz przeglądy okresowe",
+      "checkboxDescription": "Po włączeniu trzeba ustawić termin najbliższego przeglądu, będą wysyłane przypomnienia.",
+      "disabled": "Przeglądy wyłączone",
+      "enabledNoDate": "Przeglądy włączone, brak terminu",
+      "nextInspection": "Następny przegląd: {{date}}",
+      "presets": {
+        "custom": "Wybrana data",
+        "sixMonths": "6 miesięcy",
+        "twelveMonths": "12 miesięcy"
+      }
+    },
+    "form": {
+      "defaultModalTitle": "Dodaj urządzenie",
+      "defaultSubmitLabel": "Zapisz urządzenie",
+      "type": "Typ urządzenia",
+      "typePlaceholder": "Wybierz typ urządzenia",
+      "brand": "Marka",
+      "brandPlaceholder": "Wybierz markę",
+      "model": "Model",
+      "modelPlaceholder": "np. Stylish FTXA35",
+      "serialNumber": "Numer seryjny",
+      "serialNumberPlaceholder": "np. SN-45812",
+      "refrigerant": "Czynnik",
+      "refrigerantPlaceholder": "np. R32",
+      "refrigerantAmount": "Ilość czynnika",
+      "refrigerantAmountPlaceholder": "np. 1.4 kg",
+      "location": "Miejsce montażu",
+      "locationPlaceholder": "np. Salon",
+      "installationDate": "Data uruchomienia",
+      "warranty": "Gwarancja",
+      "nextInspectionPreset": "Następny przegląd za",
+      "nextInspectionDate": "Termin następnego przeglądu",
+      "customAddressLabel": "To urządzenie ma inny adres instalacji niż adres klienta",
+      "customAddressDescription": "Zaznacz, jeśli instalacja jest w innym lokalu, budynku albo mieszkaniu.",
+      "installationAddress": "Adres instalacji",
+      "installationAddressPlaceholder": "ul. Montażowa 7",
+      "note": "Notatka",
+      "notePlaceholder": "Np. Jednostka przy salonie, dostęp od strony tarasu."
+    },
+    "table": {
+      "device": "Urządzenie",
+      "brand": "Marka",
+      "model": "Model",
+      "address": "Adres",
+      "customer": "Klient",
+      "dates": "Terminy",
+      "installationPlace": "Miejsce montażu",
+      "actions": "Akcje",
+      "openDetailsAria": "Otwórz szczegóły urządzenia {{device}}",
+      "emptyTitle": "Brak urządzeń",
+      "emptyDescription": "Po dodaniu urządzeń zobaczysz tutaj markę, model, adres instalacji i powiązanego klienta."
+    },
+    "customerModal": {
+      "title": "Szczegóły klienta",
+      "description": "Podgląd danych klienta powiązanego z urządzeniem.",
+      "customer": "Klient",
+      "contact": "Kontakt",
+      "address": "Adres",
+      "allCustomerDevices": "Wszystkie urządzenia klienta"
+    },
+    "customerPicker": {
+      "title": "Wybierz klienta",
+      "description": "Wskaż klienta, do którego przypiszemy nowe urządzenie."
+    },
+    "detail": {
+      "breadcrumbs": {
+        "customerList": "Lista klientów",
+        "deviceList": "Lista urządzeń",
+        "customer": "Klient: {{customer}}",
+        "device": "Urządzenie"
+      },
+      "sections": {
+        "deviceData": "Dane urządzenia",
+        "mainInfo": "Najważniejsze informacje",
+        "inspectionService": "Obsługa przeglądu",
+        "planningStatus": "Status planowania",
+        "planningProcess": "Proces planowania",
+        "installation": "Instalacja",
+        "locationAndNotes": "Lokalizacja i notatki",
+        "serviceHistory": "Historia serwisu"
+      },
+      "fields": {
+        "brand": "Marka",
+        "model": "Model",
+        "installationDate": "Data uruchomienia",
+        "warrantyUntil": "Gwarancja do",
+        "serialNumber": "Numer seryjny",
+        "refrigerant": "Czynnik",
+        "refrigerantAmount": "Ilość czynnika",
+        "installationAddress": "Adres instalacji",
+        "installationPlace": "Miejsce montażu",
+        "note": "Notatka",
+        "nextInspection": "Następny przegląd"
+      },
+      "nextInspectionDisabled": "Przeglądy wyłączone",
+      "noInspectionDate": "Brak terminu",
+      "inspectionActive": "Przeglądy są aktywne dla tego urządzenia.",
+      "inspectionSetupPrompt": "Włącz przeglądy, aby ustawić termin kolejnej wizyty.",
+      "devicesInProcess": "Liczba urządzeń w procesie: {{count}}",
+      "processDescription": "Szczegóły kontaktu i terminu są prowadzone w powiązanym procesie przeglądu.",
+      "missingProcessTitle": "Nie utworzono jeszcze procesu obsługi dla tego terminu.",
+      "missingProcessDescription": "Przeglądy są włączone, ale urządzenie nie należy teraz do żadnego otwartego procesu planowania.",
+      "noPlanningTitle": "Brak procesu planowania",
+      "noPlanningDescription": "Przeglądy są wyłączone albo urządzenie nie ma jeszcze ustawionej daty następnego przeglądu.",
+      "noNote": "Brak dodatkowej notatki do tego urządzenia.",
+      "entriesCount": "{{count}} wpisy",
+      "noServiceHistoryTitle": "Brak historii serwisu",
+      "noServiceHistoryDescription": "Po wykonaniu pierwszych wizyt serwisowych zobaczysz tutaj pełną historię urządzenia.",
+      "notFoundDeviceTitle": "Nie znaleźliśmy tego urządzenia",
+      "notFoundDeviceDescription": "Sprawdź identyfikator albo wróć do listy urządzeń.",
+      "notFoundCustomerDeviceDescription": "Sprawdź identyfikator albo wróć do listy urządzeń klienta.",
+      "notFoundCustomerTitle": "Nie znaleźliśmy klienta",
+      "notFoundCustomerDescription": "Ten profil nie istnieje albo nie ma już przypisanego urządzenia.",
+      "backToCustomer": "Wróć do klienta",
+      "backToCustomers": "Wróć do listy klientów",
+      "backToDevices": "Wróć do listy urządzeń"
+    },
+    "serialNumberLabel": "Numer seryjny: {{serialNumber}}",
+    "installationDateLabel": "Data montażu: {{date}}",
+    "customerAddress": "Adres klienta",
+    "sameAddressAsCustomer": "Adres instalacji taki sam jak adres klienta",
+    "validation": {
+      "typeRequired": "Typ urządzenia jest wymagany.",
+      "installationDateRequired": "Data uruchomienia jest wymagana, gdy wybrano gwarancję.",
+      "nextInspectionDateRequired": "Data następnego przeglądu jest wymagana, gdy przeglądy są włączone.",
+      "brandRequired": "Marka jest wymagana.",
+      "modelRequired": "Model jest wymagany."
+    },
+    "nextInspectionModal": {
+      "title": "Zmień ustawienia przeglądów",
+      "description": "Włącz albo wyłącz przeglądy okresowe i ustaw termin najbliższego przeglądu."
+    },
+    "create": {
+      "backToList": "Wróć do urządzeń",
+      "title": "Dodaj urządzenie",
+      "description": "Wybierz istniejącego klienta albo dodaj nowego, a następnie uzupełnij dane urządzenia.",
+      "deviceData": "Dane urządzenia",
+      "pendingCustomerDescription": "Nowy klient zostanie zapisany razem z urządzeniem.",
+      "noCustomerSelected": "Nie wybrano klienta",
+      "selectedCustomer": "Wybrany klient",
+      "newCustomerToSave": "Nowy klient do zapisania",
+      "chooseCustomer": "Wybierz klienta",
+      "newCustomerModalDescription": "Uzupełnij dane klienta, którego chcesz przypisać do urządzenia."
+    }
+  }
+}

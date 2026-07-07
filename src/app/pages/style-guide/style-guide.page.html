@@ -3,12 +3,12 @@
     <div class="ui-panel p-5 sm:p-6 lg:p-8">
       <ui-page-header
         eyebrow="HAVAC UI"
-        title="Wyrazisty design system dla operacyjnego SaaS"
-        description="Chłodny granat jako primary, pomarańczowy akcent i bardziej zdecydowane komponenty. System jest nadal lekki, ale ma już mocniejsze CTA, stany i podział sekcji."
+        [title]="'pages.styleGuide.hero.title' | transloco"
+        [description]="'pages.styleGuide.hero.description' | transloco"
       >
         <div header-action class="flex items-center gap-3">
           <ui-badge variant="warning">Accent-led</ui-badge>
-          <ui-button>Nowe zlecenie</ui-button>
+          <ui-button>{{ 'pages.styleGuide.hero.newOrder' | transloco }}</ui-button>
         </div>
       </ui-page-header>
 
@@ -23,7 +23,7 @@
           </div>
 
           <div class="mt-6 grid gap-4 sm:grid-cols-3">
-            @for (swatch of swatches; track swatch.name) {
+            @for (swatch of swatches(); track swatch.name) {
               <div class="rounded-[1rem] border border-border/85 bg-white/88 p-4">
                 <div class="h-16 rounded-[0.8rem]" [style.background]="swatch.color"></div>
                 <p class="mt-3 text-label text-text-main">{{ swatch.name }}</p>
@@ -70,17 +70,17 @@
       <div class="space-y-1">
         <p class="ui-kicker">Buttons and status</p>
         <h2 class="text-h2 tracking-[-0.025em] text-text-main">
-          Mocniejsze akcje i bardziej czytelne statusy
+          {{ 'pages.styleGuide.sections.buttonsTitle' | transloco }}
         </h2>
       </div>
 
       <div class="ui-demo-grid">
         <ui-card>
           <div class="flex flex-wrap gap-3">
-            <ui-button>Dodaj klienta</ui-button>
-            <ui-button variant="secondary">Zapisz szkic</ui-button>
-            <ui-button variant="ghost">Pokaż szczegóły</ui-button>
-            <ui-button variant="danger">Usuń wpis</ui-button>
+            <ui-button>{{ 'pages.styleGuide.actions.addCustomer' | transloco }}</ui-button>
+            <ui-button variant="secondary">{{ 'pages.styleGuide.actions.saveDraft' | transloco }}</ui-button>
+            <ui-button variant="ghost">{{ 'pages.styleGuide.actions.showDetails' | transloco }}</ui-button>
+            <ui-button variant="danger">{{ 'pages.styleGuide.actions.deleteEntry' | transloco }}</ui-button>
           </div>
 
           <div class="mt-5 flex flex-wrap gap-3">
@@ -93,8 +93,8 @@
         </ui-card>
 
         <ui-card>
-          <pre class="ui-code"><code>&lt;ui-button&gt;Dodaj klienta&lt;/ui-button&gt;
-&lt;ui-button variant="secondary"&gt;Zapisz szkic&lt;/ui-button&gt;
+          <pre class="ui-code"><code>&lt;ui-button&gt;{{ 'pages.styleGuide.actions.addCustomer' | transloco }}&lt;/ui-button&gt;
+&lt;ui-button variant="secondary"&gt;{{ 'pages.styleGuide.actions.saveDraft' | transloco }}&lt;/ui-button&gt;
 &lt;ui-badge variant="info"&gt;Info&lt;/ui-badge&gt;</code></pre>
         </ui-card>
       </div>
@@ -104,14 +104,14 @@
       <div class="space-y-1">
         <p class="ui-kicker">Forms</p>
         <h2 class="text-h2 tracking-[-0.025em] text-text-main">
-          Twardsze pola i wyrazniejsze sekcje
+          {{ 'pages.styleGuide.sections.formsTitle' | transloco }}
         </h2>
       </div>
 
       <div class="ui-demo-grid">
         <ui-card>
           <div card-header class="space-y-1">
-            <h3 class="text-h3 tracking-[-0.02em] text-text-main">Formularz zlecenia</h3>
+            <h3 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'pages.styleGuide.sections.jobFormTitle' | transloco }}</h3>
             <p class="text-body text-text-muted">
               Labels, helper text and field gaps are now aligned into one vertical rhythm.
             </p>
@@ -119,30 +119,30 @@
 
           <div class="ui-form-stack">
             <ui-input
-              label="Nazwa zlecenia"
-              placeholder="np. Przegląd klimatyzacji biura"
-              hint="Tę nazwę zobaczy technik w aplikacji mobilnej."
+              [label]="'pages.styleGuide.form.jobName' | transloco"
+              [placeholder]="'pages.styleGuide.form.jobNamePlaceholder' | transloco"
+              [hint]="'pages.styleGuide.form.jobNameHint' | transloco"
               [(ngModel)]="jobName"
             />
 
             <ui-input
-              label="Osoba kontaktowa"
-              placeholder="np. Anna Kowalska"
+              [label]="'pages.styleGuide.form.contactPerson' | transloco"
+              [placeholder]="'pages.styleGuide.form.contactPlaceholder' | transloco"
               [(ngModel)]="contactPerson"
             />
 
             <ui-select
-              label="Typ wizyty"
-              placeholder="Wybierz typ"
-              [options]="visitTypeOptions"
+              [label]="'pages.styleGuide.form.visitType' | transloco"
+              [placeholder]="'pages.styleGuide.form.visitTypePlaceholder' | transloco"
+              [options]="visitTypeOptions()"
               [(ngModel)]="visitType"
             />
 
             <ui-input
-              label="Telefon"
+              [label]="'customers.form.phone' | transloco"
               type="tel"
               placeholder="+48 500 000 000"
-              error="Wprowadź numer telefonu w poprawnym formacie."
+              [error]="'pages.styleGuide.form.phoneError' | transloco"
               [(ngModel)]="phoneNumber"
             />
           </div>
@@ -157,7 +157,7 @@
           </div>
 
           <ui-tabs
-            [tabs]="tabs"
+            [tabs]="tabs()"
             [activeId]="activeTab()"
             (activeIdChange)="activeTab.set($event)"
           />
@@ -165,21 +165,21 @@
           <div class="mt-5 rounded-[1.5rem] border border-black/6 bg-white/72 p-4 sm:p-5">
             @switch (activeTab()) {
               @case ('overview') {
-                <p class="text-label text-text-main">Przegląd dnia</p>
+                <p class="text-label text-text-main">{{ 'pages.styleGuide.sections.overviewTitle' | transloco }}</p>
                 <p class="mt-1 text-body text-text-muted">
-                  Najważniejsze zadania, priorytety i aktywne ekipy.
+                  {{ 'pages.styleGuide.sections.overviewDescription' | transloco }}
                 </p>
               }
               @case ('schedule') {
                 <p class="text-label text-text-main">Harmonogram</p>
                 <p class="mt-1 text-body text-text-muted">
-                  Widok ułożenia wizyt i obciążenia zespołu.
+                  {{ 'pages.styleGuide.sections.scheduleDescription' | transloco }}
                 </p>
               }
               @default {
                 <p class="text-label text-text-main">Rozliczenia</p>
                 <p class="mt-1 text-body text-text-muted">
-                  Status faktur, zaliczek i oczekujących płatności.
+                  {{ 'pages.styleGuide.sections.billingDescription' | transloco }}
                 </p>
               }
             }
@@ -192,45 +192,43 @@
       <div class="space-y-1">
         <p class="ui-kicker">Data display</p>
         <h2 class="text-h2 tracking-[-0.025em] text-text-main">
-          Tabela z wyrazniejszym headerem i hoverem
+          {{ 'pages.styleGuide.sections.tableSectionTitle' | transloco }}
         </h2>
       </div>
 
       <div class="ui-demo-grid">
         <ui-card padding="sm">
           <div card-header class="space-y-1">
-            <h3 class="text-h3 tracking-[-0.02em] text-text-main">Tabela zleceń dnia</h3>
+            <h3 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'pages.styleGuide.sections.tableTitle' | transloco }}</h3>
             <p class="text-body text-text-muted">
-              Konfiguracja kolumn steruje nagłówkami, wyrównaniem i typem komórki, a na mobile widok
-              automatycznie przechodzi w czytelne karty.
+              {{ 'pages.styleGuide.sections.tableDescription' | transloco }}
             </p>
           </div>
 
-          <ui-table [columns]="jobsTableColumns" [data]="jobsTableRows" />
+          <ui-table [columns]="jobsTableColumns()" [data]="jobsTableRows()" />
         </ui-card>
 
         <ui-card>
           <div card-header class="space-y-1">
-            <h3 class="text-h3 tracking-[-0.02em] text-text-main">Konfiguracja demo</h3>
+            <h3 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'pages.styleGuide.sections.demoConfigTitle' | transloco }}</h3>
             <p class="text-body text-text-muted">
-              Mocki odzwierciedlają typowy widok operacyjny: klient, termin, technik, status i
-              kwota.
+              {{ 'pages.styleGuide.sections.demoConfigDescription' | transloco }}
             </p>
           </div>
 
           <div class="grid gap-3 sm:grid-cols-2">
             <div class="rounded-[1rem] border border-border/85 bg-white/88 p-4">
-              <p class="text-small uppercase tracking-[0.18em] text-text-muted">Rekordy</p>
-              <p class="mt-2 text-h2 text-text-main">{{ jobsTableRows.length }}</p>
-              <p class="mt-1 text-small text-text-muted">Zaplanowane i aktywne wizyty serwisowe.</p>
+              <p class="text-small uppercase tracking-[0.18em] text-text-muted">{{ 'pages.styleGuide.sections.records' | transloco }}</p>
+              <p class="mt-2 text-h2 text-text-main">{{ jobsTableRows().length }}</p>
+              <p class="mt-1 text-small text-text-muted">{{ 'pages.styleGuide.sections.recordsDescription' | transloco }}</p>
             </div>
 
             <div class="rounded-[1rem] border border-border/85 bg-white/88 p-4">
-              <p class="text-small uppercase tracking-[0.18em] text-text-muted">Statusy</p>
+              <p class="text-small uppercase tracking-[0.18em] text-text-muted">{{ 'requests.fields.status' | transloco }}</p>
               <div class="mt-2 flex flex-wrap gap-2">
-                <ui-badge variant="info">Zaplanowane</ui-badge>
-                <ui-badge variant="warning">W trasie</ui-badge>
-                <ui-badge variant="success">Zakończone</ui-badge>
+                <ui-badge variant="info">{{ 'pages.styleGuide.jobs.status.planned' | transloco }}</ui-badge>
+                <ui-badge variant="warning">{{ 'pages.styleGuide.jobs.status.onRoute' | transloco }}</ui-badge>
+                <ui-badge variant="success">{{ 'pages.styleGuide.jobs.status.completed' | transloco }}</ui-badge>
               </div>
             </div>
           </div>
@@ -253,65 +251,65 @@
         </div>
 
         <div class="flex flex-wrap gap-3">
-          <ui-button (pressed)="isModalOpen.set(true)">Otwórz modal</ui-button>
+          <ui-button (pressed)="isModalOpen.set(true)">{{ 'pages.styleGuide.actions.openModal' | transloco }}</ui-button>
           <ui-button variant="secondary" (pressed)="isDrawerOpen.set(true)">
-            Otwórz drawer
+            {{ 'pages.styleGuide.actions.openDrawer' | transloco }}
           </ui-button>
         </div>
       </ui-card>
 
       <ui-empty-state
-        title="Brak aktywnych przeglądów sezonowych"
-        description="Po dodaniu pierwszego szablonu zobaczysz tutaj zestawy zadań, statusy ekip i szybkie akcje."
-        actionLabel="Dodaj pierwszy szablon"
+        [title]="'pages.styleGuide.empty.title' | transloco"
+        [description]="'pages.styleGuide.empty.description' | transloco"
+        [actionLabel]="'pages.styleGuide.actions.addFirstTemplate' | transloco"
       />
     </section>
   </div>
 
   <ui-modal
     [open]="isModalOpen()"
-    title="Dodaj klienta"
-    description="Delikatny modal do szybkiego rozpoczęcia zlecenia lub utworzenia nowej firmy."
+    [title]="'pages.styleGuide.actions.addCustomer' | transloco"
+    [description]="'pages.styleGuide.modalDescription' | transloco"
     (close)="isModalOpen.set(false)"
   >
     <div class="ui-form-stack">
       <ui-input
-        label="Nazwa firmy"
-        placeholder="np. Klima Serwis Sp. z o.o."
+        [label]="'pages.styleGuide.form.companyName' | transloco"
+        [placeholder]="'customers.form.companyPlaceholder' | transloco"
         [(ngModel)]="modalCompany"
       />
-      <ui-input label="Miasto" placeholder="Warszawa" [(ngModel)]="modalCity" />
+      <ui-input [label]="'customers.form.city' | transloco" [placeholder]="'customers.form.cityPlaceholder' | transloco" [(ngModel)]="modalCity" />
     </div>
 
     <div modal-footer class="flex flex-col gap-3 sm:flex-row sm:justify-end">
-      <ui-button variant="ghost" (pressed)="isModalOpen.set(false)">Anuluj</ui-button>
-      <ui-button (pressed)="isModalOpen.set(false)">Zapisz klienta</ui-button>
+      <ui-button variant="ghost" (pressed)="isModalOpen.set(false)">{{ 'common.actions.cancel' | transloco }}</ui-button>
+      <ui-button (pressed)="isModalOpen.set(false)">{{ 'customers.form.defaultSubmitLabel' | transloco }}</ui-button>
     </div>
   </ui-modal>
 
   <ui-drawer
     [open]="isDrawerOpen()"
-    title="Filtry harmonogramu"
-    description="Przykład spokojnego sheetu pod mobilne filtrowanie widoku pracy."
+    [title]="'pages.styleGuide.form.drawerTitle' | transloco"
+    [description]="'pages.styleGuide.form.drawerDescription' | transloco"
     (close)="isDrawerOpen.set(false)"
   >
     <div class="ui-form-stack">
-      <ui-select label="Region" [options]="regionOptions" [(ngModel)]="selectedRegion" />
-      <ui-select label="Typ zadania" [options]="visitTypeOptions" [(ngModel)]="selectedVisitType" />
+      <ui-select [label]="'pages.styleGuide.form.region' | transloco" [options]="regionOptions()" [(ngModel)]="selectedRegion" />
+      <ui-select [label]="'pages.styleGuide.form.taskType' | transloco" [options]="visitTypeOptions()" [(ngModel)]="selectedVisitType" />
 
       <div class="rounded-[1.5rem] border border-black/6 bg-white/72 p-4">
-        <p class="text-label text-text-main">Aktywne filtry</p>
+        <p class="text-label text-text-main">{{ 'pages.styleGuide.form.activeFilters' | transloco }}</p>
         <div class="mt-3 flex flex-wrap gap-2">
-          <ui-badge variant="info">{{ selectedRegion || 'Wszystkie regiony' }}</ui-badge>
-          <ui-badge variant="neutral">{{ selectedVisitType || 'Wszystkie typy' }}</ui-badge>
+          <ui-badge variant="info">{{ selectedRegion || ('pages.styleGuide.form.allRegions' | transloco) }}</ui-badge>
+          <ui-badge variant="neutral">{{ selectedVisitType || ('pages.styleGuide.form.allTypes' | transloco) }}</ui-badge>
         </div>
       </div>
     </div>
 
     <div drawer-footer class="flex flex-col gap-3 sm:flex-row sm:justify-end">
-      <ui-button variant="ghost" (pressed)="resetDrawerFilters()">Wyczyść</ui-button>
+      <ui-button variant="ghost" (pressed)="resetDrawerFilters()">{{ 'pages.styleGuide.actions.clear' | transloco }}</ui-button>
       <ui-button variant="secondary" (pressed)="isDrawerOpen.set(false)">
-        Zastosuj filtry
+        {{ 'pages.styleGuide.actions.applyFilters' | transloco }}
       </ui-button>
     </div>
   </ui-drawer>

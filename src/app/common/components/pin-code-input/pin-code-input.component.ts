@@ -6,6 +6,7 @@ import {
   input,
   output,
 } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 import { UiButtonComponent } from '../../../ui';
 
@@ -13,7 +14,7 @@ const KEYPAD_DIGITS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0] as const;
 
 @Component({
   selector: 'app-pin-code-input',
-  imports: [UiButtonComponent],
+  imports: [TranslocoPipe, UiButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './pin-code-input.component.html',
 })
@@ -21,7 +22,7 @@ export class PinCodeInputComponent {
   readonly value = input('');
   readonly length = input(4);
   readonly disabled = input(false, { transform: booleanAttribute });
-  readonly ariaLabel = input('Klawiatura PIN');
+  readonly ariaLabel = input('');
 
   readonly pinChange = output<string>();
   readonly pinComplete = output<string>();

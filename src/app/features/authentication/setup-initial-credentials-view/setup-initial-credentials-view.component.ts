@@ -17,6 +17,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { finalize, switchMap } from 'rxjs';
 
 import { SKIP_ERROR_TOAST, SKIP_GLOBAL_LOADER } from '../../../common/api/api-context.tokens';
@@ -36,6 +37,7 @@ const PIN_LENGTH = 4;
   imports: [
     ReactiveFormsModule,
     RouterLink,
+    TranslocoPipe,
     PinCodeInputComponent,
     UiButtonComponent,
     UiInputComponent,
@@ -47,6 +49,7 @@ export class SetupInitialCredentialsViewComponent {
   private readonly authService = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly transloco = inject(TranslocoService);
   private readonly usersApi = inject(UsersApi);
 
   protected readonly currentStep = signal<SetupStep>('password');
@@ -114,7 +117,7 @@ export class SetupInitialCredentialsViewComponent {
     this.confirmedPin.set(pin);
 
     if (pin.length === PIN_LENGTH && pin !== this.pin()) {
-      this.pinError.set('Podany PIN nie jest zgodny z poprzednim.');
+      this.pinError.set(this.transloco.translate('auth.setup.pinMismatch'));
     }
   }
 
@@ -122,7 +125,7 @@ export class SetupInitialCredentialsViewComponent {
     this.serverError.set('');
 
     if (this.pin().length !== PIN_LENGTH) {
-      this.pinError.set('Wprowadz 4-cyfrowy PIN.');
+      this.pinError.set(this.transloco.translate('auth.setup.pinLength'));
       return;
     }
 
@@ -147,14 +150,12 @@ export class SetupInitialCredentialsViewComponent {
     this.serverError.set('');
 
     if (!currentPassword) {
-      this.serverError.set(
-        'Nie mozemy zapisac danych logowania. Otworz link aktywacyjny ponownie.',
-      );
+      this.serverError.set(this.transloco.translate('auth.setup.errors.missingLinkPassword'));
       return;
     }
 
     if (this.confirmedPin().length !== PIN_LENGTH || this.confirmedPin() !== this.pin()) {
-      this.pinError.set('Podany PIN nie jest zgodny z poprzednim.');
+      this.pinError.set(this.transloco.translate('auth.setup.pinMismatch'));
       return;
     }
 
@@ -182,7 +183,7 @@ export class SetupInitialCredentialsViewComponent {
           this.serverError.set(
             readAuthenticationErrorMessage(
               error,
-              'Nie udalo sie zapisac danych logowania. Sprobuj ponownie.',
+              this.transloco.translate('auth.setup.errors.saveFailed'),
             ),
           );
         },
@@ -197,23 +198,23 @@ export class SetupInitialCredentialsViewComponent {
     }
 
     if (control.hasError('required')) {
-      return 'Haslo jest wymagane.';
+      return this.transloco.translate('auth.validation.passwordRequired');
     }
 
     if (control.hasError('minlength')) {
-      return 'Haslo musi miec co najmniej 8 znakow.';
+      return this.transloco.translate('auth.validation.passwordMinLength');
     }
 
     if (control.hasError('maxlength')) {
-      return 'Haslo nie moze byc dluzsze niz 100 znakow.';
+      return this.transloco.translate('auth.validation.passwordMaxLength');
     }
 
     if (control.hasError('passwordComplexity')) {
-      return 'Haslo musi zawierac co najmniej jedna duza litere i jedna cyfre.';
+      return this.transloco.translate('auth.validation.passwordComplexity');
     }
 
     if (control.hasError('sameAsCurrentPassword')) {
-      return 'Haslo musi byc inne niz haslo z linku aktywacyjnego.';
+      return this.transloco.translate('auth.validation.passwordDifferentThanActivation');
     }
 
     return '';
@@ -231,11 +232,11 @@ export class SetupInitialCredentialsViewComponent {
     }
 
     if (control.hasError('required')) {
-      return 'Potwierdzenie hasla jest wymagane.';
+      return this.transloco.translate('auth.validation.passwordConfirmationRequired');
     }
 
     if (this.passwordForm.hasError('passwordMismatch')) {
-      return 'Hasla musza byc takie same.';
+      return this.transloco.translate('auth.validation.passwordMismatch');
     }
 
     return '';

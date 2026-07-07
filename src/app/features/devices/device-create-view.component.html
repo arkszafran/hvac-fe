@@ -4,14 +4,14 @@
       routerLink="/devices"
       class="text-[13px]/5 font-semibold text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
     >
-      Powrót do listy urządzeń
+      {{ 'devices.create.backToList' | transloco }}
     </a>
   </div>
 
   <ui-page-header
     class="block"
-    title="Dodaj urządzenie"
-    description="Najpierw wybierz klienta albo dodaj nowego, a potem uzupełnij dane urządzenia."
+    [title]="'devices.create.title' | transloco"
+    [description]="'devices.create.description' | transloco"
   />
 
   <ui-card class="block">
@@ -39,7 +39,7 @@
         @if (hasCustomerSelection()) {
           <section class="space-y-1">
             <p class="text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
-              Adres klienta
+              {{ 'customers.form.address' | transloco }}
             </p>
             <p class="text-label font-medium text-text-main">{{ selectedCustomerAddress() }}</p>
           </section>
@@ -48,10 +48,10 @@
 
       <div class="flex flex-wrap gap-3 pt-1 lg:justify-end">
         <ui-button variant="secondary" size="sm" (pressed)="openCustomerPicker()">
-          Wybierz klienta
+          {{ 'devices.create.chooseCustomer' | transloco }}
         </ui-button>
         <ui-button variant="ghost" size="sm" (pressed)="openCustomerCreateModal()">
-          Dodaj klienta
+          {{ 'customers.actions.add' | transloco }}
         </ui-button>
       </div>
     </div>
@@ -59,7 +59,7 @@
 
   <ui-card class="block">
     <div card-header>
-      <h2 class="text-h3 tracking-[-0.02em] text-text-main">Dane urządzenia</h2>
+      <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'devices.create.deviceData' | transloco }}</h2>
     </div>
 
     <app-device-editor-form
@@ -71,7 +71,7 @@
   <div class="flex justify-end pt-1">
     <div class="w-full sm:w-auto">
       <ui-button size="lg" [block]="true" [disabled]="!canSave()" (pressed)="handleSave()">
-        Zapisz
+        {{ 'common.actions.save' | transloco }}
       </ui-button>
     </div>
   </div>
@@ -85,9 +85,9 @@
 
   <app-customer-form-modal
     [open]="isCustomerCreateModalOpen()"
-    modalTitle="Dodaj klienta"
-    modalDescription="Nowy klient zostanie zapisany dopiero razem z urządzeniem po kliknięciu Zapisz."
-    submitLabel="Wybierz klienta"
+    [modalTitle]="'customers.form.defaultModalTitle' | transloco"
+    [modalDescription]="'devices.create.newCustomerModalDescription' | transloco"
+    [submitLabel]="'devices.create.chooseCustomer' | transloco"
     (close)="isCustomerCreateModalOpen.set(false)"
     (save)="handleNewCustomerDraft($event)"
   />

@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, computed, effect, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { UiButtonComponent, UiInputComponent, UiModalComponent } from '../../../../ui';
 import { Customer } from '../../../customers/models/customer.model';
@@ -8,11 +9,13 @@ import { Device } from '../../../customers/models/device.model';
 @Component({
   selector: 'app-visit-device-picker-modal',
   standalone: true,
-  imports: [FormsModule, UiButtonComponent, UiInputComponent, UiModalComponent],
+  imports: [FormsModule, TranslocoPipe, UiButtonComponent, UiInputComponent, UiModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './visit-device-picker-modal.component.html',
 })
 export class VisitDevicePickerModalComponent {
+  private readonly transloco = inject(TranslocoService);
+
   readonly open = input(false);
   readonly customer = input<Customer | null>(null);
   readonly selectedDeviceIds = input<string[]>([]);
@@ -62,7 +65,7 @@ export class VisitDevicePickerModalComponent {
   }
 
   protected deviceName(device: Device): string {
-    return `${device.brand} ${device.model}`.trim() || 'Urządzenie';
+    return `${device.brand} ${device.model}`.trim() || this.transloco.translate('devices.table.device');
   }
 
   protected deviceAddress(device: Device): string {

@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { finalize } from 'rxjs';
 
 import { SKIP_ERROR_TOAST, SKIP_GLOBAL_LOADER } from '../../../common/api/api-context.tokens';
@@ -15,7 +16,7 @@ import { readAuthenticationErrorMessage } from '../utils/authentication-error.ut
 
 @Component({
   selector: 'app-password-reset-request-view',
-  imports: [ReactiveFormsModule, RouterLink, UiButtonComponent, UiInputComponent],
+  imports: [ReactiveFormsModule, RouterLink, TranslocoPipe, UiButtonComponent, UiInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './password-reset-request-view.component.html',
 })
@@ -23,6 +24,7 @@ export class PasswordResetRequestViewComponent {
   private readonly authenticationApi = inject(AuthenticationApi);
   private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly transloco = inject(TranslocoService);
 
   protected readonly form = this.formBuilder.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -68,7 +70,7 @@ export class PasswordResetRequestViewComponent {
           this.serverError.set(
             readAuthenticationErrorMessage(
               error,
-              'Nie udalo sie wyslac linku resetowania hasla. Sprobuj ponownie.',
+              this.transloco.translate('auth.passwordResetRequest.errors.sendFailed'),
             ),
           );
         },
@@ -83,11 +85,11 @@ export class PasswordResetRequestViewComponent {
     }
 
     if (control.hasError('required')) {
-      return 'Adres e-mail jest wymagany.';
+      return this.transloco.translate('auth.validation.emailRequired');
     }
 
     if (control.hasError('email')) {
-      return 'Podaj poprawny adres e-mail.';
+      return this.transloco.translate('auth.validation.emailInvalid');
     }
 
     return '';

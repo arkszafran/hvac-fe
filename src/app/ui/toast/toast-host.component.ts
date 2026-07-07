@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { TranslocoService } from '@jsverse/transloco';
 
 import { UiToast, UiToastVariant } from './toast.model';
 import { ToastService } from './toast.service';
@@ -11,10 +12,10 @@ const TOAST_CLASSES: Record<UiToastVariant, string> = {
 };
 
 const TOAST_TITLES: Record<UiToastVariant, string> = {
-  success: 'Gotowe',
-  error: 'Wystapil blad',
-  info: 'Informacja',
-  warning: 'Uwaga',
+  success: 'ui.toast.success',
+  error: 'ui.toast.error',
+  info: 'ui.toast.info',
+  warning: 'ui.toast.warning',
 };
 
 @Component({
@@ -72,6 +73,8 @@ const TOAST_TITLES: Record<UiToastVariant, string> = {
   `,
 })
 export class UiToastHostComponent {
+  private readonly transloco = inject(TranslocoService);
+
   protected readonly toastService = inject(ToastService);
 
   protected toastClasses(toast: UiToast): string {
@@ -82,6 +85,6 @@ export class UiToastHostComponent {
   }
 
   protected fallbackTitle(variant: UiToastVariant): string {
-    return TOAST_TITLES[variant];
+    return this.transloco.translate(TOAST_TITLES[variant]);
   }
 }

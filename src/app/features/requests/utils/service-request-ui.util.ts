@@ -1,3 +1,4 @@
+import { TranslocoService } from '@jsverse/transloco';
 import type { UiBadgeVariant } from '../../../ui';
 import {
   ServiceRequest,
@@ -11,38 +12,38 @@ import {
   ServiceRequestType,
 } from '../models/service-request.model';
 
-const REQUEST_TYPE_LABELS: Record<ServiceRequestType, string> = {
-  installation: 'Montaż',
-  repair: 'Naprawa',
-  inspection: 'Przegląd',
+const REQUEST_TYPE_LABEL_KEYS: Record<ServiceRequestType, string> = {
+  installation: 'requests.types.installation',
+  repair: 'requests.types.repair',
+  inspection: 'requests.types.inspection',
 };
 
-const REQUEST_STATUS_LABELS: Record<ServiceRequestStatus, string> = {
-  new: 'Do kontaktu',
-  scheduled: 'Umówione',
-  completed: 'Zakończone',
-  cancelled: 'Anulowane',
+const REQUEST_STATUS_LABEL_KEYS: Record<ServiceRequestStatus, string> = {
+  new: 'requests.statuses.new',
+  scheduled: 'requests.statuses.scheduled',
+  completed: 'requests.statuses.completed',
+  cancelled: 'requests.statuses.cancelled',
 };
 
-const REQUEST_SOURCE_LABELS: Record<ServiceRequestSource, string> = {
-  'customer-panel': 'Panel klienta',
-  'website-form': 'Formularz na stronie',
+const REQUEST_SOURCE_LABEL_KEYS: Record<ServiceRequestSource, string> = {
+  'customer-panel': 'requests.sources.customerPanel',
+  'website-form': 'requests.sources.websiteForm',
 };
 
-const CUSTOMER_TYPE_LABELS: Record<ServiceRequestCustomerType, string> = {
-  company: 'Firma',
-  individual: 'Osoba prywatna',
+const CUSTOMER_TYPE_LABEL_KEYS: Record<ServiceRequestCustomerType, string> = {
+  company: 'requests.customerTypes.company',
+  individual: 'requests.customerTypes.individual',
 };
 
-const BUILDING_TYPE_LABELS: Record<ServiceRequestBuildingType, string> = {
-  'apartment-block': 'Blok',
-  house: 'Dom',
-  'office-building': 'Biurowiec',
+const BUILDING_TYPE_LABEL_KEYS: Record<ServiceRequestBuildingType, string> = {
+  'apartment-block': 'requests.buildingTypes.apartmentBlock',
+  house: 'requests.buildingTypes.house',
+  'office-building': 'requests.buildingTypes.officeBuilding',
 };
 
-const OUTDOOR_UNIT_PLACE_LABELS: Record<ServiceRequestOutdoorUnitPlace, string> = {
-  wall: 'Ściana',
-  balcony: 'Balkon',
+const OUTDOOR_UNIT_PLACE_LABEL_KEYS: Record<ServiceRequestOutdoorUnitPlace, string> = {
+  wall: 'requests.outdoorUnitPlaces.wall',
+  balcony: 'requests.outdoorUnitPlaces.balcony',
 };
 
 const REQUEST_TYPE_BADGE_VARIANTS: Record<ServiceRequestType, UiBadgeVariant> = {
@@ -58,30 +59,46 @@ const REQUEST_STATUS_BADGE_VARIANTS: Record<ServiceRequestStatus, UiBadgeVariant
   cancelled: 'danger',
 };
 
-export function getServiceRequestTypeLabel(type: ServiceRequestType): string {
-  return REQUEST_TYPE_LABELS[type];
+export function getServiceRequestTypeLabel(
+  type: ServiceRequestType,
+  transloco: TranslocoService,
+): string {
+  return transloco.translate(REQUEST_TYPE_LABEL_KEYS[type]);
 }
 
-export function getServiceRequestStatusLabel(status: ServiceRequestStatus): string {
-  return REQUEST_STATUS_LABELS[status];
+export function getServiceRequestStatusLabel(
+  status: ServiceRequestStatus,
+  transloco: TranslocoService,
+): string {
+  return transloco.translate(REQUEST_STATUS_LABEL_KEYS[status]);
 }
 
-export function getServiceRequestSourceLabel(source: ServiceRequestSource): string {
-  return REQUEST_SOURCE_LABELS[source];
+export function getServiceRequestSourceLabel(
+  source: ServiceRequestSource,
+  transloco: TranslocoService,
+): string {
+  return transloco.translate(REQUEST_SOURCE_LABEL_KEYS[source]);
 }
 
-export function getServiceRequestCustomerTypeLabel(type: ServiceRequestCustomerType): string {
-  return CUSTOMER_TYPE_LABELS[type];
+export function getServiceRequestCustomerTypeLabel(
+  type: ServiceRequestCustomerType,
+  transloco: TranslocoService,
+): string {
+  return transloco.translate(CUSTOMER_TYPE_LABEL_KEYS[type]);
 }
 
-export function getServiceRequestBuildingTypeLabel(type: ServiceRequestBuildingType): string {
-  return BUILDING_TYPE_LABELS[type];
+export function getServiceRequestBuildingTypeLabel(
+  type: ServiceRequestBuildingType,
+  transloco: TranslocoService,
+): string {
+  return transloco.translate(BUILDING_TYPE_LABEL_KEYS[type]);
 }
 
 export function getServiceRequestOutdoorUnitPlaceLabel(
   place: ServiceRequestOutdoorUnitPlace,
+  transloco: TranslocoService,
 ): string {
-  return OUTDOOR_UNIT_PLACE_LABELS[place];
+  return transloco.translate(OUTDOOR_UNIT_PLACE_LABEL_KEYS[place]);
 }
 
 export function getServiceRequestTypeBadgeVariant(type: ServiceRequestType): UiBadgeVariant {
@@ -92,8 +109,11 @@ export function getServiceRequestStatusBadgeVariant(status: ServiceRequestStatus
   return REQUEST_STATUS_BADGE_VARIANTS[status];
 }
 
-export function formatServiceRequestCustomerName(customer: ServiceRequestCustomer): string {
-  return customer.companyName || customer.fullName || 'Klient';
+export function formatServiceRequestCustomerName(
+  customer: ServiceRequestCustomer,
+  transloco: TranslocoService,
+): string {
+  return customer.companyName || customer.fullName || transloco.translate('customers.fallbackName');
 }
 
 export function formatServiceRequestCustomerAddress(customer: ServiceRequestCustomer): string {
@@ -102,15 +122,18 @@ export function formatServiceRequestCustomerAddress(customer: ServiceRequestCust
   return [customer.address, cityLine].filter(Boolean).join(', ') || '--';
 }
 
-export function formatServiceRequestAppointmentDate(request: ServiceRequest): string {
+export function formatServiceRequestAppointmentDate(
+  request: ServiceRequest,
+  transloco?: TranslocoService,
+): string {
   if (!request.appointmentDate) {
     return '--';
   }
 
-  return formatDate(request.appointmentDate);
+  return formatDate(request.appointmentDate, transloco);
 }
 
-export function formatDate(value: string): string {
+export function formatDate(value: string, transloco?: TranslocoService): string {
   const [year, month, day] = value.split('-').map(Number);
 
   if (!year || !month || !day) {
@@ -123,7 +146,9 @@ export function formatDate(value: string): string {
     return value || '--';
   }
 
-  return new Intl.DateTimeFormat('pl-PL').format(date);
+  const locale = transloco?.getActiveLang() === 'en' ? 'en-US' : 'pl-PL';
+
+  return new Intl.DateTimeFormat(locale).format(date);
 }
 
 export function formatOptionalValue(value: string | number | null | undefined, suffix = ''): string {
@@ -134,8 +159,11 @@ export function formatOptionalValue(value: string | number | null | undefined, s
   return `${value}${suffix}`;
 }
 
-export function formatServiceRequestDeviceName(device: ServiceRequestDevice): string {
-  return [device.brand, device.model].filter(Boolean).join(' ') || 'Urządzenie';
+export function formatServiceRequestDeviceName(
+  device: ServiceRequestDevice,
+  transloco: TranslocoService,
+): string {
+  return [device.brand, device.model].filter(Boolean).join(' ') || transloco.translate('devices.table.device');
 }
 
 export function phoneHref(phone: string): string {

@@ -1,50 +1,64 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { UiButtonComponent, UiInputComponent, UiModalComponent } from '../../../ui';
 import { createEmptyCustomerDraft, CustomerDraft, CustomerType } from '../models/customer.model';
 
 interface CustomerTypeOption {
   value: CustomerType;
-  label: string;
-  description: string;
+  labelKey: string;
+  descriptionKey: string;
 }
 
 @Component({
   selector: 'app-customer-form-modal',
   standalone: true,
-  imports: [ReactiveFormsModule, UiButtonComponent, UiInputComponent, UiModalComponent],
+  imports: [ReactiveFormsModule, TranslocoPipe, UiButtonComponent, UiInputComponent, UiModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './customer-form-modal.component.html',
 })
 export class CustomerFormModalComponent {
   private readonly formBuilder = inject(FormBuilder);
+  private readonly transloco = inject(TranslocoService);
 
   readonly open = input(false);
   readonly initialValue = input<CustomerDraft | null>(null);
-  readonly modalTitle = input('Dodaj klienta');
-  readonly modalDescription = input(
-    'Utwórz nowy profil klienta i od razu przejdź do widoku z jego urządzeniami.',
-  );
-  readonly submitLabel = input('Zapisz klienta');
+  readonly modalTitle = input('');
+  readonly modalDescription = input('');
+  readonly submitLabel = input('');
 
   readonly close = output<void>();
   readonly save = output<CustomerDraft>();
 
   protected submitAttempted = false;
 
-  protected readonly customerTypeOptions: CustomerTypeOption[] = [
+  private readonly activeLanguage = toSignal(this.transloco.langChanges$, {
+    initialValue: this.transloco.getActiveLang(),
+  });
+
+  private readonly customerTypeDefinitions: CustomerTypeOption[] = [
     {
       value: 'individual',
-      label: 'Osoba prywatna',
-      description: 'Klient indywidualny z adresem domowym lub prywatnym lokalem.',
+      labelKey: 'customers.types.individual.label',
+      descriptionKey: 'customers.types.individual.description',
     },
     {
       value: 'company',
-      label: 'Firma',
-      description: 'Klient biznesowy z nazwą firmy i osobą kontaktową.',
+      labelKey: 'customers.types.company.label',
+      descriptionKey: 'customers.types.company.description',
     },
   ];
+  protected readonly customerTypeOptions = computed(() => {
+    this.activeLanguage();
+
+    return this.customerTypeDefinitions.map((option) => ({
+      value: option.value,
+      label: this.transloco.translate(option.labelKey),
+      description: this.transloco.translate(option.descriptionKey),
+    }));
+  });
   protected readonly form = this.formBuilder.nonNullable.group({
     type: 'individual' as CustomerType,
     companyName: '',
@@ -90,25 +104,22 @@ export class CustomerFormModalComponent {
   ): string {
     const control = this.form.controls[field];
 
-    console.log('validation');
     if (!control.invalid || (!this.submitAttempted && !control.touched)) {
       return '';
     }
 
-    console.log('validation - control touched');
-
     if (control.hasError('required')) {
       switch (field) {
         case 'address':
-          return 'Adres jest wymagany.';
+          return this.transloco.translate('customers.validation.addressRequired');
         case 'postalCode':
-          return 'Kod pocztowy jest wymagany.';
+          return this.transloco.translate('customers.validation.postalCodeRequired');
         case 'city':
-          return 'Miasto jest wymagane.';
+          return this.transloco.translate('customers.validation.cityRequired');
         case 'phone':
-          return 'Telefon jest wymagany.';
+          return this.transloco.translate('customers.validation.phoneRequired');
         case 'email':
-          return 'E-mail jest wymagany.';
+          return this.transloco.translate('customers.validation.emailRequired');
       }
     }
 

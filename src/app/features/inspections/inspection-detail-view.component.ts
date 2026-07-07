@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { map } from 'rxjs';
 
 import {
@@ -38,6 +39,7 @@ import {
   standalone: true,
   imports: [
     RouterLink,
+    TranslocoPipe,
     UiBadgeComponent,
     UiButtonComponent,
     UiCardComponent,
@@ -58,14 +60,14 @@ import {
                 [queryParams]="listQueryParams()"
                 class="text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
               >
-                Lista przeglądów
+                {{ 'inspections.detail.backToList' | transloco }}
               </a>
               <span aria-hidden="true">/</span>
               <span class="text-text-main">{{ customerName(details.customer) }}</span>
             </nav>
 
             <h1 class="text-display tracking-[-0.04em] text-text-main">
-              Przegląd klienta {{ customerName(details.customer) }}
+              {{ 'inspections.detail.title' | transloco: { customer: customerName(details.customer) } }}
             </h1>
             <p class="text-body text-text-muted">
               {{ formatInspectionWindow(details.inspection.windowStart, details.inspection.windowEnd) }}
@@ -91,7 +93,7 @@ import {
                 variant="ghost"
                 (pressed)="openFinalizeModal()"
               >
-                Zakończ
+                {{ 'inspections.actions.complete' | transloco }}
               </ui-button>
             }
           </div>
@@ -100,8 +102,8 @@ import {
         @if (details.conflict; as conflict) {
           <ui-card>
             <div class="rounded-[1rem] border border-danger/30 bg-danger-soft px-4 py-4">
-              <p class="text-label text-danger">Konflikt w przeglądzie</p>
-              <p class="mt-2 text-body text-text-main">{{ conflict.message }}</p>
+              <p class="text-label text-danger">{{ 'inspections.detail.conflictTitle' | transloco }}</p>
+              <p class="mt-2 text-body text-text-main">{{ conflict.messageKey | transloco }}</p>
             </div>
           </ui-card>
         }
@@ -109,8 +111,8 @@ import {
         <section class="grid gap-4">
           <ui-card>
             <div card-header class="space-y-1">
-              <p class="ui-kicker">Klient</p>
-              <h2 class="text-h3 tracking-[-0.02em] text-text-main">Dane kontaktowe</h2>
+              <p class="ui-kicker">{{ 'inspections.fields.customer' | transloco }}</p>
+              <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'inspections.fields.contactDetails' | transloco }}</h2>
             </div>
 
             <div class="space-y-4">
@@ -139,7 +141,7 @@ import {
               <div class="rounded-[1rem] border border-border/80 bg-white p-4 shadow-card">
                 @if (!details.inspection.plannedDate) {
                   <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">
-                    Planowany termin
+                    {{ 'inspections.fields.plannedDate' | transloco }}
                   </p>
                   <p class="mt-2 text-label text-text-main">
                     {{ formatInspectionWindow(details.inspection.windowStart, details.inspection.windowEnd) }}
@@ -149,10 +151,10 @@ import {
                   class="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted"
                   [class.mt-3]="!details.inspection.plannedDate"
                 >
-                  Termin przeglądu
+                  {{ 'inspections.fields.inspectionDate' | transloco }}
                 </p>
                 <p class="mt-2 text-label text-text-main">
-                  {{ details.inspection.plannedDate ? formatInspectionDate(details.inspection.plannedDate) : 'Termin niepotwierdzony' }}
+                  {{ details.inspection.plannedDate ? formatInspectionDate(details.inspection.plannedDate) : ('inspections.detail.unconfirmedDate' | transloco) }}
                 </p>
               </div>
             </div>
@@ -161,16 +163,16 @@ import {
 
         <ui-card>
           <div card-header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 class="text-h3 tracking-[-0.02em] text-text-main">Urządzenia</h2>
+            <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'inspections.fields.devices' | transloco }}</h2>
             <div class="flex flex-wrap items-center gap-3">
-              <ui-badge variant="info">{{ details.devices.length }} urządzenia</ui-badge>
+              <ui-badge variant="info">{{ 'inspections.detail.deviceCount' | transloco: { count: details.devices.length } }}</ui-badge>
               <ui-button
                 size="sm"
                 variant="secondary"
                 [disabled]="!canAddDevice()"
                 (pressed)="isAddDeviceModalOpen.set(true)"
               >
-                Dodaj urządzenie
+                {{ 'inspections.actions.addDevice' | transloco }}
               </ui-button>
             </div>
           </div>
@@ -185,7 +187,7 @@ import {
                       {{ deviceAddress(details.customer, device) }}
                     </p>
                     <p class="text-small text-text-muted">
-                      Następny przegląd: {{ formatInspectionDate(device.nextInspectionDate) }}
+                      {{ 'inspections.detail.nextInspection' | transloco: { date: formatInspectionDate(device.nextInspectionDate) } }}
                     </p>
                   </div>
 
@@ -195,7 +197,7 @@ import {
                       size="sm"
                       (pressed)="navigateToDevice(details.customer.id, device.id)"
                     >
-                      Szczegóły urządzenia
+                      {{ 'inspections.actions.deviceDetails' | transloco }}
                     </ui-button>
                     <ui-button
                       variant="ghost"
@@ -203,7 +205,7 @@ import {
                       [disabled]="!canRemoveDevice()"
                       (pressed)="removeDevice(device.id)"
                     >
-                      Usuń urządzenie
+                      {{ 'inspections.actions.removeDevice' | transloco }}
                     </ui-button>
                   </div>
                 </div>
@@ -214,8 +216,8 @@ import {
 
         <ui-modal
           [open]="isAddDeviceModalOpen()"
-          title="Dodaj urządzenie do przeglądu"
-          description="Pokazujemy tylko urządzenia tego klienta, które mają aktywne przeglądy, nie należą do innego otwartego obiektu i mieszczą się w oknie 30 dni."
+          [title]="'inspections.detail.addDeviceModalTitle' | transloco"
+          [description]="'inspections.detail.addDeviceModalDescription' | transloco"
           (close)="closeAddDeviceModal()"
         >
           @if (addableDevices().length) {
@@ -242,13 +244,13 @@ import {
             </div>
           } @else {
             <div class="rounded-[1rem] border border-dashed border-border/90 bg-white/76 px-4 py-5 text-body text-text-muted">
-              Brak urządzeń, które można teraz bezpiecznie dodać do tego przeglądu.
+              {{ 'inspections.detail.noAddableDevices' | transloco }}
             </div>
           }
 
           <div modal-footer class="grid gap-3 sm:grid-cols-2">
             <ui-button type="button" variant="ghost" [block]="true" (pressed)="closeAddDeviceModal()">
-              Zamknij
+              {{ 'common.actions.close' | transloco }}
             </ui-button>
             <ui-button
               type="button"
@@ -256,7 +258,7 @@ import {
               [disabled]="!selectedDeviceIds().length"
               (pressed)="attachSelectedDevices()"
             >
-              Dodaj urządzenia
+              {{ 'inspections.actions.addDevices' | transloco }}
             </ui-button>
           </div>
         </ui-modal>
@@ -275,9 +277,9 @@ import {
         />
       } @else {
         <ui-empty-state
-          title="Nie znaleźliśmy przeglądu"
-          description="Sprawdź identyfikator albo wróć do listy przeglądów."
-          actionLabel="Wróć do listy przeglądów"
+          [title]="'inspections.detail.notFoundTitle' | transloco"
+          [description]="'inspections.detail.notFoundDescription' | transloco"
+          [actionLabel]="'inspections.detail.backToInspections' | transloco"
           (action)="navigateToList()"
         />
       }
@@ -288,6 +290,7 @@ export class InspectionDetailViewComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly inspectionsStore = inject(InspectionsStore);
+  private readonly transloco = inject(TranslocoService);
 
   protected readonly inspectionId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('inspectionId') ?? '')),
@@ -357,13 +360,15 @@ export class InspectionDetailViewComponent {
     });
   });
 
-  protected readonly getInspectionStatusLabel = getInspectionStatusLabel;
+  protected getInspectionStatusLabel(status: InspectionStatus): string {
+    return getInspectionStatusLabel(status, this.transloco);
+  }
   protected readonly getInspectionStatusVariant = getInspectionStatusVariant;
   protected readonly formatInspectionWindow = formatInspectionWindow;
   protected readonly formatInspectionDate = formatInspectionDate;
 
   protected customerName(customer: Customer): string {
-    return customer.companyName || customer.fullName || 'Klient';
+    return customer.companyName || customer.fullName || this.transloco.translate('customers.fallbackName');
   }
 
   protected deviceAddress(customer: Customer, device: Device): string {
@@ -414,7 +419,7 @@ export class InspectionDetailViewComponent {
   }
 
   protected scheduleActionLabel(status: InspectionStatus): string {
-    return getInspectionScheduleActionLabel(status);
+    return getInspectionScheduleActionLabel(status, this.transloco);
   }
 
   protected scheduleInspection(plannedDate: string): void {

@@ -1,0 +1,18 @@
+<div
+  *transloco="let t; prefix: 'layout.languageSwitcher'"
+  class="inline-flex items-center rounded-[0.95rem] border border-border/90 bg-white p-1 shadow-[0_14px_34px_-24px_rgb(15_23_42/0.22)]"
+  role="group"
+  [attr.aria-label]="t('label')"
+>
+  @for (language of languages; track language.code) {
+    <button
+      type="button"
+      [class]="buttonClasses(language.code)"
+      [attr.aria-pressed]="isActive(language.code)"
+      [attr.aria-label]="t('changeTo', { language: language.name })"
+      (click)="selectLanguage(language.code)"
+    >
+      {{ language.label }}
+    </button>
+  }
+</div>

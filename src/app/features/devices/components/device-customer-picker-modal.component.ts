@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 import { UiButtonComponent, UiModalComponent } from '../../../ui';
 import { CustomerTableComponent } from '../../customers/components/customer-table.component';
@@ -9,13 +10,19 @@ import { matchesCustomerSearch } from '../../customers/utils/customer-search.uti
 @Component({
   selector: 'app-device-customer-picker-modal',
   standalone: true,
-  imports: [UiButtonComponent, UiModalComponent, CustomerTableComponent, CustomerToolbarComponent],
+  imports: [
+    TranslocoPipe,
+    UiButtonComponent,
+    UiModalComponent,
+    CustomerTableComponent,
+    CustomerToolbarComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ui-modal
       [open]="open()"
-      title="Wybierz klienta"
-      description="Wskaż klienta, do którego przypiszemy nowe urządzenie."
+      [title]="'devices.customerPicker.title' | transloco"
+      [description]="'devices.customerPicker.description' | transloco"
       (close)="close.emit()"
     >
       <div class="space-y-4">
@@ -28,7 +35,7 @@ import { matchesCustomerSearch } from '../../customers/utils/customer-search.uti
       </div>
 
       <div modal-footer class="flex justify-end">
-        <ui-button variant="secondary" (pressed)="close.emit()">Zamknij</ui-button>
+        <ui-button variant="secondary" (pressed)="close.emit()">{{ 'common.actions.close' | transloco }}</ui-button>
       </div>
     </ui-modal>
   `,

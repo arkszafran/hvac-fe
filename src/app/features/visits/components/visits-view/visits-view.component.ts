@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import {
   UiBadgeComponent,
@@ -11,7 +13,7 @@ import {
 import { Customer } from '../../../customers/models/customer.model';
 import { Device } from '../../../customers/models/device.model';
 import { VisitDetails, VisitsStore } from '../../data/visits.store';
-import { getVisitTypeLabel } from '../../models/visit.model';
+import { getVisitTypeLabel, VisitType } from '../../models/visit.model';
 
 @Component({
   selector: 'app-visits-view',
@@ -19,6 +21,7 @@ import { getVisitTypeLabel } from '../../models/visit.model';
   imports: [
     FormsModule,
     RouterLink,
+    TranslocoPipe,
     UiBadgeComponent,
     UiButtonComponent,
     UiEmptyStateComponent,
@@ -30,6 +33,10 @@ import { getVisitTypeLabel } from '../../models/visit.model';
 export class VisitsViewComponent {
   private readonly router = inject(Router);
   private readonly visitsStore = inject(VisitsStore);
+  private readonly transloco = inject(TranslocoService);
+  private readonly activeLanguage = toSignal(this.transloco.langChanges$, {
+    initialValue: this.transloco.getActiveLang(),
+  });
 
   protected readonly searchQuery = signal('');
   protected readonly visitDetails = this.visitsStore.visitDetails;
@@ -45,14 +52,18 @@ export class VisitsViewComponent {
     });
   });
 
-  protected readonly getVisitTypeLabel = getVisitTypeLabel;
+  protected getVisitTypeLabel(type: VisitType): string {
+    this.activeLanguage();
+
+    return getVisitTypeLabel(type, this.transloco);
+  }
 
   protected navigateToCreateVisit(): void {
     void this.router.navigate(['/visits/new']);
   }
 
   protected customerName(customer: Customer): string {
-    return customer.companyName || customer.fullName || 'Klient';
+    return customer.companyName || customer.fullName || this.transloco.translate('customers.fallbackName');
   }
 
   protected formatDate(value: string): string {
@@ -66,7 +77,7 @@ export class VisitsViewComponent {
       return value;
     }
 
-    return new Intl.DateTimeFormat('pl-PL').format(parsedDate);
+    return new Intl.DateTimeFormat(this.activeLanguage() === 'pl' ? 'pl-PL' : 'en-US').format(parsedDate);
   }
 
   protected deviceSummary(details: VisitDetails): string {
@@ -77,7 +88,7 @@ export class VisitsViewComponent {
     return details.devices
       .map((device) => {
         const note = details.visit.devicesNotes.find((item) => item.deviceId === device.id)?.note;
-        const deviceName = `${device.brand} ${device.model}`.trim() || 'Urządzenie';
+        const deviceName = `${device.brand} ${device.model}`.trim() || this.transloco.translate('devices.table.device');
 
         return note ? `${deviceName}: ${note}` : deviceName;
       })
@@ -87,7 +98,7 @@ export class VisitsViewComponent {
   protected deviceItems(details: VisitDetails): Array<{ device: Device; label: string; note: string }> {
     return details.devices.map((device) => ({
       device,
-      label: `${device.brand} ${device.model}`.trim() || 'Urządzenie',
+      label: `${device.brand} ${device.model}`.trim() || this.transloco.translate('devices.table.device'),
       note: details.visit.devicesNotes.find((item) => item.deviceId === device.id)?.note ?? '',
     }));
   }

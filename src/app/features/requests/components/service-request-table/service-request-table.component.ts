@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import {
   UiBadgeComponent,
@@ -24,6 +26,7 @@ import {
   imports: [
     UiBadgeComponent,
     UiButtonComponent,
+    TranslocoPipe,
     UiTableCellTemplateDirective,
     UiTableComponent,
   ],
@@ -31,6 +34,11 @@ import {
   templateUrl: './service-request-table.component.html',
 })
 export class ServiceRequestTableComponent {
+  private readonly transloco = inject(TranslocoService);
+  private readonly activeLanguage = toSignal(this.transloco.langChanges$, {
+    initialValue: this.transloco.getActiveLang(),
+  });
+
   readonly requests = input<ServiceRequest[]>([]);
   readonly showStatusBadge = input(false);
 
@@ -41,38 +49,51 @@ export class ServiceRequestTableComponent {
 
   protected readonly phoneHref = phoneHref;
   protected readonly emailHref = emailHref;
-  protected readonly formatAppointmentDate = formatServiceRequestAppointmentDate;
-  protected readonly getTypeLabel = getServiceRequestTypeLabel;
-  protected readonly getStatusLabel = getServiceRequestStatusLabel;
   protected readonly getTypeBadgeVariant = getServiceRequestTypeBadgeVariant;
   protected readonly getStatusBadgeVariant = getServiceRequestStatusBadgeVariant;
 
-  protected readonly columns: UiTableColumn<ServiceRequest>[] = [
-    {
-      id: 'type',
-      header: 'Typ zgłoszenia',
-      width: '22%',
-    },
-    {
-      id: 'customer',
-      header: 'Klient i adres',
-      cell: (request) => formatServiceRequestCustomerName(request.customer),
-      description: (request) => formatServiceRequestCustomerAddress(request.customer),
-      tone: 'primary',
-      width: '31%',
-    },
-    {
-      id: 'phone',
-      header: 'Telefon',
-      width: '24%',
-    },
-    {
-      id: 'actions',
-      header: 'Akcje',
-      align: 'end',
-      width: '23%',
-    },
-  ];
+  protected readonly columns = computed<UiTableColumn<ServiceRequest>[]>(() => {
+    this.activeLanguage();
+
+    return [
+      {
+        id: 'type',
+        header: this.transloco.translate('requests.fields.requestType'),
+        width: '22%',
+      },
+      {
+        id: 'customer',
+        header: this.transloco.translate('requests.fields.customerAndAddress'),
+        cell: (request) => formatServiceRequestCustomerName(request.customer, this.transloco),
+        description: (request) => formatServiceRequestCustomerAddress(request.customer),
+        tone: 'primary',
+        width: '31%',
+      },
+      {
+        id: 'phone',
+        header: this.transloco.translate('customers.form.phone'),
+        width: '24%',
+      },
+      {
+        id: 'actions',
+        header: this.transloco.translate('devices.table.actions'),
+        align: 'end',
+        width: '23%',
+      },
+    ];
+  });
+
+  protected formatAppointmentDate(request: ServiceRequest): string {
+    return formatServiceRequestAppointmentDate(request, this.transloco);
+  }
+
+  protected getTypeLabel(type: ServiceRequest['requestType']): string {
+    return getServiceRequestTypeLabel(type, this.transloco);
+  }
+
+  protected getStatusLabel(status: ServiceRequest['status']): string {
+    return getServiceRequestStatusLabel(status, this.transloco);
+  }
 
   protected handleConfirmAppointment(event: MouseEvent, request: ServiceRequest): void {
     event.stopPropagation();

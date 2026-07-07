@@ -1,13 +1,15 @@
 import { ChangeDetectionStrategy, Component, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 
-import { APP_PRODUCT_NAME, APP_PRODUCT_TAGLINE } from '../app-navigation';
+import { APP_PRODUCT_NAME } from '../app-navigation';
+import { AppLanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
 
 @Component({
   selector: 'app-top-bar',
   standalone: true,
-  imports: [RouterLink, AppLayoutIconComponent],
+  imports: [RouterLink, TranslocoPipe, AppLanguageSwitcherComponent, AppLayoutIconComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <header class="sticky top-0 z-40 border-b border-border/85 bg-[rgb(250_252_255/0.9)] backdrop-blur-xl">
@@ -15,7 +17,7 @@ import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
         <div class="flex min-w-0 items-center gap-2 sm:gap-3">
           <button
             type="button"
-            aria-label="Otwórz menu"
+            [attr.aria-label]="'layout.topBar.openMenu' | transloco"
             class="ui-focus-ring inline-flex size-11 items-center justify-center rounded-[0.95rem] border border-border/90 bg-white text-text-main shadow-[0_14px_34px_-24px_rgb(15_23_42/0.3)] backdrop-blur-xl transition hover:border-primary/18 hover:bg-primary-soft/45 hover:text-primary-strong md:hidden"
             (click)="menuRequested.emit()"
           >
@@ -34,16 +36,18 @@ import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
                 {{ productName }}
               </span>
               <span class="hidden truncate text-small text-text-muted sm:block">
-                {{ productTagline }}
+                {{ 'layout.productTagline' | transloco }}
               </span>
             </span>
           </a>
         </div>
 
         <div class="flex items-center gap-2">
+          <app-language-switcher />
+
           <button
             type="button"
-            aria-label="Powiadomienia"
+            [attr.aria-label]="'layout.topBar.notifications' | transloco"
             class="ui-focus-ring inline-flex size-11 items-center justify-center rounded-[0.95rem] border border-border/90 bg-white text-text-muted shadow-[0_14px_34px_-24px_rgb(15_23_42/0.22)] backdrop-blur-xl transition hover:border-primary/18 hover:bg-primary-soft/45 hover:text-primary-strong"
           >
             <app-layout-icon name="bell" />
@@ -51,7 +55,7 @@ import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
 
           <button
             type="button"
-            aria-label="Profil użytkownika"
+            [attr.aria-label]="'layout.topBar.userProfile' | transloco"
             class="ui-focus-ring inline-flex items-center gap-2 rounded-[1rem] border border-border/90 bg-white px-2.5 py-1.5 shadow-[0_14px_34px_-24px_rgb(15_23_42/0.22)] backdrop-blur-xl transition hover:border-primary/18 hover:bg-primary-soft/32"
           >
             <span
@@ -70,5 +74,4 @@ export class AppTopBarComponent {
   readonly menuRequested = output<void>();
 
   protected readonly productName = APP_PRODUCT_NAME;
-  protected readonly productTagline = APP_PRODUCT_TAGLINE;
 }

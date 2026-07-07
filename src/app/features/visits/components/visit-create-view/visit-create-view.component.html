@@ -6,19 +6,19 @@
           routerLink="/visits"
           class="text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
         >
-          Lista wizyt
+          {{ 'visits.create.breadcrumbs.list' | transloco }}
         </a>
         <span aria-hidden="true">/</span>
-        <span class="text-text-main">Nowa wizyta</span>
+        <span class="text-text-main">{{ 'visits.create.breadcrumbs.new' | transloco }}</span>
       </nav>
 
-      <h1 class="text-display tracking-[-0.04em] text-text-main">Dodaj wizytę</h1>
+      <h1 class="text-display tracking-[-0.04em] text-text-main">{{ 'visits.create.title' | transloco }}</h1>
       <p class="text-body text-text-muted">
-        Wizyta zapisuje notatki, które później tworzą historię urządzeń.
+        {{ 'visits.create.description' | transloco }}
       </p>
     </div>
 
-    <ui-button size="sm" (pressed)="submit()">Zapisz wizytę</ui-button>
+    <ui-button size="sm" (pressed)="submit()">{{ 'visits.actions.save' | transloco }}</ui-button>
   </section>
 
   @if (hasValidationErrors()) {
@@ -30,22 +30,22 @@
   <section class="flex flex-col gap-6">
     <ui-card>
       <div card-header>
-        <h2 class="text-h3 tracking-[-0.02em] text-text-main">Rodzaj i data wizyty</h2>
+        <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'visits.create.sections.typeAndDate' | transloco }}</h2>
       </div>
 
       <div class="flex flex-col gap-5">
         <ui-select
-          label="Typ wizyty"
-          placeholder="Wybierz typ wizyty"
+          [label]="'visits.fields.visitType' | transloco"
+          [placeholder]="'visits.fields.visitTypePlaceholder' | transloco"
           required
-          [options]="visitTypeOptions"
+          [options]="visitTypeOptions()"
           [ngModel]="visitType()"
           (ngModelChange)="setVisitType($event)"
         />
 
         <ui-input
           type="date"
-          label="Data"
+          [label]="'visits.fields.date' | transloco"
           required
           [ngModel]="visitDate()"
           (ngModelChange)="visitDate.set($event)"
@@ -53,7 +53,7 @@
 
         @if (visitType() === 'inspection') {
           <div class="mt-1 flex flex-col gap-3 rounded-[1rem] border border-border/80 bg-white px-4 py-4">
-            <p class="text-label text-text-main">Czy to zaplanowany przegląd?</p>
+            <p class="text-label text-text-main">{{ 'visits.create.scheduledInspectionQuestion' | transloco }}</p>
             <div class="grid gap-2 sm:grid-cols-2">
               <button
                 type="button"
@@ -62,7 +62,7 @@
                 [class.bg-primary-soft]="scheduledInspectionAnswer() === 'yes'"
                 (click)="setScheduledInspectionAnswer('yes')"
               >
-                Tak
+                {{ 'common.yes' | transloco }}
               </button>
               <button
                 type="button"
@@ -71,7 +71,7 @@
                 [class.bg-primary-soft]="scheduledInspectionAnswer() === 'no'"
                 (click)="setScheduledInspectionAnswer('no')"
               >
-                Nie
+                {{ 'common.no' | transloco }}
               </button>
             </div>
 
@@ -79,7 +79,7 @@
               <div class="rounded-[0.95rem] border border-primary/18 bg-primary-soft/28 px-3 py-3">
                 <p class="text-label text-text-main">{{ customerName(details.customer) }}</p>
                 <p class="text-small text-text-muted">
-                  Wybrano zaplanowany przegląd z {{ details.devices.length }} urządzeniami.
+                  {{ 'visits.create.selectedScheduledInspection' | transloco: { count: details.devices.length } }}
                 </p>
               </div>
             }
@@ -91,7 +91,7 @@
     @if (canShowCustomerStep()) {
       <ui-card>
         <div card-header>
-          <h2 class="text-h3 tracking-[-0.02em] text-text-main">Klient</h2>
+          <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'visits.create.sections.customer' | transloco }}</h2>
         </div>
 
         @if (selectedCustomer(); as customer) {
@@ -103,22 +103,22 @@
             </p>
           </div>
         } @else {
-          <ui-empty-state title="Nie wybrano klienta" description="" />
+          <ui-empty-state [title]="'common.notSelected' | transloco" description="" />
         }
 
         @if (!isVisitFromScheduledInspection()) {
           <div class="mt-4 flex flex-wrap gap-2">
             <ui-button size="sm" variant="secondary" (pressed)="isCustomerPickerOpen.set(true)">
-              Wybierz klienta
+              {{ 'visits.actions.chooseCustomer' | transloco }}
             </ui-button>
             @if (pendingCustomerDraft()) {
               <ui-button size="sm" variant="ghost" (pressed)="openCustomerEditForm()">
-                Sprawdź dane
+                {{ 'visits.actions.checkData' | transloco }}
               </ui-button>
             }
             @if (!pendingCustomerDraft()) {
               <ui-button size="sm" variant="ghost" (pressed)="openCustomerCreateForm()">
-                Dodaj klienta
+                {{ 'visits.actions.addCustomer' | transloco }}
               </ui-button>
             }
           </div>
@@ -129,18 +129,18 @@
     @if (selectedCustomer()) {
       <ui-card>
         <div card-header>
-          <h2 class="text-h3 tracking-[-0.02em] text-text-main">Urządzenia i notatki</h2>
+          <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'visits.create.sections.devicesAndNotes' | transloco }}</h2>
         </div>
 
         <div class="flex flex-wrap gap-2">
           @if (canPickExistingDevices()) {
             <ui-button size="sm" variant="secondary" (pressed)="isDevicePickerOpen.set(true)">
-              Wybierz urządzenia
+              {{ 'visits.actions.chooseDevices' | transloco }}
             </ui-button>
           }
           @if (canAddNewDevices()) {
             <ui-button size="sm" variant="ghost" (pressed)="openNewDeviceForm()">
-              Dodaj urządzenie
+              {{ 'visits.actions.addDevice' | transloco }}
             </ui-button>
           }
         </div>
@@ -159,15 +159,15 @@
                     <div class="flex flex-wrap gap-2">
                       @if (entry.newDevice?.source === 'request') {
                         <ui-button size="sm" variant="ghost" (pressed)="openDeviceEditForm(entry)">
-                          Sprawdź dane
+                          {{ 'visits.actions.checkData' | transloco }}
                         </ui-button>
                       } @else if (entry.newDevice) {
                         <ui-button size="sm" variant="ghost" (pressed)="openDeviceEditForm(entry)">
-                          Edytuj dane
+                          {{ 'visits.actions.editData' | transloco }}
                         </ui-button>
                       }
                       <ui-button size="sm" variant="ghost" (pressed)="removeDevice(entry)">
-                        Usuń
+                        {{ 'visits.actions.remove' | transloco }}
                       </ui-button>
                     </div>
                   }
@@ -175,7 +175,7 @@
 
                 @if (deviceEntries().length === 1 || !commonNoteEnabled()) {
                   <div class="mt-3 flex flex-col gap-2">
-                    <label class="text-[13px]/5 font-semibold text-text-main">Notatka</label>
+                    <label class="text-[13px]/5 font-semibold text-text-main">{{ 'visits.fields.note' | transloco }}</label>
                     <textarea
                       [class]="textareaClasses"
                       [ngModel]="entryNote(entry)"
@@ -189,8 +189,8 @@
         } @else {
           <div class="mt-4">
             <ui-empty-state
-              title="Brak urządzeń"
-              description="Dobierz istniejące urządzenia klienta albo dodaj nowe."
+              [title]="'devices.table.emptyTitle' | transloco"
+              [description]="'visits.create.emptyDevicesDescription' | transloco"
             />
           </div>
         }
@@ -209,16 +209,16 @@
                 (ngModelChange)="commonNoteEnabled.set($event)"
               />
               <span>
-                <span class="block text-label text-text-main">Jedna notatka dla wszystkich urządzeń</span>
+                <span class="block text-label text-text-main">{{ 'visits.create.commonNoteLabel' | transloco }}</span>
                 <span class="block text-small text-text-muted">
-                  Po odznaczeniu pokażemy osobną notatkę przy każdym urządzeniu.
+                  {{ 'visits.create.commonNoteDescription' | transloco }}
                 </span>
               </span>
             </label>
 
             @if (commonNoteEnabled()) {
               <div class="flex flex-col gap-2">
-                <label class="text-[13px]/5 font-semibold text-text-main">Notatka</label>
+                <label class="text-[13px]/5 font-semibold text-text-main">{{ 'visits.fields.note' | transloco }}</label>
                 <textarea
                   [class]="textareaClasses"
                   [ngModel]="commonNote()"
@@ -233,7 +233,7 @@
       @if (visitType() === 'inspection') {
         <ui-card>
           <div card-header>
-            <h2 class="text-h3 tracking-[-0.02em] text-text-main">Planowanie kolejnego przeglądu</h2>
+            <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'visits.create.sections.nextInspection' | transloco }}</h2>
           </div>
 
           <div class="flex flex-col gap-4">
@@ -247,9 +247,9 @@
                 (ngModelChange)="toggleScheduleNextInspection($event)"
               />
               <span>
-                <span class="block text-label text-text-main">Zaplanować kolejny przegląd</span>
+                <span class="block text-label text-text-main">{{ 'visits.create.scheduleNextLabel' | transloco }}</span>
                 <span class="block text-small text-text-muted">
-                  Zapis aktualizuje datę na urządzeniach i tworzy nowy obiekt przeglądu.
+                  {{ 'visits.create.scheduleNextDescription' | transloco }}
                 </span>
               </span>
             </label>
@@ -257,15 +257,15 @@
             @if (scheduleNextInspection()) {
               <div class="grid gap-4 sm:grid-cols-2">
                 <ui-select
-                  label="Okres"
-                  [options]="nextInspectionPeriodOptions"
+                  [label]="'visits.fields.period' | transloco"
+                  [options]="nextInspectionPeriodOptions()"
                   [ngModel]="nextInspectionPeriod()"
                   (ngModelChange)="setNextInspectionPeriod($event)"
                 />
 
                 <ui-input
                   type="date"
-                  label="Data przeglądu"
+                  [label]="'visits.fields.inspectionDate' | transloco"
                   required
                   [ngModel]="nextInspectionDate()"
                   (ngModelChange)="nextInspectionDate.set($event)"
@@ -279,8 +279,8 @@
   </section>
 
   <div class="flex justify-end gap-3">
-    <ui-button variant="ghost" (pressed)="navigateToVisits()">Anuluj</ui-button>
-    <ui-button (pressed)="submit()">Zapisz wizytę</ui-button>
+    <ui-button variant="ghost" (pressed)="navigateToVisits()">{{ 'common.actions.cancel' | transloco }}</ui-button>
+    <ui-button (pressed)="submit()">{{ 'visits.actions.save' | transloco }}</ui-button>
   </div>
 
   <app-visit-customer-picker-modal
@@ -293,13 +293,13 @@
   <app-customer-form-modal
     [open]="isCustomerFormOpen()"
     [initialValue]="customerFormInitialValue()"
-    [modalTitle]="customerFormMode() === 'edit' ? 'Sprawdź dane klienta' : 'Dodaj klienta'"
+    [modalTitle]="customerFormMode() === 'edit' ? ('visits.create.customerModal.editTitle' | transloco) : ('customers.form.defaultModalTitle' | transloco)"
     [modalDescription]="
       customerFormMode() === 'edit'
-        ? 'Uzupełnij dane klienta przed zapisaniem wizyty.'
-        : 'Utwórz klienta, którego dodasz do wizyty.'
+        ? ('visits.create.customerModal.editDescription' | transloco)
+        : ('visits.create.customerModal.createDescription' | transloco)
     "
-    [submitLabel]="customerFormMode() === 'edit' ? 'Zapisz zmiany' : 'Zapisz klienta'"
+    [submitLabel]="customerFormMode() === 'edit' ? ('common.actions.saveChanges' | transloco) : ('customers.form.defaultSubmitLabel' | transloco)"
     (close)="closeCustomerForm()"
     (save)="handleCustomerFormSave($event)"
   />
@@ -317,17 +317,17 @@
     [initialValue]="deviceFormInitialValue()"
     [modalTitle]="
       editingDeviceEntry()?.newDevice?.source === 'request'
-        ? 'Sprawdź dane urządzenia'
+        ? ('visits.create.deviceModal.checkTitle' | transloco)
         : editingDeviceEntry()
-          ? 'Edytuj dane urządzenia'
-          : 'Dodaj urządzenie'
+          ? ('visits.create.deviceModal.editTitle' | transloco)
+          : ('devices.form.defaultModalTitle' | transloco)
     "
     [modalDescription]="
       editingDeviceEntry()
-        ? 'Uzupełnij dane urządzenia przed zapisaniem wizyty.'
+        ? ('visits.create.deviceModal.editDescription' | transloco)
         : ''
     "
-    [submitLabel]="editingDeviceEntry() ? 'Zapisz zmiany' : 'Zapisz urządzenie'"
+    [submitLabel]="editingDeviceEntry() ? ('common.actions.saveChanges' | transloco) : ('devices.form.defaultSubmitLabel' | transloco)"
     (close)="closeDeviceForm()"
     (save)="handleDeviceFormSave($event)"
   />

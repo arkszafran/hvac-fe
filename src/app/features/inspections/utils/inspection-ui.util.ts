@@ -1,3 +1,5 @@
+import { TranslocoService } from '@jsverse/transloco';
+
 import { UiBadgeVariant } from '../../../ui';
 import { Inspection, InspectionStatus, InspectionSummaryInput } from '../models/inspection.model';
 
@@ -27,22 +29,29 @@ export function formatInspectionWindow(windowStart: string, windowEnd: string): 
   return `${formatInspectionDate(windowStart)} - ${formatInspectionDate(windowEnd)}`;
 }
 
-export function getInspectionStatusLabel(status: InspectionStatus): string {
+export function getInspectionStatusLabel(
+  status: InspectionStatus,
+  transloco: TranslocoService,
+): string {
+  return transloco.translate(getInspectionStatusLabelKey(status));
+}
+
+export function getInspectionStatusLabelKey(status: InspectionStatus): string {
   switch (status) {
     case 'new':
-      return 'Nowy';
+      return 'inspections.status.new';
     case 'reminder_sent':
-      return 'Przypomnienie wysłane';
+      return 'inspections.status.reminderSent';
     case 'customer_confirmed':
-      return 'Klient potwierdził';
+      return 'inspections.status.customerConfirmed';
     case 'customer_not_confirmed':
-      return 'Klient nie potwierdził';
+      return 'inspections.status.customerNotConfirmed';
     case 'scheduled':
-      return 'Umówiony';
+      return 'inspections.status.scheduled';
     case 'completed':
-      return 'Zakończony';
+      return 'inspections.status.completed';
     case 'cancelled':
-      return 'Anulowany';
+      return 'inspections.status.cancelled';
   }
 }
 
@@ -65,27 +74,41 @@ export function getInspectionStatusVariant(status: InspectionStatus): UiBadgeVar
   }
 }
 
-export function getInspectionNextActionLabel(status: InspectionStatus): string {
+export function getInspectionNextActionLabel(
+  status: InspectionStatus,
+  transloco: TranslocoService,
+): string {
+  return transloco.translate(getInspectionNextActionLabelKey(status));
+}
+
+export function getInspectionNextActionLabelKey(status: InspectionStatus): string {
   switch (status) {
     case 'new':
-      return 'Wyślij przypomnienie';
+      return 'inspections.nextActions.sendReminder';
     case 'reminder_sent':
-      return 'Wysłano przypomnienie';
+      return 'inspections.nextActions.reminderSent';
     case 'customer_confirmed':
-      return 'Zadzwoń i ustal termin';
+      return 'inspections.nextActions.callAndSchedule';
     case 'customer_not_confirmed':
-      return 'Zadzwoń i przypomnij o przeglądzie';
+      return 'inspections.nextActions.callAndRemind';
     case 'scheduled':
-      return 'Przegląd umówiony';
+      return 'inspections.nextActions.scheduled';
     case 'completed':
-      return 'Zakończony';
+      return 'inspections.nextActions.completed';
     case 'cancelled':
-      return 'Anulowany';
+      return 'inspections.nextActions.cancelled';
   }
 }
 
-export function getInspectionScheduleActionLabel(status: InspectionStatus): string {
-  return status === 'scheduled' ? 'Zmień termin' : 'Potwierdź termin';
+export function getInspectionScheduleActionLabel(
+  status: InspectionStatus,
+  transloco: TranslocoService,
+): string {
+  return transloco.translate(
+    status === 'scheduled'
+      ? 'inspections.scheduleActions.changeDate'
+      : 'inspections.scheduleActions.confirmDate',
+  );
 }
 
 export function canScheduleInspection(status: InspectionStatus): boolean {
@@ -102,16 +125,35 @@ export function canCompleteInspection(status: InspectionStatus): boolean {
   return status !== 'completed' && status !== 'cancelled';
 }
 
-export function buildInspectionShortDescription(input: InspectionSummaryInput): string {
+export function buildInspectionShortDescription(
+  input: InspectionSummaryInput,
+  transloco: TranslocoService,
+): string {
   const plannedLabel = input.plannedDate
-    ? `Termin: ${formatInspectionDate(input.plannedDate)}`
-    : `Data docelowa: ${formatInspectionDate(input.windowStart)}`;
+    ? transloco.translate('inspections.summary.plannedDate', {
+        date: formatInspectionDate(input.plannedDate),
+      })
+    : transloco.translate('inspections.summary.targetDate', {
+        date: formatInspectionDate(input.windowStart),
+      });
 
-  return `${getInspectionStatusLabel(input.status)} • ${formatInspectionWindow(input.windowStart, input.windowEnd)} • ${input.deviceCount} urz. • ${plannedLabel}`;
+  return transloco.translate('inspections.summary.shortDescription', {
+    status: getInspectionStatusLabel(input.status, transloco),
+    window: formatInspectionWindow(input.windowStart, input.windowEnd),
+    deviceCount: input.deviceCount,
+    plannedLabel,
+  });
 }
 
-export function getInspectionTimelineDescription(inspection: Inspection): string {
+export function getInspectionTimelineDescription(
+  inspection: Inspection,
+  transloco: TranslocoService,
+): string {
   return inspection.plannedDate
-    ? `Umówiony termin: ${formatInspectionDate(inspection.plannedDate)}`
-    : `Okno przeglądu: ${formatInspectionWindow(inspection.windowStart, inspection.windowEnd)}`;
+    ? transloco.translate('inspections.timeline.plannedDate', {
+        date: formatInspectionDate(inspection.plannedDate),
+      })
+    : transloco.translate('inspections.timeline.window', {
+        window: formatInspectionWindow(inspection.windowStart, inspection.windowEnd),
+      });
 }

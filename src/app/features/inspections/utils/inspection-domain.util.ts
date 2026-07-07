@@ -310,7 +310,7 @@ export function getInspectionConflict(
   if (devices.some((device) => !device)) {
     return {
       code: 'missing_device',
-      message: 'Część urządzeń przypisanych do przeglądu nie istnieje już w bazie.',
+      messageKey: 'inspections.conflicts.missingDevice',
     };
   }
 
@@ -321,7 +321,7 @@ export function getInspectionConflict(
   ) {
     return {
       code: 'device_not_eligible',
-      message: 'Jedno z urządzeń nie kwalifikuje się już do aktywnego przeglądu okresowego.',
+      messageKey: 'inspections.conflicts.deviceNotEligible',
     };
   }
 
@@ -332,7 +332,7 @@ export function getInspectionConflict(
   ) {
     return {
       code: 'date_window',
-      message: 'Planowany termin obejmuje ponad 30 dni i wymaga ponownego uporządkowania urządzeń.',
+      messageKey: 'inspections.conflicts.dateWindow',
     };
   }
 

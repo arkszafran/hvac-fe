@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { UiModalComponent } from '../../../ui';
 import { Customer } from '../../customers/models/customer.model';
@@ -9,13 +10,13 @@ import { InspectionDetails, InspectionsStore } from '../data/inspections.store';
 @Component({
   selector: 'app-inspection-finalize-modal',
   standalone: true,
-  imports: [UiModalComponent],
+  imports: [TranslocoPipe, UiModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ui-modal
       [open]="open() && !!selectedInspection()"
-      title="Zakończ przegląd"
-      description="Wybierz, jak zamknąć proces planowania przeglądu."
+      [title]="'inspections.finalizeModal.title' | transloco"
+      [description]="'inspections.finalizeModal.description' | transloco"
       (close)="handleClose()"
     >
       @if (selectedInspection(); as details) {
@@ -24,7 +25,7 @@ import { InspectionDetails, InspectionsStore } from '../data/inspections.store';
             <p class="text-label text-text-main">{{ customerName(details.customer) }}</p>
             <p class="text-small text-text-muted">{{ inspectionAddressSummary(details) }}</p>
             <p class="text-small text-text-muted">
-              Urządzenia: {{ details.devices.length }}
+              {{ 'inspections.finalizeModal.devices' | transloco: { count: details.devices.length } }}
             </p>
           </div>
 
@@ -34,9 +35,9 @@ import { InspectionDetails, InspectionsStore } from '../data/inspections.store';
               class="ui-focus-ring rounded-[1rem] border border-border/85 bg-white px-4 py-4 text-left transition hover:border-danger/28 hover:bg-danger-soft"
               (click)="cancelInspection()"
             >
-              <span class="block text-label text-text-main">Klient zrezygnował z przeglądów</span>
+              <span class="block text-label text-text-main">{{ 'inspections.finalizeModal.cancelTitle' | transloco }}</span>
               <span class="block text-small text-text-muted">
-                Przegląd otrzyma status anulowany.
+                {{ 'inspections.finalizeModal.cancelDescription' | transloco }}
               </span>
             </button>
 
@@ -45,9 +46,9 @@ import { InspectionDetails, InspectionsStore } from '../data/inspections.store';
               class="ui-focus-ring rounded-[1rem] border border-border/85 bg-white px-4 py-4 text-left transition hover:border-primary/28 hover:bg-primary-soft/24"
               (click)="completeInspectionAndCreateVisit()"
             >
-              <span class="block text-label text-text-main">Wizyta się odbyła</span>
+              <span class="block text-label text-text-main">{{ 'inspections.finalizeModal.completeTitle' | transloco }}</span>
               <span class="block text-small text-text-muted">
-                Przegląd zostanie zakończony, a formularz wizyty otworzy się z wybranym klientem i urządzeniami.
+                {{ 'inspections.finalizeModal.completeDescription' | transloco }}
               </span>
             </button>
           </div>
@@ -59,6 +60,7 @@ import { InspectionDetails, InspectionsStore } from '../data/inspections.store';
 export class InspectionFinalizeModalComponent {
   private readonly router = inject(Router);
   private readonly inspectionsStore = inject(InspectionsStore);
+  private readonly transloco = inject(TranslocoService);
 
   readonly open = input(false);
   readonly inspectionId = input<string | null>(null);
@@ -117,11 +119,11 @@ export class InspectionFinalizeModalComponent {
       return addresses[0];
     }
 
-    return `Adresy: ${addresses.join(' | ')}`;
+    return this.transloco.translate('inspections.addressesPrefix', { addresses: addresses.join(' | ') });
   }
 
   protected customerName(customer: Customer): string {
-    return customer.companyName || customer.fullName || 'Klient';
+    return customer.companyName || customer.fullName || this.transloco.translate('customers.fallbackName');
   }
 
   protected deviceAddress(customer: Customer, device: Device): string {

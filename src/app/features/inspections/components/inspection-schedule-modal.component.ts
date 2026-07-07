@@ -1,23 +1,24 @@
 import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { UiButtonComponent, UiInputComponent, UiModalComponent } from '../../../ui';
 
 @Component({
   selector: 'app-inspection-schedule-modal',
   standalone: true,
-  imports: [ReactiveFormsModule, UiButtonComponent, UiInputComponent, UiModalComponent],
+  imports: [ReactiveFormsModule, TranslocoPipe, UiButtonComponent, UiInputComponent, UiModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ui-modal
       [open]="open()"
-      title="Ustal termin przeglądu"
-      description="Wpisz uzgodnioną z klientem datę wykonania przeglądu."
+      [title]="'inspections.scheduleModal.title' | transloco"
+      [description]="'inspections.scheduleModal.description' | transloco"
       (close)="handleClose()"
     >
       <form [formGroup]="form">
         <ui-input
-          label="Planowany termin"
+          [label]="'inspections.fields.plannedDate' | transloco"
           type="date"
           required
           [error]="validationError()"
@@ -27,10 +28,10 @@ import { UiButtonComponent, UiInputComponent, UiModalComponent } from '../../../
 
       <div modal-footer class="grid gap-3 sm:grid-cols-2">
         <ui-button type="button" variant="ghost" [block]="true" (pressed)="handleClose()">
-          Anuluj
+          {{ 'common.actions.cancel' | transloco }}
         </ui-button>
         <ui-button type="button" [block]="true" (pressed)="handleSubmit()">
-          Zapisz termin
+          {{ 'inspections.scheduleModal.save' | transloco }}
         </ui-button>
       </div>
     </ui-modal>
@@ -38,6 +39,7 @@ import { UiButtonComponent, UiInputComponent, UiModalComponent } from '../../../
 })
 export class InspectionScheduleModalComponent {
   private readonly formBuilder = inject(FormBuilder);
+  private readonly transloco = inject(TranslocoService);
 
   readonly open = input(false);
   readonly initialDate = input('');
@@ -85,6 +87,6 @@ export class InspectionScheduleModalComponent {
       return '';
     }
 
-    return 'Data planowanego przeglądu jest wymagana.';
+    return this.transloco.translate('inspections.scheduleModal.validation');
   }
 }

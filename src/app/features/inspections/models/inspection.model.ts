@@ -41,7 +41,7 @@ export interface InspectionCreateInput {
 
 export interface InspectionConflict {
   code: 'missing_device' | 'device_not_eligible' | 'date_window';
-  message: string;
+  messageKey: string;
 }
 
 export interface InspectionCandidate {

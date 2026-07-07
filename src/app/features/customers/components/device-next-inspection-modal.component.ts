@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, effect, inject, input, output } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import {
   UiButtonComponent,
@@ -10,9 +11,9 @@ import {
 } from '../../../ui';
 import {
   calculateInspectionDateFromPreset,
-  DEVICE_INSPECTIONS_CHECKBOX_DESCRIPTION,
-  DEVICE_INSPECTIONS_CHECKBOX_LABEL,
-  DEVICE_INSPECTION_PRESET_OPTIONS,
+  createDeviceInspectionPresetOptions,
+  DEVICE_INSPECTIONS_CHECKBOX_DESCRIPTION_KEY,
+  DEVICE_INSPECTIONS_CHECKBOX_LABEL_KEY,
   DeviceInspectionPreset,
 } from '../models/device-inspection.model';
 import { DeviceDraft } from '../models/device.model';
@@ -22,6 +23,7 @@ import { DeviceDraft } from '../models/device.model';
   standalone: true,
   imports: [
     ReactiveFormsModule,
+    TranslocoPipe,
     UiButtonComponent,
     UiInputComponent,
     UiModalComponent,
@@ -31,8 +33,8 @@ import { DeviceDraft } from '../models/device.model';
   template: `
     <ui-modal
       [open]="open()"
-      title="Zmień ustawienia przeglądów"
-      description="Włącz albo wyłącz przeglądy okresowe i ustaw termin najbliższego przeglądu."
+      [title]="'devices.nextInspectionModal.title' | transloco"
+      [description]="'devices.nextInspectionModal.description' | transloco"
       (close)="handleClose()"
     >
       <form class="ui-form-stack" [formGroup]="form">
@@ -47,9 +49,9 @@ import { DeviceDraft } from '../models/device.model';
             />
 
             <span class="min-w-0">
-              <span class="block text-label text-text-main">{{ inspectionCheckboxLabel }}</span>
+              <span class="block text-label text-text-main">{{ inspectionCheckboxLabelKey | transloco }}</span>
               <span class="block text-small text-text-muted">
-                {{ inspectionCheckboxDescription }}
+                {{ inspectionCheckboxDescriptionKey | transloco }}
               </span>
             </span>
           </label>
@@ -58,13 +60,13 @@ import { DeviceDraft } from '../models/device.model';
         @if (form.controls.hasScheduledInspections.value) {
           <div class="grid gap-4 sm:grid-cols-2">
             <ui-select
-              label="Następny przegląd za"
-              [options]="inspectionPresetOptions"
+              [label]="'devices.form.nextInspectionPreset' | transloco"
+              [options]="inspectionPresetOptions()"
               formControlName="nextInspectionPreset"
             />
 
             <ui-input
-              label="Termin następnego przeglądu"
+              [label]="'devices.form.nextInspectionDate' | transloco"
               type="date"
               required
               [error]="validationError()"
@@ -76,10 +78,10 @@ import { DeviceDraft } from '../models/device.model';
 
       <div modal-footer class="grid grid-cols-2 gap-3 sm:flex sm:justify-end">
         <ui-button type="button" variant="ghost" [block]="true" (pressed)="handleClose()">
-          Anuluj
+          {{ 'common.actions.cancel' | transloco }}
         </ui-button>
         <ui-button type="button" [block]="true" (pressed)="handleSubmit()">
-          Zapisz zmiany
+          {{ 'common.actions.saveChanges' | transloco }}
         </ui-button>
       </div>
     </ui-modal>
@@ -87,6 +89,7 @@ import { DeviceDraft } from '../models/device.model';
 })
 export class DeviceNextInspectionModalComponent {
   private readonly formBuilder = inject(FormBuilder);
+  private readonly transloco = inject(TranslocoService);
   private isApplyingInspectionPreset = false;
 
   readonly open = input(false);
@@ -97,9 +100,17 @@ export class DeviceNextInspectionModalComponent {
   readonly save = output<Pick<DeviceDraft, 'hasScheduledInspections' | 'nextInspectionDate'>>();
 
   protected submitAttempted = false;
-  protected readonly inspectionCheckboxLabel = DEVICE_INSPECTIONS_CHECKBOX_LABEL;
-  protected readonly inspectionCheckboxDescription = DEVICE_INSPECTIONS_CHECKBOX_DESCRIPTION;
-  protected readonly inspectionPresetOptions = DEVICE_INSPECTION_PRESET_OPTIONS;
+  private readonly activeLanguage = toSignal(this.transloco.langChanges$, {
+    initialValue: this.transloco.getActiveLang(),
+  });
+
+  protected readonly inspectionCheckboxLabelKey = DEVICE_INSPECTIONS_CHECKBOX_LABEL_KEY;
+  protected readonly inspectionCheckboxDescriptionKey = DEVICE_INSPECTIONS_CHECKBOX_DESCRIPTION_KEY;
+  protected readonly inspectionPresetOptions = computed(() => {
+    this.activeLanguage();
+
+    return createDeviceInspectionPresetOptions(this.transloco);
+  });
   protected readonly form = this.formBuilder.nonNullable.group({
     hasScheduledInspections: false,
     nextInspectionPreset: 'custom' as DeviceInspectionPreset,
@@ -165,7 +176,7 @@ export class DeviceNextInspectionModalComponent {
     }
 
     return control.hasError('required')
-      ? 'Data następnego przeglądu jest wymagana, gdy przeglądy są włączone.'
+      ? this.transloco.translate('devices.validation.nextInspectionDateRequired')
       : '';
   }
 

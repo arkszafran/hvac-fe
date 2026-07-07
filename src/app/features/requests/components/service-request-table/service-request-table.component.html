@@ -1,10 +1,10 @@
 <ui-table
-  [columns]="columns"
+  [columns]="columns()"
   [data]="requests()"
   [rowClickable]="true"
-  rowActionLabel="Otwórz szczegóły zgłoszenia"
-  emptyTitle="Brak zgłoszeń"
-  emptyDescription="Nowe zgłoszenia z formularza i panelu klienta pojawią się tutaj."
+  [rowActionLabel]="'requests.table.rowActionLabel' | transloco"
+  [emptyTitle]="'requests.table.emptyTitle' | transloco"
+  [emptyDescription]="'requests.table.emptyDescription' | transloco"
   (rowSelected)="requestSelected.emit($event)"
 >
   <ng-template uiTableCell="type" let-request>
@@ -22,7 +22,7 @@
 
       @if (request.appointmentDate) {
         <p class="text-small text-text-muted">
-          Termin: {{ formatAppointmentDate(request) }}
+          {{ 'requests.table.appointment' | transloco: { date: formatAppointmentDate(request) } }}
         </p>
       }
     </div>
@@ -58,32 +58,32 @@
       @switch (request.status) {
         @case ('new') {
           <ui-button size="xs" variant="ghost" (pressed)="handleCreateVisit($event, request)">
-            Utwórz wizytę
+            {{ 'requests.actions.createVisit' | transloco }}
           </ui-button>
           <ui-button
             size="xs"
             variant="secondary"
             (pressed)="handleConfirmAppointment($event, request)"
           >
-            Potwierdź termin wizyty
+            {{ 'requests.actions.confirmAppointment' | transloco }}
           </ui-button>
           <ui-button size="xs" variant="secondary" (pressed)="handleCancel($event, request)">
-            Anuluj
+            {{ 'common.actions.cancel' | transloco }}
           </ui-button>
         }
         @case ('scheduled') {
           <ui-button size="xs" variant="ghost" (pressed)="handleCreateVisit($event, request)">
-            Utwórz wizytę
+            {{ 'requests.actions.createVisit' | transloco }}
           </ui-button>
           <ui-button
             size="xs"
             variant="secondary"
             (pressed)="handleConfirmAppointment($event, request)"
           >
-            Zmień termin wizyty
+            {{ 'requests.actions.changeAppointment' | transloco }}
           </ui-button>
           <ui-button size="xs" variant="secondary" (pressed)="handleCancel($event, request)">
-            Anuluj
+            {{ 'common.actions.cancel' | transloco }}
           </ui-button>
         }
         @case ('cancelled') {
@@ -92,11 +92,11 @@
             variant="secondary"
             (pressed)="handleConfirmAppointment($event, request)"
           >
-            Wizyta odbędzie się
+            {{ 'requests.actions.visitWillHappen' | transloco }}
           </ui-button>
         }
         @case ('completed') {
-          <span class="text-small text-text-muted">Brak akcji</span>
+          <span class="text-small text-text-muted">{{ 'requests.table.noActions' | transloco }}</span>
         }
       }
     </div>

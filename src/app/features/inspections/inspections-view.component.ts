@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { map } from 'rxjs';
 
 import {
@@ -43,6 +44,7 @@ import {
   standalone: true,
   imports: [
     FormsModule,
+    TranslocoPipe,
     UiBadgeComponent,
     UiButtonComponent,
     UiCardComponent,
@@ -57,9 +59,9 @@ import {
   template: `
     <div class="space-y-10">
       <section class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 class="text-display tracking-[-0.035em] text-text-main">Przeglądy</h1>
+        <h1 class="text-display tracking-[-0.035em] text-text-main">{{ 'inspections.title' | transloco }}</h1>
         <ui-button size="sm" (pressed)="isCreateModalOpen.set(true)">
-          Dodaj przegląd
+          {{ 'inspections.actions.add' | transloco }}
         </ui-button>
       </section>
 
@@ -67,27 +69,27 @@ import {
         <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div class="space-y-1">
             <div class="flex flex-wrap items-center gap-3">
-              <p class="text-h3 tracking-[-0.02em] text-text-main">{{ activeView().label }}</p>
+              <p class="text-h3 tracking-[-0.02em] text-text-main">{{ activeView().labelKey | transloco }}</p>
               <ui-badge variant="neutral">{{ activeViewCount() }}</ui-badge>
             </div>
             <p class="text-small text-text-muted">
-              {{ activeView().description }}
+              {{ activeView().descriptionKey | transloco }}
             </p>
           </div>
 
           <div class="grid gap-3 lg:w-[42rem] lg:grid-cols-[minmax(0,1fr)_minmax(16rem,18rem)]">
             <ui-input
-              label="Szukaj"
-              placeholder="Klient lub adres"
+              [label]="'common.search.label' | transloco"
+              [placeholder]="'inspections.searchPlaceholder' | transloco"
               [ngModel]="searchQuery()"
               (ngModelChange)="searchQuery.set($event)"
             />
 
             <ui-select
-              label="Szybka nawigacja"
+              [label]="'inspections.quickNavigation' | transloco"
               placeholder=""
               [ngModel]="activeViewId()"
-              [options]="viewOptions"
+              [options]="viewOptions()"
               (ngModelChange)="navigateToView($event)"
             />
           </div>
@@ -109,7 +111,10 @@ import {
                       {{ customerName(item.customer) }} • {{ deviceAddress(item.customer, item.device) }}
                     </p>
                     <p class="text-small text-text-muted">
-                      Termin przeglądu: {{ formatInspectionDate(item.device.nextInspectionDate) }}
+                      {{
+                        'inspections.orphanDevices.nextInspection'
+                          | transloco: { date: formatInspectionDate(item.device.nextInspectionDate) }
+                      }}
                     </p>
                   </div>
 
@@ -118,7 +123,7 @@ import {
                     size="sm"
                     (pressed)="createInspectionForDevice(item.customer.id, item.device.id)"
                   >
-                    Dodaj przegląd
+                    {{ 'inspections.actions.add' | transloco }}
                   </ui-button>
                 </div>
               </ui-card>
@@ -126,8 +131,8 @@ import {
           </div>
         } @else {
           <ui-empty-state
-            title="Brak urządzeń bez przeglądu"
-            description="Wszystkie kwalifikujące się urządzenia są już przypisane do aktywnych obiektów planowania."
+            [title]="'inspections.empty.orphanDevicesTitle' | transloco"
+            [description]="'inspections.empty.orphanDevicesDescription' | transloco"
           />
         }
       } @else if (filteredInspections().length) {
@@ -138,26 +143,29 @@ import {
                 class="ui-focus-ring border-b border-border/80 px-4 py-4 transition-colors duration-200 last:border-b-0 hover:bg-primary-soft/20"
                 role="button"
                 tabindex="0"
-                [attr.aria-label]="'Otwórz szczegóły przeglądu ' + customerName(details.customer)"
+                [attr.aria-label]="
+                  'inspections.openDetailsAria'
+                    | transloco: { customer: customerName(details.customer) }
+                "
                 (click)="navigateToInspection(details.inspection.id)"
                 (keydown)="handleInspectionKeydown($event, details.inspection.id)"
               >
                 <div class="space-y-4">
                   <div class="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-x-3 gap-y-1">
                     <p class="pr-2 pt-0.5 text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">
-                      Termin
+                      {{ 'inspections.table.date' | transloco }}
                     </p>
                     <div class="min-w-0">
                       <p class="text-[15px]/6 font-semibold tracking-[-0.02em] text-text-main">
                         {{ inspectionDateLabel(details) }}
                       </p>
-                      <p class="text-small text-text-muted">{{ getInspectionStatusLabel(details.inspection.status) }}</p>
+                      <p class="text-small text-text-muted">{{ inspectionStatusLabel(details.inspection.status) }}</p>
                     </div>
                   </div>
 
                   <div class="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-x-3 gap-y-1">
                     <p class="pr-2 pt-0.5 text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">
-                      Klient
+                      {{ 'inspections.table.customer' | transloco }}
                     </p>
                     <div class="min-w-0">
                       <p class="text-[15px]/6 font-semibold tracking-[-0.02em] text-text-main">
@@ -169,7 +177,7 @@ import {
 
                   <div class="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-x-3 gap-y-1">
                     <p class="pr-2 pt-0.5 text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">
-                      Telefon
+                      {{ 'inspections.table.phone' | transloco }}
                     </p>
                     <div class="min-w-0">
                       @if (details.customer.phone) {
@@ -188,7 +196,7 @@ import {
 
                   <div class="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-x-3 gap-y-1">
                     <p class="pr-2 pt-0.5 text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">
-                      Akcje
+                      {{ 'inspections.table.actions' | transloco }}
                     </p>
                     <div class="flex flex-wrap gap-2">
                       @if (canScheduleFromList(details.inspection.status)) {
@@ -206,7 +214,7 @@ import {
                           variant="ghost"
                           (pressed)="handleCompleteButtonPress($event, details.inspection.id)"
                         >
-                          Zakończ
+                          {{ 'inspections.actions.complete' | transloco }}
                         </ui-button>
                       }
                     </div>
@@ -221,16 +229,16 @@ import {
               <thead>
                 <tr>
                   <th class="border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted first:pl-6">
-                    Termin
+                    {{ 'inspections.table.date' | transloco }}
                   </th>
                   <th class="border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
-                    Klient
+                    {{ 'inspections.table.customer' | transloco }}
                   </th>
                   <th class="border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
-                    Telefon
+                    {{ 'inspections.table.phone' | transloco }}
                   </th>
                   <th class="border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-right text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted last:pr-6">
-                    Akcje
+                    {{ 'inspections.table.actions' | transloco }}
                   </th>
                 </tr>
               </thead>
@@ -241,7 +249,10 @@ import {
                     class="group/row ui-focus-ring cursor-pointer transition duration-200 hover:bg-primary-soft/18 focus-visible:bg-primary-soft/22"
                     role="button"
                     tabindex="0"
-                    [attr.aria-label]="'Otwórz szczegóły przeglądu ' + customerName(details.customer)"
+                    [attr.aria-label]="
+                      'inspections.openDetailsAria'
+                        | transloco: { customer: customerName(details.customer) }
+                    "
                     (click)="navigateToInspection(details.inspection.id)"
                     (keydown)="handleInspectionKeydown($event, details.inspection.id)"
                   >
@@ -250,7 +261,7 @@ import {
                         <p class="text-[15px]/6 font-semibold tracking-[-0.02em] text-text-main">
                           {{ inspectionDateLabel(details) }}
                         </p>
-                        <p class="text-small text-text-muted">{{ getInspectionStatusLabel(details.inspection.status) }}</p>
+                        <p class="text-small text-text-muted">{{ inspectionStatusLabel(details.inspection.status) }}</p>
                       </div>
                     </td>
 
@@ -296,7 +307,7 @@ import {
                             variant="ghost"
                             (pressed)="handleCompleteButtonPress($event, details.inspection.id)"
                           >
-                            Zakończ
+                            {{ 'inspections.actions.complete' | transloco }}
                           </ui-button>
                         }
                         @if (!canScheduleFromList(details.inspection.status) && !canCompleteFromList(details.inspection.status)) {
@@ -312,9 +323,9 @@ import {
         </div>
       } @else {
         <ui-empty-state
-          title="Brak przeglądów w tym widoku"
-          description="Wybierz inny widok z listy lub dodaj nowy przegląd."
-          actionLabel="Dodaj przegląd"
+          [title]="'inspections.empty.viewTitle' | transloco"
+          [description]="'inspections.empty.viewDescription' | transloco"
+          [actionLabel]="'inspections.actions.add' | transloco"
           (action)="isCreateModalOpen.set(true)"
         />
       }
@@ -348,6 +359,7 @@ export class InspectionsViewComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly inspectionsStore = inject(InspectionsStore);
+  private readonly transloco = inject(TranslocoService);
 
   private readonly selectedViewParam = toSignal(
     this.route.queryParamMap.pipe(map((params) => params.get('view'))),
@@ -355,6 +367,9 @@ export class InspectionsViewComponent {
       initialValue: this.route.snapshot.queryParamMap.get('view'),
     },
   );
+  private readonly activeLanguage = toSignal(this.transloco.langChanges$, {
+    initialValue: this.transloco.getActiveLang(),
+  });
 
   protected readonly isCreateModalOpen = signal(false);
   protected readonly scheduledInspectionId = signal<string | null>(null);
@@ -363,10 +378,14 @@ export class InspectionsViewComponent {
 
   protected readonly inspectionDetails = this.inspectionsStore.inspectionDetails;
   protected readonly orphanDevices = this.inspectionsStore.devicesWithoutInspection;
-  protected readonly viewOptions: UiSelectOption[] = INSPECTION_LIST_VIEWS.map((view) => ({
-    value: view.id,
-    label: view.label,
-  }));
+  protected readonly viewOptions = computed<UiSelectOption[]>(() => {
+    this.activeLanguage();
+
+    return INSPECTION_LIST_VIEWS.map((view) => ({
+      value: view.id,
+      label: this.transloco.translate(view.labelKey),
+    }));
+  });
   protected readonly activeViewId = computed(() =>
     parseInspectionListViewId(this.selectedViewParam()),
   );
@@ -432,7 +451,9 @@ export class InspectionsViewComponent {
   );
 
   protected readonly formatInspectionDate = formatInspectionDate;
-  protected readonly getInspectionStatusLabel = getInspectionStatusLabel;
+  protected inspectionStatusLabel(status: InspectionStatus): string {
+    return getInspectionStatusLabel(status, this.transloco);
+  }
 
   protected navigateToView(viewId: string): void {
     const nextViewId = parseInspectionListViewId(viewId || DEFAULT_INSPECTION_LIST_VIEW_ID);
@@ -520,7 +541,7 @@ export class InspectionsViewComponent {
   }
 
   protected scheduleActionLabel(status: InspectionStatus): string {
-    return getInspectionScheduleActionLabel(status);
+    return getInspectionScheduleActionLabel(status, this.transloco);
   }
 
   protected canScheduleFromList(status: InspectionStatus): boolean {
@@ -550,7 +571,9 @@ export class InspectionsViewComponent {
       return addresses[0];
     }
 
-    return `Adresy: ${addresses.join(' | ')}`;
+    return this.transloco.translate('inspections.addressesPrefix', {
+      addresses: addresses.join(' | '),
+    });
   }
 
   protected phoneHref(phone: string): string {
@@ -560,7 +583,7 @@ export class InspectionsViewComponent {
   }
 
   protected customerName(customer: Customer): string {
-    return customer.companyName || customer.fullName || 'Klient';
+    return customer.companyName || customer.fullName || this.transloco.translate('customers.fallbackName');
   }
 
   protected deviceAddress(customer: Customer, device: Device): string {

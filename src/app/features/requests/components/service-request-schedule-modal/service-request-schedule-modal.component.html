@@ -1,12 +1,12 @@
 <ui-modal
   [open]="open()"
-  title="Potwierdź termin wizyty"
-  description="Wpisz datę uzgodnioną z klientem."
+  [title]="'requests.scheduleModal.title' | transloco"
+  [description]="'requests.scheduleModal.description' | transloco"
   (close)="handleClose()"
 >
   <form [formGroup]="form">
     <ui-input
-      label="Data spotkania"
+      [label]="'requests.scheduleModal.appointmentDate' | transloco"
       type="date"
       required
       [error]="validationError()"
@@ -16,10 +16,10 @@
 
   <div modal-footer class="grid gap-3 sm:grid-cols-2">
     <ui-button type="button" variant="ghost" [block]="true" (pressed)="handleClose()">
-      Anuluj
+      {{ 'common.actions.cancel' | transloco }}
     </ui-button>
     <ui-button type="button" [block]="true" (pressed)="handleSubmit()">
-      Zapisz termin
+      {{ 'requests.scheduleModal.save' | transloco }}
     </ui-button>
   </div>
 </ui-modal>

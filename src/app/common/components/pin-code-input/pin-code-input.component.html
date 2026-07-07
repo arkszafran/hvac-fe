@@ -1,6 +1,10 @@
 <div class="grid gap-6">
   <div class="grid gap-3 text-center">
-    <div class="flex justify-center gap-3" role="group" aria-label="PIN">
+    <div
+      class="flex justify-center gap-3"
+      role="group"
+      [attr.aria-label]="'common.pin.slots' | transloco"
+    >
       @for (isFilled of pinSlots(); track $index) {
         <span
           class="size-3 rounded-full border border-primary/35 transition-colors"
@@ -12,18 +16,22 @@
     </div>
 
     <p class="sr-only" aria-live="polite">
-      {{ normalizedValue().length }} z {{ length() }} cyfr PIN wpisane.
+      {{ 'common.pin.progress' | transloco: { entered: normalizedValue().length, total: length() } }}
     </p>
   </div>
 
-  <div class="grid grid-cols-3 gap-3" role="group" [attr.aria-label]="ariaLabel()">
+  <div
+    class="grid grid-cols-3 gap-3"
+    role="group"
+    [attr.aria-label]="ariaLabel() || ('common.pin.keyboard' | transloco)"
+  >
     @for (digit of keypadDigits; track digit) {
       <button
         type="button"
         class="ui-focus-ring grid aspect-square min-h-16 place-items-center rounded-full border border-border/90 bg-white text-h2 font-semibold text-text-main shadow-[0_16px_28px_-24px_rgb(15_23_42/0.45)] transition duration-200 ease-out hover:-translate-y-0.5 hover:border-primary/25 hover:bg-primary-soft/55 hover:text-primary-strong active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-55 disabled:shadow-none"
         [class.col-start-2]="digit === 0"
         [disabled]="disabled()"
-        [attr.aria-label]="'Cyfra ' + digit"
+        [attr.aria-label]="'common.pin.digit' | transloco: { digit }"
         (click)="appendDigit(digit)"
       >
         {{ digit }}
@@ -38,6 +46,6 @@
     [disabled]="isDeleteDisabled()"
     (pressed)="removeLastDigit()"
   >
-    Kasuj
+    {{ 'common.pin.delete' | transloco }}
   </ui-button>
 </div>

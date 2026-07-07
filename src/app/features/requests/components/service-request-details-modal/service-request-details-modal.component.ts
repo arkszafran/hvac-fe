@@ -1,14 +1,22 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { UiBadgeComponent, UiButtonComponent, UiModalComponent } from '../../../../ui';
-import { getDeviceTypeLabel } from '../../../customers/models/device.model';
+import { DeviceType, getDeviceTypeLabel as readDeviceTypeLabel } from '../../../customers/models/device.model';
 import {
   InstallationServiceRequest,
   InspectionServiceRequest,
   RepairServiceRequest,
   ServiceRequest,
   ServiceRequestAttachment,
+  ServiceRequestBuildingType,
+  ServiceRequestCustomerType,
+  ServiceRequestDevice,
+  ServiceRequestOutdoorUnitPlace,
+  ServiceRequestSource,
+  ServiceRequestStatus,
+  ServiceRequestType,
 } from '../../models/service-request.model';
 import {
   formatDate,
@@ -30,11 +38,13 @@ import {
 
 @Component({
   selector: 'app-service-request-details-modal',
-  imports: [NgTemplateOutlet, UiBadgeComponent, UiButtonComponent, UiModalComponent],
+  imports: [NgTemplateOutlet, TranslocoPipe, UiBadgeComponent, UiButtonComponent, UiModalComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './service-request-details-modal.component.html',
 })
 export class ServiceRequestDetailsModalComponent {
+  private readonly transloco = inject(TranslocoService);
+
   readonly open = input(false);
   readonly request = input<ServiceRequest | null>(null);
 
@@ -42,28 +52,65 @@ export class ServiceRequestDetailsModalComponent {
 
   protected readonly selectedAttachment = signal<ServiceRequestAttachment | null>(null);
 
-  protected readonly formatDate = formatDate;
   protected readonly formatOptional = formatOptionalValue;
-  protected readonly formatAppointmentDate = formatServiceRequestAppointmentDate;
-  protected readonly formatCustomerName = formatServiceRequestCustomerName;
   protected readonly formatCustomerAddress = formatServiceRequestCustomerAddress;
-  protected readonly formatDeviceName = formatServiceRequestDeviceName;
-  protected readonly getDeviceTypeLabel = getDeviceTypeLabel;
   protected readonly phoneHref = phoneHref;
-  protected readonly getTypeLabel = getServiceRequestTypeLabel;
-  protected readonly getStatusLabel = getServiceRequestStatusLabel;
-  protected readonly getSourceLabel = getServiceRequestSourceLabel;
-  protected readonly getCustomerTypeLabel = getServiceRequestCustomerTypeLabel;
-  protected readonly getBuildingTypeLabel = getServiceRequestBuildingTypeLabel;
-  protected readonly getOutdoorUnitPlaceLabel = getServiceRequestOutdoorUnitPlaceLabel;
   protected readonly getTypeBadgeVariant = getServiceRequestTypeBadgeVariant;
   protected readonly getStatusBadgeVariant = getServiceRequestStatusBadgeVariant;
 
   protected readonly modalTitle = computed(() => {
     const request = this.request();
 
-    return request ? `Zgłoszenie: ${getServiceRequestTypeLabel(request.requestType)}` : 'Zgłoszenie';
+    return request
+      ? this.transloco.translate('requests.details.title', {
+          type: getServiceRequestTypeLabel(request.requestType, this.transloco),
+        })
+      : this.transloco.translate('requests.details.fallbackTitle');
   });
+
+  protected formatDate(value: string): string {
+    return formatDate(value, this.transloco);
+  }
+
+  protected formatAppointmentDate(request: ServiceRequest): string {
+    return formatServiceRequestAppointmentDate(request, this.transloco);
+  }
+
+  protected formatCustomerName(customer: ServiceRequest['customer']): string {
+    return formatServiceRequestCustomerName(customer, this.transloco);
+  }
+
+  protected formatDeviceName(device: ServiceRequestDevice): string {
+    return formatServiceRequestDeviceName(device, this.transloco);
+  }
+
+  protected getTypeLabel(type: ServiceRequestType): string {
+    return getServiceRequestTypeLabel(type, this.transloco);
+  }
+
+  protected getStatusLabel(status: ServiceRequestStatus): string {
+    return getServiceRequestStatusLabel(status, this.transloco);
+  }
+
+  protected getSourceLabel(source: ServiceRequestSource): string {
+    return getServiceRequestSourceLabel(source, this.transloco);
+  }
+
+  protected getCustomerTypeLabel(type: ServiceRequestCustomerType): string {
+    return getServiceRequestCustomerTypeLabel(type, this.transloco);
+  }
+
+  protected getBuildingTypeLabel(type: ServiceRequestBuildingType): string {
+    return getServiceRequestBuildingTypeLabel(type, this.transloco);
+  }
+
+  protected getOutdoorUnitPlaceLabel(place: ServiceRequestOutdoorUnitPlace): string {
+    return getServiceRequestOutdoorUnitPlaceLabel(place, this.transloco);
+  }
+
+  protected getDeviceTypeLabel(type: DeviceType): string {
+    return readDeviceTypeLabel(type, this.transloco);
+  }
 
   protected attachmentAlt(attachment: ServiceRequestAttachment): string {
     return attachment.description || attachment.fileName;

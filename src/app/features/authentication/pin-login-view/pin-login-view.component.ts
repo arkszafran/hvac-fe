@@ -1,6 +1,7 @@
 import { HttpContext } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { finalize } from 'rxjs';
 
 import { SKIP_ERROR_TOAST, SKIP_GLOBAL_LOADER } from '../../../common/api/api-context.tokens';
@@ -11,13 +12,14 @@ import { readAuthenticationErrorMessage } from '../utils/authentication-error.ut
 
 @Component({
   selector: 'app-pin-login-view',
-  imports: [PinCodeInputComponent],
+  imports: [TranslocoPipe, PinCodeInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './pin-login-view.component.html',
 })
 export class PinLoginViewComponent {
   private readonly authService = inject(AuthService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly transloco = inject(TranslocoService);
 
   protected readonly pin = signal('');
   protected readonly isSubmitting = signal(false);
@@ -47,7 +49,7 @@ export class PinLoginViewComponent {
           this.serverError.set(
             readAuthenticationErrorMessage(
               error,
-              'Nie udalo sie zalogowac PIN-em. Sprobuj ponownie.',
+              this.transloco.translate('auth.pinLogin.errors.failed'),
             ),
           );
         },

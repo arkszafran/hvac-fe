@@ -1,17 +1,29 @@
+import { TranslocoService } from '@jsverse/transloco';
+
 export type DeviceInspectionPreset = 'custom' | '6' | '12';
 
 export const DEVICE_INSPECTION_PRESET_OPTIONS: Array<{
   value: DeviceInspectionPreset;
-  label: string;
+  labelKey: string;
 }> = [
-  { value: 'custom', label: 'Wybrana data' },
-  { value: '6', label: '6 miesięcy' },
-  { value: '12', label: '12 miesięcy' },
+  { value: 'custom', labelKey: 'devices.inspections.presets.custom' },
+  { value: '6', labelKey: 'devices.inspections.presets.sixMonths' },
+  { value: '12', labelKey: 'devices.inspections.presets.twelveMonths' },
 ];
 
-export const DEVICE_INSPECTIONS_CHECKBOX_LABEL = 'Włącz przeglądy okresowe';
-export const DEVICE_INSPECTIONS_CHECKBOX_DESCRIPTION =
-  'Po włączeniu trzeba ustawić termin najbliższego przeglądu, będą wysyłane przypomnienia.';
+export const DEVICE_INSPECTIONS_CHECKBOX_LABEL_KEY = 'devices.inspections.checkboxLabel';
+export const DEVICE_INSPECTIONS_CHECKBOX_DESCRIPTION_KEY =
+  'devices.inspections.checkboxDescription';
+
+export function createDeviceInspectionPresetOptions(transloco: TranslocoService): Array<{
+  value: DeviceInspectionPreset;
+  label: string;
+}> {
+  return DEVICE_INSPECTION_PRESET_OPTIONS.map((option) => ({
+    value: option.value,
+    label: transloco.translate(option.labelKey),
+  }));
+}
 
 export function calculateInspectionDateFromPreset(
   preset: DeviceInspectionPreset,

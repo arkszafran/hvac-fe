@@ -11,7 +11,7 @@
         HV
       </div>
 
-      <h1 id="login-title" class="text-h1 text-text-main">Logowanie</h1>
+      <h1 id="login-title" class="text-h1 text-text-main">{{ 'auth.login.title' | transloco }}</h1>
     </div>
 
     <form
@@ -33,7 +33,7 @@
       }
 
       <ui-input
-        label="Adres e-mail"
+        [label]="'auth.fields.email' | transloco"
         type="email"
         autocomplete="email"
         required
@@ -42,7 +42,7 @@
       />
 
       <ui-input
-        label="Hasło"
+        [label]="'auth.fields.password' | transloco"
         type="password"
         autocomplete="current-password"
         required
@@ -59,14 +59,18 @@
           ></span>
         }
 
-        {{ isSubmitting() ? 'Logowanie...' : 'Zaloguj' }}
+        {{
+          isSubmitting()
+            ? ('auth.login.submitting' | transloco)
+            : ('auth.login.submit' | transloco)
+        }}
       </ui-button>
 
       <a
         routerLink="/request-password-reset"
         class="ui-focus-ring justify-self-center rounded-[0.75rem] px-2 py-1 text-label font-semibold text-primary-strong transition-colors hover:text-primary active:text-primary"
       >
-        Nie pamietasz hasla?
+        {{ 'auth.login.forgotPassword' | transloco }}
       </a>
     </form>
   </section>

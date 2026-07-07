@@ -9,6 +9,7 @@ import {
   input,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { TranslocoService } from '@jsverse/transloco';
 
 import { classNames } from '../utils/classnames';
 
@@ -59,7 +60,7 @@ let nextSelectId = 0;
           (blur)="handleBlur()"
         >
           @if (placeholder()) {
-            <option value="" [disabled]="required()">{{ placeholder() }}</option>
+            <option value="" [disabled]="required()">{{ placeholderText() }}</option>
           }
 
           @for (option of options(); track option.value) {
@@ -98,10 +99,11 @@ let nextSelectId = 0;
 })
 export class UiSelectComponent implements ControlValueAccessor {
   private readonly changeDetectorRef = inject(ChangeDetectorRef);
+  private readonly transloco = inject(TranslocoService);
 
   readonly inputId = input(`ui-select-${++nextSelectId}`);
   readonly label = input('');
-  readonly placeholder = input('Wybierz opcję');
+  readonly placeholder = input('');
   readonly hint = input('');
   readonly error = input('');
   readonly name = input('');
@@ -135,6 +137,10 @@ export class UiSelectComponent implements ControlValueAccessor {
 
   protected isDisabled(): boolean {
     return this.disabled() || this.disabledByForms;
+  }
+
+  protected placeholderText(): string {
+    return this.placeholder() || this.transloco.translate('ui.select.placeholder');
   }
 
   writeValue(value: string | null): void {

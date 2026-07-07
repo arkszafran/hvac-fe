@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 import {
   Device,
@@ -11,6 +12,7 @@ import {
 @Component({
   selector: 'app-device-table',
   standalone: true,
+  imports: [TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (devices().length) {
@@ -21,7 +23,7 @@ import {
               class="cursor-pointer border-b border-border/80 px-4 py-4 outline-none transition last:border-b-0 hover:bg-primary-soft/20 focus-visible:bg-primary-soft/20 sm:px-5"
               tabindex="0"
               role="button"
-              [attr.aria-label]="'Otwórz szczegóły urządzenia ' + (device.brand || '--') + ' ' + (device.model || '--')"
+              [attr.aria-label]="'devices.table.openDetailsAria' | transloco: { device: deviceAriaName(device) }"
               (click)="openDevicePreview(device)"
               (keydown.enter)="openDevicePreview(device)"
               (keydown.space)="openDevicePreview(device); $event.preventDefault()"
@@ -29,21 +31,21 @@ import {
               <div class="space-y-3">
                 <div class="grid grid-cols-[5.75rem_minmax(0,1fr)] gap-x-3.5 gap-y-1">
                   <p class="pr-2 pt-0.5 text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">
-                    Marka
+                    {{ 'devices.table.brand' | transloco }}
                   </p>
                   <p class="text-[15px]/6 font-semibold tracking-[-0.02em] text-text-main">
                     {{ device.brand || '--' }}
                   </p>
 
                   <p class="pr-2 pt-0.5 text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">
-                    Model
+                    {{ 'devices.table.model' | transloco }}
                   </p>
                   <p class="text-[15px]/6 font-semibold tracking-[-0.02em] text-text-main">
                     {{ device.model || '--' }}
                   </p>
 
                   <p class="pr-2 pt-0.5 text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">
-                    Adres
+                    {{ 'devices.table.address' | transloco }}
                   </p>
                   <div class="min-w-0">
                     <p class="text-[15px]/6 font-semibold tracking-[-0.02em] text-text-main">
@@ -55,7 +57,7 @@ import {
                   </div>
 
                   <p class="pr-2 pt-0.5 text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">
-                    Klient
+                    {{ 'devices.table.customer' | transloco }}
                   </p>
                   <div class="min-w-0">
                     <button
@@ -80,16 +82,16 @@ import {
             <thead>
               <tr>
                 <th class="border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted first:pl-6">
-                  Marka
+                  {{ 'devices.table.brand' | transloco }}
                 </th>
                 <th class="border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
-                  Model
+                  {{ 'devices.table.model' | transloco }}
                 </th>
                 <th class="border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
-                  Adres instalacji
+                  {{ 'devices.table.installationPlace' | transloco }}
                 </th>
                 <th class="border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted last:pr-6">
-                  Klient
+                  {{ 'devices.table.customer' | transloco }}
                 </th>
               </tr>
             </thead>
@@ -100,7 +102,7 @@ import {
                   class="group/row cursor-pointer transition duration-200 outline-none hover:bg-primary-soft/20 focus-visible:bg-primary-soft/20"
                   tabindex="0"
                   role="button"
-                  [attr.aria-label]="'Otwórz szczegóły urządzenia ' + (device.brand || '--') + ' ' + (device.model || '--')"
+                  [attr.aria-label]="'devices.table.openDetailsAria' | transloco: { device: deviceAriaName(device) }"
                   (click)="openDevicePreview(device)"
                   (keydown.enter)="openDevicePreview(device)"
                   (keydown.space)="openDevicePreview(device); $event.preventDefault()"
@@ -158,9 +160,9 @@ import {
                 />
               </svg>
             </div>
-            <p class="mt-4 text-label text-text-main">Brak urządzeń</p>
+            <p class="mt-4 text-label text-text-main">{{ 'devices.table.emptyTitle' | transloco }}</p>
             <p class="mt-1 text-body text-text-muted">
-              Po dodaniu urządzeń zobaczysz tutaj markę, model, adres instalacji i powiązanego klienta.
+              {{ 'devices.table.emptyDescription' | transloco }}
             </p>
           </div>
         </div>
@@ -178,6 +180,10 @@ export class DeviceTableComponent {
   protected readonly getDeviceCustomerDescription = getDeviceCustomerDescription;
   protected readonly getDeviceInstallationAddress = getDeviceInstallationAddress;
   protected readonly getDeviceInstallationAddressDetails = getDeviceInstallationAddressDetails;
+
+  protected deviceAriaName(device: Device): string {
+    return `${device.brand || '--'} ${device.model || '--'}`.trim();
+  }
 
   protected openDevicePreview(device: Device): void {
     this.devicePreviewRequested.emit(device);

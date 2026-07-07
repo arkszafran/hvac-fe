@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 import { UiButtonComponent } from '../../ui';
 import { Customer } from '../customers/models/customer.model';
@@ -13,6 +14,7 @@ import { matchesDeviceSearch } from './utils/device-search.util';
   selector: 'app-devices-view',
   standalone: true,
   imports: [
+    TranslocoPipe,
     UiButtonComponent,
     DeviceCustomerModalComponent,
     DeviceTableComponent,
@@ -23,7 +25,7 @@ import { matchesDeviceSearch } from './utils/device-search.util';
     <div class="space-y-3">
       <section class="pb-1">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <h1 class="text-display tracking-[-0.04em] text-text-main">Urządzenia</h1>
+          <h1 class="text-display tracking-[-0.04em] text-text-main">{{ 'devices.title' | transloco }}</h1>
 
           <div class="flex justify-start lg:justify-end">
             <ui-button size="lg" (pressed)="navigateToCreateDevice()">
@@ -37,7 +39,7 @@ import { matchesDeviceSearch } from './utils/device-search.util';
                   />
                 </svg>
               </span>
-              Dodaj urządzenie
+              {{ 'devices.actions.add' | transloco }}
             </ui-button>
           </div>
         </div>

@@ -1,3 +1,5 @@
+import { TranslocoService } from '@jsverse/transloco';
+
 export type VisitType = 'installation' | 'repair' | 'inspection';
 
 export interface DeviceNote {
@@ -25,19 +27,26 @@ export interface VisitDraft {
   devicesNotes: DeviceNote[];
 }
 
-export const VISIT_TYPE_OPTIONS: Array<{ value: VisitType; label: string }> = [
-  { value: 'installation', label: 'Montaż' },
-  { value: 'repair', label: 'Naprawa' },
-  { value: 'inspection', label: 'Przegląd' },
+export interface VisitTypeOption {
+  value: VisitType;
+  labelKey: string;
+}
+
+export const VISIT_TYPE_OPTIONS: readonly VisitTypeOption[] = [
+  { value: 'installation', labelKey: 'visits.types.installation' },
+  { value: 'repair', labelKey: 'visits.types.repair' },
+  { value: 'inspection', labelKey: 'visits.types.inspection' },
 ];
 
-export function getVisitTypeLabel(type: VisitType): string {
-  switch (type) {
-    case 'installation':
-      return 'Montaż';
-    case 'repair':
-      return 'Naprawa';
-    case 'inspection':
-      return 'Przegląd';
-  }
+export function createVisitTypeOptions(transloco: TranslocoService): Array<{ value: VisitType; label: string }> {
+  return VISIT_TYPE_OPTIONS.map((option) => ({
+    value: option.value,
+    label: transloco.translate(option.labelKey),
+  }));
+}
+
+export function getVisitTypeLabel(type: VisitType, transloco: TranslocoService): string {
+  const option = VISIT_TYPE_OPTIONS.find((item) => item.value === type);
+
+  return option ? transloco.translate(option.labelKey) : type;
 }

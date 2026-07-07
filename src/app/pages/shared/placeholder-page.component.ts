@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { TranslocoPipe } from '@jsverse/transloco';
 
 import {
   UiButtonComponent,
@@ -10,7 +11,13 @@ import {
 @Component({
   selector: 'app-placeholder-page',
   standalone: true,
-  imports: [UiButtonComponent, UiCardComponent, UiEmptyStateComponent, UiPageHeaderComponent],
+  imports: [
+    TranslocoPipe,
+    UiButtonComponent,
+    UiCardComponent,
+    UiEmptyStateComponent,
+    UiPageHeaderComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="space-y-6">
@@ -20,15 +27,17 @@ import {
         [description]="description()"
       >
         <ui-button header-action variant="secondary" size="sm">
-          Wersja placeholder
+          {{ 'pages.placeholder.badge' | transloco }}
         </ui-button>
       </ui-page-header>
 
       <section class="grid gap-4 xl:grid-cols-[minmax(0,1.08fr)_minmax(280px,0.92fr)]">
         <ui-card>
           <div card-header class="space-y-1">
-            <p class="ui-kicker">Gotowe pod rozbudowę</p>
-            <h2 class="text-h3 tracking-[-0.02em] text-text-main">Co już przygotowaliśmy</h2>
+            <p class="ui-kicker">{{ 'pages.placeholder.readyEyebrow' | transloco }}</p>
+            <h2 class="text-h3 tracking-[-0.02em] text-text-main">
+              {{ 'pages.placeholder.readyTitle' | transloco }}
+            </h2>
           </div>
 
           <div class="space-y-3">
@@ -59,8 +68,7 @@ import {
 
           <div card-footer>
             <p class="text-small text-text-muted">
-              Ta sekcja jest celowo pusta. Możemy bezpiecznie dołożyć dane, formularze i
-              przepływy w kolejnych krokach.
+              {{ 'pages.placeholder.footer' | transloco }}
             </p>
           </div>
         </ui-card>

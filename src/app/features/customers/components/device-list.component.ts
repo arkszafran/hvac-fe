@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { UiButtonComponent } from '../../../ui';
 import { Device, getDeviceTypeLabel } from '../models/device.model';
@@ -6,7 +7,7 @@ import { Device, getDeviceTypeLabel } from '../models/device.model';
 @Component({
   selector: 'app-device-list',
   standalone: true,
-  imports: [UiButtonComponent],
+  imports: [TranslocoPipe, UiButtonComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="overflow-hidden rounded-[1.1rem] border border-border/90 bg-white">
@@ -15,16 +16,16 @@ import { Device, getDeviceTypeLabel } from '../models/device.model';
           <thead>
             <tr>
               <th class="border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted first:pl-6">
-                Urządzenie
+                {{ 'devices.table.device' | transloco }}
               </th>
               <th class="border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
-                Terminy
+                {{ 'devices.table.dates' | transloco }}
               </th>
               <th class="border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
-                Miejsce montażu
+                {{ 'devices.table.installationPlace' | transloco }}
               </th>
               <th class="border-b border-border/90 px-5 py-4 text-right text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted last:pr-6">
-                Akcje
+                {{ 'devices.table.actions' | transloco }}
               </th>
             </tr>
           </thead>
@@ -35,13 +36,18 @@ import { Device, getDeviceTypeLabel } from '../models/device.model';
                 <td class="border-b border-border/80 px-5 py-4.5 first:pl-6 group-hover/row:bg-primary-soft/18">
                   <div class="flex flex-col gap-1">
                     <p class="text-[10px]/4 font-semibold uppercase tracking-[0.18em] text-primary/70">
-                      {{ getDeviceTypeLabel(device.type) }}
+                      {{ deviceTypeLabel(device) }}
                     </p>
                     <p class="text-[15px]/6 font-semibold tracking-[-0.02em] text-text-main">
                       {{ device.brand }} {{ device.model }}
                     </p>
                     <p class="text-[13px]/5 text-text-main/76">
-                      {{ device.serialNumber ? 'Numer seryjny: ' + device.serialNumber : '--' }}
+                      {{
+                        device.serialNumber
+                          ? ('devices.serialNumberLabel'
+                            | transloco: { serialNumber: device.serialNumber })
+                          : '--'
+                      }}
                     </p>
                   </div>
                 </td>
@@ -52,7 +58,7 @@ import { Device, getDeviceTypeLabel } from '../models/device.model';
                       {{ inspectionLabel(device) }}
                     </p>
                     <p class="text-[13px]/5 text-text-main/76">
-                      Data montażu: {{ formatDate(device.installationDate) }}
+                      {{ 'devices.installationDateLabel' | transloco: { date: formatDate(device.installationDate) } }}
                     </p>
                   </div>
                 </td>
@@ -60,7 +66,7 @@ import { Device, getDeviceTypeLabel } from '../models/device.model';
                 <td class="border-b border-border/80 px-5 py-4.5 group-hover/row:bg-primary-soft/18">
                   <div class="flex flex-col gap-1">
                     <p class="text-[15px]/6 font-semibold tracking-[-0.02em] text-text-main">
-                      {{ device.location || 'Adres klienta' }}
+                      {{ device.location || ('devices.customerAddress' | transloco) }}
                     </p>
                     <p class="text-[13px]/5 text-text-main/76">
                       {{ deviceAddress(device) }}
@@ -71,10 +77,10 @@ import { Device, getDeviceTypeLabel } from '../models/device.model';
                 <td class="border-b border-border/80 px-5 py-4.5 last:pr-6 group-hover/row:bg-primary-soft/18">
                   <div class="flex justify-end gap-2">
                     <ui-button variant="ghost" size="sm" (pressed)="deviceEditRequested.emit(device)">
-                      Edytuj
+                      {{ 'common.actions.edit' | transloco }}
                     </ui-button>
                     <ui-button variant="ghost" size="sm" (pressed)="deviceSelected.emit(device)">
-                      Szczegóły
+                      {{ 'common.actions.details' | transloco }}
                     </ui-button>
                   </div>
                 </td>
@@ -90,13 +96,18 @@ import { Device, getDeviceTypeLabel } from '../models/device.model';
             <div class="space-y-3">
               <div>
                 <p class="text-[10px]/4 font-semibold uppercase tracking-[0.18em] text-primary/70">
-                  {{ getDeviceTypeLabel(device.type) }}
+                  {{ deviceTypeLabel(device) }}
                 </p>
                 <p class="mt-1 text-[15px]/6 font-semibold tracking-[-0.02em] text-text-main">
                   {{ device.brand }} {{ device.model }}
                 </p>
                 <p class="text-[13px]/5 text-text-main/76">
-                  {{ device.serialNumber ? 'Numer seryjny: ' + device.serialNumber : '--' }}
+                  {{
+                    device.serialNumber
+                      ? ('devices.serialNumberLabel'
+                        | transloco: { serialNumber: device.serialNumber })
+                      : '--'
+                  }}
                 </p>
               </div>
 
@@ -104,20 +115,20 @@ import { Device, getDeviceTypeLabel } from '../models/device.model';
                 <div>
                   <span class="font-semibold">{{ inspectionLabel(device) }}</span>
                 </div>
-                <div>Data montażu: {{ formatDate(device.installationDate) }}</div>
+                <div>{{ 'devices.installationDateLabel' | transloco: { date: formatDate(device.installationDate) } }}</div>
                 <div class="pt-2 text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
-                  Miejsce montażu
+                  {{ 'devices.table.installationPlace' | transloco }}
                 </div>
-                <div>{{ device.location || 'Adres klienta' }}</div>
+                <div>{{ device.location || ('devices.customerAddress' | transloco) }}</div>
                 <div class="text-text-muted">{{ deviceAddress(device) }}</div>
               </div>
 
               <div class="flex flex-wrap gap-2">
                 <ui-button variant="ghost" size="sm" (pressed)="deviceEditRequested.emit(device)">
-                  Edytuj
+                  {{ 'common.actions.edit' | transloco }}
                 </ui-button>
                 <ui-button variant="ghost" size="sm" (pressed)="deviceSelected.emit(device)">
-                  Szczegóły
+                  {{ 'common.actions.details' | transloco }}
                 </ui-button>
               </div>
             </div>
@@ -128,11 +139,15 @@ import { Device, getDeviceTypeLabel } from '../models/device.model';
   `,
 })
 export class DeviceListComponent {
+  private readonly transloco = inject(TranslocoService);
+
   readonly devices = input<Device[]>([]);
   readonly deviceSelected = output<Device>();
   readonly deviceEditRequested = output<Device>();
 
-  protected readonly getDeviceTypeLabel = getDeviceTypeLabel;
+  protected deviceTypeLabel(device: Device): string {
+    return getDeviceTypeLabel(device.type, this.transloco);
+  }
 
   protected formatDate(value: string): string {
     if (!value) {
@@ -150,7 +165,7 @@ export class DeviceListComponent {
 
   protected deviceAddress(device: Device): string {
     if (!device.hasCustomInstallationAddress) {
-      return 'Adres instalacji taki sam jak adres klienta';
+      return this.transloco.translate('devices.sameAddressAsCustomer');
     }
 
     return [device.address, `${device.postalCode} ${device.city}`.trim()]
@@ -160,11 +175,13 @@ export class DeviceListComponent {
 
   protected inspectionLabel(device: Device): string {
     if (!device.hasScheduledInspections) {
-      return 'Przeglądy wyłączone';
+      return this.transloco.translate('devices.inspections.disabled');
     }
 
     return device.nextInspectionDate
-      ? `Następny przegląd: ${this.formatDate(device.nextInspectionDate)}`
-      : 'Przeglądy włączone, brak terminu';
+      ? this.transloco.translate('devices.inspections.nextInspection', {
+          date: this.formatDate(device.nextInspectionDate),
+        })
+      : this.transloco.translate('devices.inspections.enabledNoDate');
   }
 }
