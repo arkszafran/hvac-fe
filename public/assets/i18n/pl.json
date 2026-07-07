@@ -42,7 +42,10 @@
     "topBar": {
       "openMenu": "Otwórz menu",
       "notifications": "Powiadomienia",
-      "userProfile": "Profil użytkownika"
+      "userProfile": "Profil użytkownika",
+      "accountMenu": "Menu konta",
+      "logout": "Wyloguj",
+      "loggingOut": "Wylogowywanie..."
     }
   },
   "ui": {

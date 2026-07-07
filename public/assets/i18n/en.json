@@ -42,7 +42,10 @@
     "topBar": {
       "openMenu": "Open menu",
       "notifications": "Notifications",
-      "userProfile": "User profile"
+      "userProfile": "User profile",
+      "accountMenu": "Account menu",
+      "logout": "Log out",
+      "loggingOut": "Logging out..."
     }
   },
   "ui": {

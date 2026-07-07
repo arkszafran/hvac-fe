@@ -1,0 +1,80 @@
+<header class="sticky top-0 z-40 border-b border-border/85 bg-[rgb(250_252_255/0.9)] backdrop-blur-xl">
+  <div class="ui-shell flex h-16 items-center justify-between gap-3">
+    <div class="flex min-w-0 items-center gap-2 sm:gap-3">
+      <button
+        type="button"
+        [attr.aria-label]="'layout.topBar.openMenu' | transloco"
+        class="ui-focus-ring inline-flex size-11 items-center justify-center rounded-[0.95rem] border border-border/90 bg-white text-text-main shadow-[0_14px_34px_-24px_rgb(15_23_42/0.3)] backdrop-blur-xl transition hover:border-primary/18 hover:bg-primary-soft/45 hover:text-primary-strong active:bg-primary-soft/55 md:hidden"
+        (click)="menuRequested.emit()"
+      >
+        <app-layout-icon name="menu" />
+      </button>
+
+      <a routerLink="/dashboard" class="flex min-w-0 items-center gap-3">
+        <span
+          class="flex size-10 shrink-0 items-center justify-center rounded-[0.95rem] border border-primary/14 bg-[linear-gradient(180deg,_var(--color-primary)_0%,_var(--color-primary-strong)_100%)] text-label font-semibold text-white shadow-[0_18px_34px_-24px_rgb(24_74_160/0.46)]"
+        >
+          H
+        </span>
+
+        <span class="min-w-0">
+          <span class="block truncate text-label font-semibold text-text-main">
+            {{ productName }}
+          </span>
+          <span class="hidden truncate text-small text-text-muted sm:block">
+            {{ 'layout.productTagline' | transloco }}
+          </span>
+        </span>
+      </a>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <app-language-switcher />
+
+      <button
+        type="button"
+        [attr.aria-label]="'layout.topBar.notifications' | transloco"
+        class="ui-focus-ring inline-flex size-11 items-center justify-center rounded-[0.95rem] border border-border/90 bg-white text-text-muted shadow-[0_14px_34px_-24px_rgb(15_23_42/0.22)] backdrop-blur-xl transition hover:border-primary/18 hover:bg-primary-soft/45 hover:text-primary-strong active:bg-primary-soft/55"
+      >
+        <app-layout-icon name="bell" />
+      </button>
+
+      @if (currentUser() !== null) {
+        <ui-menu
+          [triggerLabel]="'layout.topBar.userProfile' | transloco"
+          [menuLabel]="'layout.topBar.accountMenu' | transloco"
+          triggerClass="ui-focus-ring inline-flex min-h-11 items-center justify-center rounded-[1rem] border border-border/90 bg-white px-2.5 py-1.5 shadow-[0_14px_34px_-24px_rgb(15_23_42/0.22)] backdrop-blur-xl transition hover:border-primary/18 hover:bg-primary-soft/32 active:bg-primary-soft/45"
+          panelClass="absolute top-[calc(100%+0.5rem)] z-50 min-w-48 rounded-[0.95rem] border border-border/90 bg-white p-1.5 shadow-[0_24px_48px_-28px_rgb(15_23_42/0.35)]"
+        >
+          <span menu-trigger class="inline-flex min-w-0 items-center gap-2">
+            <span
+              class="flex size-9 shrink-0 items-center justify-center rounded-[0.8rem] bg-[linear-gradient(180deg,_var(--color-accent)_0%,_var(--color-accent-strong)_100%)] text-small font-semibold text-white shadow-[0_14px_24px_-18px_rgb(214_121_24/0.44)]"
+            >
+              {{ userInitials() }}
+            </span>
+            <span class="hidden max-w-36 truncate text-label text-text-main md:block">
+              {{ userDisplayName() }}
+            </span>
+          </span>
+
+          <button
+            type="button"
+            role="menuitem"
+            [disabled]="isLogoutPending()"
+            class="ui-focus-ring flex min-h-11 w-full items-center gap-2 rounded-[0.75rem] px-3 text-left text-label font-semibold text-text-main transition hover:bg-primary-soft/55 hover:text-primary-strong active:bg-primary-soft/70 disabled:cursor-not-allowed disabled:opacity-60"
+            (click)="logout()"
+          >
+            <app-layout-icon name="log-out" />
+            <span class="truncate">
+              @if (isLogoutPending()) {
+                {{ 'layout.topBar.loggingOut' | transloco }}
+              } @else {
+                {{ 'layout.topBar.logout' | transloco }}
+              }
+            </span>
+          </button>
+        </ui-menu>
+      }
+    </div>
+  </div>
+</header>

@@ -22,6 +22,7 @@ import { environment } from '../../../environments/environment';
 const NEW_USER_SETUP_PATH = 'setup-new-credentails';
 const BLOCKED_USER_PATH = 'account-blocked';
 const PIN_LOGIN_PATH = 'pin-login';
+const LOGIN_PATH = 'login';
 
 interface SessionHandlingOptions {
   shouldRedirect: boolean;
@@ -113,6 +114,18 @@ export class AuthService {
     );
   }
 
+  logout(options?: ApiRequestOptions): Observable<void> {
+    this.clearSession();
+
+    return this.authenticationApi
+      .logout(options ?? { context: createSilentAuthContext() })
+      .pipe(
+        catchError(() => of(null)),
+        tap(() => this.navigateTo(LOGIN_PATH)),
+        map(() => undefined),
+      );
+  }
+
   refreshSession(
     options: SessionHandlingOptions = { shouldRedirect: false },
   ): Observable<AuthenticationSessionUserDto> {
@@ -157,6 +170,7 @@ export class AuthService {
 
   private clearSession(): void {
     this.sessionUser.set(null);
+    this.initialCredentialsPassword.set(null);
   }
 
   private redirectByUserStatus(status: AuthenticationSessionUserStatus): void {

@@ -15,7 +15,8 @@ export type AppNavigationIcon =
   | 'reviews'
   | 'settings'
   | 'menu'
-  | 'bell';
+  | 'bell'
+  | 'log-out';
 
 export interface AppNavigationChildItem {
   readonly labelKey: string;

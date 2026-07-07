@@ -4,7 +4,6 @@ import { AppNavigationIcon } from '../app-navigation';
 
 @Component({
   selector: 'app-layout-icon',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <svg viewBox="0 0 24 24" fill="none" class="size-5" aria-hidden="true">
@@ -162,6 +161,27 @@ import { AppNavigationIcon } from '../app-navigation';
           />
           <path
             d="M10 18.2C10.348 19.024 11.12 19.6 12 19.6C12.88 19.6 13.652 19.024 14 18.2"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+          />
+        }
+        @case ('log-out') {
+          <path
+            d="M10.5 6.5H7.75C6.784 6.5 6 7.284 6 8.25V15.75C6 16.716 6.784 17.5 7.75 17.5H10.5"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+          />
+          <path
+            d="M13 8.5L16.5 12L13 15.5"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M16 12H9.5"
             stroke="currentColor"
             stroke-width="1.7"
             stroke-linecap="round"

@@ -1,0 +1,24 @@
+<button
+  #triggerButton
+  type="button"
+  [class]="triggerClass()"
+  [attr.aria-label]="triggerLabel()"
+  aria-haspopup="menu"
+  [attr.aria-expanded]="isOpen()"
+  [attr.aria-controls]="isOpen() ? menuId : null"
+  (click)="toggle($event)"
+>
+  <ng-content select="[menu-trigger]" />
+</button>
+
+@if (isOpen()) {
+  <div
+    [id]="menuId"
+    role="menu"
+    [attr.aria-label]="menuLabel() ?? triggerLabel()"
+    [class]="menuPanelClasses()"
+    (click)="handleMenuClick()"
+  >
+    <ng-content />
+  </div>
+}
