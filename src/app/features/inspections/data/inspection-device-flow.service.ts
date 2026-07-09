@@ -5,14 +5,7 @@ import { CustomersStore } from '../../customers/data/customers.store';
 import { Customer, CustomerDraft } from '../../customers/models/customer.model';
 import { Device, DeviceDraft } from '../../customers/models/device.model';
 import { Inspection } from '../models/inspection.model';
-import {
-  DeviceInspectionLike,
-  FLEXIBLE_INSPECTION_STATUSES,
-  createDeviceInspectionSnapshot,
-  findMatchingInspections,
-  inspectionCanIncludeDate,
-  isDeviceEligibleForInspection,
-} from '../utils/inspection-domain.util';
+import { isInspectionOpen } from '../utils/inspection-domain.util';
 import { buildInspectionShortDescription } from '../utils/inspection-ui.util';
 import { InspectionsStore } from './inspections.store';
 
@@ -32,6 +25,7 @@ export interface DeviceInspectionTransactionResult {
   inspectionToDetach?: Inspection;
   inspectionToDelete?: Inspection;
   inspectionToCancel?: Inspection;
+  inspectionToUpdate?: Inspection;
 }
 
 interface InspectionPromptBase {
@@ -41,7 +35,7 @@ interface InspectionPromptBase {
   deviceName: string;
   createActionLabel: string;
   cancelActionLabel: string;
-  transition: 'none' | 'detach-current' | 'cancel-current';
+  transition: 'none' | 'detach-current' | 'change-current-date';
   currentInspectionId?: string;
 }
 
@@ -59,7 +53,11 @@ export type DeviceCreateInspectionPlan =
     });
 
 export type DeviceUpdateInspectionPlan =
-  | { kind: 'apply'; autoAction: 'none' | 'create-new' | 'recalculate-current' | 'detach-current'; currentInspectionId?: string }
+  | {
+      kind: 'apply';
+      autoAction: 'none' | 'create-new' | 'change-current-date' | 'detach-current';
+      currentInspectionId?: string;
+    }
   | (InspectionPromptBase & {
       kind: 'single-candidate';
       candidate: Inspection;
@@ -80,12 +78,7 @@ export class InspectionDeviceFlowService {
     customerSelection: DeviceCustomerSelection,
     deviceDraft: DeviceDraft,
   ): DeviceCreateInspectionPlan {
-    const customerId =
-      customerSelection.kind === 'existing' ? customerSelection.customer.id : 'pending-customer';
-    const customerName = this.getSelectionCustomerName(customerSelection);
-    const devicePreview = createDeviceInspectionSnapshot(customerId, 'pending-device', deviceDraft);
-
-    if (!isDeviceEligibleForInspection(devicePreview)) {
+    if (!this.hasInspectionIntent(deviceDraft)) {
       return { kind: 'save-only' };
     }
 
@@ -93,43 +86,13 @@ export class InspectionDeviceFlowService {
       return { kind: 'auto-create' };
     }
 
-    const matches = findMatchingInspections(
-      customerSelection.customer.id,
-      devicePreview,
-      this.inspectionsStore.inspections(),
-      this.inspectionsStore.devicesById(),
-    ).map((candidate) => candidate.inspection);
+    const matches = this.inspectionsStore.getActiveInspectionsByCustomerId(customerSelection.customer.id);
 
-    if (!matches.length) {
-      return { kind: 'auto-create' };
-    }
-
-    if (matches.length === 1) {
-      return {
-        kind: 'single-candidate',
-        title: this.transloco.translate('inspections.flow.attachExistingTitle'),
-        description: this.transloco.translate('inspections.flow.newDeviceSingleDescription'),
-        customerName,
-        deviceName: this.getDeviceName(deviceDraft),
-        candidate: matches[0],
-        primaryActionLabel: this.transloco.translate('inspections.flow.attachToInspection'),
-        createActionLabel: this.transloco.translate('inspections.flow.separateInspection'),
-        cancelActionLabel: this.transloco.translate('common.actions.cancel'),
-        transition: 'none',
-      };
-    }
-
-    return {
-      kind: 'candidate-choice',
-      title: this.transloco.translate('inspections.flow.newDeviceChoiceTitle'),
-      description: this.transloco.translate('inspections.flow.newDeviceChoiceDescription'),
-      customerName,
-      deviceName: this.getDeviceName(deviceDraft),
-      candidates: matches,
-      createActionLabel: this.transloco.translate('inspections.flow.createNewInspection'),
-      cancelActionLabel: this.transloco.translate('common.actions.cancel'),
-      transition: 'none',
-    };
+    return this.createCreateAttachPrompt(
+      matches,
+      this.getCustomerName(customerSelection.customer),
+      this.getDeviceName(deviceDraft),
+    );
   }
 
   commitCreateDevice(
@@ -154,20 +117,6 @@ export class InspectionDeviceFlowService {
       };
     }
 
-    if (plan.kind === 'auto-create' || choice?.kind === 'create-new') {
-      const inspectionToCreate = this.inspectionsStore.createInspection({
-        customerId: result.customer.id,
-        deviceIds: [result.device.id],
-        source: plan.kind === 'auto-create' ? 'auto' : 'manual',
-      });
-
-      return {
-        customer: result.customer,
-        device: result.device,
-        inspectionToCreate,
-      };
-    }
-
     if (choice?.kind === 'attach') {
       const inspectionToAttach = this.inspectionsStore.attachDeviceToInspection(
         choice.inspectionId,
@@ -181,31 +130,37 @@ export class InspectionDeviceFlowService {
       };
     }
 
+    const inspectionToCreate = this.inspectionsStore.createInspection({
+      customerId: result.customer.id,
+      deviceIds: [result.device.id],
+      inspectionDate: this.inspectionDateFromDraft(deviceDraft),
+      source: plan.kind === 'auto-create' ? 'auto' : 'manual',
+    });
+
     return {
       customer: result.customer,
       device: result.device,
+      inspectionToCreate,
     };
   }
 
   previewUpdateDevice(customer: Customer, device: Device, nextDraft: DeviceDraft): DeviceUpdateInspectionPlan {
-    const normalizedNextDate = nextDraft.hasScheduledInspections ? nextDraft.nextInspectionDate.trim() : '';
-    const relevantChanged =
-      device.hasScheduledInspections !== nextDraft.hasScheduledInspections ||
-      device.nextInspectionDate !== normalizedNextDate;
+    const currentInspection = this.inspectionsStore.getActiveInspectionByDeviceId(device.id);
+    const wantsInspection = this.hasInspectionIntent(nextDraft);
+    const nextInspectionDate = this.inspectionDateFromDraft(nextDraft);
+    const currentInspectionDate = currentInspection?.inspectionDate ?? '';
+    const inspectionChanged =
+      Boolean(currentInspection) !== wantsInspection ||
+      (wantsInspection && currentInspectionDate !== nextInspectionDate);
 
-    if (!relevantChanged) {
+    if (!inspectionChanged) {
       return {
         kind: 'apply',
         autoAction: 'none',
       };
     }
 
-    const currentInspection = this.inspectionsStore.getActiveInspectionByDeviceId(device.id);
-    const previewDevice = createDeviceInspectionSnapshot(customer.id, device.id, nextDraft);
-    const devicesById = new Map(this.inspectionsStore.devicesById());
-    devicesById.set(device.id, previewDevice);
-
-    if (!isDeviceEligibleForInspection(previewDevice)) {
+    if (!wantsInspection) {
       return {
         kind: 'apply',
         autoAction: currentInspection ? 'detach-current' : 'none',
@@ -213,82 +168,35 @@ export class InspectionDeviceFlowService {
       };
     }
 
-    if (!currentInspection || !this.isTrackedActiveInspection(currentInspection)) {
-      return this.createStandalonePlan(customer, previewDevice, nextDraft);
+    if (!currentInspection || !isInspectionOpen(currentInspection.status)) {
+      const matches = this.inspectionsStore.getActiveInspectionsByCustomerId(customer.id, device.id);
+
+      return this.createUpdateAttachPrompt(
+        matches,
+        this.getCustomerName(customer),
+        this.getDeviceName(nextDraft),
+      );
     }
 
-    const remainingDeviceIds = currentInspection.deviceIds.filter((deviceId) => deviceId !== device.id);
-
-    if (!remainingDeviceIds.length) {
-      if (currentInspection.status === 'scheduled') {
-        return {
-          kind: 'candidate-choice',
-          title: this.transloco.translate('inspections.flow.dateChangeCreatesNewTitle'),
-          description: this.transloco.translate('inspections.flow.dateChangeCreatesNewDescription'),
-          customerName: this.getCustomerName(customer),
-          deviceName: this.getDeviceName(nextDraft),
-          candidates: [],
-          createActionLabel: this.transloco.translate('inspections.flow.cancelCurrentAndCreateNew'),
-          cancelActionLabel: this.transloco.translate('inspections.flow.undoDateChange'),
-          transition: 'cancel-current',
-          currentInspectionId: currentInspection.id,
-        };
-      }
-
+    if (currentInspection.deviceIds.length <= 1) {
       return {
         kind: 'apply',
-        autoAction: 'recalculate-current',
-        currentInspectionId: currentInspection.id,
-      };
-    }
-
-    if (inspectionCanIncludeDate(currentInspection, previewDevice.nextInspectionDate, devicesById, [device.id])) {
-      return {
-        kind: 'apply',
-        autoAction: 'recalculate-current',
-        currentInspectionId: currentInspection.id,
-      };
-    }
-
-    const matchingInspections = findMatchingInspections(
-      customer.id,
-      previewDevice,
-      this.inspectionsStore.inspections(),
-      devicesById,
-      [currentInspection.id],
-    ).map((candidate) => candidate.inspection);
-
-    const description =
-      currentInspection.status === 'scheduled'
-        ? this.transloco.translate('inspections.flow.scheduledDateOutOfWindow')
-        : this.transloco.translate('inspections.flow.dateOutOfWindow');
-
-    if (matchingInspections.length === 1) {
-      return {
-        kind: 'single-candidate',
-        title: this.transloco.translate('inspections.flow.moveToOtherTitle'),
-        description,
-        customerName: this.getCustomerName(customer),
-        deviceName: this.getDeviceName(nextDraft),
-        candidate: matchingInspections[0],
-        primaryActionLabel: this.transloco.translate('inspections.flow.assignToInspection'),
-        createActionLabel: this.transloco.translate('inspections.flow.createNewInspection'),
-        cancelActionLabel: this.transloco.translate('inspections.flow.undoDateChange'),
-        transition: 'detach-current',
+        autoAction: 'change-current-date',
         currentInspectionId: currentInspection.id,
       };
     }
 
     return {
-      kind: 'candidate-choice',
-      title: this.transloco.translate('inspections.flow.chooseNewInspectionTitle'),
-      description,
+      kind: 'single-candidate',
+      title: this.transloco.translate('inspections.flow.changeSharedInspectionTitle'),
+      description: this.transloco.translate('inspections.flow.changeSharedInspectionDescription'),
       customerName: this.getCustomerName(customer),
       deviceName: this.getDeviceName(nextDraft),
-      candidates: matchingInspections,
-      createActionLabel: this.transloco.translate('inspections.flow.createNewInspection'),
+      candidate: currentInspection,
+      primaryActionLabel: this.transloco.translate('inspections.flow.changeSharedInspectionDate'),
+      createActionLabel: this.transloco.translate('inspections.flow.createSeparateWithNewDate'),
       cancelActionLabel: this.transloco.translate('inspections.flow.undoDateChange'),
-      transition: 'detach-current',
+      transition: 'change-current-date',
       currentInspectionId: currentInspection.id,
     };
   }
@@ -311,19 +219,23 @@ export class InspectionDeviceFlowService {
     let inspectionToAttach: Inspection | undefined;
     let inspectionToDetach: Inspection | undefined;
     let inspectionToDelete: Inspection | undefined;
-    let inspectionToCancel: Inspection | undefined;
+    let inspectionToUpdate: Inspection | undefined;
 
     if (plan.kind === 'apply') {
       if (plan.autoAction === 'create-new') {
         inspectionToCreate = this.inspectionsStore.createInspection({
           customerId: customer.id,
           deviceIds: [device.id],
+          inspectionDate: this.inspectionDateFromDraft(nextDraft),
           source: 'auto',
         });
       }
 
-      if (plan.autoAction === 'recalculate-current' && plan.currentInspectionId) {
-        inspectionToAttach = this.inspectionsStore.recalculateInspection(plan.currentInspectionId);
+      if (plan.autoAction === 'change-current-date' && plan.currentInspectionId) {
+        inspectionToUpdate = this.inspectionsStore.setInspectionDate(
+          plan.currentInspectionId,
+          this.inspectionDateFromDraft(nextDraft),
+        );
       }
 
       if (plan.autoAction === 'detach-current' && plan.currentInspectionId) {
@@ -339,9 +251,32 @@ export class InspectionDeviceFlowService {
         customer: updatedCustomer,
         device: updatedDevice,
         inspectionToCreate,
-        inspectionToAttach,
         inspectionToDetach,
         inspectionToDelete,
+        inspectionToUpdate,
+      };
+    }
+
+    if (plan.transition === 'change-current-date' && plan.currentInspectionId) {
+      if (choice?.kind === 'attach') {
+        inspectionToUpdate = this.inspectionsStore.setInspectionDate(
+          plan.currentInspectionId,
+          this.inspectionDateFromDraft(nextDraft),
+        );
+      } else {
+        inspectionToCreate = this.inspectionsStore.moveDeviceToNewInspection(
+          customer.id,
+          plan.currentInspectionId,
+          device.id,
+          this.inspectionDateFromDraft(nextDraft),
+        );
+      }
+
+      return {
+        customer: updatedCustomer,
+        device: updatedDevice,
+        inspectionToCreate,
+        inspectionToUpdate,
       };
     }
 
@@ -351,16 +286,13 @@ export class InspectionDeviceFlowService {
       inspectionToDelete = detachResult.deletedInspection;
     }
 
-    if (plan.transition === 'cancel-current' && plan.currentInspectionId) {
-      inspectionToCancel = this.inspectionsStore.cancelInspection(plan.currentInspectionId);
-    }
-
     if (choice?.kind === 'attach') {
       inspectionToAttach = this.inspectionsStore.attachDeviceToInspection(choice.inspectionId, device.id);
     } else {
       inspectionToCreate = this.inspectionsStore.createInspection({
         customerId: customer.id,
         deviceIds: [device.id],
+        inspectionDate: this.inspectionDateFromDraft(nextDraft),
         source: 'manual',
       });
     }
@@ -372,7 +304,6 @@ export class InspectionDeviceFlowService {
       inspectionToAttach,
       inspectionToDetach,
       inspectionToDelete,
-      inspectionToCancel,
     };
   }
 
@@ -380,27 +311,57 @@ export class InspectionDeviceFlowService {
     return buildInspectionShortDescription(
       {
         status: inspection.status,
-        windowStart: inspection.windowStart,
-        windowEnd: inspection.windowEnd,
-        plannedDate: inspection.plannedDate,
+        inspectionDate: inspection.inspectionDate,
         deviceCount: inspection.deviceIds.length,
       },
       this.transloco,
     );
   }
 
-  private createStandalonePlan(
-    customer: Customer,
-    previewDevice: DeviceInspectionLike,
-    nextDraft: DeviceDraft,
-  ): DeviceUpdateInspectionPlan {
-    const matches = findMatchingInspections(
-      customer.id,
-      previewDevice,
-      this.inspectionsStore.inspections(),
-      this.inspectionsStore.devicesById(),
-    ).map((candidate) => candidate.inspection);
+  private createCreateAttachPrompt(
+    matches: Inspection[],
+    customerName: string,
+    deviceName: string,
+  ): DeviceCreateInspectionPlan {
+    if (!matches.length) {
+      return {
+        kind: 'auto-create',
+      };
+    }
 
+    if (matches.length === 1) {
+      return {
+        kind: 'single-candidate',
+        title: this.transloco.translate('inspections.flow.attachExistingTitle'),
+        description: this.transloco.translate('inspections.flow.newDeviceSingleDescription'),
+        customerName,
+        deviceName,
+        candidate: matches[0],
+        primaryActionLabel: this.transloco.translate('inspections.flow.attachToInspection'),
+        createActionLabel: this.transloco.translate('inspections.flow.separateInspection'),
+        cancelActionLabel: this.transloco.translate('common.actions.cancel'),
+        transition: 'none',
+      };
+    }
+
+    return {
+      kind: 'candidate-choice',
+      title: this.transloco.translate('inspections.flow.newDeviceChoiceTitle'),
+      description: this.transloco.translate('inspections.flow.newDeviceChoiceDescription'),
+      customerName,
+      deviceName,
+      candidates: matches,
+      createActionLabel: this.transloco.translate('inspections.flow.createNewInspection'),
+      cancelActionLabel: this.transloco.translate('common.actions.cancel'),
+      transition: 'none',
+    };
+  }
+
+  private createUpdateAttachPrompt(
+    matches: Inspection[],
+    customerName: string,
+    deviceName: string,
+  ): DeviceUpdateInspectionPlan {
     if (!matches.length) {
       return {
         kind: 'apply',
@@ -413,12 +374,12 @@ export class InspectionDeviceFlowService {
         kind: 'single-candidate',
         title: this.transloco.translate('inspections.flow.attachExistingTitle'),
         description: this.transloco.translate('inspections.flow.newDateSingleDescription'),
-        customerName: this.getCustomerName(customer),
-        deviceName: this.getDeviceName(nextDraft),
+        customerName,
+        deviceName,
         candidate: matches[0],
         primaryActionLabel: this.transloco.translate('inspections.flow.attachToInspection'),
         createActionLabel: this.transloco.translate('inspections.flow.separateInspection'),
-        cancelActionLabel: this.transloco.translate('inspections.flow.undoDate'),
+        cancelActionLabel: this.transloco.translate('common.actions.cancel'),
         transition: 'none',
       };
     }
@@ -427,21 +388,13 @@ export class InspectionDeviceFlowService {
       kind: 'candidate-choice',
       title: this.transloco.translate('inspections.flow.newDateChoiceTitle'),
       description: this.transloco.translate('inspections.flow.newDateChoiceDescription'),
-      customerName: this.getCustomerName(customer),
-      deviceName: this.getDeviceName(nextDraft),
+      customerName,
+      deviceName,
       candidates: matches,
       createActionLabel: this.transloco.translate('inspections.flow.createNewInspection'),
-      cancelActionLabel: this.transloco.translate('inspections.flow.undoDateChange'),
+      cancelActionLabel: this.transloco.translate('common.actions.cancel'),
       transition: 'none',
     };
-  }
-
-  private getSelectionCustomerName(selection: DeviceCustomerSelection): string {
-    return selection.kind === 'existing'
-      ? this.getCustomerName(selection.customer)
-      : selection.draft.companyName ||
-          selection.draft.fullName ||
-          this.transloco.translate('customers.newCustomer');
   }
 
   private getCustomerName(customer: Customer): string {
@@ -454,7 +407,11 @@ export class InspectionDeviceFlowService {
     return label || this.transloco.translate('visits.create.newDevice');
   }
 
-  private isTrackedActiveInspection(inspection: Inspection): boolean {
-    return inspection.status === 'scheduled' || FLEXIBLE_INSPECTION_STATUSES.includes(inspection.status);
+  private hasInspectionIntent(deviceDraft: Pick<DeviceDraft, 'hasScheduledInspections' | 'nextInspectionDate'>): boolean {
+    return deviceDraft.hasScheduledInspections && Boolean(deviceDraft.nextInspectionDate.trim());
+  }
+
+  private inspectionDateFromDraft(deviceDraft: Pick<DeviceDraft, 'hasScheduledInspections' | 'nextInspectionDate'>): string {
+    return deviceDraft.hasScheduledInspections ? deviceDraft.nextInspectionDate.trim() : '';
   }
 }

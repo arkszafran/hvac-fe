@@ -34,7 +34,6 @@ import {
   canCompleteInspection,
   canScheduleInspection,
   formatInspectionDate,
-  formatInspectionWindow,
   getInspectionScheduleActionLabel,
   getInspectionStatusLabel,
 } from './utils/inspection-ui.util';
@@ -60,7 +59,7 @@ import {
     <div class="space-y-10">
       <section class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <h1 class="text-display tracking-[-0.035em] text-text-main">{{ 'inspections.title' | transloco }}</h1>
-        <ui-button size="sm" (pressed)="isCreateModalOpen.set(true)">
+        <ui-button size="sm" (pressed)="openCreateModal()">
           {{ 'inspections.actions.add' | transloco }}
         </ui-button>
       </section>
@@ -111,17 +110,14 @@ import {
                       {{ customerName(item.customer) }} • {{ deviceAddress(item.customer, item.device) }}
                     </p>
                     <p class="text-small text-text-muted">
-                      {{
-                        'inspections.orphanDevices.nextInspection'
-                          | transloco: { date: formatInspectionDate(item.device.nextInspectionDate) }
-                      }}
+                      {{ 'devices.inspections.disabled' | transloco }}
                     </p>
                   </div>
 
                   <ui-button
                     variant="secondary"
                     size="sm"
-                    (pressed)="createInspectionForDevice(item.customer.id, item.device.id)"
+                    (pressed)="openCreateModalForDevice(item.customer.id, item.device.id)"
                   >
                     {{ 'inspections.actions.add' | transloco }}
                   </ui-button>
@@ -335,7 +331,8 @@ import {
         [open]="isCreateModalOpen()"
         [customers]="customerOptions()"
         [devices]="manualCreateDeviceOptions()"
-        [initialCustomerId]="customerOptions()[0]?.id ?? ''"
+        [initialCustomerId]="manualCreateInitialCustomerId() || (customerOptions()[0]?.id ?? '')"
+        [initialDeviceIds]="manualCreateInitialDeviceIds()"
         (close)="isCreateModalOpen.set(false)"
         (save)="handleManualCreate($event)"
       />
@@ -374,6 +371,8 @@ export class InspectionsViewComponent {
   protected readonly isCreateModalOpen = signal(false);
   protected readonly scheduledInspectionId = signal<string | null>(null);
   protected readonly finalizingInspectionId = signal<string | null>(null);
+  protected readonly manualCreateInitialCustomerId = signal('');
+  protected readonly manualCreateInitialDeviceIds = signal<string[]>([]);
   protected readonly searchQuery = signal('');
 
   protected readonly inspectionDetails = this.inspectionsStore.inspectionDetails;
@@ -431,7 +430,7 @@ export class InspectionsViewComponent {
       return '';
     }
 
-    return inspection.plannedDate || inspection.targetDate || inspection.windowStart || '';
+    return inspection.inspectionDate;
   });
   protected readonly isScheduleModalOpen = computed(() => Boolean(this.scheduledInspectionId()));
   protected readonly isFinalizeModalOpen = computed(() => Boolean(this.finalizingInspectionId()));
@@ -446,7 +445,7 @@ export class InspectionsViewComponent {
       customerId: item.customer.id,
       deviceId: item.device.id,
       label: `${item.device.brand} ${item.device.model}`.trim(),
-      description: `${this.deviceAddress(item.customer, item.device)} • ${formatInspectionDate(item.device.nextInspectionDate)}`,
+      description: this.deviceAddress(item.customer, item.device),
     })),
   );
 
@@ -482,29 +481,28 @@ export class InspectionsViewComponent {
     this.navigateToInspection(inspectionId);
   }
 
-  protected handleManualCreate(event: { customerId: string; deviceIds: string[] }): void {
+  protected openCreateModal(): void {
+    this.manualCreateInitialCustomerId.set('');
+    this.manualCreateInitialDeviceIds.set([]);
+    this.isCreateModalOpen.set(true);
+  }
+
+  protected openCreateModalForDevice(customerId: string, deviceId: string): void {
+    this.manualCreateInitialCustomerId.set(customerId);
+    this.manualCreateInitialDeviceIds.set([deviceId]);
+    this.isCreateModalOpen.set(true);
+  }
+
+  protected handleManualCreate(event: { customerId: string; deviceIds: string[]; inspectionDate: string }): void {
     this.inspectionsStore.createInspection({
       customerId: event.customerId,
       deviceIds: event.deviceIds,
+      inspectionDate: event.inspectionDate,
       source: 'manual',
     });
+    this.manualCreateInitialCustomerId.set('');
+    this.manualCreateInitialDeviceIds.set([]);
     this.isCreateModalOpen.set(false);
-  }
-
-  protected createInspectionForDevice(customerId: string, deviceId: string): void {
-    const inspection = this.inspectionsStore.createInspection({
-      customerId,
-      deviceIds: [deviceId],
-      source: 'manual',
-    });
-
-    if (!inspection) {
-      return;
-    }
-
-    void this.router.navigate(['/inspections', inspection.id], {
-      queryParams: buildInspectionListViewQueryParams(this.activeViewId()),
-    });
   }
 
   protected openScheduleModal(inspectionId: string): void {
@@ -520,14 +518,14 @@ export class InspectionsViewComponent {
     this.scheduledInspectionId.set(null);
   }
 
-  protected scheduleInspectionFromList(plannedDate: string): void {
+  protected scheduleInspectionFromList(inspectionDate: string): void {
     const inspectionId = this.scheduledInspectionId();
 
     if (!inspectionId) {
       return;
     }
 
-    this.inspectionsStore.setPlannedDate(inspectionId, plannedDate);
+    this.inspectionsStore.setInspectionDate(inspectionId, inspectionDate);
     this.closeScheduleModal();
   }
 
@@ -553,9 +551,9 @@ export class InspectionsViewComponent {
   }
 
   protected inspectionDateLabel(details: InspectionDetails): string {
-    return details.inspection.plannedDate
-      ? formatInspectionDate(details.inspection.plannedDate)
-      : formatInspectionWindow(details.inspection.windowStart, details.inspection.windowEnd);
+    return details.inspection.inspectionDate
+      ? formatInspectionDate(details.inspection.inspectionDate)
+      : this.transloco.translate('inspections.detail.unconfirmedDate');
   }
 
   protected inspectionAddressSummary(details: InspectionDetails): string {

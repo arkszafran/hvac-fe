@@ -583,7 +583,6 @@
     "fields": {
       "customer": "Customer",
       "contactDetails": "Contact details",
-      "plannedDate": "Planned date",
       "inspectionDate": "Inspection date",
       "devices": "Devices"
     },
@@ -625,13 +624,11 @@
       "confirmDate": "Confirm date"
     },
     "summary": {
-      "plannedDate": "Date: {{date}}",
-      "targetDate": "Target date: {{date}}",
-      "shortDescription": "{{status}} • {{window}} • {{deviceCount}} devices • {{plannedLabel}}"
+      "inspectionDate": "Date: {{date}}",
+      "shortDescription": "{{status}} • {{deviceCount}} devices • {{dateLabel}}"
     },
     "timeline": {
-      "plannedDate": "Scheduled date: {{date}}",
-      "window": "Inspection window: {{window}}"
+      "inspectionDate": "Inspection date: {{date}}"
     },
     "detail": {
       "backToList": "Inspection list",
@@ -641,11 +638,18 @@
       "deviceCount": "{{count}} devices",
       "nextInspection": "Next inspection: {{date}}",
       "addDeviceModalTitle": "Add device to inspection",
-      "addDeviceModalDescription": "We show only this customer's devices that have active inspections, are not assigned to another open object, and fit within the 30-day window.",
+      "addDeviceModalDescription": "We show only this customer's devices that are not assigned to another active inspection.",
       "noAddableDevices": "No devices can be safely added to this inspection right now.",
       "notFoundTitle": "We could not find the inspection",
       "notFoundDescription": "Check the identifier or return to the inspection list.",
       "backToInspections": "Back to inspection list"
+    },
+    "preview": {
+      "title": "Inspection details",
+      "description": "Key information about the date and assigned devices.",
+      "devicesTitle": "Devices in this inspection",
+      "emptyDevices": "No devices are assigned to this inspection.",
+      "openFullPage": "Open full inspection page"
     },
     "scheduleModal": {
       "title": "Set inspection date",
@@ -664,10 +668,10 @@
     },
     "createModal": {
       "title": "Create inspection",
-      "description": "Choose a customer and devices eligible for a shared inspection.",
+      "description": "Choose a customer, date, and devices to assign to the inspection.",
       "customerDevices": "Customer devices",
-      "customerDevicesDescription": "We show only devices with an active inspection date that are not already attached to an open object.",
-      "emptyDevices": "This customer has no devices ready to be manually added to an inspection right now."
+      "customerDevicesDescription": "We show devices that are not already attached to an active inspection.",
+      "emptyDevices": "This customer has no devices without an active inspection right now."
     },
     "linkProposal": {
       "defaultTitle": "Attach to inspection?",
@@ -678,18 +682,16 @@
     "candidatePicker": {
       "defaultTitle": "Choose inspection",
       "createAction": "Create new inspection",
-      "empty": "No other matching inspections. You can create a new object or undo the change."
+      "empty": "No other active inspections. You can create a new object or undo the change."
     },
     "conflicts": {
-      "missingDevice": "Some devices assigned to the inspection no longer exist in the database.",
-      "deviceNotEligible": "One of the devices is no longer eligible for an active periodic inspection.",
-      "dateWindow": "The planned date covers more than 30 days and requires devices to be reorganized."
+      "missingDevice": "Some devices assigned to the inspection no longer exist in the database."
     },
     "flow": {
       "attachExistingTitle": "Attach device to an existing inspection?",
-      "newDeviceSingleDescription": "The new device matches one open customer inspection. You can attach it or create a separate inspection.",
+      "newDeviceSingleDescription": "The customer has one active inspection. You can attach the device and use that inspection date or create a separate inspection.",
       "newDeviceChoiceTitle": "Choose inspection for the new device",
-      "newDeviceChoiceDescription": "We found several open customer inspections within the 30-day window. Choose where to attach the device or create a new inspection.",
+      "newDeviceChoiceDescription": "The customer has several active inspections. Choose where to attach the device or create a new inspection with the entered date.",
       "attachToInspection": "Attach to inspection",
       "separateInspection": "Separate inspection",
       "createNewInspection": "Create new inspection",
@@ -697,15 +699,19 @@
       "dateChangeCreatesNewDescription": "This device is the only item in an already scheduled inspection. Changing the date cancels the current inspection and creates a new planning object.",
       "cancelCurrentAndCreateNew": "Cancel current and create new inspection",
       "undoDateChange": "Undo date change",
-      "scheduledDateOutOfWindow": "The new date is outside the 30-day window of the currently scheduled inspection. The device must be detached from the current inspection and assigned elsewhere or a new one must be created.",
-      "dateOutOfWindow": "The new date is outside the 30-day window of the current inspection. Choose another open inspection, create a new one, or undo the change.",
+      "scheduledDateOutOfWindow": "The new date differs from the current inspection date. You can detach the device from the current inspection and assign it elsewhere or create a new one.",
+      "dateOutOfWindow": "The new date differs from the current inspection date. Choose another active inspection, create a new one, or undo the change.",
       "moveToOtherTitle": "Move device to another inspection?",
       "assignToInspection": "Assign to this inspection",
       "chooseNewInspectionTitle": "Choose new inspection for the device",
-      "newDateSingleDescription": "The new date qualifies this device for one open customer inspection. You can attach it or create a separate inspection.",
+      "newDateSingleDescription": "The customer has one active inspection. You can attach the device and use that inspection date or create a separate inspection.",
       "undoDate": "Undo date",
       "newDateChoiceTitle": "Choose inspection for the device",
-      "newDateChoiceDescription": "The new date matches several open customer inspections. Choose one or create a new inspection."
+      "newDateChoiceDescription": "The customer has several active inspections. Choose one or create a new inspection with the entered date.",
+      "changeSharedInspectionTitle": "Change the shared inspection date?",
+      "changeSharedInspectionDescription": "This inspection also includes other customer devices. You can change the date for the whole inspection or create a separate inspection only for this device.",
+      "changeSharedInspectionDate": "Change whole inspection date",
+      "createSeparateWithNewDate": "Create separate inspection"
     },
     "views": {
       "planned": {

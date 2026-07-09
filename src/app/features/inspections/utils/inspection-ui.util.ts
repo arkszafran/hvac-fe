@@ -17,18 +17,6 @@ export function formatInspectionDate(value: string): string {
   return new Intl.DateTimeFormat('pl-PL').format(parsedDate);
 }
 
-export function formatInspectionWindow(windowStart: string, windowEnd: string): string {
-  if (!windowStart && !windowEnd) {
-    return '--';
-  }
-
-  if (!windowStart || !windowEnd || windowStart === windowEnd) {
-    return formatInspectionDate(windowStart || windowEnd);
-  }
-
-  return `${formatInspectionDate(windowStart)} - ${formatInspectionDate(windowEnd)}`;
-}
-
 export function getInspectionStatusLabel(
   status: InspectionStatus,
   transloco: TranslocoService,
@@ -129,19 +117,16 @@ export function buildInspectionShortDescription(
   input: InspectionSummaryInput,
   transloco: TranslocoService,
 ): string {
-  const plannedLabel = input.plannedDate
-    ? transloco.translate('inspections.summary.plannedDate', {
-        date: formatInspectionDate(input.plannedDate),
+  const dateLabel = input.inspectionDate
+    ? transloco.translate('inspections.summary.inspectionDate', {
+        date: formatInspectionDate(input.inspectionDate),
       })
-    : transloco.translate('inspections.summary.targetDate', {
-        date: formatInspectionDate(input.windowStart),
-      });
+    : transloco.translate('inspections.detail.unconfirmedDate');
 
   return transloco.translate('inspections.summary.shortDescription', {
     status: getInspectionStatusLabel(input.status, transloco),
-    window: formatInspectionWindow(input.windowStart, input.windowEnd),
     deviceCount: input.deviceCount,
-    plannedLabel,
+    dateLabel,
   });
 }
 
@@ -149,11 +134,9 @@ export function getInspectionTimelineDescription(
   inspection: Inspection,
   transloco: TranslocoService,
 ): string {
-  return inspection.plannedDate
-    ? transloco.translate('inspections.timeline.plannedDate', {
-        date: formatInspectionDate(inspection.plannedDate),
+  return inspection.inspectionDate
+    ? transloco.translate('inspections.timeline.inspectionDate', {
+        date: formatInspectionDate(inspection.inspectionDate),
       })
-    : transloco.translate('inspections.timeline.window', {
-        window: formatInspectionWindow(inspection.windowStart, inspection.windowEnd),
-      });
+    : transloco.translate('inspections.detail.unconfirmedDate');
 }

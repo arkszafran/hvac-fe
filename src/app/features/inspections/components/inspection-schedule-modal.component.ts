@@ -18,11 +18,11 @@ import { UiButtonComponent, UiInputComponent, UiModalComponent } from '../../../
     >
       <form [formGroup]="form">
         <ui-input
-          [label]="'inspections.fields.plannedDate' | transloco"
+          [label]="'inspections.fields.inspectionDate' | transloco"
           type="date"
           required
           [error]="validationError()"
-          formControlName="plannedDate"
+          formControlName="inspectionDate"
         />
       </form>
 
@@ -49,7 +49,7 @@ export class InspectionScheduleModalComponent {
 
   protected submitAttempted = false;
   protected readonly form = this.formBuilder.nonNullable.group({
-    plannedDate: ['', Validators.required],
+    inspectionDate: ['', Validators.required],
   });
 
   constructor() {
@@ -59,7 +59,7 @@ export class InspectionScheduleModalComponent {
       }
 
       this.form.reset({
-        plannedDate: this.initialDate(),
+        inspectionDate: this.initialDate(),
       });
       this.submitAttempted = false;
     });
@@ -73,7 +73,7 @@ export class InspectionScheduleModalComponent {
       return;
     }
 
-    this.save.emit(this.form.controls.plannedDate.getRawValue().trim());
+    this.save.emit(this.form.controls.inspectionDate.getRawValue().trim());
   }
 
   protected handleClose(): void {
@@ -81,7 +81,7 @@ export class InspectionScheduleModalComponent {
   }
 
   protected validationError(): string {
-    const control = this.form.controls.plannedDate;
+    const control = this.form.controls.inspectionDate;
 
     if (!control.invalid || (!this.submitAttempted && !control.touched)) {
       return '';

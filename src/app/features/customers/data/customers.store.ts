@@ -155,43 +155,6 @@ export class CustomersStore {
 
     return updatedDevice;
   }
-
-  updateDeviceInspectionSettings(
-    customerId: string,
-    deviceId: string,
-    inspectionSettings: Pick<Device, 'hasScheduledInspections' | 'nextInspectionDate'>,
-  ): Device | undefined {
-    let updatedDevice: Device | undefined;
-
-    this.customersState.update((customers) =>
-      customers.map((customer) => {
-        if (customer.id !== customerId) {
-          return customer;
-        }
-
-        return {
-          ...customer,
-          devices: customer.devices.map((device) => {
-            if (device.id !== deviceId) {
-              return device;
-            }
-
-            updatedDevice = {
-              ...device,
-              hasScheduledInspections: inspectionSettings.hasScheduledInspections,
-              nextInspectionDate: inspectionSettings.hasScheduledInspections
-                ? inspectionSettings.nextInspectionDate.trim()
-                : '',
-            };
-
-            return updatedDevice;
-          }),
-        };
-      }),
-    );
-
-    return updatedDevice;
-  }
 }
 
 function normalizeCustomerDraft(draft: CustomerDraft): CustomerDraft {
@@ -209,7 +172,6 @@ function normalizeCustomerDraft(draft: CustomerDraft): CustomerDraft {
 
 function normalizeDeviceDraft(draft: DeviceDraft): Omit<Device, 'id'> {
   const hasCustomInstallationAddress = draft.hasCustomInstallationAddress;
-  const hasScheduledInspections = draft.hasScheduledInspections;
   const warrantyMonths = Math.max(0, draft.warrantyMonths);
   const installationDate = draft.installationDate.trim();
 
@@ -221,8 +183,6 @@ function normalizeDeviceDraft(draft: DeviceDraft): Omit<Device, 'id'> {
     installationDate,
     warrantyMonths,
     warrantyUntil: calculateWarrantyUntil(installationDate, warrantyMonths),
-    hasScheduledInspections,
-    nextInspectionDate: hasScheduledInspections ? draft.nextInspectionDate.trim() : '',
     note: draft.note.trim(),
     refrigerant: draft.refrigerant.trim(),
     refrigerantAmount: draft.refrigerantAmount.trim(),

@@ -23,7 +23,7 @@
           >
             <span class="block text-label text-text-main">{{ customerName(details) }}</span>
             <span class="block text-small text-text-muted">
-              {{ formatInspectionDate(details.inspection.plannedDate || details.inspection.targetDate) }}
+              {{ details.inspection.inspectionDate ? formatInspectionDate(details.inspection.inspectionDate) : ('inspections.detail.unconfirmedDate' | transloco) }}
             </span>
             <span class="block text-small text-text-muted">{{ devicesLabel(details) }}</span>
           </button>

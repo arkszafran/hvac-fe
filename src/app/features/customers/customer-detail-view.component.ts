@@ -12,6 +12,7 @@ import {
 } from '../../ui';
 import { InspectionCandidatePickerModalComponent } from '../inspections/components/inspection-candidate-picker-modal.component';
 import { InspectionLinkProposalModalComponent } from '../inspections/components/inspection-link-proposal-modal.component';
+import { InspectionPreviewModalComponent } from '../inspections/components/inspection-preview-modal/inspection-preview-modal.component';
 import {
   DeviceCreateInspectionPlan,
   DeviceUpdateInspectionPlan,
@@ -20,7 +21,6 @@ import {
 import { InspectionsStore } from '../inspections/data/inspections.store';
 import { InspectionStatus } from '../inspections/models/inspection.model';
 import {
-  formatInspectionWindow,
   getInspectionStatusLabel,
   getInspectionStatusVariant,
 } from '../inspections/utils/inspection-ui.util';
@@ -46,6 +46,7 @@ import { Device, DeviceDraft } from './models/device.model';
     DeviceListComponent,
     InspectionLinkProposalModalComponent,
     InspectionCandidatePickerModalComponent,
+    InspectionPreviewModalComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -147,17 +148,14 @@ import { Device, DeviceDraft } from './models/device.model';
                       </div>
 
                       <p class="text-label text-text-main">
-                        {{ formatInspectionWindow(details.inspection.windowStart, details.inspection.windowEnd) }}
-                      </p>
-                      <p class="text-small text-text-muted">
-                        {{ details.inspection.plannedDate ? ('inspections.summary.plannedDate' | transloco: { date: formatDate(details.inspection.plannedDate) }) : ('inspections.detail.unconfirmedDate' | transloco) }}
+                        {{ details.inspection.inspectionDate ? formatDate(details.inspection.inspectionDate) : ('inspections.detail.unconfirmedDate' | transloco) }}
                       </p>
                     </div>
 
                     <ui-button
                       size="sm"
                       variant="ghost"
-                      (pressed)="navigateToInspection(details.inspection.id)"
+                      (pressed)="openInspectionPreview(details.inspection.id)"
                     >
                       {{ 'common.actions.details' | transloco }}
                     </ui-button>
@@ -225,6 +223,14 @@ import { Device, DeviceDraft } from './models/device.model';
           (close)="closeEditDeviceModal()"
           (save)="handleUpdateDevice($event)"
         />
+
+        @if (selectedInspectionDetails(); as inspectionDetails) {
+          <app-inspection-preview-modal
+            [open]="true"
+            [details]="inspectionDetails"
+            (close)="closeInspectionPreview()"
+          />
+        }
 
         @if (pendingCreatePlan(); as createPlan) {
           @if (createPlan.kind === 'single-candidate') {
@@ -314,6 +320,7 @@ export class CustomerDetailViewComponent {
   protected readonly isAddDeviceModalOpen = signal(false);
   protected readonly isEditDeviceModalOpen = signal(false);
   protected readonly editingDeviceId = signal<string | null>(null);
+  protected readonly selectedInspectionId = signal<string | null>(null);
   protected readonly pendingCreateDraft = signal<DeviceDraft | null>(null);
   protected readonly pendingCreatePlan = signal<DeviceCreateInspectionPlan | null>(null);
   protected readonly pendingUpdateDraft = signal<DeviceDraft | null>(null);
@@ -333,6 +340,11 @@ export class CustomerDetailViewComponent {
       (details) => details.customer.id === this.customerId() && details.inspection.status !== 'completed' && details.inspection.status !== 'cancelled',
     ),
   );
+  protected readonly selectedInspectionDetails = computed(() => {
+    const inspectionId = this.selectedInspectionId();
+
+    return inspectionId ? this.inspectionsStore.getInspectionDetailsById(inspectionId) ?? null : null;
+  });
   protected readonly editableCustomerDraft = computed<CustomerDraft | null>(() => {
     const customer = this.customer();
 
@@ -365,6 +377,8 @@ export class CustomerDetailViewComponent {
       return null;
     }
 
+    const activeInspection = this.inspectionsStore.getActiveInspectionByDeviceId(device.id);
+
     return {
       type: device.type,
       brand: device.brand,
@@ -372,8 +386,8 @@ export class CustomerDetailViewComponent {
       serialNumber: device.serialNumber,
       installationDate: device.installationDate,
       warrantyMonths: device.warrantyMonths,
-      hasScheduledInspections: device.hasScheduledInspections,
-      nextInspectionDate: device.nextInspectionDate,
+      hasScheduledInspections: Boolean(activeInspection),
+      nextInspectionDate: activeInspection?.inspectionDate ?? '',
       note: device.note,
       refrigerant: device.refrigerant,
       refrigerantAmount: device.refrigerantAmount,
@@ -390,7 +404,6 @@ export class CustomerDetailViewComponent {
     return getInspectionStatusLabel(status, this.transloco);
   }
   protected readonly getInspectionStatusVariant = getInspectionStatusVariant;
-  protected readonly formatInspectionWindow = formatInspectionWindow;
 
   protected customerTitle(customer: Customer): string {
     return customer.companyName || customer.fullName || this.transloco.translate('customers.newCustomer');
@@ -419,8 +432,12 @@ export class CustomerDetailViewComponent {
     void this.router.navigate(['/customers']);
   }
 
-  protected navigateToInspection(inspectionId: string): void {
-    void this.router.navigate(['/inspections', inspectionId]);
+  protected openInspectionPreview(inspectionId: string): void {
+    this.selectedInspectionId.set(inspectionId);
+  }
+
+  protected closeInspectionPreview(): void {
+    this.selectedInspectionId.set(null);
   }
 
   protected handleAddDevice(deviceDraft: DeviceDraft): void {

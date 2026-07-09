@@ -13,7 +13,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 import { startWith } from 'rxjs';
 
-import { UiButtonComponent, UiModalComponent, UiSelectComponent } from '../../../ui';
+import { UiButtonComponent, UiInputComponent, UiModalComponent, UiSelectComponent } from '../../../ui';
 
 export interface InspectionManualCustomerOption {
   id: string;
@@ -30,7 +30,14 @@ export interface InspectionManualDeviceOption {
 @Component({
   selector: 'app-inspection-create-modal',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslocoPipe, UiButtonComponent, UiModalComponent, UiSelectComponent],
+  imports: [
+    ReactiveFormsModule,
+    TranslocoPipe,
+    UiButtonComponent,
+    UiInputComponent,
+    UiModalComponent,
+    UiSelectComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ui-modal
@@ -46,6 +53,13 @@ export interface InspectionManualDeviceOption {
           [placeholder]="'devices.customerPicker.title' | transloco"
           [options]="customerSelectOptions()"
           formControlName="customerId"
+        />
+
+        <ui-input
+          [label]="'inspections.fields.inspectionDate' | transloco"
+          type="date"
+          required
+          formControlName="inspectionDate"
         />
 
         <div class="space-y-3">
@@ -109,13 +123,15 @@ export class InspectionCreateModalComponent {
   readonly customers = input<InspectionManualCustomerOption[]>([]);
   readonly devices = input<InspectionManualDeviceOption[]>([]);
   readonly initialCustomerId = input('');
+  readonly initialDeviceIds = input<string[]>([]);
 
   readonly close = output<void>();
-  readonly save = output<{ customerId: string; deviceIds: string[] }>();
+  readonly save = output<{ customerId: string; deviceIds: string[]; inspectionDate: string }>();
 
   protected readonly selectedDeviceIds = signal<string[]>([]);
   protected readonly form = this.formBuilder.nonNullable.group({
     customerId: ['', Validators.required],
+    inspectionDate: ['', Validators.required],
   });
   protected readonly selectedCustomerId = toSignal(
     this.form.controls.customerId.valueChanges.pipe(
@@ -144,8 +160,9 @@ export class InspectionCreateModalComponent {
 
       this.form.reset({
         customerId: defaultCustomerId,
+        inspectionDate: '',
       });
-      this.selectedDeviceIds.set([]);
+      this.selectedDeviceIds.set(this.initialDeviceIds());
     });
 
     effect(() => {
@@ -193,6 +210,7 @@ export class InspectionCreateModalComponent {
     this.save.emit({
       customerId,
       deviceIds: this.selectedDeviceIds(),
+      inspectionDate: this.form.controls.inspectionDate.getRawValue().trim(),
     });
   }
 

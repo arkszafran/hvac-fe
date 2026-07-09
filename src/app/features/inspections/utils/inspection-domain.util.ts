@@ -1,5 +1,5 @@
 import { Customer } from '../../customers/models/customer.model';
-import { Device, DeviceDraft } from '../../customers/models/device.model';
+import { Device } from '../../customers/models/device.model';
 import {
   Inspection,
   InspectionCandidate,
@@ -9,7 +9,7 @@ import {
 } from '../models/inspection.model';
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
-export const INSPECTION_GROUPING_WINDOW_DAYS = 30;
+
 export const OPEN_INSPECTION_STATUSES: readonly InspectionStatus[] = [
   'new',
   'reminder_sent',
@@ -17,25 +17,13 @@ export const OPEN_INSPECTION_STATUSES: readonly InspectionStatus[] = [
   'customer_not_confirmed',
   'scheduled',
 ];
+
 export const FLEXIBLE_INSPECTION_STATUSES: readonly InspectionStatus[] = [
   'new',
   'reminder_sent',
   'customer_confirmed',
   'customer_not_confirmed',
 ];
-
-export interface DeviceInspectionLike {
-  id: string;
-  customerId: string;
-  hasScheduledInspections: boolean;
-  nextInspectionDate: string;
-}
-
-export interface InspectionTimeline {
-  targetDate: string;
-  windowStart: string;
-  windowEnd: string;
-}
 
 export function createEntityId(prefix: string): string {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
@@ -87,80 +75,26 @@ export function compareDateInputs(left: string, right: string): number {
     return 0;
   }
 
-  return left < right ? -1 : 1;
-}
-
-export function differenceInDays(left: string, right: string): number {
-  const leftDate = parseDateInput(left);
-  const rightDate = parseDateInput(right);
-
-  if (!leftDate || !rightDate) {
-    return Number.POSITIVE_INFINITY;
+  if (!left) {
+    return 1;
   }
 
-  return Math.round(Math.abs(leftDate.getTime() - rightDate.getTime()) / DAY_IN_MS);
-}
+  if (!right) {
+    return -1;
+  }
 
-export function isDeviceEligibleForInspection(
-  device: Pick<DeviceInspectionLike, 'hasScheduledInspections' | 'nextInspectionDate'>,
-): boolean {
-  return device.hasScheduledInspections && Boolean(device.nextInspectionDate.trim());
-}
-
-export function getCustomerDevice(device: Device, customer: Customer): DeviceInspectionLike {
-  return {
-    id: device.id,
-    customerId: customer.id,
-    hasScheduledInspections: device.hasScheduledInspections,
-    nextInspectionDate: device.nextInspectionDate,
-  };
-}
-
-export function createDeviceInspectionSnapshot(
-  customerId: string,
-  deviceId: string,
-  deviceDraft: Pick<DeviceDraft, 'hasScheduledInspections' | 'nextInspectionDate'>,
-): DeviceInspectionLike {
-  return {
-    id: deviceId,
-    customerId,
-    hasScheduledInspections: deviceDraft.hasScheduledInspections,
-    nextInspectionDate: deviceDraft.hasScheduledInspections ? deviceDraft.nextInspectionDate.trim() : '',
-  };
+  return left < right ? -1 : 1;
 }
 
 export function isInspectionOpen(status: InspectionStatus): boolean {
   return OPEN_INSPECTION_STATUSES.includes(status);
 }
 
-export function getInspectionTimeline(
-  deviceIds: string[],
-  devicesById: Map<string, DeviceInspectionLike>,
-): InspectionTimeline {
-  const dates = deviceIds
-    .map((deviceId) => devicesById.get(deviceId))
-    .filter((device): device is DeviceInspectionLike => Boolean(device))
-    .filter(isDeviceEligibleForInspection)
-    .map((device) => device.nextInspectionDate)
-    .sort(compareDateInputs);
-
-  const firstDate = dates[0] ?? '';
-  const lastDate = dates.at(-1) ?? '';
-
-  return {
-    targetDate: firstDate,
-    windowStart: firstDate,
-    windowEnd: lastDate,
-  };
-}
-
 export function createInspection(
   input: InspectionCreateInput,
-  devicesById: Map<string, DeviceInspectionLike>,
   now = currentTimestamp(),
 ): Inspection {
   const uniqueDeviceIds = Array.from(new Set(input.deviceIds));
-  const timeline = getInspectionTimeline(uniqueDeviceIds, devicesById);
 
   return {
     id: createEntityId('inspection'),
@@ -168,10 +102,7 @@ export function createInspection(
     deviceIds: uniqueDeviceIds,
     source: input.source ?? 'auto',
     status: input.status ?? 'new',
-    targetDate: timeline.targetDate,
-    windowStart: timeline.windowStart,
-    windowEnd: timeline.windowEnd,
-    plannedDate: input.plannedDate?.trim() ?? '',
+    inspectionDate: input.inspectionDate?.trim() ?? '',
     reminderSentAt: input.reminderSentAt?.trim() ?? '',
     customerConfirmedAt: input.customerConfirmedAt?.trim() ?? '',
     lastContactAt: input.lastContactAt?.trim() ?? '',
@@ -181,129 +112,32 @@ export function createInspection(
   };
 }
 
-export function recalculateInspection(
-  inspection: Inspection,
-  devicesById: Map<string, DeviceInspectionLike>,
-  now = currentTimestamp(),
-): Inspection {
-  const timeline = getInspectionTimeline(inspection.deviceIds, devicesById);
-
-  return {
-    ...inspection,
-    targetDate: timeline.targetDate,
-    windowStart: timeline.windowStart,
-    windowEnd: timeline.windowEnd,
-    updatedAt: now,
-  };
-}
-
-export function inspectionCanIncludeDate(
-  inspection: Inspection,
-  candidateDate: string,
-  devicesById: Map<string, DeviceInspectionLike>,
-  ignoredDeviceIds: string[] = [],
-): boolean {
-  if (!candidateDate.trim()) {
-    return false;
-  }
-
-  const dates = inspection.deviceIds
-    .filter((deviceId) => !ignoredDeviceIds.includes(deviceId))
-    .map((deviceId) => devicesById.get(deviceId))
-    .filter((device): device is DeviceInspectionLike => Boolean(device))
-    .filter(isDeviceEligibleForInspection)
-    .map((device) => device.nextInspectionDate);
-
-  dates.push(candidateDate);
-  dates.sort(compareDateInputs);
-
-  if (dates.length <= 1) {
-    return true;
-  }
-
-  return differenceInDays(dates[0], dates.at(-1) ?? dates[0]) <= INSPECTION_GROUPING_WINDOW_DAYS;
-}
-
 export function findMatchingInspections(
   customerId: string,
-  device: DeviceInspectionLike,
+  deviceId: string,
   inspections: Inspection[],
-  devicesById: Map<string, DeviceInspectionLike>,
   excludedInspectionIds: string[] = [],
 ): InspectionCandidate[] {
-  if (!isDeviceEligibleForInspection(device)) {
-    return [];
-  }
-
   return inspections
     .filter(
       (inspection) =>
         inspection.customerId === customerId &&
         isInspectionOpen(inspection.status) &&
         !excludedInspectionIds.includes(inspection.id) &&
-        !inspection.deviceIds.includes(device.id),
-    )
-    .filter((inspection) =>
-      inspectionCanIncludeDate(inspection, device.nextInspectionDate, devicesById),
+        !inspection.deviceIds.includes(deviceId),
     )
     .map((inspection) => ({
       inspection,
-      targetDateLabel: inspection.plannedDate || inspection.targetDate,
+      inspectionDateLabel: inspection.inspectionDate,
     }))
-    .sort((left, right) => compareDateInputs(left.targetDateLabel, right.targetDateLabel));
-}
-
-export function groupCustomerDevicesIntoInspections(
-  customer: Customer,
-  now = currentTimestamp(),
-): Inspection[] {
-  const devicesById = new Map(
-    customer.devices.map((device) => [device.id, getCustomerDevice(device, customer)]),
-  );
-  const eligibleDevices = customer.devices
-    .filter((device) => isDeviceEligibleForInspection(device))
-    .slice()
-    .sort((left, right) => compareDateInputs(left.nextInspectionDate, right.nextInspectionDate));
-
-  const groups: string[][] = [];
-
-  for (const device of eligibleDevices) {
-    const currentGroup = groups.at(-1);
-
-    if (!currentGroup) {
-      groups.push([device.id]);
-      continue;
-    }
-
-    const nextGroupTimeline = getInspectionTimeline([...currentGroup, device.id], devicesById);
-    const groupSpan = nextGroupTimeline.windowStart && nextGroupTimeline.windowEnd
-      ? differenceInDays(nextGroupTimeline.windowStart, nextGroupTimeline.windowEnd)
-      : 0;
-
-    if (groupSpan <= INSPECTION_GROUPING_WINDOW_DAYS) {
-      currentGroup.push(device.id);
-      continue;
-    }
-
-    groups.push([device.id]);
-  }
-
-  return groups.map((deviceIds) =>
-    createInspection(
-      {
-        customerId: customer.id,
-        deviceIds,
-        source: 'auto',
-      },
-      devicesById,
-      now,
-    ),
-  );
+    .sort((left, right) =>
+      compareDateInputs(left.inspectionDateLabel, right.inspectionDateLabel),
+    );
 }
 
 export function getInspectionConflict(
   inspection: Inspection,
-  devicesById: Map<string, DeviceInspectionLike>,
+  devicesById: Map<string, Device>,
 ): InspectionConflict | null {
   const devices = inspection.deviceIds.map((deviceId) => devicesById.get(deviceId));
 
@@ -311,28 +145,6 @@ export function getInspectionConflict(
     return {
       code: 'missing_device',
       messageKey: 'inspections.conflicts.missingDevice',
-    };
-  }
-
-  if (
-    devices.some(
-      (device) => device && (!device.hasScheduledInspections || !device.nextInspectionDate.trim()),
-    )
-  ) {
-    return {
-      code: 'device_not_eligible',
-      messageKey: 'inspections.conflicts.deviceNotEligible',
-    };
-  }
-
-  if (
-    inspection.windowStart &&
-    inspection.windowEnd &&
-    differenceInDays(inspection.windowStart, inspection.windowEnd) > INSPECTION_GROUPING_WINDOW_DAYS
-  ) {
-    return {
-      code: 'date_window',
-      messageKey: 'inspections.conflicts.dateWindow',
     };
   }
 
@@ -349,7 +161,5 @@ export function getCustomerDevicesWithoutInspection(
       .flatMap((inspection) => inspection.deviceIds),
   );
 
-  return customer.devices.filter(
-    (device) => isDeviceEligibleForInspection(device) && !assignedDeviceIds.has(device.id),
-  );
+  return customer.devices.filter((device) => !assignedDeviceIds.has(device.id));
 }

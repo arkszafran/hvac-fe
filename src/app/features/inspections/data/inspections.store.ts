@@ -6,16 +6,12 @@ import { Customer } from '../../customers/models/customer.model';
 import { Device } from '../../customers/models/device.model';
 import { Inspection } from '../models/inspection.model';
 import {
-  DeviceInspectionLike,
+  compareDateInputs,
   createInspection,
   currentTimestamp,
-  getCustomerDevice,
   getCustomerDevicesWithoutInspection,
   getInspectionConflict,
-  groupCustomerDevicesIntoInspections,
-  isDeviceEligibleForInspection,
   isInspectionOpen,
-  recalculateInspection,
 } from '../utils/inspection-domain.util';
 import { getInspectionNextActionLabel } from '../utils/inspection-ui.util';
 
@@ -35,18 +31,16 @@ export interface DeviceWithoutInspection {
 export class InspectionsStore {
   private readonly customersStore = inject(CustomersStore);
   private readonly transloco = inject(TranslocoService);
-  private readonly inspectionsState = signal<Inspection[]>(
-    this.customersStore.customers().flatMap((customer) => groupCustomerDevicesIntoInspections(customer)),
-  );
+  private readonly inspectionsState = signal<Inspection[]>(createInitialInspectionMocks());
 
   readonly inspections = this.inspectionsState.asReadonly();
 
   readonly devicesById = computed(() => {
-    const map = new Map<string, DeviceInspectionLike>();
+    const map = new Map<string, Device>();
 
     for (const customer of this.customersStore.customers()) {
       for (const device of customer.devices) {
-        map.set(device.id, getCustomerDevice(device, customer));
+        map.set(device.id, device);
       }
     }
 
@@ -79,7 +73,9 @@ export class InspectionsStore {
         };
       })
       .filter((details): details is InspectionDetails => Boolean(details))
-      .sort((left, right) => left.inspection.targetDate.localeCompare(right.inspection.targetDate));
+      .sort((left, right) =>
+        compareDateInputs(left.inspection.inspectionDate, right.inspection.inspectionDate),
+      );
   });
 
   readonly activeInspectionIdsByDevice = computed(() => {
@@ -123,10 +119,23 @@ export class InspectionsStore {
     return inspectionId ? this.getInspectionById(inspectionId) : undefined;
   }
 
+  getActiveInspectionsByCustomerId(customerId: string, excludedDeviceId = ''): Inspection[] {
+    return this.inspections()
+      .filter(
+        (inspection) =>
+          inspection.customerId === customerId &&
+          isInspectionOpen(inspection.status) &&
+          (!excludedDeviceId || !inspection.deviceIds.includes(excludedDeviceId)),
+      )
+      .sort((left, right) => compareDateInputs(left.inspectionDate, right.inspectionDate));
+  }
+
   createInspection(input: {
     customerId: string;
     deviceIds: string[];
     source?: Inspection['source'];
+    status?: Inspection['status'];
+    inspectionDate?: string;
     note?: string;
   }): Inspection | undefined {
     const uniqueDeviceIds = Array.from(new Set(input.deviceIds));
@@ -135,15 +144,14 @@ export class InspectionsStore {
       return undefined;
     }
 
-    const createdInspection = createInspection(
-      {
-        customerId: input.customerId,
-        deviceIds: uniqueDeviceIds,
-        source: input.source,
-        note: input.note,
-      },
-      this.devicesById(),
-    );
+    const createdInspection = createInspection({
+      customerId: input.customerId,
+      deviceIds: uniqueDeviceIds,
+      source: input.source,
+      status: input.status,
+      inspectionDate: input.inspectionDate,
+      note: input.note,
+    });
 
     this.inspectionsState.update((inspections) => [createdInspection, ...inspections]);
 
@@ -154,24 +162,45 @@ export class InspectionsStore {
     let updatedInspection: Inspection | undefined;
     const now = currentTimestamp();
 
-    this.inspectionsState.update((inspections) =>
-      inspections.map((inspection) => {
-        if (inspection.id !== inspectionId || inspection.deviceIds.includes(deviceId)) {
-          return inspection;
-        }
+    this.inspectionsState.update((inspections) => {
+      const targetInspection = inspections.find((inspection) => inspection.id === inspectionId);
 
-        updatedInspection = recalculateInspection(
-          {
+      if (!targetInspection) {
+        return inspections;
+      }
+
+      return inspections
+        .map((inspection) => {
+          if (
+            inspection.id !== inspectionId &&
+            isInspectionOpen(inspection.status) &&
+            inspection.deviceIds.includes(deviceId)
+          ) {
+            return {
+              ...inspection,
+              deviceIds: inspection.deviceIds.filter((currentId) => currentId !== deviceId),
+              updatedAt: now,
+            };
+          }
+
+          if (inspection.id !== inspectionId || inspection.deviceIds.includes(deviceId)) {
+            if (inspection.id === inspectionId) {
+              updatedInspection = inspection;
+            }
+
+            return inspection;
+          }
+
+          updatedInspection = {
             ...inspection,
             deviceIds: [...inspection.deviceIds, deviceId],
-          },
-          this.devicesById(),
-          now,
-        );
+            updatedAt: now,
+          };
 
-        return updatedInspection;
-      }),
-    );
+          return updatedInspection;
+        })
+        .filter((inspection) => inspection.deviceIds.length || inspection.status === 'completed' || inspection.status === 'cancelled');
+    });
 
     return updatedInspection;
   }
@@ -210,14 +239,11 @@ export class InspectionsStore {
           return currentInspection;
         }
 
-        updatedInspection = recalculateInspection(
-          {
-            ...currentInspection,
-            deviceIds: remainingDeviceIds,
-          },
-          this.devicesById(),
-          now,
-        );
+        updatedInspection = {
+          ...currentInspection,
+          deviceIds: remainingDeviceIds,
+          updatedAt: now,
+        };
 
         return updatedInspection;
       }),
@@ -226,69 +252,39 @@ export class InspectionsStore {
     return { updatedInspection };
   }
 
+  moveDeviceToNewInspection(
+    customerId: string,
+    currentInspectionId: string,
+    deviceId: string,
+    inspectionDate: string,
+  ): Inspection | undefined {
+    this.removeDeviceFromInspection(currentInspectionId, deviceId);
+
+    return this.createInspection({
+      customerId,
+      deviceIds: [deviceId],
+      inspectionDate,
+      source: 'manual',
+    });
+  }
+
   deleteInspection(inspectionId: string): void {
     this.inspectionsState.update((inspections) =>
       inspections.filter((inspection) => inspection.id !== inspectionId),
     );
   }
 
-  recalculateInspection(inspectionId: string): Inspection | undefined {
-    let updatedInspection: Inspection | undefined;
-    const now = currentTimestamp();
+  setInspectionDate(inspectionId: string, inspectionDate: string): Inspection | undefined {
+    const normalizedInspectionDate = inspectionDate.trim();
 
-    this.inspectionsState.update((inspections) =>
-      inspections.map((inspection) => {
-        if (inspection.id !== inspectionId) {
-          return inspection;
-        }
+    if (!normalizedInspectionDate) {
+      return undefined;
+    }
 
-        updatedInspection = recalculateInspection(inspection, this.devicesById(), now);
-
-        return updatedInspection;
-      }),
-    );
-
-    return updatedInspection;
-  }
-
-  recalculateCustomerInspections(customerId: string): Inspection[] {
-    const updatedInspections: Inspection[] = [];
-    const now = currentTimestamp();
-
-    this.inspectionsState.update((inspections) =>
-      inspections
-        .map((inspection) => {
-          if (inspection.customerId !== customerId) {
-            return inspection;
-          }
-
-          const eligibleDeviceIds = inspection.deviceIds.filter((deviceId) => {
-            const device = this.devicesById().get(deviceId);
-
-            return device && isDeviceEligibleForInspection(device);
-          });
-
-          if (!eligibleDeviceIds.length && inspection.status !== 'cancelled' && inspection.status !== 'completed') {
-            return null;
-          }
-
-          const updatedInspection = recalculateInspection(
-            {
-              ...inspection,
-              deviceIds: eligibleDeviceIds,
-            },
-            this.devicesById(),
-            now,
-          );
-
-          updatedInspections.push(updatedInspection);
-
-          return updatedInspection;
-        })
-        .filter((inspection): inspection is Inspection => Boolean(inspection)),
-    );
-
-    return updatedInspections;
+    return this.patchInspection(inspectionId, {
+      status: 'scheduled',
+      inspectionDate: normalizedInspectionDate,
+    });
   }
 
   markReminderSent(inspectionId: string): Inspection | undefined {
@@ -309,42 +305,6 @@ export class InspectionsStore {
     });
   }
 
-  setPlannedDate(inspectionId: string, plannedDate: string): Inspection | undefined {
-    const inspection = this.getInspectionById(inspectionId);
-    const normalizedPlannedDate = plannedDate.trim();
-
-    if (!inspection || !normalizedPlannedDate) {
-      return undefined;
-    }
-
-    this.syncInspectionDeviceDates(inspection, normalizedPlannedDate);
-
-    let updatedInspection: Inspection | undefined;
-    const now = currentTimestamp();
-
-    this.inspectionsState.update((inspections) =>
-      inspections.map((currentInspection) => {
-        if (currentInspection.id !== inspectionId) {
-          return currentInspection;
-        }
-
-        updatedInspection = recalculateInspection(
-          {
-            ...currentInspection,
-            status: 'scheduled',
-            plannedDate: normalizedPlannedDate,
-          },
-          this.devicesById(),
-          now,
-        );
-
-        return updatedInspection;
-      }),
-    );
-
-    return updatedInspection;
-  }
-
   markCompleted(inspectionId: string): Inspection | undefined {
     return this.patchInspection(inspectionId, {
       status: 'completed',
@@ -358,19 +318,6 @@ export class InspectionsStore {
   }
 
   cancelInspectionAndDisableDeviceInspections(inspectionId: string): Inspection | undefined {
-    const inspection = this.getInspectionById(inspectionId);
-
-    if (!inspection) {
-      return undefined;
-    }
-
-    for (const deviceId of inspection.deviceIds) {
-      this.customersStore.updateDeviceInspectionSettings(inspection.customerId, deviceId, {
-        hasScheduledInspections: false,
-        nextInspectionDate: '',
-      });
-    }
-
     return this.cancelInspection(inspectionId);
   }
 
@@ -403,13 +350,39 @@ export class InspectionsStore {
 
     return updatedInspection;
   }
+}
 
-  private syncInspectionDeviceDates(inspection: Inspection, plannedDate: string): void {
-    for (const deviceId of inspection.deviceIds) {
-      this.customersStore.updateDeviceInspectionSettings(inspection.customerId, deviceId, {
-        hasScheduledInspections: true,
-        nextInspectionDate: plannedDate,
-      });
-    }
-  }
+function createInitialInspectionMocks(): Inspection[] {
+  const now = currentTimestamp();
+
+  return [
+    {
+      id: 'inspection-01',
+      customerId: 'customer-01',
+      deviceIds: ['device-01', 'device-02'],
+      source: 'auto',
+      status: 'new',
+      inspectionDate: '2026-05-12',
+      reminderSentAt: '',
+      customerConfirmedAt: '',
+      lastContactAt: '',
+      note: '',
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: 'inspection-02',
+      customerId: 'customer-02',
+      deviceIds: ['device-03'],
+      source: 'auto',
+      status: 'new',
+      inspectionDate: '2026-05-24',
+      reminderSentAt: '',
+      customerConfirmedAt: '',
+      lastContactAt: '',
+      note: '',
+      createdAt: now,
+      updatedAt: now,
+    },
+  ];
 }

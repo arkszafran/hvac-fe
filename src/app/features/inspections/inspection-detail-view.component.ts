@@ -23,12 +23,10 @@ import {
   getInspectionListViewIdForStatus,
   parseInspectionListViewId,
 } from './models/inspection-list-view.model';
-import { inspectionCanIncludeDate, isDeviceEligibleForInspection } from './utils/inspection-domain.util';
 import {
   canCompleteInspection,
   canScheduleInspection,
   formatInspectionDate,
-  formatInspectionWindow,
   getInspectionScheduleActionLabel,
   getInspectionStatusLabel,
   getInspectionStatusVariant,
@@ -70,7 +68,7 @@ import {
               {{ 'inspections.detail.title' | transloco: { customer: customerName(details.customer) } }}
             </h1>
             <p class="text-body text-text-muted">
-              {{ formatInspectionWindow(details.inspection.windowStart, details.inspection.windowEnd) }}
+              {{ details.inspection.inspectionDate ? formatInspectionDate(details.inspection.inspectionDate) : ('inspections.detail.unconfirmedDate' | transloco) }}
             </p>
           </div>
 
@@ -139,22 +137,11 @@ import {
               </div>
 
               <div class="rounded-[1rem] border border-border/80 bg-white p-4 shadow-card">
-                @if (!details.inspection.plannedDate) {
-                  <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">
-                    {{ 'inspections.fields.plannedDate' | transloco }}
-                  </p>
-                  <p class="mt-2 text-label text-text-main">
-                    {{ formatInspectionWindow(details.inspection.windowStart, details.inspection.windowEnd) }}
-                  </p>
-                }
-                <p
-                  class="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted"
-                  [class.mt-3]="!details.inspection.plannedDate"
-                >
+                <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">
                   {{ 'inspections.fields.inspectionDate' | transloco }}
                 </p>
                 <p class="mt-2 text-label text-text-main">
-                  {{ details.inspection.plannedDate ? formatInspectionDate(details.inspection.plannedDate) : ('inspections.detail.unconfirmedDate' | transloco) }}
+                  {{ details.inspection.inspectionDate ? formatInspectionDate(details.inspection.inspectionDate) : ('inspections.detail.unconfirmedDate' | transloco) }}
                 </p>
               </div>
             </div>
@@ -187,7 +174,7 @@ import {
                       {{ deviceAddress(details.customer, device) }}
                     </p>
                     <p class="text-small text-text-muted">
-                      {{ 'inspections.detail.nextInspection' | transloco: { date: formatInspectionDate(device.nextInspectionDate) } }}
+                      {{ 'inspections.detail.nextInspection' | transloco: { date: formatInspectionDate(details.inspection.inspectionDate) } }}
                     </p>
                   </div>
 
@@ -236,7 +223,7 @@ import {
                   <span class="min-w-0">
                     <span class="block text-label text-text-main">{{ device.brand }} {{ device.model }}</span>
                     <span class="block text-small text-text-muted">
-                      {{ deviceAddress(details.customer, device) }} • {{ formatInspectionDate(device.nextInspectionDate) }}
+                      {{ deviceAddress(details.customer, device) }}
                     </span>
                   </span>
                 </label>
@@ -328,7 +315,7 @@ export class InspectionDetailViewComponent {
       return '';
     }
 
-    return inspection.plannedDate || inspection.targetDate || inspection.windowStart || '';
+    return inspection.inspectionDate;
   });
   protected readonly addableDevices = computed(() => {
     const details = this.details();
@@ -338,10 +325,6 @@ export class InspectionDetailViewComponent {
     }
 
     return details.customer.devices.filter((device) => {
-      if (!isDeviceEligibleForInspection(device)) {
-        return false;
-      }
-
       if (details.inspection.deviceIds.includes(device.id)) {
         return false;
       }
@@ -352,11 +335,7 @@ export class InspectionDetailViewComponent {
         return false;
       }
 
-      return inspectionCanIncludeDate(
-        details.inspection,
-        device.nextInspectionDate,
-        this.inspectionsStore.devicesById(),
-      );
+      return true;
     });
   });
 
@@ -364,7 +343,6 @@ export class InspectionDetailViewComponent {
     return getInspectionStatusLabel(status, this.transloco);
   }
   protected readonly getInspectionStatusVariant = getInspectionStatusVariant;
-  protected readonly formatInspectionWindow = formatInspectionWindow;
   protected readonly formatInspectionDate = formatInspectionDate;
 
   protected customerName(customer: Customer): string {
@@ -422,14 +400,14 @@ export class InspectionDetailViewComponent {
     return getInspectionScheduleActionLabel(status, this.transloco);
   }
 
-  protected scheduleInspection(plannedDate: string): void {
+  protected scheduleInspection(inspectionDate: string): void {
     const inspectionId = this.details()?.inspection.id;
 
     if (!inspectionId) {
       return;
     }
 
-    this.inspectionsStore.setPlannedDate(inspectionId, plannedDate);
+    this.inspectionsStore.setInspectionDate(inspectionId, inspectionDate);
     this.isScheduleModalOpen.set(false);
   }
 

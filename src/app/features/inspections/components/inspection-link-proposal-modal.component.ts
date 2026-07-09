@@ -5,7 +5,6 @@ import { UiBadgeComponent, UiButtonComponent, UiModalComponent } from '../../../
 import { Inspection } from '../models/inspection.model';
 import {
   formatInspectionDate,
-  formatInspectionWindow,
   getInspectionStatusLabel,
   getInspectionStatusVariant,
 } from '../utils/inspection-ui.util';
@@ -45,18 +44,10 @@ import {
             <dl class="mt-4 grid gap-3 sm:grid-cols-2">
               <div>
                 <dt class="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">
-                  {{ 'inspections.fields.plannedDate' | transloco }}
-                </dt>
-                <dd class="mt-1 text-label text-text-main">
-                  {{ formatInspectionWindow(inspection.windowStart, inspection.windowEnd) }}
-                </dd>
-              </div>
-              <div>
-                <dt class="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">
                   {{ 'inspections.fields.inspectionDate' | transloco }}
                 </dt>
                 <dd class="mt-1 text-label text-text-main">
-                  {{ formatInspectionDate(inspection.plannedDate || inspection.targetDate) }}
+                  {{ inspection.inspectionDate ? formatInspectionDate(inspection.inspectionDate) : ('inspections.detail.unconfirmedDate' | transloco) }}
                 </dd>
               </div>
             </dl>
@@ -96,7 +87,6 @@ export class InspectionLinkProposalModalComponent {
   readonly close = output<void>();
 
   protected readonly formatInspectionDate = formatInspectionDate;
-  protected readonly formatInspectionWindow = formatInspectionWindow;
   protected readonly getInspectionStatusVariant = getInspectionStatusVariant;
 
   protected modalTitle(): string {

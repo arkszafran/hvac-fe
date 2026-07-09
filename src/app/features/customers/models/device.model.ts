@@ -19,8 +19,6 @@ export interface Device {
   installationDate: string;
   warrantyMonths: number;
   warrantyUntil: string;
-  hasScheduledInspections: boolean;
-  nextInspectionDate: string;
   note: string;
   refrigerant: string;
   refrigerantAmount: string;
@@ -32,7 +30,12 @@ export interface Device {
   serviceHistory: DeviceServiceHistoryEntry[];
 }
 
-export type DeviceDraft = Omit<Device, 'id' | 'warrantyUntil'>;
+export interface DeviceInspectionDraft {
+  hasScheduledInspections: boolean;
+  nextInspectionDate: string;
+}
+
+export type DeviceDraft = Omit<Device, 'id' | 'warrantyUntil'> & DeviceInspectionDraft;
 
 export const DEVICE_TYPE_OPTIONS: Array<{ value: DeviceType; labelKey: string }> = [
   { value: 'air-conditioning', labelKey: 'devices.types.airConditioning' },

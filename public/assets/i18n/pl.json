@@ -583,7 +583,6 @@
     "fields": {
       "customer": "Klient",
       "contactDetails": "Dane kontaktowe",
-      "plannedDate": "Planowany termin",
       "inspectionDate": "Termin przeglądu",
       "devices": "Urządzenia"
     },
@@ -625,13 +624,11 @@
       "confirmDate": "Potwierdź termin"
     },
     "summary": {
-      "plannedDate": "Termin: {{date}}",
-      "targetDate": "Data docelowa: {{date}}",
-      "shortDescription": "{{status}} • {{window}} • {{deviceCount}} urz. • {{plannedLabel}}"
+      "inspectionDate": "Termin: {{date}}",
+      "shortDescription": "{{status}} • {{deviceCount}} urz. • {{dateLabel}}"
     },
     "timeline": {
-      "plannedDate": "Umówiony termin: {{date}}",
-      "window": "Okno przeglądu: {{window}}"
+      "inspectionDate": "Termin przeglądu: {{date}}"
     },
     "detail": {
       "backToList": "Lista przeglądów",
@@ -641,11 +638,18 @@
       "deviceCount": "{{count}} urządzenia",
       "nextInspection": "Następny przegląd: {{date}}",
       "addDeviceModalTitle": "Dodaj urządzenie do przeglądu",
-      "addDeviceModalDescription": "Pokazujemy tylko urządzenia tego klienta, które mają aktywne przeglądy, nie należą do innego otwartego obiektu i mieszczą się w oknie 30 dni.",
+      "addDeviceModalDescription": "Pokazujemy tylko urządzenia tego klienta, które nie należą do innego aktywnego przeglądu.",
       "noAddableDevices": "Brak urządzeń, które można teraz bezpiecznie dodać do tego przeglądu.",
       "notFoundTitle": "Nie znaleźliśmy przeglądu",
       "notFoundDescription": "Sprawdź identyfikator albo wróć do listy przeglądów.",
       "backToInspections": "Wróć do listy przeglądów"
+    },
+    "preview": {
+      "title": "Szczegóły przeglądu",
+      "description": "Najważniejsze informacje o terminie i przypisanych urządzeniach.",
+      "devicesTitle": "Urządzenia w przeglądzie",
+      "emptyDevices": "Do tego przeglądu nie przypisano urządzeń.",
+      "openFullPage": "Otwórz pełną stronę przeglądu"
     },
     "scheduleModal": {
       "title": "Ustal termin przeglądu",
@@ -664,10 +668,10 @@
     },
     "createModal": {
       "title": "Utwórz przegląd",
-      "description": "Wybierz klienta i urządzenia kwalifikujące się do wspólnego przeglądu.",
+      "description": "Wybierz klienta, termin i urządzenia, które chcesz przypisać do przeglądu.",
       "customerDevices": "Urządzenia klienta",
-      "customerDevicesDescription": "Pokazujemy tylko urządzenia z aktywnym terminem przeglądu, które nie są jeszcze przypięte do otwartego obiektu.",
-      "emptyDevices": "Ten klient nie ma teraz urządzeń gotowych do ręcznego dodania do przeglądu."
+      "customerDevicesDescription": "Pokazujemy urządzenia, które nie są jeszcze przypięte do aktywnego przeglądu.",
+      "emptyDevices": "Ten klient nie ma teraz urządzeń bez aktywnego przeglądu."
     },
     "linkProposal": {
       "defaultTitle": "Dołączyć do przeglądu?",
@@ -678,18 +682,16 @@
     "candidatePicker": {
       "defaultTitle": "Wybierz przegląd",
       "createAction": "Utwórz nowy przegląd",
-      "empty": "Brak innych pasujących przeglądów. Możesz utworzyć nowy obiekt albo cofnąć zmianę."
+      "empty": "Brak innych aktywnych przeglądów. Możesz utworzyć nowy obiekt albo cofnąć zmianę."
     },
     "conflicts": {
-      "missingDevice": "Część urządzeń przypisanych do przeglądu nie istnieje już w bazie.",
-      "deviceNotEligible": "Jedno z urządzeń nie kwalifikuje się już do aktywnego przeglądu okresowego.",
-      "dateWindow": "Planowany termin obejmuje ponad 30 dni i wymaga ponownego uporządkowania urządzeń."
+      "missingDevice": "Część urządzeń przypisanych do przeglądu nie istnieje już w bazie."
     },
     "flow": {
       "attachExistingTitle": "Dołączyć urządzenie do istniejącego przeglądu?",
-      "newDeviceSingleDescription": "Nowe urządzenie pasuje do jednego otwartego przeglądu klienta. Możesz je dołączyć albo utworzyć osobny przegląd.",
+      "newDeviceSingleDescription": "Klient ma jeden aktywny przegląd. Możesz dołączyć do niego urządzenie i przyjąć jego termin albo utworzyć osobny przegląd.",
       "newDeviceChoiceTitle": "Wybierz przegląd dla nowego urządzenia",
-      "newDeviceChoiceDescription": "Znaleźliśmy kilka otwartych przeglądów tego klienta mieszczących się w oknie 30 dni. Wybierz, do którego przypiąć urządzenie albo utwórz nowy przegląd.",
+      "newDeviceChoiceDescription": "Klient ma kilka aktywnych przeglądów. Wybierz, do którego przypiąć urządzenie, albo utwórz nowy przegląd z podanym terminem.",
       "attachToInspection": "Dołącz do przeglądu",
       "separateInspection": "Osobny przegląd",
       "createNewInspection": "Utwórz nowy przegląd",
@@ -697,15 +699,19 @@
       "dateChangeCreatesNewDescription": "To urządzenie jest jedynym elementem już umówionego przeglądu. Zmiana daty anuluje aktualny przegląd i utworzy nowy obiekt planowania.",
       "cancelCurrentAndCreateNew": "Anuluj obecny i utwórz nowy przegląd",
       "undoDateChange": "Cofnij zmianę daty",
-      "scheduledDateOutOfWindow": "Nowa data wypada poza 30-dniowym oknem obecnie umówionego przeglądu. Urządzenie trzeba odłączyć od aktualnego przeglądu i przypisać gdzie indziej albo utworzyć nowy.",
-      "dateOutOfWindow": "Nowa data wypada poza 30-dniowym oknem aktualnego przeglądu. Wybierz inny otwarty przegląd, utwórz nowy albo cofnij zmianę.",
+      "scheduledDateOutOfWindow": "Nowa data różni się od terminu obecnego przeglądu. Urządzenie możesz odłączyć od aktualnego przeglądu i przypisać gdzie indziej albo utworzyć nowy.",
+      "dateOutOfWindow": "Nowa data różni się od terminu aktualnego przeglądu. Wybierz inny aktywny przegląd, utwórz nowy albo cofnij zmianę.",
       "moveToOtherTitle": "Przepiąć urządzenie do innego przeglądu?",
       "assignToInspection": "Przypisz do tego przeglądu",
       "chooseNewInspectionTitle": "Wybierz nowy przegląd dla urządzenia",
-      "newDateSingleDescription": "Nowa data kwalifikuje to urządzenie do jednego otwartego przeglądu klienta. Możesz je dołączyć albo utworzyć osobny przegląd.",
+      "newDateSingleDescription": "Klient ma jeden aktywny przegląd. Możesz dołączyć do niego urządzenie i przyjąć jego termin albo utworzyć osobny przegląd.",
       "undoDate": "Cofnij datę",
       "newDateChoiceTitle": "Wybierz przegląd dla urządzenia",
-      "newDateChoiceDescription": "Nowa data pasuje do kilku otwartych przeglądów klienta. Wybierz jeden z nich albo utwórz nowy przegląd."
+      "newDateChoiceDescription": "Klient ma kilka aktywnych przeglądów. Wybierz jeden z nich albo utwórz nowy przegląd z podanym terminem.",
+      "changeSharedInspectionTitle": "Zmienić termin wspólnego przeglądu?",
+      "changeSharedInspectionDescription": "Do tego przeglądu należą też inne urządzenia klienta. Możesz zmienić termin całego przeglądu albo utworzyć osobny przegląd tylko dla tego urządzenia.",
+      "changeSharedInspectionDate": "Zmień termin całego przeglądu",
+      "createSeparateWithNewDate": "Utwórz osobny przegląd"
     },
     "views": {
       "planned": {

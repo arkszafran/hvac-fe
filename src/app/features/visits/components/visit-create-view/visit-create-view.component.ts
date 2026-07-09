@@ -488,16 +488,10 @@ export class VisitCreateViewComponent {
     }
 
     if (selectedVisitType === 'inspection' && this.scheduleNextInspection()) {
-      for (const deviceId of persistedDeviceIds) {
-        this.customersStore.updateDeviceInspectionSettings(customer.id, deviceId, {
-          hasScheduledInspections: true,
-          nextInspectionDate: this.nextInspectionDate(),
-        });
-      }
-
       this.inspectionsStore.createInspection({
         customerId: customer.id,
         deviceIds: persistedDeviceIds,
+        inspectionDate: this.nextInspectionDate(),
         source: 'manual',
       });
     }

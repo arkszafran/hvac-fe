@@ -17,11 +17,6 @@ import {
   InspectionDeviceFlowService,
 } from '../inspections/data/inspection-device-flow.service';
 import { InspectionsStore } from '../inspections/data/inspections.store';
-import { InspectionStatus } from '../inspections/models/inspection.model';
-import {
-  getInspectionStatusLabel,
-  getInspectionStatusVariant,
-} from '../inspections/utils/inspection-ui.util';
 import { VisitsStore } from '../visits/data/visits.store';
 import { getVisitTypeLabel, VisitType } from '../visits/models/visit.model';
 import { DeviceFormModalComponent } from './components/device-form-modal.component';
@@ -90,19 +85,14 @@ export class DeviceDetailViewComponent {
 
     return device ? this.inspectionsStore.getActiveInspectionByDeviceId(device.id) : undefined;
   });
-  protected readonly requiresInspectionAttention = computed(() => {
-    const device = this.device();
-
-    return Boolean(
-      device?.hasScheduledInspections && device.nextInspectionDate && !this.activeInspection(),
-    );
-  });
   protected readonly editableDeviceDraft = computed<DeviceDraft | null>(() => {
     const device = this.device();
 
     if (!device) {
       return null;
     }
+
+    const activeInspection = this.activeInspection();
 
     return {
       type: device.type,
@@ -111,8 +101,8 @@ export class DeviceDetailViewComponent {
       serialNumber: device.serialNumber,
       installationDate: device.installationDate,
       warrantyMonths: device.warrantyMonths,
-      hasScheduledInspections: device.hasScheduledInspections,
-      nextInspectionDate: device.nextInspectionDate,
+      hasScheduledInspections: Boolean(activeInspection),
+      nextInspectionDate: activeInspection?.inspectionDate ?? '',
       note: device.note,
       refrigerant: device.refrigerant,
       refrigerantAmount: device.refrigerantAmount,
@@ -165,21 +155,20 @@ export class DeviceDetailViewComponent {
   });
   protected readonly nextInspectionDateLabel = computed(() => {
     this.activeLanguage();
-    const device = this.device();
+    const activeInspection = this.activeInspection();
 
-    if (!device?.hasScheduledInspections) {
+    if (!activeInspection) {
       return this.transloco.translate('devices.detail.nextInspectionDisabled');
     }
 
-    return device.nextInspectionDate
-      ? this.formatDate(device.nextInspectionDate)
+    return activeInspection.inspectionDate
+      ? this.formatDate(activeInspection.inspectionDate)
       : this.transloco.translate('devices.detail.noInspectionDate');
   });
   protected readonly nextInspectionStatusLabel = computed(() => {
     this.activeLanguage();
-    const device = this.device();
 
-    return device?.hasScheduledInspections
+    return this.activeInspection()
       ? this.transloco.translate('devices.detail.inspectionActive')
       : this.transloco.translate('devices.detail.inspectionSetupPrompt');
   });
@@ -219,11 +208,6 @@ export class DeviceDetailViewComponent {
     return addressLines.length ? addressLines.join('\n') : '--';
   });
 
-  protected getInspectionStatusLabel(status: InspectionStatus): string {
-    return getInspectionStatusLabel(status, this.transloco);
-  }
-  protected readonly getInspectionStatusVariant = getInspectionStatusVariant;
-
   protected getVisitTypeLabel(type: VisitType): string {
     return getVisitTypeLabel(type, this.transloco);
   }
@@ -248,14 +232,6 @@ export class DeviceDetailViewComponent {
 
   protected navigateToCustomers(): void {
     void this.router.navigate(['/customers']);
-  }
-
-  protected navigateToInspection(inspectionId: string): void {
-    void this.router.navigate(['/inspections', inspectionId]);
-  }
-
-  protected navigateToInspections(): void {
-    void this.router.navigate(['/inspections']);
   }
 
   protected handleUpdateDevice(deviceDraft: DeviceDraft): void {

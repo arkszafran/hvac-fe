@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, input, output } from '@angu
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { UiButtonComponent } from '../../../ui';
+import { InspectionsStore } from '../../inspections/data/inspections.store';
 import { Device, getDeviceTypeLabel } from '../models/device.model';
 
 @Component({
@@ -140,6 +141,7 @@ import { Device, getDeviceTypeLabel } from '../models/device.model';
 })
 export class DeviceListComponent {
   private readonly transloco = inject(TranslocoService);
+  private readonly inspectionsStore = inject(InspectionsStore);
 
   readonly devices = input<Device[]>([]);
   readonly deviceSelected = output<Device>();
@@ -174,13 +176,15 @@ export class DeviceListComponent {
   }
 
   protected inspectionLabel(device: Device): string {
-    if (!device.hasScheduledInspections) {
+    const activeInspection = this.inspectionsStore.getActiveInspectionByDeviceId(device.id);
+
+    if (!activeInspection) {
       return this.transloco.translate('devices.inspections.disabled');
     }
 
-    return device.nextInspectionDate
+    return activeInspection.inspectionDate
       ? this.transloco.translate('devices.inspections.nextInspection', {
-          date: this.formatDate(device.nextInspectionDate),
+          date: this.formatDate(activeInspection.inspectionDate),
         })
       : this.transloco.translate('devices.inspections.enabledNoDate');
   }

@@ -15,10 +15,7 @@ export interface Inspection {
   deviceIds: string[];
   source: InspectionSource;
   status: InspectionStatus;
-  targetDate: string;
-  windowStart: string;
-  windowEnd: string;
-  plannedDate: string;
+  inspectionDate: string;
   reminderSentAt: string;
   customerConfirmedAt: string;
   lastContactAt: string;
@@ -32,27 +29,25 @@ export interface InspectionCreateInput {
   deviceIds: string[];
   source?: InspectionSource;
   status?: InspectionStatus;
+  inspectionDate?: string;
   note?: string;
-  plannedDate?: string;
   reminderSentAt?: string;
   customerConfirmedAt?: string;
   lastContactAt?: string;
 }
 
 export interface InspectionConflict {
-  code: 'missing_device' | 'device_not_eligible' | 'date_window';
+  code: 'missing_device';
   messageKey: string;
 }
 
 export interface InspectionCandidate {
   inspection: Inspection;
-  targetDateLabel: string;
+  inspectionDateLabel: string;
 }
 
 export interface InspectionSummaryInput {
   status: InspectionStatus;
-  windowStart: string;
-  windowEnd: string;
-  plannedDate: string;
+  inspectionDate: string;
   deviceCount: number;
 }
