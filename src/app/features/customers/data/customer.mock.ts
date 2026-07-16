@@ -20,20 +20,34 @@ const CUSTOMER_DEVICE_MOCKS: Record<string, Device[]> = {
       address: '',
       postalCode: '',
       city: '',
-      serviceHistory: [
+      visits: [
         {
-          id: 'service-01',
+          id: 'visit-01',
+          customerId: 'customer-01',
+          devicesList: ['device-01'],
           date: '2025-05-11',
-          title: 'Przegląd sezonowy',
-          technician: 'Michał Wróbel',
-          note: 'Czyszczenie jednostki i kontrola szczelności układu.',
+          type: 'inspection',
+          devicesNotes: [
+            {
+              deviceId: 'device-01',
+              note: 'Czyszczenie jednostki i kontrola szczelności układu.',
+            },
+          ],
+          createdAt: '2025-05-11T00:00:00.000Z',
         },
         {
-          id: 'service-02',
+          id: 'visit-02',
+          customerId: 'customer-01',
+          devicesList: ['device-01'],
           date: '2024-11-14',
-          title: 'Pierwsze uruchomienie',
-          technician: 'Adrian Kania',
-          note: 'Kalibracja ustawień i instruktaż dla obsługi recepcji.',
+          type: 'installation',
+          devicesNotes: [
+            {
+              deviceId: 'device-01',
+              note: 'Kalibracja ustawień i instruktaż dla obsługi recepcji.',
+            },
+          ],
+          createdAt: '2024-11-14T00:00:00.000Z',
         },
       ],
     },
@@ -54,13 +68,20 @@ const CUSTOMER_DEVICE_MOCKS: Record<string, Device[]> = {
       address: '',
       postalCode: '',
       city: '',
-      serviceHistory: [
+      visits: [
         {
-          id: 'service-03',
+          id: 'visit-03',
+          customerId: 'customer-01',
+          devicesList: ['device-02'],
           date: '2025-02-06',
-          title: 'Wymiana filtrów',
-          technician: 'Dawid Sowa',
-          note: 'Wymieniono komplet filtrów nawiewu i wywiewu.',
+          type: 'repair',
+          devicesNotes: [
+            {
+              deviceId: 'device-02',
+              note: 'Wymieniono komplet filtrów nawiewu i wywiewu.',
+            },
+          ],
+          createdAt: '2025-02-06T00:00:00.000Z',
         },
       ],
     },
@@ -83,13 +104,20 @@ const CUSTOMER_DEVICE_MOCKS: Record<string, Device[]> = {
       address: 'ul. Towarowa 18',
       postalCode: '91-103',
       city: 'Łódź',
-      serviceHistory: [
+      visits: [
         {
-          id: 'service-04',
+          id: 'visit-04',
+          customerId: 'customer-02',
+          devicesList: ['device-03'],
           date: '2025-01-20',
-          title: 'Przegląd gwarancyjny',
-          technician: 'Karol Banach',
-          note: 'Kontrola parametrów pracy pompy i układu hydraulicznego.',
+          type: 'inspection',
+          devicesNotes: [
+            {
+              deviceId: 'device-03',
+              note: 'Kontrola parametrów pracy pompy i układu hydraulicznego.',
+            },
+          ],
+          createdAt: '2025-01-20T00:00:00.000Z',
         },
       ],
     },

@@ -93,7 +93,6 @@ export class DeviceEditorFormComponent {
     address: '',
     postalCode: '',
     city: '',
-    serviceHistory: this.formBuilder.nonNullable.control(createEmptyDeviceDraft().serviceHistory),
   });
   protected readonly hasCustomInstallationAddress = signal(
     this.form.controls.hasCustomInstallationAddress.value,
@@ -215,7 +214,6 @@ export class DeviceEditorFormComponent {
       ? {
           ...createEmptyDeviceDraft(),
           ...initialValue,
-          serviceHistory: [...initialValue.serviceHistory],
         }
       : createEmptyDeviceDraft();
 

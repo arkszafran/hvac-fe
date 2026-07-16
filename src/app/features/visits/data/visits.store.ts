@@ -3,7 +3,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { CustomersStore } from '../../customers/data/customers.store';
 import { Customer } from '../../customers/models/customer.model';
 import { Device } from '../../customers/models/device.model';
-import { Visit, VisitDraft, VisitType } from '../models/visit.model';
+import { Visit, VisitDraft } from '../models/visit.model';
 
 export interface VisitDetails {
   visit: Visit;
@@ -73,52 +73,21 @@ export class VisitsStore {
     };
 
     this.visitsState.update((visits) => [visit, ...visits]);
+    this.customersStore.addVisitToDevices(visit);
 
     return visit;
   }
 
   private createInitialVisits(): Visit[] {
-    return this.customersStore.customers().flatMap((customer) =>
-      customer.devices.flatMap((device) =>
-        device.serviceHistory.map((entry) => ({
-          id: `visit-${entry.id}`,
-          customerId: customer.id,
-          devicesList: [device.id],
-          date: entry.date,
-          type: inferVisitType(entry.title),
-          devicesNotes: [
-            {
-              deviceId: device.id,
-              note: entry.note,
-            },
-          ],
-          createdAt: `${entry.date}T00:00:00.000Z`,
-        })),
-      ),
+    const visitsById = new Map(
+      this.customersStore
+        .customers()
+        .flatMap((customer) => customer.devices.flatMap((device) => device.visits))
+        .map((visit) => [visit.id, visit]),
     );
+
+    return Array.from(visitsById.values());
   }
-}
-
-function inferVisitType(title: string): VisitType {
-  const normalizedTitle = normalizeValue(title);
-
-  if (normalizedTitle.includes('uruchom') || normalizedTitle.includes('montaz')) {
-    return 'installation';
-  }
-
-  if (normalizedTitle.includes('przeglad')) {
-    return 'inspection';
-  }
-
-  return 'repair';
-}
-
-function normalizeValue(value: string): string {
-  return value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim();
 }
 
 function createEntityId(prefix: string): string {

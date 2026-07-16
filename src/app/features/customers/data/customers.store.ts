@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 
+import type { Visit } from '../../visits/models/visit.model';
 import { Customer, CustomerDraft } from '../models/customer.model';
 import { Device, DeviceDraft } from '../models/device.model';
 import { CUSTOMER_MOCKS } from './customer.mock';
@@ -63,6 +64,7 @@ export class CustomersStore {
         const device: Device = {
           id: createEntityId('device'),
           ...normalizeDeviceDraft(draft),
+          visits: [],
         };
 
         createdDevice = device;
@@ -87,6 +89,7 @@ export class CustomersStore {
       const device: Device = {
         id: createEntityId('device'),
         ...normalizeDeviceDraft(deviceDraft),
+        visits: [],
       };
 
       if ('customerId' in customerSelection) {
@@ -143,7 +146,7 @@ export class CustomersStore {
             }
 
             updatedDevice = {
-              id: device.id,
+              ...device,
               ...normalizeDeviceDraft(draft),
             };
 
@@ -154,6 +157,25 @@ export class CustomersStore {
     );
 
     return updatedDevice;
+  }
+
+  addVisitToDevices(visit: Visit): void {
+    this.customersState.update((customers) =>
+      customers.map((customer) => {
+        if (customer.id !== visit.customerId) {
+          return customer;
+        }
+
+        return {
+          ...customer,
+          devices: customer.devices.map((device) =>
+            visit.devicesList.includes(device.id)
+              ? { ...device, visits: [visit, ...device.visits] }
+              : device,
+          ),
+        };
+      }),
+    );
   }
 }
 
@@ -170,7 +192,7 @@ function normalizeCustomerDraft(draft: CustomerDraft): CustomerDraft {
   };
 }
 
-function normalizeDeviceDraft(draft: DeviceDraft): Omit<Device, 'id'> {
+function normalizeDeviceDraft(draft: DeviceDraft): Omit<Device, 'id' | 'visits'> {
   const hasCustomInstallationAddress = draft.hasCustomInstallationAddress;
   const warrantyMonths = Math.max(0, draft.warrantyMonths);
   const installationDate = draft.installationDate.trim();
@@ -191,7 +213,6 @@ function normalizeDeviceDraft(draft: DeviceDraft): Omit<Device, 'id'> {
     address: hasCustomInstallationAddress ? draft.address.trim() : '',
     postalCode: hasCustomInstallationAddress ? draft.postalCode.trim() : '',
     city: hasCustomInstallationAddress ? draft.city.trim() : '',
-    serviceHistory: draft.serviceHistory,
   };
 }
 

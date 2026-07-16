@@ -128,17 +128,17 @@
 
         @if (deviceVisits().length) {
           <div class="space-y-3">
-            @for (details of deviceVisits(); track details.visit.id) {
+            @for (visit of deviceVisits(); track visit.id) {
               <article class="rounded-[1rem] border border-border/80 bg-white/76 px-4 py-3">
                 <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <p class="text-label text-text-main">{{ getVisitTypeLabel(details.visit.type) }}</p>
-                    <p class="text-small text-text-muted">{{ customerTitle(details.customer) }}</p>
+                    <p class="text-label text-text-main">{{ getVisitTypeLabel(visit.type) }}</p>
+                    <p class="text-small text-text-muted">{{ customerTitle(customer) }}</p>
                   </div>
-                  <p class="text-small text-text-muted">{{ formatDate(details.visit.date) }}</p>
+                  <p class="text-small text-text-muted">{{ formatDate(visit.date) }}</p>
                 </div>
 
-                <p class="mt-2 text-body text-text-main">{{ visitNote(device.id, details.visit.id) }}</p>
+                <p class="mt-2 text-body text-text-main">{{ visitNote(visit, device.id) }}</p>
               </article>
             }
           </div>

@@ -1,14 +1,8 @@
 import { TranslocoService } from '@jsverse/transloco';
 
-export type DeviceType = 'air-conditioning' | 'heat-pump' | 'ventilation' | '';
+import type { Visit } from '../../visits/models/visit.model';
 
-export interface DeviceServiceHistoryEntry {
-  id: string;
-  date: string;
-  title: string;
-  technician: string;
-  note: string;
-}
+export type DeviceType = 'air-conditioning' | 'heat-pump' | 'ventilation' | '';
 
 export interface Device {
   id: string;
@@ -27,7 +21,7 @@ export interface Device {
   address: string;
   postalCode: string;
   city: string;
-  serviceHistory: DeviceServiceHistoryEntry[];
+  visits: Visit[];
 }
 
 export interface DeviceInspectionDraft {
@@ -35,7 +29,7 @@ export interface DeviceInspectionDraft {
   nextInspectionDate: string;
 }
 
-export type DeviceDraft = Omit<Device, 'id' | 'warrantyUntil'> & DeviceInspectionDraft;
+export type DeviceDraft = Omit<Device, 'id' | 'warrantyUntil' | 'visits'> & DeviceInspectionDraft;
 
 export const DEVICE_TYPE_OPTIONS: Array<{ value: DeviceType; labelKey: string }> = [
   { value: 'air-conditioning', labelKey: 'devices.types.airConditioning' },
@@ -78,7 +72,6 @@ export function createEmptyDeviceDraft(): DeviceDraft {
     address: '',
     postalCode: '',
     city: '',
-    serviceHistory: [],
   };
 }
 

@@ -396,7 +396,6 @@ export class CustomerDetailViewComponent {
       address: device.address,
       postalCode: device.postalCode,
       city: device.city,
-      serviceHistory: [...device.serviceHistory],
     };
   });
 

@@ -22,8 +22,7 @@ import {
   InspectionDeviceFlowService,
 } from '../inspections/data/inspection-device-flow.service';
 import { InspectionsStore } from '../inspections/data/inspections.store';
-import { VisitsStore } from '../visits/data/visits.store';
-import { getVisitTypeLabel, VisitType } from '../visits/models/visit.model';
+import { getVisitTypeLabel, Visit, VisitType } from '../visits/models/visit.model';
 import { DevicesStore } from './data/devices.store';
 import { Device } from './models/device.model';
 
@@ -171,17 +170,17 @@ interface DeviceDetailItem {
 
           @if (deviceVisits().length) {
             <div class="space-y-3">
-              @for (details of deviceVisits(); track details.visit.id) {
+              @for (visit of deviceVisits(); track visit.id) {
                 <article class="rounded-[1rem] border border-border/80 bg-white/76 px-4 py-3">
                   <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <p class="text-label text-text-main">{{ getVisitTypeLabel(details.visit.type) }}</p>
-                      <p class="text-small text-text-muted">{{ customerTitle(details.customer) }}</p>
+                      <p class="text-label text-text-main">{{ getVisitTypeLabel(visit.type) }}</p>
+                      <p class="text-small text-text-muted">{{ customerTitle(device.customer) }}</p>
                     </div>
-                    <p class="text-small text-text-muted">{{ formatDate(details.visit.date) }}</p>
+                    <p class="text-small text-text-muted">{{ formatDate(visit.date) }}</p>
                   </div>
 
-                  <p class="mt-2 text-body text-text-main">{{ visitNote(device.id, details.visit.id) }}</p>
+                  <p class="mt-2 text-body text-text-main">{{ visitNote(visit, device.id) }}</p>
                 </article>
               }
             </div>
@@ -260,7 +259,6 @@ export class DeviceDetailViewComponent {
   private readonly devicesStore = inject(DevicesStore);
   private readonly inspectionsStore = inject(InspectionsStore);
   private readonly inspectionDeviceFlowService = inject(InspectionDeviceFlowService);
-  private readonly visitsStore = inject(VisitsStore);
   private readonly transloco = inject(TranslocoService);
   private readonly activeLanguage = toSignal(this.transloco.langChanges$, {
     initialValue: this.transloco.getActiveLang(),
@@ -276,7 +274,9 @@ export class DeviceDetailViewComponent {
   );
 
   protected readonly device = computed(() => this.devicesStore.getDeviceById(this.deviceId()));
-  protected readonly deviceVisits = computed(() => this.visitsStore.getVisitsForDevice(this.deviceId()));
+  protected readonly deviceVisits = computed(() =>
+    [...(this.device()?.visits ?? [])].sort((left, right) => right.date.localeCompare(left.date)),
+  );
   protected readonly activeInspection = computed(() => {
     const device = this.device();
 
@@ -308,7 +308,6 @@ export class DeviceDetailViewComponent {
       address: device.address,
       postalCode: device.postalCode,
       city: device.city,
-      serviceHistory: [...device.serviceHistory],
     };
   });
   protected readonly deviceOverviewItems = computed<readonly DeviceDetailItem[]>(() => {
@@ -410,9 +409,7 @@ export class DeviceDetailViewComponent {
     return getVisitTypeLabel(type, this.transloco);
   }
 
-  protected visitNote(deviceId: string, visitId: string): string {
-    const visit = this.deviceVisits().find((details) => details.visit.id === visitId)?.visit;
-
+  protected visitNote(visit: Visit, deviceId: string): string {
     return visit?.devicesNotes.find((item) => item.deviceId === deviceId)?.note || '--';
   }
 
