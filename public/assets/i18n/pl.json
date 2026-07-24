@@ -34,9 +34,8 @@
       "dashboard": "Dashboard",
       "customers": "Klienci",
       "devices": "Urządzenia",
-      "requests": "Zgłoszenia",
+      "serviceOrders": "Zlecenia",
       "visits": "Wizyty",
-      "inspections": "Przeglądy",
       "settings": "Ustawienia"
     },
     "topBar": {
@@ -240,19 +239,6 @@
         "placeholder": "spokojny placeholder bez ryzyka mieszania logiki biznesowej"
       }
     },
-    "reviews": {
-      "eyebrow": "Prace okresowe",
-      "title": "Przeglądy",
-      "description": "Szkielet pod planowanie i wykonywanie przeglądów okresowych. Zostawiamy czytelne miejsce na harmonogramy i zestawy czynności.",
-      "emptyTitle": "Przeglądy czekają na konfigurację",
-      "emptyDescription": "W następnych iteracjach możemy dołożyć terminy, statusy oraz powtarzalne pakiety serwisowe dla urządzeń.",
-      "actionLabel": "Dodaj harmonogram",
-      "checklist": {
-        "calendar": "miejsce na przyszły kalendarz lub widok listy przeglądów",
-        "cards": "card przygotowany pod bloki z typami przeglądów",
-        "lightweight": "widok pozostaje lekki i bez szczegółów biznesowych"
-      }
-    },
     "styleGuide": {
       "hero": {
         "title": "Wyrazisty design system dla operacyjnego SaaS",
@@ -442,7 +428,7 @@
         "nextInspectionDate": "Podaj datę kolejnego przeglądu.",
         "required": "Uzupełnij wymagane dane wizyty."
       },
-      "requestNotes": {
+      "serviceOrderNotes": {
         "year": "Rok urządzenia: {{year}}.",
         "error": "Błąd ze zgłoszenia: {{error}}."
       }
@@ -471,269 +457,149 @@
       "empty": "Brak zaplanowanych przeglądów do wyboru."
     }
   },
-  "requests": {
-    "title": "Zgłoszenia",
-    "description": "Sprawy z panelu klienta i formularza ze strony przed wizytą u klienta.",
+  "serviceOrders": {
+    "title": "Zlecenia",
+    "description": "Montaże, naprawy i przeglądy wymagające kontaktu, zaplanowania albo realizacji wizyty.",
+    "summary": {
+      "contactRequired": "Do kontaktu: {{count}}",
+      "scheduled": "Zaplanowane: {{count}}"
+    },
     "fields": {
       "search": "Szukaj",
-      "searchPlaceholder": "Klient, telefon, adres albo urządzenie",
+      "searchPlaceholder": "Klient, telefon, e-mail albo adres",
       "status": "Status",
-      "requestType": "Typ zgłoszenia",
+      "statusPlaceholder": "Wybierz statusy",
+      "type": "Rodzaj zlecenia",
+      "typePlaceholder": "Wybierz rodzaje zleceń",
+      "typeAndStatus": "Rodzaj i status",
+      "customer": "Klient",
       "customerAndAddress": "Klient i adres",
-      "customerType": "Typ klienta",
-      "contactPerson": "Osoba kontaktowa",
-      "company": "Firma",
-      "appointmentDate": "Data spotkania",
-      "createdAt": "Utworzono",
-      "buildingType": "Typ budynku",
-      "rooms": "Pomieszczenia",
-      "requestPhotos": "Zdjęcia do zgłoszenia",
-      "room": "Pomieszczenie {{index}}",
-      "area": "Powierzchnia",
-      "height": "Wysokość",
-      "outdoorUnitPlace": "Miejsce jednostki zewnętrznej",
-      "unitDistance": "Odległość jednostek",
-      "floor": "Piętro",
-      "displayedError": "Błąd wyświetlany na urządzeniu",
-      "year": "Rok",
-      "refrigerantType": "Rodzaj czynnika",
-      "nameplatePhotos": "Zdjęcia tabliczki znamionowej"
-    },
-    "actions": {
-      "createVisit": "Utwórz wizytę",
-      "confirmAppointment": "Potwierdź termin wizyty",
-      "changeAppointment": "Zmień termin wizyty",
-      "visitWillHappen": "Wizyta odbędzie się",
-      "download": "Pobierz"
+      "date": "Termin",
+      "noDate": "Nie ustalono terminu",
+      "phone": "Telefon",
+      "email": "E-mail",
+      "address": "Adres",
+      "source": "Źródło",
+      "actions": "Akcje"
     },
     "types": {
+      "all": "Wszystkie rodzaje",
       "installation": "Montaż",
       "repair": "Naprawa",
       "inspection": "Przegląd"
     },
     "statuses": {
-      "all": "Wszystkie",
-      "new": "Do kontaktu",
-      "scheduled": "Umówione",
+      "all": "Wszystkie statusy",
+      "new": "Nowe",
+      "contactRequired": "Do kontaktu",
+      "scheduled": "Zaplanowane",
       "completed": "Zakończone",
       "cancelled": "Anulowane"
     },
     "sources": {
       "customerPanel": "Panel klienta",
-      "websiteForm": "Formularz na stronie"
+      "websiteForm": "Formularz na stronie",
+      "user": "Użytkownik"
     },
-    "customerTypes": {
-      "company": "Firma",
-      "individual": "Osoba prywatna"
+    "confirmation": {
+      "confirmed": "Klient potwierdził",
+      "notConfirmed": "Klient nie potwierdził"
+    },
+    "actions": {
+      "setDate": "Ustal termin",
+      "changeDate": "Zmień termin",
+      "createVisit": "Utwórz wizytę",
+      "call": "Zadzwoń",
+      "addNote": "Dodaj notatkę"
+    },
+    "table": {
+      "openDetailsAria": "Otwórz szczegóły zlecenia klienta {{customer}}"
+    },
+    "cancelModal": {
+      "title": "Anulować zlecenie?",
+      "description": "Zlecenie klienta {{customer}} zostanie anulowane.",
+      "warning": "Ta akcja zmieni status zlecenia na anulowane.",
+      "back": "Wróć",
+      "confirm": "Anuluj zlecenie"
+    },
+    "empty": {
+      "title": "Brak zleceń w tym widoku",
+      "description": "Zmień filtry albo wyszukiwanie, aby zobaczyć pozostałe zlecenia."
     },
     "buildingTypes": {
-      "apartmentBlock": "Blok",
+      "apartmentBlock": "Blok mieszkalny",
       "house": "Dom",
-      "officeBuilding": "Biurowiec"
+      "officeBuilding": "Budynek biurowy"
     },
     "outdoorUnitPlaces": {
       "wall": "Ściana",
       "balcony": "Balkon"
     },
-    "badges": {
-      "statusCount": "{{label}}: {{count}}"
-    },
-    "table": {
-      "rowActionLabel": "Otwórz szczegóły zgłoszenia",
-      "emptyTitle": "Brak zgłoszeń",
-      "emptyDescription": "Nowe zgłoszenia z formularza i panelu klienta pojawią się tutaj.",
-      "appointment": "Termin: {{date}}",
-      "noActions": "Brak akcji"
-    },
-    "scheduleModal": {
-      "title": "Potwierdź termin wizyty",
-      "description": "Wpisz datę uzgodnioną z klientem.",
-      "appointmentDate": "Data spotkania",
-      "save": "Zapisz termin",
-      "validation": "Data spotkania jest wymagana."
-    },
     "details": {
-      "title": "Zgłoszenie: {{type}}",
-      "fallbackTitle": "Zgłoszenie",
-      "installation": "Montaż",
-      "repair": "Naprawa",
-      "inspection": "Przegląd",
-      "deviceWithIndex": "Urządzenie {{index}}: {{device}}",
-      "roomPhotos": "Zdjęcia pomieszczenia",
-      "emptyAttachments": "Brak załączników",
-      "emptyPhotos": "Brak zdjęć"
-    }
-  },
-  "inspections": {
-    "title": "Przeglądy",
-    "quickNavigation": "Szybka nawigacja",
-    "searchPlaceholder": "Klient lub adres",
-    "openDetailsAria": "Otwórz szczegóły przeglądu {{customer}}",
-    "addressesPrefix": "Adresy: {{addresses}}",
-    "actions": {
-      "add": "Dodaj przegląd",
-      "complete": "Zakończ",
-      "create": "Utwórz przegląd",
-      "addDevice": "Dodaj urządzenie",
-      "addDevices": "Dodaj urządzenia",
-      "deviceDetails": "Szczegóły urządzenia",
-      "removeDevice": "Usuń urządzenie",
-      "selectInspection": "Wybierz ten przegląd"
-    },
-    "fields": {
-      "customer": "Klient",
-      "contactDetails": "Dane kontaktowe",
-      "inspectionDate": "Termin przeglądu",
-      "devices": "Urządzenia"
-    },
-    "table": {
-      "date": "Termin",
-      "customer": "Klient",
-      "phone": "Telefon",
-      "actions": "Akcje"
-    },
-    "empty": {
-      "orphanDevicesTitle": "Brak urządzeń bez przeglądu",
-      "orphanDevicesDescription": "Wszystkie kwalifikujące się urządzenia są już przypisane do aktywnych obiektów planowania.",
-      "viewTitle": "Brak przeglądów w tym widoku",
-      "viewDescription": "Wybierz inny widok z listy lub dodaj nowy przegląd."
-    },
-    "orphanDevices": {
-      "nextInspection": "Termin przeglądu: {{date}}"
-    },
-    "status": {
-      "new": "Nowy",
-      "reminderSent": "Przypomnienie wysłane",
-      "customerConfirmed": "Klient potwierdził",
-      "customerNotConfirmed": "Klient nie potwierdził",
-      "scheduled": "Umówiony",
-      "completed": "Zakończony",
-      "cancelled": "Anulowany"
-    },
-    "nextActions": {
-      "sendReminder": "Wyślij przypomnienie",
-      "reminderSent": "Wysłano przypomnienie",
-      "callAndSchedule": "Zadzwoń i ustal termin",
-      "callAndRemind": "Zadzwoń i przypomnij o przeglądzie",
-      "scheduled": "Przegląd umówiony",
-      "completed": "Zakończony",
-      "cancelled": "Anulowany"
-    },
-    "scheduleActions": {
-      "changeDate": "Zmień termin",
-      "confirmDate": "Potwierdź termin"
-    },
-    "summary": {
-      "inspectionDate": "Termin: {{date}}",
-      "shortDescription": "{{status}} • {{deviceCount}} urz. • {{dateLabel}}"
-    },
-    "timeline": {
-      "inspectionDate": "Termin przeglądu: {{date}}"
-    },
-    "detail": {
-      "backToList": "Lista przeglądów",
-      "title": "Przegląd klienta {{customer}}",
-      "conflictTitle": "Konflikt w przeglądzie",
-      "unconfirmedDate": "Termin niepotwierdzony",
-      "deviceCount": "{{count}} urządzenia",
-      "nextInspection": "Następny przegląd: {{date}}",
-      "addDeviceModalTitle": "Dodaj urządzenie do przeglądu",
-      "addDeviceModalDescription": "Pokazujemy tylko urządzenia tego klienta, które nie należą do innego aktywnego przeglądu.",
-      "noAddableDevices": "Brak urządzeń, które można teraz bezpiecznie dodać do tego przeglądu.",
-      "notFoundTitle": "Nie znaleźliśmy przeglądu",
-      "notFoundDescription": "Sprawdź identyfikator albo wróć do listy przeglądów.",
-      "backToInspections": "Wróć do listy przeglądów"
-    },
-    "preview": {
-      "title": "Szczegóły przeglądu",
-      "description": "Najważniejsze informacje o terminie i przypisanych urządzeniach.",
-      "devicesTitle": "Urządzenia w przeglądzie",
-      "emptyDevices": "Do tego przeglądu nie przypisano urządzeń.",
-      "openFullPage": "Otwórz pełną stronę przeglądu"
+      "backToList": "Wróć do zleceń",
+      "dateSummary": "Termin: {{date}}",
+      "actionsLabel": "Akcje zlecenia",
+      "customer": "Dane klienta",
+      "installationTitle": "Szczegóły montażu",
+      "repairTitle": "Szczegóły naprawy",
+      "inspectionTitle": "Szczegóły przeglądu",
+      "buildingType": "Rodzaj budynku",
+      "room": "Pomieszczenie {{index}}",
+      "area": "Powierzchnia",
+      "height": "Wysokość",
+      "outdoorUnitPlace": "Miejsce jednostki zewnętrznej",
+      "unitDistance": "Odległość od jednostki",
+      "floor": "Piętro",
+      "orderPhotos": "Zdjęcia do zlecenia",
+      "device": "Urządzenie {{index}}: {{device}}",
+      "serialNumber": "Numer seryjny",
+      "year": "Rok",
+      "refrigerant": "Czynnik",
+      "reportedError": "Zgłoszony problem",
+      "noDevices": "Brak urządzeń przypisanych do tego przeglądu.",
+      "notesTitle": "Historia notatek",
+      "noNotes": "Do tego zlecenia nie dodano jeszcze notatek.",
+      "relatedVisitsTitle": "Powiązane wizyty",
+      "notFoundTitle": "Nie znaleziono zlecenia",
+      "notFoundDescription": "Zlecenie nie istnieje albo zostało usunięte."
     },
     "scheduleModal": {
-      "title": "Ustal termin przeglądu",
-      "description": "Wpisz uzgodnioną z klientem datę wykonania przeglądu.",
-      "save": "Zapisz termin",
-      "validation": "Data planowanego przeglądu jest wymagana."
+      "title": "Ustal termin",
+      "description": "Wybierz dzień, w którym instalator ma pojawić się u klienta.",
+      "validation": "Termin jest wymagany."
     },
-    "finalizeModal": {
-      "title": "Zakończ przegląd",
-      "description": "Wybierz, jak zamknąć proces planowania przeglądu.",
-      "devices": "Urządzenia: {{count}}",
-      "cancelTitle": "Klient zrezygnował z przeglądów",
-      "cancelDescription": "Przegląd otrzyma status anulowany.",
-      "completeTitle": "Wizyta się odbyła",
-      "completeDescription": "Przegląd zostanie zakończony, a formularz wizyty otworzy się z wybranym klientem i urządzeniami."
+    "noteModal": {
+      "title": "Dodaj notatkę",
+      "description": "Zapisz rozmowę, oględziny albo inne ustalenia dotyczące zlecenia.",
+      "label": "Treść notatki",
+      "placeholder": "Wpisz najważniejsze ustalenia",
+      "validation": "Treść notatki jest wymagana."
     },
-    "createModal": {
-      "title": "Utwórz przegląd",
-      "description": "Wybierz klienta, termin i urządzenia, które chcesz przypisać do przeglądu.",
-      "customerDevices": "Urządzenia klienta",
-      "customerDevicesDescription": "Pokazujemy urządzenia, które nie są jeszcze przypięte do aktywnego przeglądu.",
-      "emptyDevices": "Ten klient nie ma teraz urządzeń bez aktywnego przeglądu."
-    },
-    "linkProposal": {
-      "defaultTitle": "Dołączyć do przeglądu?",
-      "primaryAction": "Dołącz",
-      "secondaryAction": "Utwórz osobny przegląd",
-      "devicesInInspection": "{{count}} urządzenia w przeglądzie"
-    },
-    "candidatePicker": {
-      "defaultTitle": "Wybierz przegląd",
-      "createAction": "Utwórz nowy przegląd",
-      "empty": "Brak innych aktywnych przeglądów. Możesz utworzyć nowy obiekt albo cofnąć zmianę."
-    },
-    "conflicts": {
-      "missingDevice": "Część urządzeń przypisanych do przeglądu nie istnieje już w bazie."
-    },
-    "flow": {
+    "deviceFlow": {
       "attachExistingTitle": "Dołączyć urządzenie do istniejącego przeglądu?",
       "newDeviceSingleDescription": "Klient ma jeden aktywny przegląd. Możesz dołączyć do niego urządzenie i przyjąć jego termin albo utworzyć osobny przegląd.",
-      "newDeviceChoiceTitle": "Wybierz przegląd dla nowego urządzenia",
-      "newDeviceChoiceDescription": "Klient ma kilka aktywnych przeglądów. Wybierz, do którego przypiąć urządzenie, albo utwórz nowy przegląd z podanym terminem.",
       "attachToInspection": "Dołącz do przeglądu",
       "separateInspection": "Osobny przegląd",
+      "newDeviceChoiceTitle": "Wybierz przegląd dla nowego urządzenia",
+      "newDeviceChoiceDescription": "Klient ma kilka aktywnych przeglądów. Wybierz, do którego przypiąć urządzenie, albo utwórz nowy przegląd z podanym terminem.",
       "createNewInspection": "Utwórz nowy przegląd",
-      "dateChangeCreatesNewTitle": "Zmiana daty utworzy nowy przegląd",
-      "dateChangeCreatesNewDescription": "To urządzenie jest jedynym elementem już umówionego przeglądu. Zmiana daty anuluje aktualny przegląd i utworzy nowy obiekt planowania.",
-      "cancelCurrentAndCreateNew": "Anuluj obecny i utwórz nowy przegląd",
-      "undoDateChange": "Cofnij zmianę daty",
-      "scheduledDateOutOfWindow": "Nowa data różni się od terminu obecnego przeglądu. Urządzenie możesz odłączyć od aktualnego przeglądu i przypisać gdzie indziej albo utworzyć nowy.",
-      "dateOutOfWindow": "Nowa data różni się od terminu aktualnego przeglądu. Wybierz inny aktywny przegląd, utwórz nowy albo cofnij zmianę.",
-      "moveToOtherTitle": "Przepiąć urządzenie do innego przeglądu?",
-      "assignToInspection": "Przypisz do tego przeglądu",
-      "chooseNewInspectionTitle": "Wybierz nowy przegląd dla urządzenia",
       "newDateSingleDescription": "Klient ma jeden aktywny przegląd. Możesz dołączyć do niego urządzenie i przyjąć jego termin albo utworzyć osobny przegląd.",
-      "undoDate": "Cofnij datę",
       "newDateChoiceTitle": "Wybierz przegląd dla urządzenia",
       "newDateChoiceDescription": "Klient ma kilka aktywnych przeglądów. Wybierz jeden z nich albo utwórz nowy przegląd z podanym terminem.",
       "changeSharedInspectionTitle": "Zmienić termin wspólnego przeglądu?",
       "changeSharedInspectionDescription": "Do tego przeglądu należą też inne urządzenia klienta. Możesz zmienić termin całego przeglądu albo utworzyć osobny przegląd tylko dla tego urządzenia.",
       "changeSharedInspectionDate": "Zmień termin całego przeglądu",
-      "createSeparateWithNewDate": "Utwórz osobny przegląd"
-    },
-    "views": {
-      "planned": {
-        "label": "Planowane",
-        "description": "Nowe przeglądy oraz przeglądy po wysłaniu przypomnienia."
-      },
-      "contact": {
-        "label": "Do kontaktu",
-        "description": "Przeglądy po reakcji klienta, wymagające dalszego kontaktu."
-      },
-      "scheduled": {
-        "label": "Umówione",
-        "description": "Przeglądy z ustalonym terminem wykonania."
-      },
-      "closed": {
-        "label": "Zakończone",
-        "description": "Historia spraw zakończonych lub anulowanych."
-      },
-      "orphanDevices": {
-        "label": "Urządzenia bez przeglądu",
-        "description": "Urządzenia kwalifikujące się do przeglądu, ale bez przypisanej sprawy."
-      }
+      "createSeparateWithNewDate": "Utwórz osobny przegląd",
+      "undoDateChange": "Cofnij zmianę daty",
+      "linkDefaultTitle": "Dołączyć do przeglądu?",
+      "linkPrimaryAction": "Dołącz",
+      "linkSecondaryAction": "Utwórz osobny przegląd",
+      "candidateDefaultTitle": "Wybierz przegląd",
+      "candidateCreateAction": "Utwórz nowy przegląd",
+      "candidateEmpty": "Brak innych aktywnych przeglądów. Możesz utworzyć nowy obiekt albo cofnąć zmianę.",
+      "deviceCount": "{{count}} urządzenia w przeglądzie",
+      "selectOrder": "Wybierz ten przegląd",
+      "shortDescription": "{{deviceCount}} urz. • {{date}}"
     }
   },
   "customers": {

@@ -1,0 +1,81 @@
+<div class="space-y-2.5">
+  @if (label()) {
+    <label
+      [attr.for]="inputId()"
+      class="flex items-center gap-1 text-[13px]/5 font-semibold tracking-[-0.01em] text-text-main"
+    >
+      {{ label() }}
+    </label>
+  }
+
+  <div class="relative">
+    <button
+      #triggerButton
+      type="button"
+      [id]="inputId()"
+      [disabled]="isDisabled()"
+      class="ui-focus-ring flex min-h-13 w-full items-center justify-between gap-3 rounded-[0.95rem] border border-border/90 bg-white px-4 py-3 text-left text-[15px]/6 text-text-main shadow-[inset_0_1px_0_rgb(255_255_255/0.82),0_1px_2px_rgb(15_23_42/0.05)] backdrop-blur-xl transition duration-200 hover:border-primary/24 focus:border-primary disabled:cursor-not-allowed disabled:border-transparent disabled:bg-surface-muted disabled:text-text-muted"
+      [attr.aria-expanded]="isOpen()"
+      [attr.aria-controls]="isOpen() ? panelId() : null"
+      [attr.aria-invalid]="error() ? 'true' : 'false'"
+      [attr.aria-describedby]="describedBy() || null"
+      (click)="toggleDropdown()"
+    >
+      <span class="min-w-0 flex-1 truncate" [class.text-text-muted]="!selectedValues().length">
+        {{ selectionText() }}
+      </span>
+
+      <svg
+        viewBox="0 0 20 20"
+        fill="none"
+        class="size-4 shrink-0 text-text-muted transition-transform duration-200"
+        [class.rotate-180]="isOpen()"
+        aria-hidden="true"
+      >
+        <path
+          d="M5 7.5L10 12.5L15 7.5"
+          stroke="currentColor"
+          stroke-width="1.6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </button>
+
+    @if (isOpen()) {
+      <div
+        [id]="panelId()"
+        role="group"
+        [attr.aria-label]="label() || placeholder()"
+        class="absolute left-0 top-full z-50 max-h-72 w-full min-w-56 overflow-y-auto rounded-[0.95rem] border border-border/90 bg-white p-1.5 shadow-[0_24px_48px_-28px_rgb(15_23_42/0.35)]"
+      >
+        @for (option of options(); track option.value) {
+          <label
+            class="flex min-h-11 cursor-pointer items-center gap-3 rounded-[0.75rem] px-3 py-2 text-label text-text-main transition hover:bg-primary-soft/55 active:bg-primary-soft/70"
+            [class.cursor-not-allowed]="option.disabled"
+            [class.opacity-55]="option.disabled"
+          >
+            <input
+              type="checkbox"
+              class="size-4 shrink-0 rounded border-border accent-[var(--color-primary)]"
+              [checked]="isSelected(option.value)"
+              [disabled]="option.disabled"
+              (change)="toggleOption(option.value)"
+            />
+            <span class="min-w-0 flex-1">{{ option.label }}</span>
+          </label>
+        }
+      </div>
+    }
+  </div>
+
+  @if (error()) {
+    <p [id]="inputId() + '-error'" class="text-[13px]/5 font-medium text-danger">
+      {{ error() }}
+    </p>
+  } @else if (hint()) {
+    <p [id]="inputId() + '-hint'" class="text-[13px]/5 text-text-muted">
+      {{ hint() }}
+    </p>
+  }
+</div>

@@ -52,7 +52,9 @@ export class VisitsStore {
   }
 
   createVisit(draft: VisitDraft): Visit | undefined {
-    const devicesList = Array.from(new Set(draft.devicesList.map((id) => id.trim()).filter(Boolean)));
+    const devicesList = Array.from(
+      new Set(draft.devicesList.map((id) => id.trim()).filter(Boolean)),
+    );
 
     if (!draft.customerId.trim() || !devicesList.length || !draft.date.trim()) {
       return undefined;
@@ -60,7 +62,7 @@ export class VisitsStore {
 
     const visit: Visit = {
       id: createEntityId('visit'),
-      requestId: draft.requestId?.trim() || undefined,
+      serviceOrderId: draft.serviceOrderId?.trim() || undefined,
       customerId: draft.customerId.trim(),
       devicesList,
       date: draft.date.trim(),

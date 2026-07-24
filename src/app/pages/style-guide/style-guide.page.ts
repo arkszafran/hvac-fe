@@ -134,7 +134,7 @@ export class StyleGuidePageComponent {
       },
       {
         id: 'status',
-        header: this.transloco.translate('requests.fields.status'),
+        header: this.transloco.translate('serviceOrders.fields.status'),
         key: 'status',
         type: 'badge',
         align: 'center',

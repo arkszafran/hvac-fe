@@ -14,12 +14,12 @@ import { CustomerFormModalComponent } from '../customers/components/customer-for
 import { CustomersStore } from '../customers/data/customers.store';
 import { Customer, CustomerDraft } from '../customers/models/customer.model';
 import { DeviceDraft } from '../customers/models/device.model';
-import { InspectionCandidatePickerModalComponent } from '../inspections/components/inspection-candidate-picker-modal.component';
-import { InspectionLinkProposalModalComponent } from '../inspections/components/inspection-link-proposal-modal.component';
+import { ServiceOrderCandidatePickerModalComponent } from '../service-orders/components/service-order-candidate-picker-modal/service-order-candidate-picker-modal.component';
+import { ServiceOrderLinkProposalModalComponent } from '../service-orders/components/service-order-link-proposal-modal/service-order-link-proposal-modal.component';
 import {
-  DeviceCreateInspectionPlan,
-  InspectionDeviceFlowService,
-} from '../inspections/data/inspection-device-flow.service';
+  DeviceCreateServiceOrderPlan,
+  ServiceOrderDeviceFlowService,
+} from '../service-orders/data/service-order-device-flow.service';
 import { DeviceCustomerPickerModalComponent } from './components/device-customer-picker-modal.component';
 import { DeviceEditorFormComponent } from './components/device-editor-form.component';
 
@@ -39,8 +39,8 @@ type CustomerSelection =
     CustomerFormModalComponent,
     DeviceCustomerPickerModalComponent,
     DeviceEditorFormComponent,
-    InspectionLinkProposalModalComponent,
-    InspectionCandidatePickerModalComponent,
+    ServiceOrderLinkProposalModalComponent,
+    ServiceOrderCandidatePickerModalComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './device-create-view.component.html',
@@ -48,7 +48,7 @@ type CustomerSelection =
 export class DeviceCreateViewComponent {
   private readonly router = inject(Router);
   private readonly customersStore = inject(CustomersStore);
-  private readonly inspectionDeviceFlowService = inject(InspectionDeviceFlowService);
+  private readonly serviceOrderDeviceFlowService = inject(ServiceOrderDeviceFlowService);
   private readonly transloco = inject(TranslocoService);
 
   protected readonly deviceForm = viewChild(DeviceEditorFormComponent);
@@ -58,10 +58,11 @@ export class DeviceCreateViewComponent {
   protected readonly customerSelection = signal<CustomerSelection | null>(null);
   protected readonly isDeviceFormValid = signal(false);
   protected readonly deviceDraft = signal<DeviceDraft | null>(null);
-  protected readonly pendingInspectionPlan = signal<DeviceCreateInspectionPlan | null>(null);
+  protected readonly pendingInspectionPlan = signal<DeviceCreateServiceOrderPlan | null>(null);
 
   protected readonly canSave = computed(
-    () => this.customerSelection() !== null && this.isDeviceFormValid() && this.deviceDraft() !== null,
+    () =>
+      this.customerSelection() !== null && this.isDeviceFormValid() && this.deviceDraft() !== null,
   );
 
   protected openCustomerPicker(): void {
@@ -175,7 +176,7 @@ export class DeviceCreateViewComponent {
       return;
     }
 
-    const plan = this.inspectionDeviceFlowService.previewCreateDevice(selection, deviceDraft);
+    const plan = this.serviceOrderDeviceFlowService.previewCreateDevice(selection, deviceDraft);
 
     if (plan.kind === 'single-candidate' || plan.kind === 'candidate-choice') {
       this.pendingInspectionPlan.set(plan);
@@ -206,12 +207,12 @@ export class DeviceCreateViewComponent {
       return;
     }
 
-    await this.finishCreateDevice(plan, { kind: 'attach', inspectionId });
+    await this.finishCreateDevice(plan, { kind: 'attach', serviceOrderId: inspectionId });
   }
 
   private async finishCreateDevice(
-    plan: DeviceCreateInspectionPlan,
-    choice?: { kind: 'create-new' } | { kind: 'attach'; inspectionId: string },
+    plan: DeviceCreateServiceOrderPlan,
+    choice?: { kind: 'create-new' } | { kind: 'attach'; serviceOrderId: string },
   ): Promise<void> {
     const selection = this.customerSelection();
     const deviceDraft = this.deviceDraft();
@@ -220,7 +221,7 @@ export class DeviceCreateViewComponent {
       return;
     }
 
-    const result = this.inspectionDeviceFlowService.commitCreateDevice(
+    const result = this.serviceOrderDeviceFlowService.commitCreateDevice(
       selection,
       deviceDraft,
       plan,

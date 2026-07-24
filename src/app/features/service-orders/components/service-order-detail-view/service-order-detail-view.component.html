@@ -1,0 +1,255 @@
+<div class="space-y-8">
+  @if (details(); as details) {
+    <section class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div class="space-y-1">
+        <nav class="flex flex-wrap items-center gap-2 text-[13px]/5 font-semibold text-text-muted">
+          <a
+            routerLink="/service-orders"
+            class="text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary"
+          >
+            {{ 'serviceOrders.details.backToList' | transloco }}
+          </a>
+          <span aria-hidden="true">/</span>
+          <span class="text-text-main">{{ formatCustomerName(details.order.customer) }}</span>
+        </nav>
+        <h1 class="text-display tracking-[-0.04em] text-text-main">
+          {{ getTypeLabel(details.order) }} — {{ formatCustomerName(details.order.customer) }}
+        </h1>
+        <p class="text-body text-text-muted">
+          {{
+            'serviceOrders.details.dateSummary'
+              | transloco: { date: formatDate(details.order.scheduledAt) }
+          }}
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <ui-badge [variant]="getTypeVariant(details.order.type)">{{
+          getTypeLabel(details.order)
+        }}</ui-badge>
+        <ui-badge [variant]="getStatusVariant(details.order.status)">{{
+          getStatusLabel(details.order)
+        }}</ui-badge>
+      </div>
+    </section>
+
+    <section
+      class="flex flex-wrap gap-2"
+      [attr.aria-label]="'serviceOrders.details.actionsLabel' | transloco"
+    >
+      @if (details.order.customer.phone) {
+        <a
+          [href]="phoneHref(details.order.customer.phone)"
+          class="ui-focus-ring inline-flex min-h-11 items-center justify-center rounded-[0.95rem] border border-border/90 bg-white px-4 text-label font-semibold text-primary-strong transition hover:border-primary/30 hover:bg-primary-soft/20"
+        >
+          {{ 'serviceOrders.actions.call' | transloco }}
+        </a>
+      }
+      @if (canChangeOrder(details.order)) {
+        <ui-button variant="secondary" (pressed)="openSchedule(details.order)">
+          {{
+            (details.order.scheduledAt
+              ? 'serviceOrders.actions.changeDate'
+              : 'serviceOrders.actions.setDate'
+            ) | transloco
+          }}
+        </ui-button>
+      }
+      <ui-button variant="secondary" (pressed)="openNote()">
+        {{ 'serviceOrders.actions.addNote' | transloco }}
+      </ui-button>
+      @if (canChangeOrder(details.order)) {
+        <ui-button (pressed)="createVisit()">{{
+          'serviceOrders.actions.createVisit' | transloco
+        }}</ui-button>
+        <ui-button variant="ghost" (pressed)="cancelOrder()">{{
+          'common.actions.cancel' | transloco
+        }}</ui-button>
+      }
+    </section>
+
+    <section class="grid gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
+      <ui-card>
+        <div card-header>
+          <h2 class="text-h3 text-text-main">{{ 'serviceOrders.details.customer' | transloco }}</h2>
+        </div>
+        <dl class="space-y-3">
+          <div>
+            <dt class="text-small font-semibold text-text-muted">
+              {{ 'serviceOrders.fields.customer' | transloco }}
+            </dt>
+            <dd class="text-label text-text-main">
+              {{ formatCustomerName(details.order.customer) }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-small font-semibold text-text-muted">
+              {{ 'serviceOrders.fields.phone' | transloco }}
+            </dt>
+            <dd class="text-label text-text-main">{{ details.order.customer.phone || '--' }}</dd>
+          </div>
+          <div>
+            <dt class="text-small font-semibold text-text-muted">
+              {{ 'serviceOrders.fields.email' | transloco }}
+            </dt>
+            <dd class="text-label text-text-main [overflow-wrap:anywhere]">
+              {{ details.order.customer.email || '--' }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-small font-semibold text-text-muted">
+              {{ 'serviceOrders.fields.address' | transloco }}
+            </dt>
+            <dd class="text-label text-text-main">
+              {{ formatCustomerAddress(details.order.customer) }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-small font-semibold text-text-muted">
+              {{ 'serviceOrders.fields.source' | transloco }}
+            </dt>
+            <dd class="text-label text-text-main">{{ getSourceLabel(details.order) }}</dd>
+          </div>
+        </dl>
+      </ui-card>
+
+      <ui-card>
+        <div card-header>
+          <h2 class="text-h3 text-text-main">
+            @switch (details.order.type) {
+              @case ('installation') {
+                {{ 'serviceOrders.details.installationTitle' | transloco }}
+              }
+              @case ('repair') {
+                {{ 'serviceOrders.details.repairTitle' | transloco }}
+              }
+              @case ('inspection') {
+                {{ 'serviceOrders.details.inspectionTitle' | transloco }}
+              }
+            }
+          </h2>
+        </div>
+
+        @switch (details.order.serviceData.type) {
+          @case ('installation') {
+            <app-service-order-installation-details [data]="details.order.serviceData" />
+          }
+          @case ('repair') {
+            <app-service-order-repair-details [data]="details.order.serviceData" />
+          }
+          @case ('inspection') {
+            <app-service-order-inspection-details
+              [data]="details.order.serviceData"
+              [systemDevices]="details.systemDevices"
+            />
+          }
+        }
+      </ui-card>
+    </section>
+
+    <ui-card>
+      <div card-header class="flex items-center justify-between gap-3">
+        <h2 class="text-h3 text-text-main">{{ 'serviceOrders.details.notesTitle' | transloco }}</h2>
+        <ui-button size="sm" variant="secondary" (pressed)="openNote()">
+          {{ 'serviceOrders.actions.addNote' | transloco }}
+        </ui-button>
+      </div>
+
+      @if (details.notes.length) {
+        <ol class="space-y-3">
+          @for (note of details.notes; track note.id) {
+            <li class="rounded-[1rem] border border-border/80 bg-white px-4 py-4">
+              <p class="whitespace-pre-line text-body text-text-main">{{ note.content }}</p>
+              <p class="mt-2 text-small text-text-muted">{{ formatDate(note.createdAt) }}</p>
+            </li>
+          }
+        </ol>
+      } @else {
+        <p class="text-body text-text-muted">{{ 'serviceOrders.details.noNotes' | transloco }}</p>
+      }
+    </ui-card>
+
+    @if (relatedVisits().length) {
+      <ui-card>
+        <div card-header>
+          <h2 class="text-h3 text-text-main">
+            {{ 'serviceOrders.details.relatedVisitsTitle' | transloco }}
+          </h2>
+        </div>
+        <div class="space-y-3">
+          @for (visit of relatedVisits(); track visit.id) {
+            <article class="rounded-[1rem] border border-border/80 bg-white px-4 py-3">
+              <p class="text-label text-text-main">{{ formatDate(visit.date) }}</p>
+            </article>
+          }
+        </div>
+      </ui-card>
+    }
+
+    <ui-modal
+      [open]="isScheduleModalOpen()"
+      [title]="'serviceOrders.scheduleModal.title' | transloco"
+      [description]="'serviceOrders.scheduleModal.description' | transloco"
+      (close)="closeSchedule()"
+    >
+      <ui-input
+        type="date"
+        required
+        [label]="'serviceOrders.fields.date' | transloco"
+        [error]="
+          scheduleControl.invalid && scheduleControl.touched
+            ? ('serviceOrders.scheduleModal.validation' | transloco)
+            : ''
+        "
+        [formControl]="scheduleControl"
+      />
+      <div modal-footer class="grid gap-3 sm:grid-cols-2">
+        <ui-button variant="ghost" [block]="true" (pressed)="closeSchedule()">{{
+          'common.actions.cancel' | transloco
+        }}</ui-button>
+        <ui-button [block]="true" (pressed)="saveSchedule()">{{
+          'common.actions.save' | transloco
+        }}</ui-button>
+      </div>
+    </ui-modal>
+
+    <ui-modal
+      [open]="isNoteModalOpen()"
+      [title]="'serviceOrders.noteModal.title' | transloco"
+      [description]="'serviceOrders.noteModal.description' | transloco"
+      (close)="isNoteModalOpen.set(false)"
+    >
+      <label class="block">
+        <span class="text-label text-text-main">{{
+          'serviceOrders.noteModal.label' | transloco
+        }}</span>
+        <textarea
+          class="mt-2"
+          [class]="textareaClasses"
+          [formControl]="noteControl"
+          [attr.placeholder]="'serviceOrders.noteModal.placeholder' | transloco"
+        ></textarea>
+      </label>
+      @if (noteControl.invalid && noteControl.touched) {
+        <p class="mt-2 text-small text-danger">
+          {{ 'serviceOrders.noteModal.validation' | transloco }}
+        </p>
+      }
+      <div modal-footer class="grid gap-3 sm:grid-cols-2">
+        <ui-button variant="ghost" [block]="true" (pressed)="isNoteModalOpen.set(false)">{{
+          'common.actions.cancel' | transloco
+        }}</ui-button>
+        <ui-button [block]="true" (pressed)="saveNote()">{{
+          'common.actions.save' | transloco
+        }}</ui-button>
+      </div>
+    </ui-modal>
+  } @else {
+    <ui-empty-state
+      [title]="'serviceOrders.details.notFoundTitle' | transloco"
+      [description]="'serviceOrders.details.notFoundDescription' | transloco"
+      [actionLabel]="'serviceOrders.details.backToList' | transloco"
+      (action)="backToList()"
+    />
+  }
+</div>

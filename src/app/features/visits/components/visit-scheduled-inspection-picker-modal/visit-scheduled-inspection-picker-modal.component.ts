@@ -1,10 +1,18 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { UiInputComponent, UiModalComponent } from '../../../../ui';
-import { InspectionDetails } from '../../../inspections/data/inspections.store';
-import { formatInspectionDate } from '../../../inspections/utils/inspection-ui.util';
+import { ServiceOrderDetails } from '../../../service-orders/data/service-orders.store';
+import { formatServiceOrderDate } from '../../../service-orders/utils/service-order-ui.util';
 
 @Component({
   selector: 'app-visit-scheduled-inspection-picker-modal',
@@ -17,10 +25,10 @@ export class VisitScheduledInspectionPickerModalComponent {
   private readonly transloco = inject(TranslocoService);
 
   readonly open = input(false);
-  readonly inspections = input<InspectionDetails[]>([]);
+  readonly inspections = input<ServiceOrderDetails[]>([]);
 
   readonly close = output<void>();
-  readonly inspectionSelected = output<InspectionDetails>();
+  readonly inspectionSelected = output<ServiceOrderDetails>();
 
   protected readonly searchQuery = signal('');
   protected readonly filteredInspections = computed(() => {
@@ -31,24 +39,34 @@ export class VisitScheduledInspectionPickerModalComponent {
         return true;
       }
 
-      return normalizeValue([
-        this.customerName(details),
-        details.customer.address,
-        details.customer.postalCode,
-        details.customer.city,
-        details.devices.map((device) => `${device.brand} ${device.model}`).join(' '),
-      ].join(' ')).includes(query);
+      return normalizeValue(
+        [
+          this.customerName(details),
+          details.order.customer.address,
+          details.order.customer.postalCode,
+          details.order.customer.city,
+          details.systemDevices.map((device) => `${device.brand} ${device.model}`).join(' '),
+        ].join(' '),
+      ).includes(query);
     });
   });
 
-  protected readonly formatInspectionDate = formatInspectionDate;
-
-  protected customerName(details: InspectionDetails): string {
-    return details.customer.companyName || details.customer.fullName || this.transloco.translate('customers.fallbackName');
+  protected formatInspectionDate(value: string): string {
+    return formatServiceOrderDate(value, this.transloco.getActiveLang());
   }
 
-  protected devicesLabel(details: InspectionDetails): string {
-    return details.devices.map((device) => `${device.brand} ${device.model}`.trim()).join(', ');
+  protected customerName(details: ServiceOrderDetails): string {
+    return (
+      details.order.customer.companyName ||
+      details.order.customer.fullName ||
+      this.transloco.translate('customers.fallbackName')
+    );
+  }
+
+  protected devicesLabel(details: ServiceOrderDetails): string {
+    return details.systemDevices
+      .map((device) => `${device.brand} ${device.model}`.trim())
+      .join(', ');
   }
 }
 

@@ -16,20 +16,22 @@ import { CustomerFormModalComponent } from '../../../customers/components/custom
 import { DeviceFormModalComponent } from '../../../customers/components/device-form-modal.component';
 import { CustomersStore } from '../../../customers/data/customers.store';
 import { Customer, CustomerDraft } from '../../../customers/models/customer.model';
-import { Device, DeviceDraft, createEmptyDeviceDraft } from '../../../customers/models/device.model';
-import { InspectionDetails, InspectionsStore } from '../../../inspections/data/inspections.store';
-import { ServiceRequestsStore } from '../../../requests/data/service-requests.store';
 import {
-  ServiceRequest,
-  ServiceRequestCustomer,
-  ServiceRequestDevice,
-} from '../../../requests/models/service-request.model';
+  Device,
+  DeviceDraft,
+  createEmptyDeviceDraft,
+} from '../../../customers/models/device.model';
+import {
+  ServiceOrderDetails,
+  ServiceOrdersStore,
+} from '../../../service-orders/data/service-orders.store';
+import {
+  ServiceOrder,
+  ServiceOrderCustomer,
+  ServiceOrderDevice,
+} from '../../../service-orders/models/service-order.model';
 import { VisitsStore } from '../../data/visits.store';
-import {
-  VisitType,
-  createVisitTypeOptions,
-  getVisitTypeLabel,
-} from '../../models/visit.model';
+import { VisitType, createVisitTypeOptions, getVisitTypeLabel } from '../../models/visit.model';
 import { VisitCustomerPickerModalComponent } from '../visit-customer-picker-modal/visit-customer-picker-modal.component';
 import { VisitDevicePickerModalComponent } from '../visit-device-picker-modal/visit-device-picker-modal.component';
 import { VisitScheduledInspectionPickerModalComponent } from '../visit-scheduled-inspection-picker-modal/visit-scheduled-inspection-picker-modal.component';
@@ -37,7 +39,7 @@ import { VisitScheduledInspectionPickerModalComponent } from '../visit-scheduled
 interface NewDeviceDraft {
   tempId: string;
   draft: DeviceDraft;
-  source: 'manual' | 'request';
+  source: 'manual' | 'service-order';
 }
 
 interface VisitDeviceEntry {
@@ -76,8 +78,7 @@ export class VisitCreateViewComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly customersStore = inject(CustomersStore);
-  private readonly inspectionsStore = inject(InspectionsStore);
-  private readonly serviceRequestsStore = inject(ServiceRequestsStore);
+  private readonly serviceOrdersStore = inject(ServiceOrdersStore);
   private readonly visitsStore = inject(VisitsStore);
   private readonly transloco = inject(TranslocoService);
   private readonly activeLanguage = toSignal(this.transloco.langChanges$, {
@@ -101,7 +102,7 @@ export class VisitCreateViewComponent {
 
   protected readonly visitType = signal<VisitType | ''>('');
   protected readonly visitDate = signal(this.today());
-  protected readonly sourceRequestId = signal('');
+  protected readonly sourceServiceOrderId = signal('');
   protected readonly selectedCustomerId = signal('');
   protected readonly pendingCustomerDraft = signal<CustomerDraft | null>(null);
   protected readonly customerCreatedInVisit = signal(false);
@@ -135,7 +136,9 @@ export class VisitCreateViewComponent {
 
     const pendingCustomerDraft = this.pendingCustomerDraft();
 
-    return pendingCustomerDraft ? this.createPendingCustomerPreview(pendingCustomerDraft) : undefined;
+    return pendingCustomerDraft
+      ? this.createPendingCustomerPreview(pendingCustomerDraft)
+      : undefined;
   });
   protected readonly customerFormInitialValue = computed(() => {
     if (this.customerFormMode() !== 'edit') {
@@ -145,18 +148,17 @@ export class VisitCreateViewComponent {
     return this.pendingCustomerDraft();
   });
   protected readonly scheduledInspections = computed(() =>
-    this.inspectionsStore.inspectionDetails().filter(
-      (details) => details.inspection.status === 'scheduled',
-    ),
+    this.serviceOrdersStore.getInspectionOrders('scheduled'),
   );
   protected readonly selectedScheduledInspection = computed(() => {
     const inspectionId = this.scheduledInspectionId();
 
-    return inspectionId ? this.inspectionsStore.getInspectionDetailsById(inspectionId) : undefined;
+    return inspectionId ? this.serviceOrdersStore.getOrderDetailsById(inspectionId) : undefined;
   });
-  protected readonly canShowCustomerStep = computed(() =>
-    Boolean(this.visitType()) &&
-    (this.visitType() !== 'inspection' || this.scheduledInspectionAnswer() !== 'unset'),
+  protected readonly canShowCustomerStep = computed(
+    () =>
+      Boolean(this.visitType()) &&
+      (this.visitType() !== 'inspection' || this.scheduledInspectionAnswer() !== 'unset'),
   );
   protected readonly canPickExistingDevices = computed(() => {
     if (!this.selectedCustomer() || this.isVisitFromScheduledInspection()) {
@@ -169,8 +171,8 @@ export class VisitCreateViewComponent {
 
     return !this.customerCreatedInVisit();
   });
-  protected readonly canAddNewDevices = computed(() =>
-    Boolean(this.selectedCustomer()) && !this.isVisitFromScheduledInspection(),
+  protected readonly canAddNewDevices = computed(
+    () => Boolean(this.selectedCustomer()) && !this.isVisitFromScheduledInspection(),
   );
   protected readonly deviceEntries = computed<VisitDeviceEntry[]>(() => {
     this.activeLanguage();
@@ -209,16 +211,17 @@ export class VisitCreateViewComponent {
 
     return null;
   });
-  protected readonly hasValidationErrors = computed(() =>
-    this.submitAttempted() &&
-    (!this.visitType() ||
-      !this.selectedCustomer() ||
-      !this.visitDate().trim() ||
-      !this.deviceEntries().length ||
-      (this.visitType() === 'inspection' && this.scheduledInspectionAnswer() === 'unset') ||
-      (this.visitType() === 'inspection' &&
-        this.scheduleNextInspection() &&
-        !this.nextInspectionDate().trim())),
+  protected readonly hasValidationErrors = computed(
+    () =>
+      this.submitAttempted() &&
+      (!this.visitType() ||
+        !this.selectedCustomer() ||
+        !this.visitDate().trim() ||
+        !this.deviceEntries().length ||
+        (this.visitType() === 'inspection' && this.scheduledInspectionAnswer() === 'unset') ||
+        (this.visitType() === 'inspection' &&
+          this.scheduleNextInspection() &&
+          !this.nextInspectionDate().trim())),
   );
 
   protected getVisitTypeLabel(type: VisitType): string {
@@ -228,13 +231,10 @@ export class VisitCreateViewComponent {
   }
 
   constructor() {
-    const prefilledRequestId = this.route.snapshot.queryParamMap.get('requestId');
-    const prefilledInspectionId = this.route.snapshot.queryParamMap.get('inspectionId');
+    const serviceOrderId = this.route.snapshot.queryParamMap.get('serviceOrderId');
 
-    if (prefilledRequestId) {
-      this.prefillFromRequest(prefilledRequestId);
-    } else if (prefilledInspectionId) {
-      this.prefillFromInspection(prefilledInspectionId);
+    if (serviceOrderId) {
+      this.prefillFromServiceOrder(serviceOrderId);
     }
   }
 
@@ -387,11 +387,18 @@ export class VisitCreateViewComponent {
     }
   }
 
-  protected selectScheduledInspection(details: InspectionDetails): void {
-    this.scheduledInspectionId.set(details.inspection.id);
-    this.selectedCustomerId.set(details.customer.id);
+  protected selectScheduledInspection(details: ServiceOrderDetails): void {
+    const customer = details.systemCustomer;
+
+    if (!customer) {
+      return;
+    }
+
+    this.sourceServiceOrderId.set(details.order.id);
+    this.scheduledInspectionId.set(details.order.id);
+    this.selectedCustomerId.set(customer.id);
     this.pendingCustomerDraft.set(null);
-    this.selectedExistingDeviceIds.set(details.devices.map((device) => device.id));
+    this.selectedExistingDeviceIds.set(details.systemDevices.map((device) => device.id));
     this.newDeviceDrafts.set([]);
     this.customerCreatedInVisit.set(false);
     this.isScheduledInspectionPickerOpen.set(false);
@@ -468,7 +475,7 @@ export class VisitCreateViewComponent {
     }
 
     const visit = this.visitsStore.createVisit({
-      requestId: this.sourceRequestId(),
+      serviceOrderId: this.sourceServiceOrderId(),
       customerId: customer.id,
       devicesList: persistedDeviceIds,
       date: this.visitDate(),
@@ -483,16 +490,15 @@ export class VisitCreateViewComponent {
       return;
     }
 
-    if (this.scheduledInspectionId()) {
-      this.inspectionsStore.markCompleted(this.scheduledInspectionId());
+    if (this.sourceServiceOrderId()) {
+      this.serviceOrdersStore.completeOrder(this.sourceServiceOrderId());
     }
 
     if (selectedVisitType === 'inspection' && this.scheduleNextInspection()) {
-      this.inspectionsStore.createInspection({
+      this.serviceOrdersStore.createInspectionOrder({
         customerId: customer.id,
         deviceIds: persistedDeviceIds,
-        inspectionDate: this.nextInspectionDate(),
-        source: 'manual',
+        scheduledAt: this.nextInspectionDate(),
       });
     }
 
@@ -508,7 +514,11 @@ export class VisitCreateViewComponent {
       return this.transloco.translate('common.notSelected');
     }
 
-    return customer.companyName || customer.fullName || this.transloco.translate('customers.fallbackName');
+    return (
+      customer.companyName ||
+      customer.fullName ||
+      this.transloco.translate('customers.fallbackName')
+    );
   }
 
   protected entryNote(entry: VisitDeviceEntry): string {
@@ -555,59 +565,48 @@ export class VisitCreateViewComponent {
     return this.entryNote(entry);
   }
 
-  private prefillFromInspection(inspectionId: string): void {
-    const details = this.inspectionsStore.getInspectionDetailsById(inspectionId);
+  private prefillFromServiceOrder(serviceOrderId: string): void {
+    const details = this.serviceOrdersStore.getOrderDetailsById(serviceOrderId);
 
     if (!details) {
       return;
     }
 
-    this.visitType.set('inspection');
-    this.scheduledInspectionAnswer.set('yes');
-    this.selectScheduledInspection(details);
-  }
-
-  private prefillFromRequest(requestId: string): void {
-    const request = this.serviceRequestsStore.getRequestById(requestId);
-
-    if (!request) {
-      return;
-    }
-
-    this.sourceRequestId.set(request.id);
-    this.visitType.set(request.requestType);
-    this.visitDate.set(request.appointmentDate || this.today());
-    this.scheduledInspectionAnswer.set('no');
-    this.scheduledInspectionId.set('');
+    const order = details.order;
+    this.sourceServiceOrderId.set(order.id);
+    this.visitType.set(order.type);
+    this.visitDate.set(order.scheduledAt || this.today());
+    this.scheduledInspectionAnswer.set(order.type === 'inspection' ? 'yes' : 'no');
+    this.scheduledInspectionId.set(order.type === 'inspection' ? order.id : '');
     this.commonNote.set('');
     this.scheduleNextInspection.set(false);
     this.nextInspectionDate.set('');
 
-    const existingCustomer = request.customer.systemCustomerId
-      ? this.customersStore.getCustomerById(request.customer.systemCustomerId)
+    const existingCustomer = order.customer.systemCustomerId
+      ? this.customersStore.getCustomerById(order.customer.systemCustomerId)
       : undefined;
 
     if (existingCustomer) {
-      this.prefillExistingRequestCustomer(request, existingCustomer);
+      this.prefillExistingOrderCustomer(order, existingCustomer);
       return;
     }
 
-    this.prefillNewRequestCustomer(request);
+    this.prefillNewOrderCustomer(order);
   }
 
-  private prefillExistingRequestCustomer(request: ServiceRequest, customer: Customer): void {
+  private prefillExistingOrderCustomer(order: ServiceOrder, customer: Customer): void {
     const existingDeviceIds: string[] = [];
     const newDeviceDrafts: NewDeviceDraft[] = [];
 
-    for (const device of this.requestDevices(request)) {
-      const existingDevice = this.findExistingRequestDevice(customer, device);
+    for (const device of this.serviceOrdersStore.getOrderDevices(order)) {
+      const existingDevice = this.findExistingOrderDevice(customer, device);
 
       if (existingDevice) {
         existingDeviceIds.push(existingDevice.id);
         continue;
       }
 
-      newDeviceDrafts.push(this.createNewRequestDeviceDraft(device));
+      newDeviceDrafts.push(this.createNewOrderDeviceDraft(device));
     }
 
     this.selectedCustomerId.set(customer.id);
@@ -618,12 +617,12 @@ export class VisitCreateViewComponent {
     this.deviceNotes.set({});
   }
 
-  private prefillNewRequestCustomer(request: ServiceRequest): void {
-    const requestDevices = this.requestDevices(request);
-    const devices = requestDevices.map((device) => this.createNewRequestDeviceDraft(device));
+  private prefillNewOrderCustomer(order: ServiceOrder): void {
+    const orderDevices = this.serviceOrdersStore.getOrderDevices(order);
+    const devices = orderDevices.map((device) => this.createNewOrderDeviceDraft(device));
 
     this.selectedCustomerId.set('');
-    this.pendingCustomerDraft.set(this.customerDraftFromRequest(request.customer));
+    this.pendingCustomerDraft.set(this.customerDraftFromOrder(order.customer));
     this.customerCreatedInVisit.set(true);
     this.selectedExistingDeviceIds.set([]);
     this.newDeviceDrafts.set(devices);
@@ -667,7 +666,7 @@ export class VisitCreateViewComponent {
     return createdCustomer;
   }
 
-  private customerDraftFromRequest(customer: ServiceRequestCustomer): CustomerDraft {
+  private customerDraftFromOrder(customer: ServiceOrderCustomer): CustomerDraft {
     return {
       type: customer.customerType,
       companyName: customer.companyName,
@@ -688,32 +687,23 @@ export class VisitCreateViewComponent {
     };
   }
 
-  private requestDevices(request: ServiceRequest): ServiceRequestDevice[] {
-    switch (request.requestType) {
-      case 'repair':
-        return request.repair.devices;
-      case 'inspection':
-        return request.inspection.devices;
-      case 'installation':
-        return [];
-    }
-  }
-
-  private createNewRequestDeviceDraft(device: ServiceRequestDevice): NewDeviceDraft {
+  private createNewOrderDeviceDraft(device: ServiceOrderDevice): NewDeviceDraft {
     return {
-      tempId: `request-device-${device.id}`,
-      draft: this.deviceDraftFromRequest(device),
-      source: 'request',
+      tempId: `service-order-device-${device.id}`,
+      draft: this.deviceDraftFromOrder(device),
+      source: 'service-order',
     };
   }
 
-  private deviceDraftFromRequest(device: ServiceRequestDevice): DeviceDraft {
+  private deviceDraftFromOrder(device: ServiceOrderDevice): DeviceDraft {
     const draft = createEmptyDeviceDraft();
     const yearNote = device.year
-      ? this.transloco.translate('visits.create.requestNotes.year', { year: device.year })
+      ? this.transloco.translate('visits.create.serviceOrderNotes.year', { year: device.year })
       : '';
     const errorNote = device.displayedError
-      ? this.transloco.translate('visits.create.requestNotes.error', { error: device.displayedError })
+      ? this.transloco.translate('visits.create.serviceOrderNotes.error', {
+          error: device.displayedError,
+        })
       : '';
 
     return {
@@ -728,13 +718,13 @@ export class VisitCreateViewComponent {
     };
   }
 
-  private findExistingRequestDevice(
+  private findExistingOrderDevice(
     customer: Customer,
-    requestDevice: ServiceRequestDevice,
+    orderDevice: ServiceOrderDevice,
   ): Device | undefined {
-    if (requestDevice.systemDeviceId) {
+    if (orderDevice.systemDeviceId) {
       const systemDevice = customer.devices.find(
-        (device) => device.id === requestDevice.systemDeviceId,
+        (device) => device.id === orderDevice.systemDeviceId,
       );
 
       if (systemDevice) {
@@ -742,22 +732,26 @@ export class VisitCreateViewComponent {
       }
     }
 
-    if (!requestDevice.serialNumber.trim()) {
+    if (!orderDevice.serialNumber.trim()) {
       return undefined;
     }
 
     return customer.devices.find(
-      (device) => device.serialNumber.trim() === requestDevice.serialNumber.trim(),
+      (device) => device.serialNumber.trim() === orderDevice.serialNumber.trim(),
     );
   }
 
   private deviceName(device: Device): string {
-    return `${device.brand} ${device.model}`.trim() || this.transloco.translate('devices.table.device');
+    return (
+      `${device.brand} ${device.model}`.trim() || this.transloco.translate('devices.table.device')
+    );
   }
 
   private deviceAddress(customer: Customer | undefined, device: Device): string {
     const street = device.hasCustomInstallationAddress ? device.address : customer?.address;
-    const postalCode = device.hasCustomInstallationAddress ? device.postalCode : customer?.postalCode;
+    const postalCode = device.hasCustomInstallationAddress
+      ? device.postalCode
+      : customer?.postalCode;
     const city = device.hasCustomInstallationAddress ? device.city : customer?.city;
 
     return [street, `${postalCode ?? ''} ${city ?? ''}`.trim()].filter(Boolean).join(', ') || '--';

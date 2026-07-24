@@ -1,0 +1,91 @@
+<div class="space-y-4">
+  <div>
+    <p class="text-small font-semibold text-text-muted">
+      {{ 'serviceOrders.details.buildingType' | transloco }}
+    </p>
+    <p class="mt-1 text-label text-text-main">{{ buildingTypeLabel() }}</p>
+  </div>
+
+  @for (room of data().rooms; track room.id; let index = $index) {
+    <article class="rounded-[1rem] border border-border/85 bg-white px-4 py-4">
+      <h3 class="text-label text-text-main">
+        {{ 'serviceOrders.details.room' | transloco: { index: index + 1 } }}
+      </h3>
+      <dl class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div>
+          <dt class="text-small font-semibold text-text-muted">
+            {{ 'serviceOrders.details.area' | transloco }}
+          </dt>
+          <dd class="text-label text-text-main">{{ room.area }} m²</dd>
+        </div>
+        <div>
+          <dt class="text-small font-semibold text-text-muted">
+            {{ 'serviceOrders.details.height' | transloco }}
+          </dt>
+          <dd class="text-label text-text-main">{{ room.height }} m</dd>
+        </div>
+        <div>
+          <dt class="text-small font-semibold text-text-muted">
+            {{ 'serviceOrders.details.outdoorUnitPlace' | transloco }}
+          </dt>
+          <dd class="text-label text-text-main">
+            {{ outdoorUnitPlaceLabel(room.outdoorUnitPlace) }}
+          </dd>
+        </div>
+        <div>
+          <dt class="text-small font-semibold text-text-muted">
+            {{ 'serviceOrders.details.unitDistance' | transloco }}
+          </dt>
+          <dd class="text-label text-text-main">{{ room.estimatedDistanceToOutdoorUnit }} m</dd>
+        </div>
+        <div>
+          <dt class="text-small font-semibold text-text-muted">
+            {{ 'serviceOrders.details.floor' | transloco }}
+          </dt>
+          <dd class="text-label text-text-main">{{ room.floor }}</dd>
+        </div>
+      </dl>
+
+      @if (room.photos.length) {
+        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+          @for (photo of room.photos; track photo.id) {
+            <figure class="overflow-hidden rounded-[0.9rem] border border-border/85 bg-surface">
+              <img
+                [src]="photo.url"
+                [alt]="photo.fileName"
+                class="h-40 w-full object-cover"
+                loading="lazy"
+              />
+              <figcaption class="px-3 py-2 text-small text-text-main">
+                {{ photo.fileName }}
+              </figcaption>
+            </figure>
+          }
+        </div>
+      }
+    </article>
+  }
+
+  @if (data().photos.length) {
+    <div>
+      <h3 class="text-label text-text-main">
+        {{ 'serviceOrders.details.orderPhotos' | transloco }}
+      </h3>
+      <div class="mt-3 grid gap-3 sm:grid-cols-2">
+        @for (photo of data().photos; track photo.id) {
+          <figure class="overflow-hidden rounded-[0.9rem] border border-border/85 bg-surface">
+            <img
+              [src]="photo.url"
+              [alt]="photo.fileName"
+              class="h-40 w-full object-cover"
+              loading="lazy"
+            />
+            <figcaption class="px-3 py-2 text-small text-text-main">
+              {{ photo.fileName }}
+            </figcaption>
+          </figure>
+        }
+      </div>
+    </div>
+  }
+</div>

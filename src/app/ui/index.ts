@@ -7,6 +7,7 @@ export * from './input/input.component';
 export * from './loader/app-loader-host.component';
 export * from './menu/menu.component';
 export * from './modal/modal.component';
+export * from './multiselect/multiselect.component';
 export * from './page-header/page-header.component';
 export * from './select/select.component';
 export * from './table/table.component';

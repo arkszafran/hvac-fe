@@ -1,0 +1,62 @@
+<ui-modal
+  [open]="open()"
+  [title]="modalTitle()"
+  [description]="description()"
+  (close)="close.emit()"
+>
+  <div class="space-y-4">
+    <div class="rounded-[1rem] border border-border/80 bg-surface/62 p-4">
+      <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">
+        {{ 'serviceOrders.fields.customer' | transloco }}
+      </p>
+      <p class="mt-2 text-h3 tracking-[-0.02em] text-text-main">{{ customerName() }}</p>
+      <p class="mt-1 text-body text-text-muted">{{ deviceName() }}</p>
+    </div>
+
+    @if (candidates().length) {
+      <div class="space-y-3">
+        @for (order of candidates(); track order.id) {
+          <article class="rounded-[1rem] border border-border/85 bg-white p-4 shadow-card">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div class="flex flex-wrap items-center gap-3">
+                <ui-badge [variant]="getStatusVariant(order.status)">{{
+                  statusLabel(order)
+                }}</ui-badge>
+                <span class="text-small text-text-muted">
+                  {{
+                    'serviceOrders.deviceFlow.deviceCount'
+                      | transloco: { count: deviceCount(order) }
+                  }}
+                </span>
+              </div>
+              <ui-button
+                type="button"
+                size="sm"
+                variant="secondary"
+                (pressed)="serviceOrderSelected.emit(order.id)"
+              >
+                {{ 'serviceOrders.deviceFlow.selectOrder' | transloco }}
+              </ui-button>
+            </div>
+            <p class="mt-4 text-label text-text-main">{{ formatDate(order.scheduledAt) }}</p>
+          </article>
+        }
+      </div>
+    } @else {
+      <div
+        class="rounded-[1rem] border border-dashed border-border/90 bg-white/72 p-5 text-body text-text-muted"
+      >
+        {{ 'serviceOrders.deviceFlow.candidateEmpty' | transloco }}
+      </div>
+    }
+  </div>
+
+  <div modal-footer class="grid gap-3 sm:grid-cols-2">
+    <ui-button type="button" variant="ghost" [block]="true" (pressed)="close.emit()">
+      {{ closeLabel() }}
+    </ui-button>
+    <ui-button type="button" [block]="true" (pressed)="createNew.emit()">
+      {{ createLabel() }}
+    </ui-button>
+  </div>
+</ui-modal>

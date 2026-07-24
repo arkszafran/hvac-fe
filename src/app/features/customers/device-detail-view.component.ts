@@ -10,13 +10,13 @@ import {
   UiCardComponent,
   UiEmptyStateComponent,
 } from '../../ui';
-import { InspectionCandidatePickerModalComponent } from '../inspections/components/inspection-candidate-picker-modal.component';
-import { InspectionLinkProposalModalComponent } from '../inspections/components/inspection-link-proposal-modal.component';
+import { ServiceOrderCandidatePickerModalComponent } from '../service-orders/components/service-order-candidate-picker-modal/service-order-candidate-picker-modal.component';
+import { ServiceOrderLinkProposalModalComponent } from '../service-orders/components/service-order-link-proposal-modal/service-order-link-proposal-modal.component';
 import {
-  DeviceUpdateInspectionPlan,
-  InspectionDeviceFlowService,
-} from '../inspections/data/inspection-device-flow.service';
-import { InspectionsStore } from '../inspections/data/inspections.store';
+  DeviceUpdateServiceOrderPlan,
+  ServiceOrderDeviceFlowService,
+} from '../service-orders/data/service-order-device-flow.service';
+import { ServiceOrdersStore } from '../service-orders/data/service-orders.store';
 import { getVisitTypeLabel, Visit, VisitType } from '../visits/models/visit.model';
 import { DeviceFormModalComponent } from './components/device-form-modal.component';
 import { DeviceNextInspectionModalComponent } from './components/device-next-inspection-modal.component';
@@ -41,8 +41,8 @@ interface DeviceDetailItem {
     UiEmptyStateComponent,
     DeviceFormModalComponent,
     DeviceNextInspectionModalComponent,
-    InspectionLinkProposalModalComponent,
-    InspectionCandidatePickerModalComponent,
+    ServiceOrderLinkProposalModalComponent,
+    ServiceOrderCandidatePickerModalComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './device-detail-view.component.html',
@@ -51,8 +51,8 @@ export class DeviceDetailViewComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly customersStore = inject(CustomersStore);
-  private readonly inspectionsStore = inject(InspectionsStore);
-  private readonly inspectionDeviceFlowService = inject(InspectionDeviceFlowService);
+  private readonly serviceOrdersStore = inject(ServiceOrdersStore);
+  private readonly serviceOrderDeviceFlowService = inject(ServiceOrderDeviceFlowService);
   private readonly transloco = inject(TranslocoService);
   private readonly activeLanguage = toSignal(this.transloco.langChanges$, {
     initialValue: this.transloco.getActiveLang(),
@@ -61,7 +61,7 @@ export class DeviceDetailViewComponent {
   protected readonly isEditDeviceModalOpen = signal(false);
   protected readonly isNextInspectionModalOpen = signal(false);
   protected readonly pendingUpdateDraft = signal<DeviceDraft | null>(null);
-  protected readonly pendingUpdatePlan = signal<DeviceUpdateInspectionPlan | null>(null);
+  protected readonly pendingUpdatePlan = signal<DeviceUpdateServiceOrderPlan | null>(null);
   protected readonly customerId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('customerId') ?? '')),
     { initialValue: this.route.snapshot.paramMap.get('customerId') ?? '' },
@@ -83,7 +83,9 @@ export class DeviceDetailViewComponent {
   protected readonly activeInspection = computed(() => {
     const device = this.device();
 
-    return device ? this.inspectionsStore.getActiveInspectionByDeviceId(device.id) : undefined;
+    return device
+      ? this.serviceOrdersStore.getActiveInspectionOrderByDeviceId(device.id)
+      : undefined;
   });
   protected readonly editableDeviceDraft = computed<DeviceDraft | null>(() => {
     const device = this.device();
@@ -102,7 +104,7 @@ export class DeviceDetailViewComponent {
       installationDate: device.installationDate,
       warrantyMonths: device.warrantyMonths,
       hasScheduledInspections: Boolean(activeInspection),
-      nextInspectionDate: activeInspection?.inspectionDate ?? '',
+      nextInspectionDate: activeInspection?.scheduledAt ?? '',
       note: device.note,
       refrigerant: device.refrigerant,
       refrigerantAmount: device.refrigerantAmount,
@@ -160,8 +162,8 @@ export class DeviceDetailViewComponent {
       return this.transloco.translate('devices.detail.nextInspectionDisabled');
     }
 
-    return activeInspection.inspectionDate
-      ? this.formatDate(activeInspection.inspectionDate)
+    return activeInspection.scheduledAt
+      ? this.formatDate(activeInspection.scheduledAt)
       : this.transloco.translate('devices.detail.noInspectionDate');
   });
   protected readonly nextInspectionStatusLabel = computed(() => {
@@ -199,7 +201,9 @@ export class DeviceDetailViewComponent {
     }
 
     const street = device.hasCustomInstallationAddress ? device.address : customer.address;
-    const postalCode = device.hasCustomInstallationAddress ? device.postalCode : customer.postalCode;
+    const postalCode = device.hasCustomInstallationAddress
+      ? device.postalCode
+      : customer.postalCode;
     const city = device.hasCustomInstallationAddress ? device.city : customer.city;
     const cityLine = [postalCode, city].filter(Boolean).join(' ').trim();
     const addressLines = [street, cityLine].filter(Boolean);
@@ -216,7 +220,11 @@ export class DeviceDetailViewComponent {
   }
 
   protected customerTitle(customer: Customer): string {
-    return customer.companyName || customer.fullName || this.transloco.translate('customers.fallbackName');
+    return (
+      customer.companyName ||
+      customer.fullName ||
+      this.transloco.translate('customers.fallbackName')
+    );
   }
 
   protected getDeviceTypeLabel(type: DeviceDraft['type']): string {
@@ -274,7 +282,7 @@ export class DeviceDetailViewComponent {
       return;
     }
 
-    this.finishUpdateDevice(plan, draft, { kind: 'attach', inspectionId });
+    this.finishUpdateDevice(plan, draft, { kind: 'attach', serviceOrderId: inspectionId });
   }
 
   protected formatDate(value: string): string {
@@ -288,7 +296,9 @@ export class DeviceDetailViewComponent {
       return value;
     }
 
-    return new Intl.DateTimeFormat(this.activeLanguage() === 'pl' ? 'pl-PL' : 'en-US').format(parsedDate);
+    return new Intl.DateTimeFormat(this.activeLanguage() === 'pl' ? 'pl-PL' : 'en-US').format(
+      parsedDate,
+    );
   }
 
   private processDeviceUpdate(deviceDraft: DeviceDraft): void {
@@ -299,7 +309,11 @@ export class DeviceDetailViewComponent {
       return;
     }
 
-    const plan = this.inspectionDeviceFlowService.previewUpdateDevice(customer, device, deviceDraft);
+    const plan = this.serviceOrderDeviceFlowService.previewUpdateDevice(
+      customer,
+      device,
+      deviceDraft,
+    );
 
     if (plan.kind === 'single-candidate' || plan.kind === 'candidate-choice') {
       this.pendingUpdateDraft.set(deviceDraft);
@@ -313,9 +327,9 @@ export class DeviceDetailViewComponent {
   }
 
   private finishUpdateDevice(
-    plan: DeviceUpdateInspectionPlan,
+    plan: DeviceUpdateServiceOrderPlan,
     deviceDraft: DeviceDraft,
-    choice?: { kind: 'create-new' } | { kind: 'attach'; inspectionId: string },
+    choice?: { kind: 'create-new' } | { kind: 'attach'; serviceOrderId: string },
   ): void {
     const device = this.device();
     const customer = this.customer();
@@ -324,7 +338,7 @@ export class DeviceDetailViewComponent {
       return;
     }
 
-    const result = this.inspectionDeviceFlowService.commitUpdateDevice(
+    const result = this.serviceOrderDeviceFlowService.commitUpdateDevice(
       customer,
       device,
       deviceDraft,

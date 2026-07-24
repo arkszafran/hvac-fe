@@ -14,14 +14,17 @@ import { DeviceFormModalComponent } from '../customers/components/device-form-mo
 import { DeviceNextInspectionModalComponent } from '../customers/components/device-next-inspection-modal.component';
 import { CustomersStore } from '../customers/data/customers.store';
 import { Customer } from '../customers/models/customer.model';
-import { DeviceDraft, getDeviceTypeLabel as readDeviceTypeLabel } from '../customers/models/device.model';
-import { InspectionCandidatePickerModalComponent } from '../inspections/components/inspection-candidate-picker-modal.component';
-import { InspectionLinkProposalModalComponent } from '../inspections/components/inspection-link-proposal-modal.component';
 import {
-  DeviceUpdateInspectionPlan,
-  InspectionDeviceFlowService,
-} from '../inspections/data/inspection-device-flow.service';
-import { InspectionsStore } from '../inspections/data/inspections.store';
+  DeviceDraft,
+  getDeviceTypeLabel as readDeviceTypeLabel,
+} from '../customers/models/device.model';
+import { ServiceOrderCandidatePickerModalComponent } from '../service-orders/components/service-order-candidate-picker-modal/service-order-candidate-picker-modal.component';
+import { ServiceOrderLinkProposalModalComponent } from '../service-orders/components/service-order-link-proposal-modal/service-order-link-proposal-modal.component';
+import {
+  DeviceUpdateServiceOrderPlan,
+  ServiceOrderDeviceFlowService,
+} from '../service-orders/data/service-order-device-flow.service';
+import { ServiceOrdersStore } from '../service-orders/data/service-orders.store';
 import { getVisitTypeLabel, Visit, VisitType } from '../visits/models/visit.model';
 import { DevicesStore } from './data/devices.store';
 import { Device } from './models/device.model';
@@ -43,8 +46,8 @@ interface DeviceDetailItem {
     UiEmptyStateComponent,
     DeviceFormModalComponent,
     DeviceNextInspectionModalComponent,
-    InspectionLinkProposalModalComponent,
-    InspectionCandidatePickerModalComponent,
+    ServiceOrderLinkProposalModalComponent,
+    ServiceOrderCandidatePickerModalComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -52,7 +55,9 @@ interface DeviceDetailItem {
       @if (device(); as device) {
         <section class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div class="space-y-1">
-            <nav class="flex flex-wrap items-center gap-2 text-[13px]/5 font-semibold text-text-muted">
+            <nav
+              class="flex flex-wrap items-center gap-2 text-[13px]/5 font-semibold text-text-muted"
+            >
               <a
                 routerLink="/devices"
                 class="text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
@@ -60,7 +65,9 @@ interface DeviceDetailItem {
                 {{ 'devices.detail.breadcrumbs.deviceList' | transloco }}
               </a>
               <span aria-hidden="true">/</span>
-              <span class="text-text-main">{{ 'devices.detail.breadcrumbs.device' | transloco }}</span>
+              <span class="text-text-main">{{
+                'devices.detail.breadcrumbs.device' | transloco
+              }}</span>
             </nav>
 
             <h1 class="text-display tracking-[-0.04em] text-text-main">
@@ -82,7 +89,9 @@ interface DeviceDetailItem {
           <ui-card>
             <div card-header class="space-y-1">
               <p class="ui-kicker">{{ 'devices.detail.sections.deviceData' | transloco }}</p>
-              <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'devices.detail.sections.mainInfo' | transloco }}</h2>
+              <h2 class="text-h3 tracking-[-0.02em] text-text-main">
+                {{ 'devices.detail.sections.mainInfo' | transloco }}
+              </h2>
             </div>
 
             <dl class="grid gap-3 sm:grid-cols-2">
@@ -130,7 +139,9 @@ interface DeviceDetailItem {
         <ui-card>
           <div card-header class="space-y-1">
             <p class="ui-kicker">{{ 'devices.detail.sections.installation' | transloco }}</p>
-            <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'devices.detail.sections.locationAndNotes' | transloco }}</h2>
+            <h2 class="text-h3 tracking-[-0.02em] text-text-main">
+              {{ 'devices.detail.sections.locationAndNotes' | transloco }}
+            </h2>
           </div>
 
           <div class="space-y-5">
@@ -163,9 +174,16 @@ interface DeviceDetailItem {
         </ui-card>
 
         <ui-card>
-          <div card-header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'devices.detail.sections.serviceHistory' | transloco }}</h2>
-            <ui-badge variant="info">{{ 'devices.detail.entriesCount' | transloco: { count: deviceVisits().length } }}</ui-badge>
+          <div
+            card-header
+            class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <h2 class="text-h3 tracking-[-0.02em] text-text-main">
+              {{ 'devices.detail.sections.serviceHistory' | transloco }}
+            </h2>
+            <ui-badge variant="info">{{
+              'devices.detail.entriesCount' | transloco: { count: deviceVisits().length }
+            }}</ui-badge>
           </div>
 
           @if (deviceVisits().length) {
@@ -204,20 +222,20 @@ interface DeviceDetailItem {
         <app-device-next-inspection-modal
           [open]="isNextInspectionModalOpen()"
           [initialEnabled]="!!activeInspection()"
-          [initialDate]="activeInspection()?.inspectionDate ?? ''"
+          [initialDate]="activeInspection()?.scheduledAt ?? ''"
           (close)="isNextInspectionModalOpen.set(false)"
           (save)="handleUpdateNextInspectionDate($event)"
         />
 
         @if (pendingUpdatePlan(); as updatePlan) {
           @if (updatePlan.kind === 'single-candidate') {
-            <app-inspection-link-proposal-modal
+            <app-service-order-link-proposal-modal
               [open]="true"
               [title]="updatePlan.title"
               [description]="updatePlan.description"
               [customerName]="updatePlan.customerName"
               [deviceName]="updatePlan.deviceName"
-              [inspection]="updatePlan.candidate"
+              [order]="updatePlan.candidate"
               [primaryActionLabel]="updatePlan.primaryActionLabel"
               [secondaryActionLabel]="updatePlan.createActionLabel"
               [cancelLabel]="updatePlan.cancelActionLabel"
@@ -226,7 +244,7 @@ interface DeviceDetailItem {
               (createSeparate)="confirmUpdateCreateNewInspection()"
             />
           } @else if (updatePlan.kind === 'candidate-choice') {
-            <app-inspection-candidate-picker-modal
+            <app-service-order-candidate-picker-modal
               [open]="true"
               [title]="updatePlan.title"
               [description]="updatePlan.description"
@@ -236,7 +254,7 @@ interface DeviceDetailItem {
               [createActionLabel]="updatePlan.createActionLabel"
               [cancelActionLabel]="updatePlan.cancelActionLabel"
               (close)="clearUpdatePlan()"
-              (inspectionSelected)="confirmUpdateAttach($event)"
+              (serviceOrderSelected)="confirmUpdateAttach($event)"
               (createNew)="confirmUpdateCreateNewInspection()"
             />
           }
@@ -257,8 +275,8 @@ export class DeviceDetailViewComponent {
   private readonly router = inject(Router);
   private readonly customersStore = inject(CustomersStore);
   private readonly devicesStore = inject(DevicesStore);
-  private readonly inspectionsStore = inject(InspectionsStore);
-  private readonly inspectionDeviceFlowService = inject(InspectionDeviceFlowService);
+  private readonly serviceOrdersStore = inject(ServiceOrdersStore);
+  private readonly serviceOrderDeviceFlowService = inject(ServiceOrderDeviceFlowService);
   private readonly transloco = inject(TranslocoService);
   private readonly activeLanguage = toSignal(this.transloco.langChanges$, {
     initialValue: this.transloco.getActiveLang(),
@@ -267,7 +285,7 @@ export class DeviceDetailViewComponent {
   protected readonly isEditDeviceModalOpen = signal(false);
   protected readonly isNextInspectionModalOpen = signal(false);
   protected readonly pendingUpdateDraft = signal<DeviceDraft | null>(null);
-  protected readonly pendingUpdatePlan = signal<DeviceUpdateInspectionPlan | null>(null);
+  protected readonly pendingUpdatePlan = signal<DeviceUpdateServiceOrderPlan | null>(null);
   protected readonly deviceId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('deviceId') ?? '')),
     { initialValue: this.route.snapshot.paramMap.get('deviceId') ?? '' },
@@ -280,7 +298,9 @@ export class DeviceDetailViewComponent {
   protected readonly activeInspection = computed(() => {
     const device = this.device();
 
-    return device ? this.inspectionsStore.getActiveInspectionByDeviceId(device.id) : undefined;
+    return device
+      ? this.serviceOrdersStore.getActiveInspectionOrderByDeviceId(device.id)
+      : undefined;
   });
   protected readonly editableDeviceDraft = computed<DeviceDraft | null>(() => {
     const device = this.device();
@@ -299,7 +319,7 @@ export class DeviceDetailViewComponent {
       installationDate: device.installationDate,
       warrantyMonths: device.warrantyMonths,
       hasScheduledInspections: Boolean(activeInspection),
-      nextInspectionDate: activeInspection?.inspectionDate ?? '',
+      nextInspectionDate: activeInspection?.scheduledAt ?? '',
       note: device.note,
       refrigerant: device.refrigerant,
       refrigerantAmount: device.refrigerantAmount,
@@ -357,8 +377,8 @@ export class DeviceDetailViewComponent {
       return this.transloco.translate('devices.detail.nextInspectionDisabled');
     }
 
-    return activeInspection.inspectionDate
-      ? this.formatDate(activeInspection.inspectionDate)
+    return activeInspection.scheduledAt
+      ? this.formatDate(activeInspection.scheduledAt)
       : this.transloco.translate('devices.detail.noInspectionDate');
   });
   protected readonly nextInspectionStatusLabel = computed(() => {
@@ -414,7 +434,11 @@ export class DeviceDetailViewComponent {
   }
 
   protected customerTitle(customer: Customer): string {
-    return customer.companyName || customer.fullName || this.transloco.translate('customers.fallbackName');
+    return (
+      customer.companyName ||
+      customer.fullName ||
+      this.transloco.translate('customers.fallbackName')
+    );
   }
 
   protected getDeviceTypeLabel(type: DeviceDraft['type']): string {
@@ -468,7 +492,7 @@ export class DeviceDetailViewComponent {
       return;
     }
 
-    this.finishUpdateDevice(plan, draft, { kind: 'attach', inspectionId });
+    this.finishUpdateDevice(plan, draft, { kind: 'attach', serviceOrderId: inspectionId });
   }
 
   protected formatDate(value: string): string {
@@ -482,7 +506,9 @@ export class DeviceDetailViewComponent {
       return value;
     }
 
-    return new Intl.DateTimeFormat(this.activeLanguage() === 'pl' ? 'pl-PL' : 'en-US').format(parsedDate);
+    return new Intl.DateTimeFormat(this.activeLanguage() === 'pl' ? 'pl-PL' : 'en-US').format(
+      parsedDate,
+    );
   }
 
   private processDeviceUpdate(deviceDraft: DeviceDraft): void {
@@ -492,7 +518,7 @@ export class DeviceDetailViewComponent {
       return;
     }
 
-    const plan = this.inspectionDeviceFlowService.previewUpdateDevice(
+    const plan = this.serviceOrderDeviceFlowService.previewUpdateDevice(
       device.customer,
       device,
       deviceDraft,
@@ -510,9 +536,9 @@ export class DeviceDetailViewComponent {
   }
 
   private finishUpdateDevice(
-    plan: DeviceUpdateInspectionPlan,
+    plan: DeviceUpdateServiceOrderPlan,
     deviceDraft: DeviceDraft,
-    choice?: { kind: 'create-new' } | { kind: 'attach'; inspectionId: string },
+    choice?: { kind: 'create-new' } | { kind: 'attach'; serviceOrderId: string },
   ): void {
     const device = this.device();
 
@@ -520,7 +546,7 @@ export class DeviceDetailViewComponent {
       return;
     }
 
-    const result = this.inspectionDeviceFlowService.commitUpdateDevice(
+    const result = this.serviceOrderDeviceFlowService.commitUpdateDevice(
       device.customer,
       device,
       deviceDraft,

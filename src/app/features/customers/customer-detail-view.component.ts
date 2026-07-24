@@ -10,20 +10,19 @@ import {
   UiCardComponent,
   UiEmptyStateComponent,
 } from '../../ui';
-import { InspectionCandidatePickerModalComponent } from '../inspections/components/inspection-candidate-picker-modal.component';
-import { InspectionLinkProposalModalComponent } from '../inspections/components/inspection-link-proposal-modal.component';
-import { InspectionPreviewModalComponent } from '../inspections/components/inspection-preview-modal/inspection-preview-modal.component';
+import { ServiceOrderCandidatePickerModalComponent } from '../service-orders/components/service-order-candidate-picker-modal/service-order-candidate-picker-modal.component';
+import { ServiceOrderLinkProposalModalComponent } from '../service-orders/components/service-order-link-proposal-modal/service-order-link-proposal-modal.component';
 import {
-  DeviceCreateInspectionPlan,
-  DeviceUpdateInspectionPlan,
-  InspectionDeviceFlowService,
-} from '../inspections/data/inspection-device-flow.service';
-import { InspectionsStore } from '../inspections/data/inspections.store';
-import { InspectionStatus } from '../inspections/models/inspection.model';
+  DeviceCreateServiceOrderPlan,
+  DeviceUpdateServiceOrderPlan,
+  ServiceOrderDeviceFlowService,
+} from '../service-orders/data/service-order-device-flow.service';
+import { ServiceOrdersStore } from '../service-orders/data/service-orders.store';
+import { ServiceOrderStatus } from '../service-orders/models/service-order.model';
 import {
-  getInspectionStatusLabel,
-  getInspectionStatusVariant,
-} from '../inspections/utils/inspection-ui.util';
+  getServiceOrderStatusLabel,
+  getServiceOrderStatusVariant,
+} from '../service-orders/utils/service-order-ui.util';
 import { CustomerFormModalComponent } from './components/customer-form-modal.component';
 import { DeviceFormModalComponent } from './components/device-form-modal.component';
 import { DeviceListComponent } from './components/device-list.component';
@@ -44,9 +43,8 @@ import { Device, DeviceDraft } from './models/device.model';
     CustomerFormModalComponent,
     DeviceFormModalComponent,
     DeviceListComponent,
-    InspectionLinkProposalModalComponent,
-    InspectionCandidatePickerModalComponent,
-    InspectionPreviewModalComponent,
+    ServiceOrderLinkProposalModalComponent,
+    ServiceOrderCandidatePickerModalComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -54,7 +52,9 @@ import { Device, DeviceDraft } from './models/device.model';
       @if (customer(); as customer) {
         <section class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div class="space-y-1">
-            <nav class="flex flex-wrap items-center gap-2 text-[13px]/5 font-semibold text-text-muted">
+            <nav
+              class="flex flex-wrap items-center gap-2 text-[13px]/5 font-semibold text-text-muted"
+            >
               <a
                 routerLink="/customers"
                 class="text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
@@ -62,7 +62,10 @@ import { Device, DeviceDraft } from './models/device.model';
                 {{ 'devices.detail.breadcrumbs.customerList' | transloco }}
               </a>
               <span aria-hidden="true">/</span>
-              <span class="text-text-main">{{ 'devices.detail.breadcrumbs.customer' | transloco: { customer: customerTitle(customer) } }}</span>
+              <span class="text-text-main">{{
+                'devices.detail.breadcrumbs.customer'
+                  | transloco: { customer: customerTitle(customer) }
+              }}</span>
             </nav>
 
             <h1 class="text-display tracking-[-0.04em] text-text-main">
@@ -84,7 +87,9 @@ import { Device, DeviceDraft } from './models/device.model';
                 <p class="text-h3 tracking-[-0.02em] text-text-main">{{ customer.companyName }}</p>
                 <p class="text-body text-text-muted">{{ customer.fullName || '--' }}</p>
               } @else {
-                <p class="text-h3 tracking-[-0.02em] text-text-main">{{ customer.fullName || '--' }}</p>
+                <p class="text-h3 tracking-[-0.02em] text-text-main">
+                  {{ customer.fullName || '--' }}
+                </p>
               }
             </div>
 
@@ -127,35 +132,46 @@ import { Device, DeviceDraft } from './models/device.model';
           >
             <div>
               <p class="ui-kicker">{{ 'customers.detail.planning' | transloco }}</p>
-              <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'customers.detail.activeInspections' | transloco }}</h2>
+              <h2 class="text-h3 tracking-[-0.02em] text-text-main">
+                {{ 'customers.detail.activeInspections' | transloco }}
+              </h2>
             </div>
             <ui-badge variant="info">{{ activeInspections().length }}</ui-badge>
           </div>
 
           @if (activeInspections().length) {
             <div class="space-y-3">
-              @for (details of activeInspections(); track details.inspection.id) {
-                <article class="rounded-[1rem] border border-border/85 bg-white px-4 py-4 shadow-card">
+              @for (details of activeInspections(); track details.order.id) {
+                <article
+                  class="rounded-[1rem] border border-border/85 bg-white px-4 py-4 shadow-card"
+                >
                   <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                     <div class="space-y-2">
                       <div class="flex flex-wrap items-center gap-2">
-                        <ui-badge [variant]="getInspectionStatusVariant(details.inspection.status)">
-                          {{ getInspectionStatusLabel(details.inspection.status) }}
+                        <ui-badge [variant]="getInspectionStatusVariant(details.order.status)">
+                          {{ getInspectionStatusLabel(details.order.status) }}
                         </ui-badge>
                         <span class="text-small text-text-muted">
-                          {{ 'inspections.detail.deviceCount' | transloco: { count: details.devices.length } }}
+                          {{
+                            'serviceOrders.deviceFlow.deviceCount'
+                              | transloco: { count: details.systemDevices.length }
+                          }}
                         </span>
                       </div>
 
                       <p class="text-label text-text-main">
-                        {{ details.inspection.inspectionDate ? formatDate(details.inspection.inspectionDate) : ('inspections.detail.unconfirmedDate' | transloco) }}
+                        {{
+                          details.order.scheduledAt
+                            ? formatDate(details.order.scheduledAt)
+                            : ('serviceOrders.fields.noDate' | transloco)
+                        }}
                       </p>
                     </div>
 
                     <ui-button
                       size="sm"
                       variant="ghost"
-                      (pressed)="openInspectionPreview(details.inspection.id)"
+                      (pressed)="openInspectionPreview(details.order.id)"
                     >
                       {{ 'common.actions.details' | transloco }}
                     </ui-button>
@@ -176,7 +192,9 @@ import { Device, DeviceDraft } from './models/device.model';
             card-header
             class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
           >
-            <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'devices.title' | transloco }}</h2>
+            <h2 class="text-h3 tracking-[-0.02em] text-text-main">
+              {{ 'devices.title' | transloco }}
+            </h2>
 
             <ui-button variant="secondary" size="sm" (pressed)="isAddDeviceModalOpen.set(true)">
               {{ 'devices.actions.add' | transloco }}
@@ -224,23 +242,15 @@ import { Device, DeviceDraft } from './models/device.model';
           (save)="handleUpdateDevice($event)"
         />
 
-        @if (selectedInspectionDetails(); as inspectionDetails) {
-          <app-inspection-preview-modal
-            [open]="true"
-            [details]="inspectionDetails"
-            (close)="closeInspectionPreview()"
-          />
-        }
-
         @if (pendingCreatePlan(); as createPlan) {
           @if (createPlan.kind === 'single-candidate') {
-            <app-inspection-link-proposal-modal
+            <app-service-order-link-proposal-modal
               [open]="true"
               [title]="createPlan.title"
               [description]="createPlan.description"
               [customerName]="createPlan.customerName"
               [deviceName]="createPlan.deviceName"
-              [inspection]="createPlan.candidate"
+              [order]="createPlan.candidate"
               [primaryActionLabel]="createPlan.primaryActionLabel"
               [secondaryActionLabel]="createPlan.createActionLabel"
               [cancelLabel]="createPlan.cancelActionLabel"
@@ -249,7 +259,7 @@ import { Device, DeviceDraft } from './models/device.model';
               (createSeparate)="confirmCreateNewInspection()"
             />
           } @else if (createPlan.kind === 'candidate-choice') {
-            <app-inspection-candidate-picker-modal
+            <app-service-order-candidate-picker-modal
               [open]="true"
               [title]="createPlan.title"
               [description]="createPlan.description"
@@ -259,7 +269,7 @@ import { Device, DeviceDraft } from './models/device.model';
               [createActionLabel]="createPlan.createActionLabel"
               [cancelActionLabel]="createPlan.cancelActionLabel"
               (close)="clearCreatePlan()"
-              (inspectionSelected)="confirmCreateAttach($event)"
+              (serviceOrderSelected)="confirmCreateAttach($event)"
               (createNew)="confirmCreateNewInspection()"
             />
           }
@@ -267,13 +277,13 @@ import { Device, DeviceDraft } from './models/device.model';
 
         @if (pendingUpdatePlan(); as updatePlan) {
           @if (updatePlan.kind === 'single-candidate') {
-            <app-inspection-link-proposal-modal
+            <app-service-order-link-proposal-modal
               [open]="true"
               [title]="updatePlan.title"
               [description]="updatePlan.description"
               [customerName]="updatePlan.customerName"
               [deviceName]="updatePlan.deviceName"
-              [inspection]="updatePlan.candidate"
+              [order]="updatePlan.candidate"
               [primaryActionLabel]="updatePlan.primaryActionLabel"
               [secondaryActionLabel]="updatePlan.createActionLabel"
               [cancelLabel]="updatePlan.cancelActionLabel"
@@ -282,7 +292,7 @@ import { Device, DeviceDraft } from './models/device.model';
               (createSeparate)="confirmUpdateCreateNewInspection()"
             />
           } @else if (updatePlan.kind === 'candidate-choice') {
-            <app-inspection-candidate-picker-modal
+            <app-service-order-candidate-picker-modal
               [open]="true"
               [title]="updatePlan.title"
               [description]="updatePlan.description"
@@ -292,7 +302,7 @@ import { Device, DeviceDraft } from './models/device.model';
               [createActionLabel]="updatePlan.createActionLabel"
               [cancelActionLabel]="updatePlan.cancelActionLabel"
               (close)="clearUpdatePlan()"
-              (inspectionSelected)="confirmUpdateAttach($event)"
+              (serviceOrderSelected)="confirmUpdateAttach($event)"
               (createNew)="confirmUpdateCreateNewInspection()"
             />
           }
@@ -312,19 +322,18 @@ export class CustomerDetailViewComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly customersStore = inject(CustomersStore);
-  private readonly inspectionsStore = inject(InspectionsStore);
-  private readonly inspectionDeviceFlowService = inject(InspectionDeviceFlowService);
+  private readonly serviceOrdersStore = inject(ServiceOrdersStore);
+  private readonly serviceOrderDeviceFlowService = inject(ServiceOrderDeviceFlowService);
   private readonly transloco = inject(TranslocoService);
 
   protected readonly isEditCustomerModalOpen = signal(false);
   protected readonly isAddDeviceModalOpen = signal(false);
   protected readonly isEditDeviceModalOpen = signal(false);
   protected readonly editingDeviceId = signal<string | null>(null);
-  protected readonly selectedInspectionId = signal<string | null>(null);
   protected readonly pendingCreateDraft = signal<DeviceDraft | null>(null);
-  protected readonly pendingCreatePlan = signal<DeviceCreateInspectionPlan | null>(null);
+  protected readonly pendingCreatePlan = signal<DeviceCreateServiceOrderPlan | null>(null);
   protected readonly pendingUpdateDraft = signal<DeviceDraft | null>(null);
-  protected readonly pendingUpdatePlan = signal<DeviceUpdateInspectionPlan | null>(null);
+  protected readonly pendingUpdatePlan = signal<DeviceUpdateServiceOrderPlan | null>(null);
   protected readonly customerId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
     {
@@ -336,15 +345,16 @@ export class CustomerDetailViewComponent {
     this.customersStore.getCustomerById(this.customerId()),
   );
   protected readonly activeInspections = computed(() =>
-    this.inspectionsStore.inspectionDetails().filter(
-      (details) => details.customer.id === this.customerId() && details.inspection.status !== 'completed' && details.inspection.status !== 'cancelled',
-    ),
+    this.serviceOrdersStore
+      .orderDetails()
+      .filter(
+        (details) =>
+          details.order.type === 'inspection' &&
+          details.order.customer.systemCustomerId === this.customerId() &&
+          details.order.status !== 'completed' &&
+          details.order.status !== 'cancelled',
+      ),
   );
-  protected readonly selectedInspectionDetails = computed(() => {
-    const inspectionId = this.selectedInspectionId();
-
-    return inspectionId ? this.inspectionsStore.getInspectionDetailsById(inspectionId) ?? null : null;
-  });
   protected readonly editableCustomerDraft = computed<CustomerDraft | null>(() => {
     const customer = this.customer();
 
@@ -377,7 +387,7 @@ export class CustomerDetailViewComponent {
       return null;
     }
 
-    const activeInspection = this.inspectionsStore.getActiveInspectionByDeviceId(device.id);
+    const activeInspection = this.serviceOrdersStore.getActiveInspectionOrderByDeviceId(device.id);
 
     return {
       type: device.type,
@@ -387,7 +397,7 @@ export class CustomerDetailViewComponent {
       installationDate: device.installationDate,
       warrantyMonths: device.warrantyMonths,
       hasScheduledInspections: Boolean(activeInspection),
-      nextInspectionDate: activeInspection?.inspectionDate ?? '',
+      nextInspectionDate: activeInspection?.scheduledAt ?? '',
       note: device.note,
       refrigerant: device.refrigerant,
       refrigerantAmount: device.refrigerantAmount,
@@ -399,13 +409,15 @@ export class CustomerDetailViewComponent {
     };
   });
 
-  protected getInspectionStatusLabel(status: InspectionStatus): string {
-    return getInspectionStatusLabel(status, this.transloco);
+  protected getInspectionStatusLabel(status: ServiceOrderStatus): string {
+    return getServiceOrderStatusLabel(status, this.transloco);
   }
-  protected readonly getInspectionStatusVariant = getInspectionStatusVariant;
+  protected readonly getInspectionStatusVariant = getServiceOrderStatusVariant;
 
   protected customerTitle(customer: Customer): string {
-    return customer.companyName || customer.fullName || this.transloco.translate('customers.newCustomer');
+    return (
+      customer.companyName || customer.fullName || this.transloco.translate('customers.newCustomer')
+    );
   }
 
   protected phoneHref(phone: string): string {
@@ -432,11 +444,7 @@ export class CustomerDetailViewComponent {
   }
 
   protected openInspectionPreview(inspectionId: string): void {
-    this.selectedInspectionId.set(inspectionId);
-  }
-
-  protected closeInspectionPreview(): void {
-    this.selectedInspectionId.set(null);
+    void this.router.navigate(['/service-orders', inspectionId]);
   }
 
   protected handleAddDevice(deviceDraft: DeviceDraft): void {
@@ -446,7 +454,7 @@ export class CustomerDetailViewComponent {
       return;
     }
 
-    const plan = this.inspectionDeviceFlowService.previewCreateDevice(
+    const plan = this.serviceOrderDeviceFlowService.previewCreateDevice(
       { kind: 'existing', customer },
       deviceDraft,
     );
@@ -474,7 +482,11 @@ export class CustomerDetailViewComponent {
       return;
     }
 
-    const plan = this.inspectionDeviceFlowService.previewUpdateDevice(customer, device, deviceDraft);
+    const plan = this.serviceOrderDeviceFlowService.previewUpdateDevice(
+      customer,
+      device,
+      deviceDraft,
+    );
 
     if (plan.kind === 'single-candidate' || plan.kind === 'candidate-choice') {
       this.pendingUpdateDraft.set(deviceDraft);
@@ -525,7 +537,7 @@ export class CustomerDetailViewComponent {
       return;
     }
 
-    this.finishCreateDevice(plan, draft, { kind: 'attach', inspectionId });
+    this.finishCreateDevice(plan, draft, { kind: 'attach', serviceOrderId: inspectionId });
   }
 
   protected confirmUpdateCreateNewInspection(): void {
@@ -547,7 +559,7 @@ export class CustomerDetailViewComponent {
       return;
     }
 
-    this.finishUpdateDevice(plan, draft, { kind: 'attach', inspectionId });
+    this.finishUpdateDevice(plan, draft, { kind: 'attach', serviceOrderId: inspectionId });
   }
 
   protected formatDate(value: string): string {
@@ -561,7 +573,9 @@ export class CustomerDetailViewComponent {
       return value;
     }
 
-    return new Intl.DateTimeFormat(this.transloco.getActiveLang() === 'pl' ? 'pl-PL' : 'en-US').format(parsedDate);
+    return new Intl.DateTimeFormat(
+      this.transloco.getActiveLang() === 'pl' ? 'pl-PL' : 'en-US',
+    ).format(parsedDate);
   }
 
   private editingDevice(): Device | undefined {
@@ -572,9 +586,9 @@ export class CustomerDetailViewComponent {
   }
 
   private finishCreateDevice(
-    plan: DeviceCreateInspectionPlan,
+    plan: DeviceCreateServiceOrderPlan,
     deviceDraft: DeviceDraft,
-    choice?: { kind: 'create-new' } | { kind: 'attach'; inspectionId: string },
+    choice?: { kind: 'create-new' } | { kind: 'attach'; serviceOrderId: string },
   ): void {
     const customer = this.customer();
 
@@ -582,7 +596,7 @@ export class CustomerDetailViewComponent {
       return;
     }
 
-    const result = this.inspectionDeviceFlowService.commitCreateDevice(
+    const result = this.serviceOrderDeviceFlowService.commitCreateDevice(
       { kind: 'existing', customer },
       deviceDraft,
       plan,
@@ -598,9 +612,9 @@ export class CustomerDetailViewComponent {
   }
 
   private finishUpdateDevice(
-    plan: DeviceUpdateInspectionPlan,
+    plan: DeviceUpdateServiceOrderPlan,
     deviceDraft: DeviceDraft,
-    choice?: { kind: 'create-new' } | { kind: 'attach'; inspectionId: string },
+    choice?: { kind: 'create-new' } | { kind: 'attach'; serviceOrderId: string },
   ): void {
     const customer = this.customer();
     const device = this.editingDevice();
@@ -609,7 +623,7 @@ export class CustomerDetailViewComponent {
       return;
     }
 
-    const result = this.inspectionDeviceFlowService.commitUpdateDevice(
+    const result = this.serviceOrderDeviceFlowService.commitUpdateDevice(
       customer,
       device,
       deviceDraft,

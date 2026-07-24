@@ -59,7 +59,9 @@
 
   <ui-card class="block">
     <div card-header>
-      <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'devices.create.deviceData' | transloco }}</h2>
+      <h2 class="text-h3 tracking-[-0.02em] text-text-main">
+        {{ 'devices.create.deviceData' | transloco }}
+      </h2>
     </div>
 
     <app-device-editor-form
@@ -94,13 +96,13 @@
 
   @if (pendingInspectionPlan(); as plan) {
     @if (plan.kind === 'single-candidate') {
-      <app-inspection-link-proposal-modal
+      <app-service-order-link-proposal-modal
         [open]="true"
         [title]="plan.title"
         [description]="plan.description"
         [customerName]="plan.customerName"
         [deviceName]="plan.deviceName"
-        [inspection]="plan.candidate"
+        [order]="plan.candidate"
         [primaryActionLabel]="plan.primaryActionLabel"
         [secondaryActionLabel]="plan.createActionLabel"
         [cancelLabel]="plan.cancelActionLabel"
@@ -109,7 +111,7 @@
         (createSeparate)="createSeparateInspection()"
       />
     } @else if (plan.kind === 'candidate-choice') {
-      <app-inspection-candidate-picker-modal
+      <app-service-order-candidate-picker-modal
         [open]="true"
         [title]="plan.title"
         [description]="plan.description"
@@ -119,7 +121,7 @@
         [createActionLabel]="plan.createActionLabel"
         [cancelActionLabel]="plan.cancelActionLabel"
         (close)="closeInspectionPlan()"
-        (inspectionSelected)="attachToInspection($event)"
+        (serviceOrderSelected)="attachToInspection($event)"
         (createNew)="createSeparateInspection()"
       />
     }

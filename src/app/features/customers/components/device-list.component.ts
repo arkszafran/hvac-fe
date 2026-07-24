@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, input, output } from '@angu
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { UiButtonComponent } from '../../../ui';
-import { InspectionsStore } from '../../inspections/data/inspections.store';
+import { ServiceOrdersStore } from '../../service-orders/data/service-orders.store';
 import { Device, getDeviceTypeLabel } from '../models/device.model';
 
 @Component({
@@ -16,16 +16,24 @@ import { Device, getDeviceTypeLabel } from '../models/device.model';
         <table class="min-w-full border-separate border-spacing-0">
           <thead>
             <tr>
-              <th class="border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted first:pl-6">
+              <th
+                class="border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted first:pl-6"
+              >
                 {{ 'devices.table.device' | transloco }}
               </th>
-              <th class="border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
+              <th
+                class="border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
+              >
                 {{ 'devices.table.dates' | transloco }}
               </th>
-              <th class="border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
+              <th
+                class="border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
+              >
                 {{ 'devices.table.installationPlace' | transloco }}
               </th>
-              <th class="border-b border-border/90 px-5 py-4 text-right text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted last:pr-6">
+              <th
+                class="border-b border-border/90 px-5 py-4 text-right text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted last:pr-6"
+              >
                 {{ 'devices.table.actions' | transloco }}
               </th>
             </tr>
@@ -34,9 +42,13 @@ import { Device, getDeviceTypeLabel } from '../models/device.model';
           <tbody class="[&_tr:last-child_td]:border-b-0">
             @for (device of devices(); track device.id) {
               <tr class="group/row transition duration-200">
-                <td class="border-b border-border/80 px-5 py-4.5 first:pl-6 group-hover/row:bg-primary-soft/18">
+                <td
+                  class="border-b border-border/80 px-5 py-4.5 first:pl-6 group-hover/row:bg-primary-soft/18"
+                >
                   <div class="flex flex-col gap-1">
-                    <p class="text-[10px]/4 font-semibold uppercase tracking-[0.18em] text-primary/70">
+                    <p
+                      class="text-[10px]/4 font-semibold uppercase tracking-[0.18em] text-primary/70"
+                    >
                       {{ deviceTypeLabel(device) }}
                     </p>
                     <p class="text-[15px]/6 font-semibold tracking-[-0.02em] text-text-main">
@@ -53,18 +65,25 @@ import { Device, getDeviceTypeLabel } from '../models/device.model';
                   </div>
                 </td>
 
-                <td class="border-b border-border/80 px-5 py-4.5 group-hover/row:bg-primary-soft/18">
+                <td
+                  class="border-b border-border/80 px-5 py-4.5 group-hover/row:bg-primary-soft/18"
+                >
                   <div class="flex flex-col gap-1">
                     <p class="text-[15px]/6 font-semibold tracking-[-0.02em] text-text-main">
                       {{ inspectionLabel(device) }}
                     </p>
                     <p class="text-[13px]/5 text-text-main/76">
-                      {{ 'devices.installationDateLabel' | transloco: { date: formatDate(device.installationDate) } }}
+                      {{
+                        'devices.installationDateLabel'
+                          | transloco: { date: formatDate(device.installationDate) }
+                      }}
                     </p>
                   </div>
                 </td>
 
-                <td class="border-b border-border/80 px-5 py-4.5 group-hover/row:bg-primary-soft/18">
+                <td
+                  class="border-b border-border/80 px-5 py-4.5 group-hover/row:bg-primary-soft/18"
+                >
                   <div class="flex flex-col gap-1">
                     <p class="text-[15px]/6 font-semibold tracking-[-0.02em] text-text-main">
                       {{ device.location || ('devices.customerAddress' | transloco) }}
@@ -75,9 +94,15 @@ import { Device, getDeviceTypeLabel } from '../models/device.model';
                   </div>
                 </td>
 
-                <td class="border-b border-border/80 px-5 py-4.5 last:pr-6 group-hover/row:bg-primary-soft/18">
+                <td
+                  class="border-b border-border/80 px-5 py-4.5 last:pr-6 group-hover/row:bg-primary-soft/18"
+                >
                   <div class="flex justify-end gap-2">
-                    <ui-button variant="ghost" size="sm" (pressed)="deviceEditRequested.emit(device)">
+                    <ui-button
+                      variant="ghost"
+                      size="sm"
+                      (pressed)="deviceEditRequested.emit(device)"
+                    >
                       {{ 'common.actions.edit' | transloco }}
                     </ui-button>
                     <ui-button variant="ghost" size="sm" (pressed)="deviceSelected.emit(device)">
@@ -116,8 +141,15 @@ import { Device, getDeviceTypeLabel } from '../models/device.model';
                 <div>
                   <span class="font-semibold">{{ inspectionLabel(device) }}</span>
                 </div>
-                <div>{{ 'devices.installationDateLabel' | transloco: { date: formatDate(device.installationDate) } }}</div>
-                <div class="pt-2 text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
+                <div>
+                  {{
+                    'devices.installationDateLabel'
+                      | transloco: { date: formatDate(device.installationDate) }
+                  }}
+                </div>
+                <div
+                  class="pt-2 text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
+                >
                   {{ 'devices.table.installationPlace' | transloco }}
                 </div>
                 <div>{{ device.location || ('devices.customerAddress' | transloco) }}</div>
@@ -141,7 +173,7 @@ import { Device, getDeviceTypeLabel } from '../models/device.model';
 })
 export class DeviceListComponent {
   private readonly transloco = inject(TranslocoService);
-  private readonly inspectionsStore = inject(InspectionsStore);
+  private readonly serviceOrdersStore = inject(ServiceOrdersStore);
 
   readonly devices = input<Device[]>([]);
   readonly deviceSelected = output<Device>();
@@ -176,15 +208,15 @@ export class DeviceListComponent {
   }
 
   protected inspectionLabel(device: Device): string {
-    const activeInspection = this.inspectionsStore.getActiveInspectionByDeviceId(device.id);
+    const activeInspection = this.serviceOrdersStore.getActiveInspectionOrderByDeviceId(device.id);
 
     if (!activeInspection) {
       return this.transloco.translate('devices.inspections.disabled');
     }
 
-    return activeInspection.inspectionDate
+    return activeInspection.scheduledAt
       ? this.transloco.translate('devices.inspections.nextInspection', {
-          date: this.formatDate(activeInspection.inspectionDate),
+          date: this.formatDate(activeInspection.scheduledAt),
         })
       : this.transloco.translate('devices.inspections.enabledNoDate');
   }

@@ -15,7 +15,7 @@
 
     @if (filteredInspections().length) {
       <div class="space-y-2">
-        @for (details of filteredInspections(); track details.inspection.id) {
+        @for (details of filteredInspections(); track details.order.id) {
           <button
             type="button"
             class="ui-focus-ring block w-full rounded-[1rem] border border-border/85 bg-white px-4 py-3 text-left transition hover:border-primary/24 hover:bg-primary-soft/20"
@@ -23,14 +23,20 @@
           >
             <span class="block text-label text-text-main">{{ customerName(details) }}</span>
             <span class="block text-small text-text-muted">
-              {{ details.inspection.inspectionDate ? formatInspectionDate(details.inspection.inspectionDate) : ('inspections.detail.unconfirmedDate' | transloco) }}
+              {{
+                details.order.scheduledAt
+                  ? formatInspectionDate(details.order.scheduledAt)
+                  : ('serviceOrders.fields.noDate' | transloco)
+              }}
             </span>
             <span class="block text-small text-text-muted">{{ devicesLabel(details) }}</span>
           </button>
         }
       </div>
     } @else {
-      <div class="rounded-[1rem] border border-dashed border-border/90 bg-white/76 px-4 py-5 text-body text-text-muted">
+      <div
+        class="rounded-[1rem] border border-dashed border-border/90 bg-white/76 px-4 py-5 text-body text-text-muted"
+      >
         {{ 'visits.scheduledInspectionPicker.empty' | transloco }}
       </div>
     }

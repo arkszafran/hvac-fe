@@ -1,0 +1,145 @@
+import { TranslocoService } from '@jsverse/transloco';
+
+import type { UiBadgeVariant } from '../../../ui';
+import {
+  ServiceOrderBuildingType,
+  ServiceOrderCustomer,
+  ServiceOrderOutdoorUnitPlace,
+  ServiceOrderSource,
+  ServiceOrderStatus,
+  ServiceOrderType,
+} from '../models/service-order.model';
+
+const TYPE_LABEL_KEYS: Record<ServiceOrderType, string> = {
+  installation: 'serviceOrders.types.installation',
+  repair: 'serviceOrders.types.repair',
+  inspection: 'serviceOrders.types.inspection',
+};
+
+const STATUS_LABEL_KEYS: Record<ServiceOrderStatus, string> = {
+  new: 'serviceOrders.statuses.new',
+  contact_required: 'serviceOrders.statuses.contactRequired',
+  scheduled: 'serviceOrders.statuses.scheduled',
+  completed: 'serviceOrders.statuses.completed',
+  cancelled: 'serviceOrders.statuses.cancelled',
+};
+
+const SOURCE_LABEL_KEYS: Record<ServiceOrderSource, string> = {
+  'customer-panel': 'serviceOrders.sources.customerPanel',
+  'website-form': 'serviceOrders.sources.websiteForm',
+  user: 'serviceOrders.sources.user',
+};
+
+const BUILDING_TYPE_LABEL_KEYS: Record<ServiceOrderBuildingType, string> = {
+  'apartment-block': 'serviceOrders.buildingTypes.apartmentBlock',
+  house: 'serviceOrders.buildingTypes.house',
+  'office-building': 'serviceOrders.buildingTypes.officeBuilding',
+};
+
+const OUTDOOR_UNIT_PLACE_LABEL_KEYS: Record<ServiceOrderOutdoorUnitPlace, string> = {
+  wall: 'serviceOrders.outdoorUnitPlaces.wall',
+  balcony: 'serviceOrders.outdoorUnitPlaces.balcony',
+};
+
+export function getServiceOrderTypeLabel(
+  type: ServiceOrderType,
+  transloco: TranslocoService,
+): string {
+  return transloco.translate(TYPE_LABEL_KEYS[type]);
+}
+
+export function getServiceOrderStatusLabel(
+  status: ServiceOrderStatus,
+  transloco: TranslocoService,
+): string {
+  return transloco.translate(STATUS_LABEL_KEYS[status]);
+}
+
+export function getServiceOrderSourceLabel(
+  source: ServiceOrderSource,
+  transloco: TranslocoService,
+): string {
+  return transloco.translate(SOURCE_LABEL_KEYS[source]);
+}
+
+export function getServiceOrderBuildingTypeLabel(
+  type: ServiceOrderBuildingType,
+  transloco: TranslocoService,
+): string {
+  return transloco.translate(BUILDING_TYPE_LABEL_KEYS[type]);
+}
+
+export function getServiceOrderOutdoorUnitPlaceLabel(
+  place: ServiceOrderOutdoorUnitPlace,
+  transloco: TranslocoService,
+): string {
+  return transloco.translate(OUTDOOR_UNIT_PLACE_LABEL_KEYS[place]);
+}
+
+export function getServiceOrderTypeVariant(type: ServiceOrderType): UiBadgeVariant {
+  switch (type) {
+    case 'installation':
+      return 'info';
+    case 'repair':
+      return 'warning';
+    case 'inspection':
+      return 'success';
+  }
+}
+
+export function getServiceOrderStatusVariant(status: ServiceOrderStatus): UiBadgeVariant {
+  switch (status) {
+    case 'new':
+      return 'info';
+    case 'contact_required':
+      return 'warning';
+    case 'scheduled':
+      return 'info';
+    case 'completed':
+      return 'success';
+    case 'cancelled':
+      return 'danger';
+  }
+}
+
+export function formatServiceOrderCustomerName(customer: ServiceOrderCustomer): string {
+  return customer.companyName || customer.fullName || '--';
+}
+
+export function formatServiceOrderCustomerAddress(customer: ServiceOrderCustomer): string {
+  return (
+    [customer.address, `${customer.postalCode} ${customer.city}`.trim()]
+      .filter(Boolean)
+      .join(', ') || '--'
+  );
+}
+
+export function formatServiceOrderDate(value: string, locale: string): string {
+  if (!value) {
+    return '--';
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat(locale === 'pl' ? 'pl-PL' : 'en-US').format(date);
+}
+
+export function serviceOrderPhoneHref(phone: string): string {
+  const normalizedPhone = phone.replace(/[^\d+]/g, '');
+
+  return normalizedPhone ? `tel:${normalizedPhone}` : '#';
+}
+
+export function serviceOrderMapHref(customer: ServiceOrderCustomer): string {
+  const address = [customer.address, `${customer.postalCode} ${customer.city}`.trim()]
+    .filter(Boolean)
+    .join(', ');
+
+  return address
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`
+    : '';
+}

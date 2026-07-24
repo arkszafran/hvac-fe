@@ -7,9 +7,7 @@ export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () =>
-      import('./pages/authentication/login/login.page').then(
-        (module) => module.LoginPageComponent,
-      ),
+      import('./pages/authentication/login/login.page').then((module) => module.LoginPageComponent),
   },
   {
     path: 'auto-login',
@@ -119,10 +117,17 @@ export const routes: Routes = [
           ),
       },
       {
-        path: 'requests',
+        path: 'service-orders/:serviceOrderId',
         loadComponent: () =>
-          import('./pages/requests/requests.page').then(
-            (module) => module.RequestsPageComponent,
+          import('./pages/service-orders/service-order-detail.page').then(
+            (module) => module.ServiceOrderDetailPageComponent,
+          ),
+      },
+      {
+        path: 'service-orders',
+        loadComponent: () =>
+          import('./pages/service-orders/service-orders.page').then(
+            (module) => module.ServiceOrdersPageComponent,
           ),
       },
       {
@@ -138,30 +143,9 @@ export const routes: Routes = [
           import('./pages/visits/visits.page').then((module) => module.VisitsPageComponent),
       },
       {
-        path: 'inspections/:inspectionId',
-        loadComponent: () =>
-          import('./pages/inspections/inspection-detail.page').then(
-            (module) => module.InspectionDetailPageComponent,
-          ),
-      },
-      {
-        path: 'inspections',
-        loadComponent: () =>
-          import('./pages/inspections/inspections.page').then(
-            (module) => module.InspectionsPageComponent,
-          ),
-      },
-      {
-        path: 'reviews',
-        pathMatch: 'full',
-        redirectTo: 'inspections',
-      },
-      {
         path: 'settings',
         loadComponent: () =>
-          import('./pages/settings/settings.page').then(
-            (module) => module.SettingsPageComponent,
-          ),
+          import('./pages/settings/settings.page').then((module) => module.SettingsPageComponent),
       },
     ],
   },

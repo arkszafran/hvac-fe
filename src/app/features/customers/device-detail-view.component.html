@@ -3,7 +3,9 @@
     @if (device(); as device) {
       <section class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div class="space-y-1">
-          <nav class="flex flex-wrap items-center gap-2 text-[13px]/5 font-semibold text-text-muted">
+          <nav
+            class="flex flex-wrap items-center gap-2 text-[13px]/5 font-semibold text-text-muted"
+          >
             <a
               routerLink="/customers"
               class="text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
@@ -15,10 +17,15 @@
               [routerLink]="['/customers', customer.id]"
               class="text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
             >
-              {{ 'devices.detail.breadcrumbs.customer' | transloco: { customer: customerTitle(customer) } }}
+              {{
+                'devices.detail.breadcrumbs.customer'
+                  | transloco: { customer: customerTitle(customer) }
+              }}
             </a>
             <span aria-hidden="true">/</span>
-            <span class="text-text-main">{{ 'devices.detail.breadcrumbs.device' | transloco }}</span>
+            <span class="text-text-main">{{
+              'devices.detail.breadcrumbs.device' | transloco
+            }}</span>
           </nav>
 
           <h1 class="text-display tracking-[-0.04em] text-text-main">
@@ -40,7 +47,9 @@
         <ui-card>
           <div card-header class="space-y-1">
             <p class="ui-kicker">{{ 'devices.detail.sections.deviceData' | transloco }}</p>
-            <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'devices.detail.sections.mainInfo' | transloco }}</h2>
+            <h2 class="text-h3 tracking-[-0.02em] text-text-main">
+              {{ 'devices.detail.sections.mainInfo' | transloco }}
+            </h2>
           </div>
 
           <dl class="grid gap-3 sm:grid-cols-2">
@@ -88,7 +97,9 @@
       <ui-card>
         <div card-header class="space-y-1">
           <p class="ui-kicker">{{ 'devices.detail.sections.installation' | transloco }}</p>
-          <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'devices.detail.sections.locationAndNotes' | transloco }}</h2>
+          <h2 class="text-h3 tracking-[-0.02em] text-text-main">
+            {{ 'devices.detail.sections.locationAndNotes' | transloco }}
+          </h2>
         </div>
 
         <div class="space-y-5">
@@ -122,8 +133,12 @@
 
       <ui-card>
         <div card-header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 class="text-h3 tracking-[-0.02em] text-text-main">{{ 'devices.detail.sections.serviceHistory' | transloco }}</h2>
-          <ui-badge variant="info">{{ 'devices.detail.entriesCount' | transloco: { count: deviceVisits().length } }}</ui-badge>
+          <h2 class="text-h3 tracking-[-0.02em] text-text-main">
+            {{ 'devices.detail.sections.serviceHistory' | transloco }}
+          </h2>
+          <ui-badge variant="info">{{
+            'devices.detail.entriesCount' | transloco: { count: deviceVisits().length }
+          }}</ui-badge>
         </div>
 
         @if (deviceVisits().length) {
@@ -162,20 +177,20 @@
       <app-device-next-inspection-modal
         [open]="isNextInspectionModalOpen()"
         [initialEnabled]="!!activeInspection()"
-        [initialDate]="activeInspection()?.inspectionDate ?? ''"
+        [initialDate]="activeInspection()?.scheduledAt ?? ''"
         (close)="isNextInspectionModalOpen.set(false)"
         (save)="handleUpdateNextInspectionDate($event)"
       />
 
       @if (pendingUpdatePlan(); as updatePlan) {
         @if (updatePlan.kind === 'single-candidate') {
-          <app-inspection-link-proposal-modal
+          <app-service-order-link-proposal-modal
             [open]="true"
             [title]="updatePlan.title"
             [description]="updatePlan.description"
             [customerName]="updatePlan.customerName"
             [deviceName]="updatePlan.deviceName"
-            [inspection]="updatePlan.candidate"
+            [order]="updatePlan.candidate"
             [primaryActionLabel]="updatePlan.primaryActionLabel"
             [secondaryActionLabel]="updatePlan.createActionLabel"
             [cancelLabel]="updatePlan.cancelActionLabel"
@@ -184,7 +199,7 @@
             (createSeparate)="confirmUpdateCreateNewInspection()"
           />
         } @else if (updatePlan.kind === 'candidate-choice') {
-          <app-inspection-candidate-picker-modal
+          <app-service-order-candidate-picker-modal
             [open]="true"
             [title]="updatePlan.title"
             [description]="updatePlan.description"
@@ -194,7 +209,7 @@
             [createActionLabel]="updatePlan.createActionLabel"
             [cancelActionLabel]="updatePlan.cancelActionLabel"
             (close)="clearUpdatePlan()"
-            (inspectionSelected)="confirmUpdateAttach($event)"
+            (serviceOrderSelected)="confirmUpdateAttach($event)"
             (createNew)="confirmUpdateCreateNewInspection()"
           />
         }

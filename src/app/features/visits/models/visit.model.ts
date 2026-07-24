@@ -9,7 +9,7 @@ export interface DeviceNote {
 
 export interface Visit {
   id: string;
-  requestId?: string;
+  serviceOrderId?: string;
   customerId: string;
   devicesList: string[];
   date: string;
@@ -19,7 +19,7 @@ export interface Visit {
 }
 
 export interface VisitDraft {
-  requestId?: string;
+  serviceOrderId?: string;
   customerId: string;
   devicesList: string[];
   date: string;
@@ -38,7 +38,9 @@ export const VISIT_TYPE_OPTIONS: readonly VisitTypeOption[] = [
   { value: 'inspection', labelKey: 'visits.types.inspection' },
 ];
 
-export function createVisitTypeOptions(transloco: TranslocoService): Array<{ value: VisitType; label: string }> {
+export function createVisitTypeOptions(
+  transloco: TranslocoService,
+): Array<{ value: VisitType; label: string }> {
   return VISIT_TYPE_OPTIONS.map((option) => ({
     value: option.value,
     label: transloco.translate(option.labelKey),

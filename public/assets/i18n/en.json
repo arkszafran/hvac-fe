@@ -34,9 +34,8 @@
       "dashboard": "Dashboard",
       "customers": "Customers",
       "devices": "Devices",
-      "requests": "Requests",
+      "serviceOrders": "Service orders",
       "visits": "Visits",
-      "inspections": "Inspections",
       "settings": "Settings"
     },
     "topBar": {
@@ -240,19 +239,6 @@
         "placeholder": "calm placeholder without mixing business logic"
       }
     },
-    "reviews": {
-      "eyebrow": "Periodic work",
-      "title": "Inspections",
-      "description": "A structure for planning and performing periodic inspections. We leave clear space for schedules and task sets.",
-      "emptyTitle": "Inspections are waiting for configuration",
-      "emptyDescription": "In the next iterations we can add dates, statuses, and repeatable service packages for devices.",
-      "actionLabel": "Add schedule",
-      "checklist": {
-        "calendar": "space for a future calendar or inspection list view",
-        "cards": "card prepared for blocks with inspection types",
-        "lightweight": "the view remains lightweight and without business details"
-      }
-    },
     "styleGuide": {
       "hero": {
         "title": "Expressive design system for operational SaaS",
@@ -442,7 +428,7 @@
         "nextInspectionDate": "Enter the next inspection date.",
         "required": "Complete the required visit details."
       },
-      "requestNotes": {
+      "serviceOrderNotes": {
         "year": "Device year: {{year}}.",
         "error": "Request error: {{error}}."
       }
@@ -471,60 +457,74 @@
       "empty": "No scheduled inspections to choose from."
     }
   },
-  "requests": {
-    "title": "Requests",
-    "description": "Cases from the customer panel and website form before a customer visit.",
+  "serviceOrders": {
+    "title": "Service orders",
+    "description": "Installations, repairs, and inspections requiring contact, scheduling, or a completed visit.",
+    "summary": {
+      "contactRequired": "Contact required: {{count}}",
+      "scheduled": "Scheduled: {{count}}"
+    },
     "fields": {
       "search": "Search",
-      "searchPlaceholder": "Customer, phone, address, or device",
+      "searchPlaceholder": "Customer, phone, email, or address",
       "status": "Status",
-      "requestType": "Request type",
+      "statusPlaceholder": "Select statuses",
+      "type": "Order type",
+      "typePlaceholder": "Select order types",
+      "typeAndStatus": "Type and status",
+      "customer": "Customer",
       "customerAndAddress": "Customer and address",
-      "customerType": "Customer type",
-      "contactPerson": "Contact person",
-      "company": "Company",
-      "appointmentDate": "Appointment date",
-      "createdAt": "Created",
-      "buildingType": "Building type",
-      "rooms": "Rooms",
-      "requestPhotos": "Request photos",
-      "room": "Room {{index}}",
-      "area": "Area",
-      "height": "Height",
-      "outdoorUnitPlace": "Outdoor unit place",
-      "unitDistance": "Unit distance",
-      "floor": "Floor",
-      "displayedError": "Error displayed on the device",
-      "year": "Year",
-      "refrigerantType": "Refrigerant type",
-      "nameplatePhotos": "Nameplate photos"
-    },
-    "actions": {
-      "createVisit": "Create visit",
-      "confirmAppointment": "Confirm visit date",
-      "changeAppointment": "Change visit date",
-      "visitWillHappen": "Visit will happen",
-      "download": "Download"
+      "date": "Date",
+      "noDate": "No date set",
+      "phone": "Phone",
+      "email": "Email",
+      "address": "Address",
+      "source": "Source",
+      "actions": "Actions"
     },
     "types": {
+      "all": "All types",
       "installation": "Installation",
       "repair": "Repair",
       "inspection": "Inspection"
     },
     "statuses": {
-      "all": "All",
-      "new": "To contact",
+      "all": "All statuses",
+      "new": "New",
+      "contactRequired": "Contact required",
       "scheduled": "Scheduled",
       "completed": "Completed",
       "cancelled": "Cancelled"
     },
     "sources": {
       "customerPanel": "Customer panel",
-      "websiteForm": "Website form"
+      "websiteForm": "Website form",
+      "user": "User"
     },
-    "customerTypes": {
-      "company": "Company",
-      "individual": "Private person"
+    "confirmation": {
+      "confirmed": "Customer confirmed",
+      "notConfirmed": "Customer did not confirm"
+    },
+    "actions": {
+      "setDate": "Set date",
+      "changeDate": "Change date",
+      "createVisit": "Create visit",
+      "call": "Call",
+      "addNote": "Add note"
+    },
+    "table": {
+      "openDetailsAria": "Open service order details for {{customer}}"
+    },
+    "cancelModal": {
+      "title": "Cancel service order?",
+      "description": "The service order for {{customer}} will be cancelled.",
+      "warning": "This action will change the service order status to cancelled.",
+      "back": "Go back",
+      "confirm": "Cancel service order"
+    },
+    "empty": {
+      "title": "No service orders in this view",
+      "description": "Change the filters or search to see other service orders."
     },
     "buildingTypes": {
       "apartmentBlock": "Apartment block",
@@ -535,205 +535,71 @@
       "wall": "Wall",
       "balcony": "Balcony"
     },
-    "badges": {
-      "statusCount": "{{label}}: {{count}}"
-    },
-    "table": {
-      "rowActionLabel": "Open request details",
-      "emptyTitle": "No requests",
-      "emptyDescription": "New requests from the form and customer panel will appear here.",
-      "appointment": "Date: {{date}}",
-      "noActions": "No actions"
-    },
-    "scheduleModal": {
-      "title": "Confirm visit date",
-      "description": "Enter the date agreed with the customer.",
-      "appointmentDate": "Appointment date",
-      "save": "Save date",
-      "validation": "Appointment date is required."
-    },
     "details": {
-      "title": "Request: {{type}}",
-      "fallbackTitle": "Request",
-      "installation": "Installation",
-      "repair": "Repair",
-      "inspection": "Inspection",
-      "deviceWithIndex": "Device {{index}}: {{device}}",
-      "roomPhotos": "Room photos",
-      "emptyAttachments": "No attachments",
-      "emptyPhotos": "No photos"
-    }
-  },
-  "inspections": {
-    "title": "Inspections",
-    "quickNavigation": "Quick navigation",
-    "searchPlaceholder": "Customer or address",
-    "openDetailsAria": "Open inspection details for {{customer}}",
-    "addressesPrefix": "Addresses: {{addresses}}",
-    "actions": {
-      "add": "Add inspection",
-      "complete": "Complete",
-      "create": "Create inspection",
-      "addDevice": "Add device",
-      "addDevices": "Add devices",
-      "deviceDetails": "Device details",
-      "removeDevice": "Remove device",
-      "selectInspection": "Select this inspection"
-    },
-    "fields": {
-      "customer": "Customer",
-      "contactDetails": "Contact details",
-      "inspectionDate": "Inspection date",
-      "devices": "Devices"
-    },
-    "table": {
-      "date": "Date",
-      "customer": "Customer",
-      "phone": "Phone",
-      "actions": "Actions"
-    },
-    "empty": {
-      "orphanDevicesTitle": "No devices without inspection",
-      "orphanDevicesDescription": "All eligible devices are already assigned to active planning cases.",
-      "viewTitle": "No inspections in this view",
-      "viewDescription": "Choose another view from the list or add a new inspection."
-    },
-    "orphanDevices": {
-      "nextInspection": "Inspection date: {{date}}"
-    },
-    "status": {
-      "new": "New",
-      "reminderSent": "Reminder sent",
-      "customerConfirmed": "Customer confirmed",
-      "customerNotConfirmed": "Customer did not confirm",
-      "scheduled": "Scheduled",
-      "completed": "Completed",
-      "cancelled": "Cancelled"
-    },
-    "nextActions": {
-      "sendReminder": "Send reminder",
-      "reminderSent": "Reminder sent",
-      "callAndSchedule": "Call and schedule",
-      "callAndRemind": "Call and remind about inspection",
-      "scheduled": "Inspection scheduled",
-      "completed": "Completed",
-      "cancelled": "Cancelled"
-    },
-    "scheduleActions": {
-      "changeDate": "Change date",
-      "confirmDate": "Confirm date"
-    },
-    "summary": {
-      "inspectionDate": "Date: {{date}}",
-      "shortDescription": "{{status}} • {{deviceCount}} devices • {{dateLabel}}"
-    },
-    "timeline": {
-      "inspectionDate": "Inspection date: {{date}}"
-    },
-    "detail": {
-      "backToList": "Inspection list",
-      "title": "Customer inspection {{customer}}",
-      "conflictTitle": "Inspection conflict",
-      "unconfirmedDate": "Date not confirmed",
-      "deviceCount": "{{count}} devices",
-      "nextInspection": "Next inspection: {{date}}",
-      "addDeviceModalTitle": "Add device to inspection",
-      "addDeviceModalDescription": "We show only this customer's devices that are not assigned to another active inspection.",
-      "noAddableDevices": "No devices can be safely added to this inspection right now.",
-      "notFoundTitle": "We could not find the inspection",
-      "notFoundDescription": "Check the identifier or return to the inspection list.",
-      "backToInspections": "Back to inspection list"
-    },
-    "preview": {
-      "title": "Inspection details",
-      "description": "Key information about the date and assigned devices.",
-      "devicesTitle": "Devices in this inspection",
-      "emptyDevices": "No devices are assigned to this inspection.",
-      "openFullPage": "Open full inspection page"
+      "backToList": "Back to service orders",
+      "dateSummary": "Date: {{date}}",
+      "actionsLabel": "Service order actions",
+      "customer": "Customer details",
+      "installationTitle": "Installation details",
+      "repairTitle": "Repair details",
+      "inspectionTitle": "Inspection details",
+      "buildingType": "Building type",
+      "room": "Room {{index}}",
+      "area": "Area",
+      "height": "Height",
+      "outdoorUnitPlace": "Outdoor unit place",
+      "unitDistance": "Distance to unit",
+      "floor": "Floor",
+      "orderPhotos": "Order photos",
+      "device": "Device {{index}}: {{device}}",
+      "serialNumber": "Serial number",
+      "year": "Year",
+      "refrigerant": "Refrigerant",
+      "reportedError": "Reported issue",
+      "noDevices": "No devices are assigned to this inspection.",
+      "notesTitle": "Notes history",
+      "noNotes": "No notes have been added to this service order yet.",
+      "relatedVisitsTitle": "Related visits",
+      "notFoundTitle": "Service order not found",
+      "notFoundDescription": "The service order does not exist or has been removed."
     },
     "scheduleModal": {
-      "title": "Set inspection date",
-      "description": "Enter the inspection date agreed with the customer.",
-      "save": "Save date",
-      "validation": "Planned inspection date is required."
+      "title": "Set date",
+      "description": "Choose the day when the installer should visit the customer.",
+      "validation": "A date is required."
     },
-    "finalizeModal": {
-      "title": "Complete inspection",
-      "description": "Choose how to close the inspection planning process.",
-      "devices": "Devices: {{count}}",
-      "cancelTitle": "Customer resigned from inspections",
-      "cancelDescription": "The inspection will receive cancelled status.",
-      "completeTitle": "The visit took place",
-      "completeDescription": "The inspection will be completed and the visit form will open with the selected customer and devices."
+    "noteModal": {
+      "title": "Add note",
+      "description": "Record a call, site survey, or other service order arrangements.",
+      "label": "Note",
+      "placeholder": "Enter the most important arrangements",
+      "validation": "A note is required."
     },
-    "createModal": {
-      "title": "Create inspection",
-      "description": "Choose a customer, date, and devices to assign to the inspection.",
-      "customerDevices": "Customer devices",
-      "customerDevicesDescription": "We show devices that are not already attached to an active inspection.",
-      "emptyDevices": "This customer has no devices without an active inspection right now."
-    },
-    "linkProposal": {
-      "defaultTitle": "Attach to inspection?",
-      "primaryAction": "Attach",
-      "secondaryAction": "Create separate inspection",
-      "devicesInInspection": "{{count}} devices in inspection"
-    },
-    "candidatePicker": {
-      "defaultTitle": "Choose inspection",
-      "createAction": "Create new inspection",
-      "empty": "No other active inspections. You can create a new object or undo the change."
-    },
-    "conflicts": {
-      "missingDevice": "Some devices assigned to the inspection no longer exist in the database."
-    },
-    "flow": {
+    "deviceFlow": {
       "attachExistingTitle": "Attach device to an existing inspection?",
       "newDeviceSingleDescription": "The customer has one active inspection. You can attach the device and use that inspection date or create a separate inspection.",
-      "newDeviceChoiceTitle": "Choose inspection for the new device",
-      "newDeviceChoiceDescription": "The customer has several active inspections. Choose where to attach the device or create a new inspection with the entered date.",
       "attachToInspection": "Attach to inspection",
       "separateInspection": "Separate inspection",
+      "newDeviceChoiceTitle": "Choose inspection for the new device",
+      "newDeviceChoiceDescription": "The customer has several active inspections. Choose where to attach the device or create a new inspection with the entered date.",
       "createNewInspection": "Create new inspection",
-      "dateChangeCreatesNewTitle": "Date change will create a new inspection",
-      "dateChangeCreatesNewDescription": "This device is the only item in an already scheduled inspection. Changing the date cancels the current inspection and creates a new planning object.",
-      "cancelCurrentAndCreateNew": "Cancel current and create new inspection",
-      "undoDateChange": "Undo date change",
-      "scheduledDateOutOfWindow": "The new date differs from the current inspection date. You can detach the device from the current inspection and assign it elsewhere or create a new one.",
-      "dateOutOfWindow": "The new date differs from the current inspection date. Choose another active inspection, create a new one, or undo the change.",
-      "moveToOtherTitle": "Move device to another inspection?",
-      "assignToInspection": "Assign to this inspection",
-      "chooseNewInspectionTitle": "Choose new inspection for the device",
       "newDateSingleDescription": "The customer has one active inspection. You can attach the device and use that inspection date or create a separate inspection.",
-      "undoDate": "Undo date",
       "newDateChoiceTitle": "Choose inspection for the device",
       "newDateChoiceDescription": "The customer has several active inspections. Choose one or create a new inspection with the entered date.",
       "changeSharedInspectionTitle": "Change the shared inspection date?",
       "changeSharedInspectionDescription": "This inspection also includes other customer devices. You can change the date for the whole inspection or create a separate inspection only for this device.",
       "changeSharedInspectionDate": "Change whole inspection date",
-      "createSeparateWithNewDate": "Create separate inspection"
-    },
-    "views": {
-      "planned": {
-        "label": "Planned",
-        "description": "New inspections and inspections after a reminder has been sent."
-      },
-      "contact": {
-        "label": "To contact",
-        "description": "Inspections after customer response that require further contact."
-      },
-      "scheduled": {
-        "label": "Scheduled",
-        "description": "Inspections with a confirmed execution date."
-      },
-      "closed": {
-        "label": "Closed",
-        "description": "History of completed or cancelled cases."
-      },
-      "orphanDevices": {
-        "label": "Devices without inspection",
-        "description": "Devices eligible for inspection but not assigned to a planning case."
-      }
+      "createSeparateWithNewDate": "Create separate inspection",
+      "undoDateChange": "Undo date change",
+      "linkDefaultTitle": "Attach to inspection?",
+      "linkPrimaryAction": "Attach",
+      "linkSecondaryAction": "Create separate inspection",
+      "candidateDefaultTitle": "Choose inspection",
+      "candidateCreateAction": "Create new inspection",
+      "candidateEmpty": "No other active inspections. You can create a new object or undo the change.",
+      "deviceCount": "{{count}} devices in inspection",
+      "selectOrder": "Select this inspection",
+      "shortDescription": "{{deviceCount}} devices • {{date}}"
     }
   },
   "customers": {

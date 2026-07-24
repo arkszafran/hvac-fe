@@ -1,0 +1,69 @@
+<div class="space-y-6">
+  <section>
+    <h1 class="text-display tracking-[-0.04em] text-text-main">
+      {{ 'serviceOrders.title' | transloco }}
+    </h1>
+  </section>
+
+  <ui-card class="relative z-10 block" padding="sm">
+    <div
+      class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(12rem,15rem)_minmax(12rem,15rem)] lg:items-end"
+    >
+      <ui-input
+        type="search"
+        [label]="'serviceOrders.fields.search' | transloco"
+        [placeholder]="'serviceOrders.fields.searchPlaceholder' | transloco"
+        [formControl]="searchControl"
+      />
+      <ui-multiselect
+        [label]="'serviceOrders.fields.status' | transloco"
+        [placeholder]="'serviceOrders.fields.statusPlaceholder' | transloco"
+        [allSelectedLabel]="'serviceOrders.statuses.all' | transloco"
+        [options]="statusOptions()"
+        [formControl]="statusControl"
+      />
+      <ui-multiselect
+        [label]="'serviceOrders.fields.type' | transloco"
+        [placeholder]="'serviceOrders.fields.typePlaceholder' | transloco"
+        [allSelectedLabel]="'serviceOrders.types.all' | transloco"
+        [options]="typeOptions()"
+        [formControl]="typeControl"
+      />
+    </div>
+  </ui-card>
+
+  <div class="mt-6">
+    <app-service-order-table
+      [orders]="filteredOrders()"
+      (detailsRequested)="openDetails($event)"
+      (scheduleRequested)="openSchedule($event)"
+      (visitRequested)="createVisit($event)"
+      (cancellationRequested)="requestCancellation($event)"
+    />
+  </div>
+
+  @if (orderPendingCancellation(); as order) {
+    <ui-modal
+      [open]="true"
+      [title]="'serviceOrders.cancelModal.title' | transloco"
+      [description]="
+        'serviceOrders.cancelModal.description'
+          | transloco: { customer: order.customer.companyName || order.customer.fullName || '--' }
+      "
+      (close)="closeCancellationModal()"
+    >
+      <p class="text-body text-text-main">
+        {{ 'serviceOrders.cancelModal.warning' | transloco }}
+      </p>
+
+      <div modal-footer class="grid gap-3 sm:grid-cols-2">
+        <ui-button variant="ghost" [block]="true" (pressed)="closeCancellationModal()">
+          {{ 'serviceOrders.cancelModal.back' | transloco }}
+        </ui-button>
+        <ui-button variant="danger" [block]="true" (pressed)="confirmCancellation()">
+          {{ 'serviceOrders.cancelModal.confirm' | transloco }}
+        </ui-button>
+      </div>
+    </ui-modal>
+  }
+</div>
