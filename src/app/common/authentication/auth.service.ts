@@ -18,6 +18,7 @@ import {
   type PinLoginDto,
 } from '../api/authentication';
 import { environment } from '../../../environments/environment';
+import { AuthRedirectService } from './auth-redirect.service';
 
 const NEW_USER_SETUP_PATH = 'setup-new-credentails';
 const BLOCKED_USER_PATH = 'account-blocked';
@@ -31,6 +32,7 @@ interface SessionHandlingOptions {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly authenticationApi = inject(AuthenticationApi);
+  private readonly authRedirectService = inject(AuthRedirectService);
   private readonly router = inject(Router);
   private readonly sessionUser = signal<AuthenticationSessionUserDto | null>(null);
   private readonly initialCredentialsPassword = signal<string | null>(null);
@@ -45,6 +47,8 @@ export class AuthService {
   });
 
   initialize(): Observable<void> {
+    this.authRedirectService.rememberCurrentUrl();
+
     return this.authenticationApi.refresh({ context: createSilentAuthContext() }).pipe(
       switchMap(() =>
         this.loadSession(
@@ -116,14 +120,13 @@ export class AuthService {
 
   logout(options?: ApiRequestOptions): Observable<void> {
     this.clearSession();
+    this.authRedirectService.clear();
 
-    return this.authenticationApi
-      .logout(options ?? { context: createSilentAuthContext() })
-      .pipe(
-        catchError(() => of(null)),
-        tap(() => this.navigateTo(LOGIN_PATH)),
-        map(() => undefined),
-      );
+    return this.authenticationApi.logout(options ?? { context: createSilentAuthContext() }).pipe(
+      catchError(() => of(null)),
+      tap(() => this.navigateTo(LOGIN_PATH)),
+      map(() => undefined),
+    );
   }
 
   refreshSession(
@@ -141,6 +144,7 @@ export class AuthService {
   }
 
   requirePinLogin(): void {
+    this.authRedirectService.rememberUrl(this.router.url);
     this.clearSession();
     this.navigateTo(PIN_LOGIN_PATH);
   }
@@ -182,7 +186,9 @@ export class AuthService {
         this.navigateTo(BLOCKED_USER_PATH);
         return;
       case 'active':
-        this.navigateTo(environment.auth.activeUserRedirectPath);
+        this.navigateTo(
+          this.authRedirectService.consumeUrl(environment.auth.activeUserRedirectPath),
+        );
         return;
       default:
         assertNever(status);

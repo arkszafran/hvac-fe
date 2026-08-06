@@ -378,6 +378,7 @@
       "customer": "Customer",
       "devices": "Devices",
       "type": "Type",
+      "handledBy": "Handled by",
       "visitType": "Visit type",
       "visitTypePlaceholder": "Select visit type",
       "note": "Note",
@@ -429,7 +430,6 @@
         "required": "Complete the required visit details."
       },
       "serviceOrderNotes": {
-        "year": "Device year: {{year}}.",
         "error": "Request error: {{error}}."
       }
     },
@@ -467,6 +467,7 @@
     "fields": {
       "search": "Search",
       "searchPlaceholder": "Customer, phone, email, or address",
+      "dateFilter": "Visit date",
       "status": "Status",
       "statusPlaceholder": "Select statuses",
       "type": "Order type",
@@ -474,8 +475,9 @@
       "typeAndStatus": "Type and status",
       "customer": "Customer",
       "customerAndAddress": "Customer and address",
-      "date": "Date",
-      "noDate": "No date set",
+      "orderDate": "Order date",
+      "date": "Visit date",
+      "noDate": "No visit date set",
       "phone": "Phone",
       "email": "Email",
       "address": "Address",
@@ -496,6 +498,12 @@
       "completed": "Completed",
       "cancelled": "Cancelled"
     },
+    "dateFilters": {
+      "today": "Today",
+      "tomorrow": "Tomorrow",
+      "this_week": "This week",
+      "all": "All"
+    },
     "sources": {
       "customerPanel": "Customer panel",
       "websiteForm": "Website form",
@@ -506,8 +514,8 @@
       "notConfirmed": "Customer did not confirm"
     },
     "actions": {
-      "setDate": "Set date",
-      "changeDate": "Change date",
+      "setDate": "Set visit date",
+      "changeDate": "Change visit date",
       "createVisit": "Create visit",
       "call": "Call",
       "addNote": "Add note"
@@ -537,7 +545,8 @@
     },
     "details": {
       "backToList": "Back to service orders",
-      "dateSummary": "Date: {{date}}",
+      "orderDateSummary": "Order date: {{date}}",
+      "dateSummary": "Visit date: {{date}}",
       "actionsLabel": "Service order actions",
       "customer": "Customer details",
       "installationTitle": "Installation details",
@@ -552,10 +561,13 @@
       "floor": "Floor",
       "orderPhotos": "Order photos",
       "device": "Device {{index}}: {{device}}",
+      "deviceType": "Device type",
       "serialNumber": "Serial number",
-      "year": "Year",
       "refrigerant": "Refrigerant",
+      "refrigerantAmount": "Refrigerant amount",
       "reportedError": "Reported issue",
+      "devicePhotos": "Device photos",
+      "noDevicePhotos": "No photos were added for this device.",
       "noDevices": "No devices are assigned to this inspection.",
       "notesTitle": "Notes history",
       "noNotes": "No notes have been added to this service order yet.",
@@ -564,9 +576,9 @@
       "notFoundDescription": "The service order does not exist or has been removed."
     },
     "scheduleModal": {
-      "title": "Set date",
+      "title": "Set visit date",
       "description": "Choose the day when the installer should visit the customer.",
-      "validation": "A date is required."
+      "validation": "A visit date is required."
     },
     "noteModal": {
       "title": "Add note",
@@ -612,10 +624,9 @@
       "edit": "Edit customer"
     },
     "detail": {
-      "planning": "Planning",
-      "activeInspections": "Active inspections",
-      "noActiveInspectionsTitle": "No active inspections",
-      "noActiveInspectionsDescription": "When the customer's devices have active inspection dates, you will see grouped matters here.",
+      "noOrdersTitle": "No service orders",
+      "noOrdersDescription": "Service orders assigned to this customer will appear here.",
+      "openOrderDetailsAria": "Open service order details: {{type}}, {{date}}",
       "editModalDescription": "Update customer details without leaving the detail view.",
       "notFoundTitle": "We could not find this customer",
       "notFoundDescription": "The profile may not exist yet or the identifier is invalid."
@@ -709,6 +720,8 @@
       "brandPlaceholder": "Select brand",
       "model": "Model",
       "modelPlaceholder": "e.g. Stylish FTXA35",
+      "powerKw": "Power (kW)",
+      "powerKwPlaceholder": "e.g. 3.5",
       "serialNumber": "Serial number",
       "serialNumberPlaceholder": "e.g. SN-45812",
       "refrigerant": "Refrigerant",
@@ -773,6 +786,7 @@
       "fields": {
         "brand": "Brand",
         "model": "Model",
+        "powerKw": "Power",
         "installationDate": "Commissioning date",
         "warrantyUntil": "Warranty until",
         "serialNumber": "Serial number",
@@ -815,7 +829,8 @@
       "installationDateRequired": "Commissioning date is required when warranty is selected.",
       "nextInspectionDateRequired": "Next inspection date is required when inspections are enabled.",
       "brandRequired": "Brand is required.",
-      "modelRequired": "Model is required."
+      "modelRequired": "Model is required.",
+      "powerNonNegative": "Power cannot be negative."
     },
     "nextInspectionModal": {
       "title": "Change inspection settings",

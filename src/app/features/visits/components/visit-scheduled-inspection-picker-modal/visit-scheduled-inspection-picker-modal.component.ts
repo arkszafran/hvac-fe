@@ -42,9 +42,9 @@ export class VisitScheduledInspectionPickerModalComponent {
       return normalizeValue(
         [
           this.customerName(details),
-          details.order.customer.address,
-          details.order.customer.postalCode,
-          details.order.customer.city,
+          details.order.address,
+          details.order.postalCode,
+          details.order.city,
           details.systemDevices.map((device) => `${device.brand} ${device.model}`).join(' '),
         ].join(' '),
       ).includes(query);
@@ -57,8 +57,8 @@ export class VisitScheduledInspectionPickerModalComponent {
 
   protected customerName(details: ServiceOrderDetails): string {
     return (
-      details.order.customer.companyName ||
-      details.order.customer.fullName ||
+      details.order.companyName ||
+      details.order.fullName ||
       this.transloco.translate('customers.fallbackName')
     );
   }

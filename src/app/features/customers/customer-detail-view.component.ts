@@ -4,12 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { map } from 'rxjs';
 
-import {
-  UiBadgeComponent,
-  UiButtonComponent,
-  UiCardComponent,
-  UiEmptyStateComponent,
-} from '../../ui';
+import { UiButtonComponent, UiCardComponent, UiEmptyStateComponent } from '../../ui';
 import { ServiceOrderCandidatePickerModalComponent } from '../service-orders/components/service-order-candidate-picker-modal/service-order-candidate-picker-modal.component';
 import { ServiceOrderLinkProposalModalComponent } from '../service-orders/components/service-order-link-proposal-modal/service-order-link-proposal-modal.component';
 import {
@@ -18,12 +13,8 @@ import {
   ServiceOrderDeviceFlowService,
 } from '../service-orders/data/service-order-device-flow.service';
 import { ServiceOrdersStore } from '../service-orders/data/service-orders.store';
-import { ServiceOrderStatus } from '../service-orders/models/service-order.model';
-import {
-  getServiceOrderStatusLabel,
-  getServiceOrderStatusVariant,
-} from '../service-orders/utils/service-order-ui.util';
 import { CustomerFormModalComponent } from './components/customer-form-modal.component';
+import { CustomerServiceOrderListComponent } from './components/customer-service-order-list/customer-service-order-list.component';
 import { DeviceFormModalComponent } from './components/device-form-modal.component';
 import { DeviceListComponent } from './components/device-list.component';
 import { CustomersStore } from './data/customers.store';
@@ -36,11 +27,11 @@ import { Device, DeviceDraft } from './models/device.model';
   imports: [
     RouterLink,
     TranslocoPipe,
-    UiBadgeComponent,
     UiButtonComponent,
     UiCardComponent,
     UiEmptyStateComponent,
     CustomerFormModalComponent,
+    CustomerServiceOrderListComponent,
     DeviceFormModalComponent,
     DeviceListComponent,
     ServiceOrderLinkProposalModalComponent,
@@ -125,66 +116,14 @@ import { Device, DeviceDraft } from './models/device.model';
           </div>
         </ui-card>
 
-        <ui-card>
-          <div
-            card-header
-            class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
-          >
-            <div>
-              <p class="ui-kicker">{{ 'customers.detail.planning' | transloco }}</p>
-              <h2 class="text-h3 tracking-[-0.02em] text-text-main">
-                {{ 'customers.detail.activeInspections' | transloco }}
-              </h2>
-            </div>
-            <ui-badge variant="info">{{ activeInspections().length }}</ui-badge>
+        <ui-card padding="sm">
+          <div card-header>
+            <h2 class="text-h3 tracking-[-0.02em] text-text-main">
+              {{ 'serviceOrders.title' | transloco }}
+            </h2>
           </div>
 
-          @if (activeInspections().length) {
-            <div class="space-y-3">
-              @for (details of activeInspections(); track details.order.id) {
-                <article
-                  class="rounded-[1rem] border border-border/85 bg-white px-4 py-4 shadow-card"
-                >
-                  <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                    <div class="space-y-2">
-                      <div class="flex flex-wrap items-center gap-2">
-                        <ui-badge [variant]="getInspectionStatusVariant(details.order.status)">
-                          {{ getInspectionStatusLabel(details.order.status) }}
-                        </ui-badge>
-                        <span class="text-small text-text-muted">
-                          {{
-                            'serviceOrders.deviceFlow.deviceCount'
-                              | transloco: { count: details.systemDevices.length }
-                          }}
-                        </span>
-                      </div>
-
-                      <p class="text-label text-text-main">
-                        {{
-                          details.order.scheduledAt
-                            ? formatDate(details.order.scheduledAt)
-                            : ('serviceOrders.fields.noDate' | transloco)
-                        }}
-                      </p>
-                    </div>
-
-                    <ui-button
-                      size="sm"
-                      variant="ghost"
-                      (pressed)="openInspectionPreview(details.order.id)"
-                    >
-                      {{ 'common.actions.details' | transloco }}
-                    </ui-button>
-                  </div>
-                </article>
-              }
-            </div>
-          } @else {
-            <ui-empty-state
-              [title]="'customers.detail.noActiveInspectionsTitle' | transloco"
-              [description]="'customers.detail.noActiveInspectionsDescription' | transloco"
-            />
-          }
+          <app-customer-service-order-list [orders]="customerOrders()" />
         </ui-card>
 
         <ui-card padding="sm">
@@ -344,16 +283,11 @@ export class CustomerDetailViewComponent {
   protected readonly customer = computed(() =>
     this.customersStore.getCustomerById(this.customerId()),
   );
-  protected readonly activeInspections = computed(() =>
+  protected readonly customerOrders = computed(() =>
     this.serviceOrdersStore
-      .orderDetails()
-      .filter(
-        (details) =>
-          details.order.type === 'inspection' &&
-          details.order.customer.systemCustomerId === this.customerId() &&
-          details.order.status !== 'completed' &&
-          details.order.status !== 'cancelled',
-      ),
+      .orders()
+      .filter((order) => order.customerId === this.customerId())
+      .sort((left, right) => right.orderDate.localeCompare(left.orderDate)),
   );
   protected readonly editableCustomerDraft = computed<CustomerDraft | null>(() => {
     const customer = this.customer();
@@ -393,6 +327,7 @@ export class CustomerDetailViewComponent {
       type: device.type,
       brand: device.brand,
       model: device.model,
+      powerKw: device.powerKw,
       serialNumber: device.serialNumber,
       installationDate: device.installationDate,
       warrantyMonths: device.warrantyMonths,
@@ -408,11 +343,6 @@ export class CustomerDetailViewComponent {
       city: device.city,
     };
   });
-
-  protected getInspectionStatusLabel(status: ServiceOrderStatus): string {
-    return getServiceOrderStatusLabel(status, this.transloco);
-  }
-  protected readonly getInspectionStatusVariant = getServiceOrderStatusVariant;
 
   protected customerTitle(customer: Customer): string {
     return (
@@ -441,10 +371,6 @@ export class CustomerDetailViewComponent {
 
   protected navigateToCustomers(): void {
     void this.router.navigate(['/customers']);
-  }
-
-  protected openInspectionPreview(inspectionId: string): void {
-    void this.router.navigate(['/service-orders', inspectionId]);
   }
 
   protected handleAddDevice(deviceDraft: DeviceDraft): void {
@@ -560,22 +486,6 @@ export class CustomerDetailViewComponent {
     }
 
     this.finishUpdateDevice(plan, draft, { kind: 'attach', serviceOrderId: inspectionId });
-  }
-
-  protected formatDate(value: string): string {
-    if (!value) {
-      return '--';
-    }
-
-    const parsedDate = new Date(value);
-
-    if (Number.isNaN(parsedDate.getTime())) {
-      return value;
-    }
-
-    return new Intl.DateTimeFormat(
-      this.transloco.getActiveLang() === 'pl' ? 'pl-PL' : 'en-US',
-    ).format(parsedDate);
   }
 
   private editingDevice(): Device | undefined {

@@ -18,15 +18,15 @@
               getStatusLabel(order)
             }}</ui-badge>
             @if (confirmationLabelKey(order); as confirmationKey) {
-              <p class="basis-full text-small font-medium text-text-muted">
+              <p class="basis-full pt-1 text-small font-medium whitespace-nowrap text-text-muted">
                 {{ confirmationKey | transloco }}
               </p>
             }
           </div>
 
           <div>
-            <p class="text-label text-text-main">{{ formatCustomerName(order.customer) }}</p>
-            @if (mapHref(order.customer); as href) {
+            <p class="text-label text-text-main">{{ formatCustomerName(order) }}</p>
+            @if (mapHref(order); as href) {
               <a
                 [href]="href"
                 target="_blank"
@@ -34,14 +34,20 @@
                 class="ui-focus-ring text-small text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
                 (click)="$event.stopPropagation()"
               >
-                {{ formatCustomerAddress(order.customer) }}
+                {{ formatCustomerAddress(order) }}
               </a>
             } @else {
               <p class="text-small text-text-muted">--</p>
             }
           </div>
 
-          <div class="grid grid-cols-2 gap-3 text-small">
+          <div class="grid grid-cols-2 gap-3 text-small sm:grid-cols-3">
+            <div>
+              <p class="font-semibold text-text-muted">
+                {{ 'serviceOrders.fields.orderDate' | transloco }}
+              </p>
+              <p class="mt-1 text-text-main">{{ formatDate(order.orderDate) }}</p>
+            </div>
             <div>
               <p class="font-semibold text-text-muted">
                 {{ 'serviceOrders.fields.date' | transloco }}
@@ -53,11 +59,11 @@
                 {{ 'serviceOrders.fields.phone' | transloco }}
               </p>
               <a
-                [href]="phoneHref(order.customer.phone)"
-                class="ui-focus-ring mt-1 inline-flex min-h-11 items-center text-primary-strong underline decoration-primary/35 underline-offset-4"
+                [href]="phoneHref(order.phone)"
+                class="ui-focus-ring inline-flex min-h-11 items-start pt-1 text-primary-strong underline decoration-primary/35 underline-offset-4"
                 (click)="$event.stopPropagation()"
               >
-                {{ order.customer.phone || '--' }}
+                {{ order.phone || '--' }}
               </a>
             </div>
           </div>
@@ -97,7 +103,7 @@
         <thead>
           <tr>
             <th
-              class="border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
+              class="w-32 min-w-32 border-b border-border/90 px-4 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
             >
               {{ 'serviceOrders.fields.typeAndStatus' | transloco }}
             </th>
@@ -105,6 +111,11 @@
               class="w-[34%] border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
             >
               {{ 'serviceOrders.fields.customerAndAddress' | transloco }}
+            </th>
+            <th
+              class="border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
+            >
+              {{ 'serviceOrders.fields.orderDate' | transloco }}
             </th>
             <th
               class="border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
@@ -137,9 +148,9 @@
               (keydown)="handleRowKeydown($event, order)"
             >
               <td
-                class="border-b border-border/80 px-5 py-4 align-top group-hover/row:bg-primary-soft/18"
+                class="border-b border-border/80 px-4 py-4 align-top group-hover/row:bg-primary-soft/18"
               >
-                <div class="max-w-64 space-y-2">
+                <div class="w-24 space-y-2">
                   <p class="text-[15px]/5 font-semibold tracking-[-0.01em] text-text-main">
                     {{ getTypeLabel(order) }}
                   </p>
@@ -147,7 +158,7 @@
                     getStatusLabel(order)
                   }}</ui-badge>
                   @if (confirmationLabelKey(order); as confirmationKey) {
-                    <p class="text-small font-medium text-text-muted">
+                    <p class="pt-1 text-small leading-5 font-medium text-text-muted">
                       {{ confirmationKey | transloco }}
                     </p>
                   }
@@ -156,8 +167,8 @@
               <td
                 class="border-b border-border/80 px-5 py-4 align-top group-hover/row:bg-primary-soft/18"
               >
-                <p class="text-label text-text-main">{{ formatCustomerName(order.customer) }}</p>
-                @if (mapHref(order.customer); as href) {
+                <p class="text-label text-text-main">{{ formatCustomerName(order) }}</p>
+                @if (mapHref(order); as href) {
                   <a
                     [href]="href"
                     target="_blank"
@@ -165,11 +176,16 @@
                     class="ui-focus-ring mt-1 inline-block max-w-[28rem] text-small text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
                     (click)="$event.stopPropagation()"
                   >
-                    {{ formatCustomerAddress(order.customer) }}
+                    {{ formatCustomerAddress(order) }}
                   </a>
                 } @else {
                   <p class="mt-1 text-small text-text-muted">--</p>
                 }
+              </td>
+              <td
+                class="border-b border-border/80 px-5 py-4 align-top whitespace-nowrap text-label text-text-main group-hover/row:bg-primary-soft/18"
+              >
+                {{ formatDate(order.orderDate) }}
               </td>
               <td
                 class="border-b border-border/80 px-5 py-4 align-top text-label text-text-main group-hover/row:bg-primary-soft/18"
@@ -196,11 +212,11 @@
                 class="border-b border-border/80 px-5 py-4 align-top group-hover/row:bg-primary-soft/18"
               >
                 <a
-                  [href]="phoneHref(order.customer.phone)"
+                  [href]="phoneHref(order.phone)"
                   class="ui-focus-ring inline-flex min-h-11 items-start whitespace-nowrap text-label font-semibold text-primary-strong underline decoration-primary/35 underline-offset-4"
                   (click)="$event.stopPropagation()"
                 >
-                  {{ order.customer.phone || '--' }}
+                  {{ order.phone || '--' }}
                 </a>
               </td>
               <td

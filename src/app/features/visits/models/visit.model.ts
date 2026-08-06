@@ -11,6 +11,7 @@ export interface Visit {
   id: string;
   serviceOrderId?: string;
   customerId: string;
+  userName: string;
   devicesList: string[];
   date: string;
   type: VisitType;

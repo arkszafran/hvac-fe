@@ -1,0 +1,39 @@
+<div class="fixed inset-0 z-[80] h-dvh max-h-dvh overflow-hidden bg-surface">
+  <section
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="titleId"
+    class="flex h-dvh max-h-dvh min-h-0 w-full flex-col overflow-hidden bg-surface motion-safe:animate-[ui-sheet-up_220ms_cubic-bezier(0.16,1,0.3,1)]"
+  >
+    <header
+      class="flex shrink-0 items-center gap-3 border-b border-border bg-surface/95 px-3 pb-3 pt-[calc(env(safe-area-inset-top)+0.75rem)] backdrop-blur-xl sm:px-5 md:pt-3"
+    >
+      <button
+        #closeButton
+        type="button"
+        class="ui-focus-ring inline-flex min-h-11 min-w-0 max-w-full items-center gap-2 rounded-[0.9rem] px-2 text-left text-text-main transition hover:bg-surface-muted active:bg-surface-muted"
+        [attr.aria-label]="closeLabel()"
+        (click)="close.emit()"
+      >
+        <svg viewBox="0 0 24 24" fill="none" class="size-5 shrink-0" aria-hidden="true">
+          <path
+            d="M15 18L9 12L15 6"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+        <span [id]="titleId" class="min-w-0 truncate text-h3">
+          {{ title() }}
+        </span>
+      </button>
+    </header>
+
+    <div
+      class="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain px-4 py-5 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] sm:px-5 md:px-6 md:py-6"
+    >
+      <ng-content />
+    </div>
+  </section>
+</div>

@@ -4,12 +4,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { map } from 'rxjs';
 
-import {
-  UiBadgeComponent,
-  UiButtonComponent,
-  UiCardComponent,
-  UiEmptyStateComponent,
-} from '../../ui';
+import { UiButtonComponent, UiCardComponent, UiEmptyStateComponent } from '../../ui';
 import { ServiceOrderCandidatePickerModalComponent } from '../service-orders/components/service-order-candidate-picker-modal/service-order-candidate-picker-modal.component';
 import { ServiceOrderLinkProposalModalComponent } from '../service-orders/components/service-order-link-proposal-modal/service-order-link-proposal-modal.component';
 import {
@@ -22,7 +17,11 @@ import { DeviceFormModalComponent } from './components/device-form-modal.compone
 import { DeviceNextInspectionModalComponent } from './components/device-next-inspection-modal.component';
 import { CustomersStore } from './data/customers.store';
 import { Customer } from './models/customer.model';
-import { DeviceDraft, getDeviceTypeLabel as readDeviceTypeLabel } from './models/device.model';
+import {
+  DeviceDraft,
+  formatDevicePowerKw,
+  getDeviceTypeLabel as readDeviceTypeLabel,
+} from './models/device.model';
 
 interface DeviceDetailItem {
   labelKey: string;
@@ -35,7 +34,6 @@ interface DeviceDetailItem {
   imports: [
     RouterLink,
     TranslocoPipe,
-    UiBadgeComponent,
     UiButtonComponent,
     UiCardComponent,
     UiEmptyStateComponent,
@@ -100,6 +98,7 @@ export class DeviceDetailViewComponent {
       type: device.type,
       brand: device.brand,
       model: device.model,
+      powerKw: device.powerKw,
       serialNumber: device.serialNumber,
       installationDate: device.installationDate,
       warrantyMonths: device.warrantyMonths,
@@ -131,6 +130,10 @@ export class DeviceDetailViewComponent {
       {
         labelKey: 'devices.detail.fields.model',
         value: this.formatValue(device.model),
+      },
+      {
+        labelKey: 'devices.detail.fields.powerKw',
+        value: formatDevicePowerKw(device.powerKw, this.transloco),
       },
       {
         labelKey: 'devices.detail.fields.installationDate',

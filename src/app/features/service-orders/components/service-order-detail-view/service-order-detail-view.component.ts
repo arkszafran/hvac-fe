@@ -1,7 +1,14 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  output,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { map } from 'rxjs';
 
@@ -10,7 +17,6 @@ import {
   UiButtonComponent,
   UiCardComponent,
   UiEmptyStateComponent,
-  UiInputComponent,
   UiModalComponent,
 } from '../../../../ui';
 import { VisitsStore } from '../../../visits/data/visits.store';
@@ -25,11 +31,13 @@ import {
   getServiceOrderStatusVariant,
   getServiceOrderTypeLabel,
   getServiceOrderTypeVariant,
+  serviceOrderMapHref,
   serviceOrderPhoneHref,
 } from '../../utils/service-order-ui.util';
 import { ServiceOrderInspectionDetailsComponent } from '../service-order-inspection-details/service-order-inspection-details.component';
 import { ServiceOrderInstallationDetailsComponent } from '../service-order-installation-details/service-order-installation-details.component';
 import { ServiceOrderRepairDetailsComponent } from '../service-order-repair-details/service-order-repair-details.component';
+import { ServiceOrderScheduleModalComponent } from '../service-order-schedule-modal/service-order-schedule-modal.component';
 
 const TEXTAREA_CLASSES =
   'ui-focus-ring block min-h-32 w-full rounded-[0.95rem] border border-border/90 bg-white px-4 py-3.5 text-[15px]/6 text-text-main transition placeholder:text-text-muted/78 hover:border-primary/24 focus:border-primary';
@@ -38,17 +46,16 @@ const TEXTAREA_CLASSES =
   selector: 'app-service-order-detail-view',
   imports: [
     ReactiveFormsModule,
-    RouterLink,
     TranslocoPipe,
     UiBadgeComponent,
     UiButtonComponent,
     UiCardComponent,
     UiEmptyStateComponent,
-    UiInputComponent,
     UiModalComponent,
     ServiceOrderInspectionDetailsComponent,
     ServiceOrderInstallationDetailsComponent,
     ServiceOrderRepairDetailsComponent,
+    ServiceOrderScheduleModalComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './service-order-detail-view.component.html',
@@ -63,15 +70,13 @@ export class ServiceOrderDetailViewComponent {
     initialValue: this.transloco.getActiveLang(),
   });
 
+  readonly closeRequested = output<void>();
+
   protected readonly textareaClasses = TEXTAREA_CLASSES;
   protected readonly isScheduleModalOpen = signal(
     this.route.snapshot.queryParamMap.get('action') === 'schedule',
   );
   protected readonly isNoteModalOpen = signal(false);
-  protected readonly scheduleControl = new FormControl('', {
-    nonNullable: true,
-    validators: [Validators.required],
-  });
   protected readonly noteControl = new FormControl('', {
     nonNullable: true,
     validators: [Validators.required],
@@ -89,6 +94,7 @@ export class ServiceOrderDetailViewComponent {
   protected readonly formatCustomerAddress = formatServiceOrderCustomerAddress;
   protected readonly getStatusVariant = getServiceOrderStatusVariant;
   protected readonly getTypeVariant = getServiceOrderTypeVariant;
+  protected readonly mapHref = serviceOrderMapHref;
   protected readonly phoneHref = serviceOrderPhoneHref;
 
   protected getTypeLabel(order: ServiceOrder): string {
@@ -115,8 +121,7 @@ export class ServiceOrderDetailViewComponent {
     return order.status !== 'completed' && order.status !== 'cancelled';
   }
 
-  protected openSchedule(order: ServiceOrder): void {
-    this.scheduleControl.setValue(order.scheduledAt);
+  protected openSchedule(): void {
     this.isScheduleModalOpen.set(true);
   }
 
@@ -129,13 +134,8 @@ export class ServiceOrderDetailViewComponent {
     });
   }
 
-  protected saveSchedule(): void {
-    if (this.scheduleControl.invalid) {
-      this.scheduleControl.markAsTouched();
-      return;
-    }
-
-    this.store.scheduleOrder(this.orderId(), this.scheduleControl.getRawValue());
+  protected saveSchedule(scheduledAt: string): void {
+    this.store.scheduleOrder(this.orderId(), scheduledAt);
     this.closeSchedule();
   }
 
@@ -165,6 +165,6 @@ export class ServiceOrderDetailViewComponent {
   }
 
   protected backToList(): void {
-    void this.router.navigate(['/service-orders']);
+    this.closeRequested.emit();
   }
 }

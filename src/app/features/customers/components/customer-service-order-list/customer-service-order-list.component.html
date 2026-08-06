@@ -1,0 +1,142 @@
+@if (orders().length) {
+  <div class="space-y-3 md:hidden">
+    @for (order of orders(); track order.id) {
+      <article class="rounded-[1rem] border border-border/85 bg-white p-4 shadow-card">
+        <dl class="grid grid-cols-2 gap-x-4 gap-y-3">
+          <div>
+            <dt class="text-small font-semibold text-text-muted">
+              {{ 'serviceOrders.fields.orderDate' | transloco }}
+            </dt>
+            <dd class="mt-1 text-label text-text-main">{{ formatDate(order.orderDate) }}</dd>
+          </div>
+          <div>
+            <dt class="text-small font-semibold text-text-muted">
+              {{ 'serviceOrders.fields.date' | transloco }}
+            </dt>
+            <dd class="mt-1 text-label text-text-main">
+              {{
+                order.scheduledAt
+                  ? formatDate(order.scheduledAt)
+                  : ('serviceOrders.fields.noDate' | transloco)
+              }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-small font-semibold text-text-muted">
+              {{ 'serviceOrders.fields.type' | transloco }}
+            </dt>
+            <dd class="mt-1 text-label text-text-main">{{ getTypeLabel(order) }}</dd>
+          </div>
+          <div>
+            <dt class="text-small font-semibold text-text-muted">
+              {{ 'serviceOrders.fields.status' | transloco }}
+            </dt>
+            <dd class="mt-1">
+              <ui-badge [variant]="getStatusVariant(order.status)">
+                {{ getStatusLabel(order) }}
+              </ui-badge>
+            </dd>
+          </div>
+          <div class="col-span-2 flex items-end justify-end">
+            <a
+              [routerLink]="['/service-orders', order.id]"
+              [attr.aria-label]="
+                'customers.detail.openOrderDetailsAria'
+                  | transloco: { type: getTypeLabel(order), date: formatDate(order.orderDate) }
+              "
+              class="ui-focus-ring inline-flex min-h-11 items-center rounded-lg px-2 text-label font-semibold text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary active:text-primary"
+            >
+              {{ 'common.actions.details' | transloco }}
+            </a>
+          </div>
+        </dl>
+      </article>
+    }
+  </div>
+
+  <div
+    class="hidden overflow-x-auto rounded-[1.1rem] border border-border/90 bg-white shadow-card md:block"
+  >
+    <table class="min-w-full border-separate border-spacing-0">
+      <thead>
+        <tr>
+          <th
+            class="border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
+          >
+            {{ 'serviceOrders.fields.orderDate' | transloco }}
+          </th>
+          <th
+            class="border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
+          >
+            {{ 'serviceOrders.fields.date' | transloco }}
+          </th>
+          <th
+            class="border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
+          >
+            {{ 'serviceOrders.fields.type' | transloco }}
+          </th>
+          <th
+            class="border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
+          >
+            {{ 'serviceOrders.fields.status' | transloco }}
+          </th>
+          <th
+            class="border-b border-border/90 px-5 py-4 text-right text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
+          >
+            {{ 'common.actions.details' | transloco }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (order of orders(); track order.id; let isLast = $last) {
+          <tr>
+            <td
+              class="border-border/80 px-5 py-4 whitespace-nowrap text-label text-text-main"
+              [class.border-b]="!isLast"
+            >
+              {{ formatDate(order.orderDate) }}
+            </td>
+            <td
+              class="border-border/80 px-5 py-4 whitespace-nowrap text-label text-text-main"
+              [class.border-b]="!isLast"
+            >
+              {{
+                order.scheduledAt
+                  ? formatDate(order.scheduledAt)
+                  : ('serviceOrders.fields.noDate' | transloco)
+              }}
+            </td>
+            <td
+              class="border-border/80 px-5 py-4 text-label text-text-main"
+              [class.border-b]="!isLast"
+            >
+              {{ getTypeLabel(order) }}
+            </td>
+            <td class="border-border/80 px-5 py-4" [class.border-b]="!isLast">
+              <ui-badge [variant]="getStatusVariant(order.status)">
+                {{ getStatusLabel(order) }}
+              </ui-badge>
+            </td>
+            <td class="border-border/80 px-5 py-2 text-right" [class.border-b]="!isLast">
+              <a
+                [routerLink]="['/service-orders', order.id]"
+                [attr.aria-label]="
+                  'customers.detail.openOrderDetailsAria'
+                    | transloco: { type: getTypeLabel(order), date: formatDate(order.orderDate) }
+                "
+                class="ui-focus-ring inline-flex min-h-11 items-center rounded-lg px-2 text-label font-semibold text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
+              >
+                {{ 'common.actions.details' | transloco }}
+              </a>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+} @else {
+  <ui-empty-state
+    [title]="'customers.detail.noOrdersTitle' | transloco"
+    [description]="'customers.detail.noOrdersDescription' | transloco"
+  />
+}

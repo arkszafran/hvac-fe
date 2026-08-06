@@ -1,24 +1,13 @@
 <div class="space-y-4">
-  @if (data().customerConfirmationStatus === 'confirmed') {
-    <ui-badge variant="success">{{ 'serviceOrders.confirmation.confirmed' | transloco }}</ui-badge>
-  } @else if (data().customerConfirmationStatus === 'not_confirmed') {
-    <ui-badge variant="warning">{{
-      'serviceOrders.confirmation.notConfirmed' | transloco
-    }}</ui-badge>
-  }
-
   <div class="space-y-3">
-    @for (device of systemDevices(); track device.id) {
-      <article class="rounded-[1rem] border border-border/85 bg-white px-4 py-4">
-        <p class="text-label text-text-main">{{ deviceName(device) }}</p>
-        <p class="mt-1 text-small text-text-muted">{{ device.serialNumber || '--' }}</p>
-      </article>
+    @for (device of systemDevices(); track device.id; let index = $index) {
+      <app-service-order-device-details [device]="device" [index]="index" />
     }
-    @for (device of data().devices; track device.id) {
-      <article class="rounded-[1rem] border border-border/85 bg-white px-4 py-4">
-        <p class="text-label text-text-main">{{ deviceName(device) }}</p>
-        <p class="mt-1 text-small text-text-muted">{{ device.serialNumber || '--' }}</p>
-      </article>
+    @for (device of data().devices; track device.id; let index = $index) {
+      <app-service-order-device-details
+        [device]="device"
+        [index]="systemDevices().length + index"
+      />
     }
 
     @if (!systemDevices().length && !data().devices.length) {

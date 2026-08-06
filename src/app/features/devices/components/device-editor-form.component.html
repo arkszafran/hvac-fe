@@ -27,11 +27,21 @@
     />
   </div>
 
-  <ui-input
-    [label]="'devices.form.serialNumber' | transloco"
-    [placeholder]="'devices.form.serialNumberPlaceholder' | transloco"
-    formControlName="serialNumber"
-  />
+  <div class="grid gap-4 sm:grid-cols-2">
+    <ui-input
+      [label]="'devices.form.serialNumber' | transloco"
+      [placeholder]="'devices.form.serialNumberPlaceholder' | transloco"
+      formControlName="serialNumber"
+    />
+
+    <ui-input
+      [label]="'devices.form.powerKw' | transloco"
+      [placeholder]="'devices.form.powerKwPlaceholder' | transloco"
+      type="number"
+      [error]="validationError('powerKw')"
+      formControlName="powerKw"
+    />
+  </div>
 
   <div class="grid gap-4 sm:grid-cols-2">
     <ui-input

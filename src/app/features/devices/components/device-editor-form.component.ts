@@ -27,6 +27,7 @@ import {
   createEmptyDeviceDraft,
   createDeviceWarrantyMonthOptions,
   DeviceDraft,
+  parseDevicePowerKw,
 } from '../../customers/models/device.model';
 
 const TEXTAREA_CLASSES =
@@ -79,6 +80,7 @@ export class DeviceEditorFormComponent {
     type: ['', Validators.required],
     brand: ['', Validators.required],
     model: ['', Validators.required],
+    powerKw: ['', Validators.min(0)],
     serialNumber: '',
     installationDate: '',
     warrantyMonths: '0',
@@ -172,6 +174,7 @@ export class DeviceEditorFormComponent {
     return {
       ...rawValue,
       type: this.form.controls.type.getRawValue() as DeviceDraft['type'],
+      powerKw: parseDevicePowerKw(this.form.controls.powerKw.getRawValue()),
       warrantyMonths: Number(this.form.controls.warrantyMonths.getRawValue()),
       nextInspectionDate: this.form.controls.hasScheduledInspections.getRawValue()
         ? this.form.controls.nextInspectionDate.getRawValue().trim()
@@ -180,7 +183,7 @@ export class DeviceEditorFormComponent {
   }
 
   protected validationError(
-    field: 'type' | 'brand' | 'model' | 'installationDate' | 'nextInspectionDate',
+    field: 'type' | 'brand' | 'model' | 'powerKw' | 'installationDate' | 'nextInspectionDate',
   ): string {
     const control = this.form.controls[field];
 
@@ -206,6 +209,10 @@ export class DeviceEditorFormComponent {
       );
     }
 
+    if (field === 'powerKw' && control.hasError('min')) {
+      return this.transloco.translate('devices.validation.powerNonNegative');
+    }
+
     return '';
   }
 
@@ -220,6 +227,7 @@ export class DeviceEditorFormComponent {
     this.form.reset(
       {
         ...draft,
+        powerKw: draft.powerKw?.toString() ?? '',
         warrantyMonths: draft.warrantyMonths.toString(),
         nextInspectionPreset: 'custom',
       },

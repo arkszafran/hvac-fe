@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 
+import { AuthService } from '../../../common/authentication';
 import { CustomersStore } from '../../customers/data/customers.store';
 import { Customer } from '../../customers/models/customer.model';
 import { Device } from '../../customers/models/device.model';
@@ -13,6 +14,7 @@ export interface VisitDetails {
 
 @Injectable({ providedIn: 'root' })
 export class VisitsStore {
+  private readonly authService = inject(AuthService);
   private readonly customersStore = inject(CustomersStore);
   private readonly visitsState = signal<Visit[]>(this.createInitialVisits());
 
@@ -64,6 +66,7 @@ export class VisitsStore {
       id: createEntityId('visit'),
       serviceOrderId: draft.serviceOrderId?.trim() || undefined,
       customerId: draft.customerId.trim(),
+      userName: this.authService.user()?.name ?? '',
       devicesList,
       date: draft.date.trim(),
       type: draft.type,

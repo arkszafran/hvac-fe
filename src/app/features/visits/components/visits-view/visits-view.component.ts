@@ -130,6 +130,7 @@ export class VisitsViewComponent {
       details.customer.address,
       details.customer.postalCode,
       details.customer.city,
+      details.visit.userName,
       details.devices.map((device) => this.deviceAddress(details.customer, device)).join(' '),
       this.deviceSummary(details),
     ].join(' ');

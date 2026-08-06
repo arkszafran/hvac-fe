@@ -8,6 +8,7 @@ const CUSTOMER_DEVICE_MOCKS: Record<string, Device[]> = {
       type: 'air-conditioning',
       brand: 'Daikin',
       model: 'Stylish FTXA35',
+      powerKw: 3.5,
       serialNumber: 'DK-FTXA35-001',
       installationDate: '2024-05-12',
       warrantyMonths: 24,
@@ -24,6 +25,7 @@ const CUSTOMER_DEVICE_MOCKS: Record<string, Device[]> = {
         {
           id: 'visit-01',
           customerId: 'customer-01',
+          userName: 'Jan Kowalski',
           devicesList: ['device-01'],
           date: '2025-05-11',
           type: 'inspection',
@@ -38,6 +40,7 @@ const CUSTOMER_DEVICE_MOCKS: Record<string, Device[]> = {
         {
           id: 'visit-02',
           customerId: 'customer-01',
+          userName: 'Anna Nowak',
           devicesList: ['device-01'],
           date: '2024-11-14',
           type: 'installation',
@@ -56,6 +59,7 @@ const CUSTOMER_DEVICE_MOCKS: Record<string, Device[]> = {
       type: 'ventilation',
       brand: 'Komfovent',
       model: 'Domekt R 400 V',
+      powerKw: 0.17,
       serialNumber: 'KM-400V-88',
       installationDate: '2023-11-03',
       warrantyMonths: 0,
@@ -72,6 +76,7 @@ const CUSTOMER_DEVICE_MOCKS: Record<string, Device[]> = {
         {
           id: 'visit-03',
           customerId: 'customer-01',
+          userName: 'Jan Kowalski',
           devicesList: ['device-02'],
           date: '2025-02-06',
           type: 'repair',
@@ -92,6 +97,7 @@ const CUSTOMER_DEVICE_MOCKS: Record<string, Device[]> = {
       type: 'heat-pump',
       brand: 'Panasonic',
       model: 'Aquarea T-CAP 9kW',
+      powerKw: 9,
       serialNumber: 'PN-9KW-204',
       installationDate: '2024-09-20',
       warrantyMonths: 60,
@@ -108,6 +114,7 @@ const CUSTOMER_DEVICE_MOCKS: Record<string, Device[]> = {
         {
           id: 'visit-04',
           customerId: 'customer-02',
+          userName: 'Anna Nowak',
           devicesList: ['device-03'],
           date: '2025-01-20',
           type: 'inspection',

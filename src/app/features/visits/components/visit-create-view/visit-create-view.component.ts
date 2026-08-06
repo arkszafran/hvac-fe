@@ -582,8 +582,8 @@ export class VisitCreateViewComponent {
     this.scheduleNextInspection.set(false);
     this.nextInspectionDate.set('');
 
-    const existingCustomer = order.customer.systemCustomerId
-      ? this.customersStore.getCustomerById(order.customer.systemCustomerId)
+    const existingCustomer = order.customerId
+      ? this.customersStore.getCustomerById(order.customerId)
       : undefined;
 
     if (existingCustomer) {
@@ -622,7 +622,7 @@ export class VisitCreateViewComponent {
     const devices = orderDevices.map((device) => this.createNewOrderDeviceDraft(device));
 
     this.selectedCustomerId.set('');
-    this.pendingCustomerDraft.set(this.customerDraftFromOrder(order.customer));
+    this.pendingCustomerDraft.set(this.customerDraftFromOrder(order));
     this.customerCreatedInVisit.set(true);
     this.selectedExistingDeviceIds.set([]);
     this.newDeviceDrafts.set(devices);
@@ -697,9 +697,6 @@ export class VisitCreateViewComponent {
 
   private deviceDraftFromOrder(device: ServiceOrderDevice): DeviceDraft {
     const draft = createEmptyDeviceDraft();
-    const yearNote = device.year
-      ? this.transloco.translate('visits.create.serviceOrderNotes.year', { year: device.year })
-      : '';
     const errorNote = device.displayedError
       ? this.transloco.translate('visits.create.serviceOrderNotes.error', {
           error: device.displayedError,
@@ -714,7 +711,7 @@ export class VisitCreateViewComponent {
       serialNumber: device.serialNumber,
       refrigerant: device.refrigerant,
       refrigerantAmount: device.refrigerantAmount,
-      note: [yearNote, errorNote].filter(Boolean).join(' '),
+      note: errorNote,
     };
   }
 

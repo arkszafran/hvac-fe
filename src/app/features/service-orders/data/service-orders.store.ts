@@ -40,8 +40,8 @@ export class ServiceOrdersStore {
   readonly orderDetails = computed<ServiceOrderDetails[]>(() =>
     this.orders()
       .map((order) => {
-        const systemCustomer = order.customer.systemCustomerId
-          ? this.customersStore.getCustomerById(order.customer.systemCustomerId)
+        const systemCustomer = order.customerId
+          ? this.customersStore.getCustomerById(order.customerId)
           : undefined;
         const deviceIds =
           order.serviceData.type === 'inspection' ? order.serviceData.deviceIds : [];
@@ -61,8 +61,8 @@ export class ServiceOrdersStore {
         };
       })
       .sort((left, right) => {
-        const leftDate = left.order.scheduledAt || left.order.createdAt;
-        const rightDate = right.order.scheduledAt || right.order.createdAt;
+        const leftDate = left.order.scheduledAt || left.order.orderDate;
+        const rightDate = right.order.scheduledAt || right.order.orderDate;
 
         return leftDate.localeCompare(rightDate);
       }),
@@ -97,7 +97,7 @@ export class ServiceOrdersStore {
       .filter(
         (order) =>
           order.serviceData.type === 'inspection' &&
-          order.customer.systemCustomerId === customerId &&
+          order.customerId === customerId &&
           OPEN_ORDER_STATUSES.includes(order.status) &&
           (!excludedDeviceId || !order.serviceData.deviceIds.includes(excludedDeviceId)),
       )
@@ -113,8 +113,8 @@ export class ServiceOrdersStore {
       return order.serviceData.devices;
     }
 
-    const customer = order.customer.systemCustomerId
-      ? this.customersStore.getCustomerById(order.customer.systemCustomerId)
+    const customer = order.customerId
+      ? this.customersStore.getCustomerById(order.customerId)
       : undefined;
 
     if (!customer || order.serviceData.type !== 'inspection') {
@@ -146,13 +146,14 @@ export class ServiceOrdersStore {
       type: 'inspection',
       source: 'user',
       status: input.status ?? 'new',
-      customer: toServiceOrderCustomer(customer),
+      ...toServiceOrderCustomer(customer),
       serviceData: {
         type: 'inspection',
         deviceIds,
         devices: [],
         customerConfirmationStatus: 'pending',
       },
+      orderDate: now,
       scheduledAt: input.scheduledAt.trim(),
       createdAt: now,
       updatedAt: now,
@@ -358,13 +359,14 @@ export class ServiceOrdersStore {
               type: 'inspection',
               source: 'user',
               status: seed.status,
-              customer: toServiceOrderCustomer(customer),
+              ...toServiceOrderCustomer(customer),
               serviceData: {
                 type: 'inspection',
                 deviceIds: seed.deviceIds,
                 devices: [],
                 customerConfirmationStatus: seed.confirmation,
               },
+              orderDate: now,
               scheduledAt: seed.date,
               createdAt: now,
               updatedAt: now,
@@ -379,7 +381,7 @@ export class ServiceOrdersStore {
 
 function toServiceOrderCustomer(customer: Customer): ServiceOrderCustomer {
   return {
-    systemCustomerId: customer.id,
+    customerId: customer.id,
     customerType: customer.type,
     fullName: customer.fullName,
     companyName: customer.companyName,
@@ -399,7 +401,6 @@ function toServiceOrderDevice(device: Device): ServiceOrderDevice {
     brand: device.brand,
     model: device.model,
     serialNumber: device.serialNumber,
-    year: device.installationDate ? Number(device.installationDate.slice(0, 4)) : null,
     refrigerant: device.refrigerant,
     refrigerantAmount: device.refrigerantAmount,
     nameplatePhotos: [],

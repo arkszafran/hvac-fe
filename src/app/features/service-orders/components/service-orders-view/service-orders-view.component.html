@@ -7,13 +7,18 @@
 
   <ui-card class="relative z-10 block" padding="sm">
     <div
-      class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(12rem,15rem)_minmax(12rem,15rem)] lg:items-end"
+      class="grid gap-3 lg:grid-cols-2 lg:items-end xl:grid-cols-[minmax(14rem,1fr)_repeat(3,minmax(10rem,13rem))]"
     >
       <ui-input
         type="search"
         [label]="'serviceOrders.fields.search' | transloco"
         [placeholder]="'serviceOrders.fields.searchPlaceholder' | transloco"
         [formControl]="searchControl"
+      />
+      <ui-select
+        [label]="'serviceOrders.fields.dateFilter' | transloco"
+        [options]="dateOptions()"
+        [formControl]="dateControl"
       />
       <ui-multiselect
         [label]="'serviceOrders.fields.status' | transloco"
@@ -42,13 +47,22 @@
     />
   </div>
 
+  @if (orderBeingScheduled(); as order) {
+    <app-service-order-schedule-modal
+      [open]="true"
+      [scheduledAt]="order.scheduledAt"
+      (close)="closeScheduleModal()"
+      (saved)="saveSchedule($event)"
+    />
+  }
+
   @if (orderPendingCancellation(); as order) {
     <ui-modal
       [open]="true"
       [title]="'serviceOrders.cancelModal.title' | transloco"
       [description]="
         'serviceOrders.cancelModal.description'
-          | transloco: { customer: order.customer.companyName || order.customer.fullName || '--' }
+          | transloco: { customer: order.companyName || order.fullName || '--' }
       "
       (close)="closeCancellationModal()"
     >

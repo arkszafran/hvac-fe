@@ -72,6 +72,9 @@
 
               <p class="text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">{{ 'visits.fields.type' | transloco }}</p>
               <p class="text-body text-text-main">{{ getVisitTypeLabel(details.visit.type) }}</p>
+
+              <p class="text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">{{ 'visits.fields.handledBy' | transloco }}</p>
+              <p class="text-body text-text-main">{{ details.visit.userName || '--' }}</p>
             </div>
           </article>
         }
@@ -92,6 +95,9 @@
               </th>
               <th class="border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted last:pr-6">
                 {{ 'visits.fields.type' | transloco }}
+              </th>
+              <th class="border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted last:pr-6">
+                {{ 'visits.fields.handledBy' | transloco }}
               </th>
             </tr>
           </thead>
@@ -142,6 +148,9 @@
                 </td>
                 <td class="border-b border-border/80 bg-white px-5 py-4.5 last:pr-6 group-hover/row:bg-primary-soft/30">
                   <ui-badge variant="info">{{ getVisitTypeLabel(details.visit.type) }}</ui-badge>
+                </td>
+                <td class="border-b border-border/80 bg-white px-5 py-4.5 text-[14px]/6 text-text-main last:pr-6 group-hover/row:bg-primary-soft/30">
+                  {{ details.visit.userName || '--' }}
                 </td>
               </tr>
             }

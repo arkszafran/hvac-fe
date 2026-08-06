@@ -88,7 +88,7 @@ export class ServiceOrderTableComponent {
   }
 
   protected orderAriaName(order: ServiceOrder): string {
-    return formatServiceOrderCustomerName(order.customer);
+    return formatServiceOrderCustomerName(order);
   }
 }
 

@@ -201,6 +201,7 @@ function normalizeDeviceDraft(draft: DeviceDraft): Omit<Device, 'id' | 'visits'>
     type: draft.type,
     brand: draft.brand.trim(),
     model: draft.model.trim(),
+    powerKw: normalizePowerKw(draft.powerKw),
     serialNumber: draft.serialNumber.trim(),
     installationDate,
     warrantyMonths,
@@ -214,6 +215,14 @@ function normalizeDeviceDraft(draft: DeviceDraft): Omit<Device, 'id' | 'visits'>
     postalCode: hasCustomInstallationAddress ? draft.postalCode.trim() : '',
     city: hasCustomInstallationAddress ? draft.city.trim() : '',
   };
+}
+
+function normalizePowerKw(powerKw: number | null): number | null {
+  if (powerKw === null || !Number.isFinite(powerKw)) {
+    return null;
+  }
+
+  return Math.max(0, powerKw);
 }
 
 function createEntityId(prefix: string): string {

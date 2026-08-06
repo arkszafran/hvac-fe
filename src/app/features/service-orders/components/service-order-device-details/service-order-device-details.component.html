@@ -1,0 +1,74 @@
+<article class="rounded-[1rem] border border-border/85 bg-white px-4 py-4">
+  <h3 class="text-label text-text-main">
+    {{ 'serviceOrders.details.device' | transloco: { index: index() + 1, device: deviceName() } }}
+  </h3>
+
+  <dl class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+    <div>
+      <dt class="text-small font-semibold text-text-muted">
+        {{ 'serviceOrders.details.deviceType' | transloco }}
+      </dt>
+      <dd class="text-label text-text-main">{{ deviceTypeLabel() }}</dd>
+    </div>
+    <div>
+      <dt class="text-small font-semibold text-text-muted">
+        {{ 'serviceOrders.details.serialNumber' | transloco }}
+      </dt>
+      <dd class="text-label text-text-main">{{ device().serialNumber || '--' }}</dd>
+    </div>
+    <div>
+      <dt class="text-small font-semibold text-text-muted">
+        {{ 'serviceOrders.details.refrigerant' | transloco }}
+      </dt>
+      <dd class="text-label text-text-main">{{ device().refrigerant || '--' }}</dd>
+    </div>
+    <div>
+      <dt class="text-small font-semibold text-text-muted">
+        {{ 'serviceOrders.details.refrigerantAmount' | transloco }}
+      </dt>
+      <dd class="text-label text-text-main">{{ device().refrigerantAmount || '--' }}</dd>
+    </div>
+    @if (displayedError() !== undefined) {
+      <div class="sm:col-span-2 lg:col-span-3">
+        <dt class="text-small font-semibold text-text-muted">
+          {{ 'serviceOrders.details.reportedError' | transloco }}
+        </dt>
+        <dd class="whitespace-pre-wrap text-label text-text-main">
+          {{ displayedError() || '--' }}
+        </dd>
+      </div>
+    }
+  </dl>
+
+  @if (hasPhotoSection()) {
+    <section class="mt-4 border-t border-border/70 pt-4">
+      <h4 class="text-small font-semibold text-text-muted">
+        {{ 'serviceOrders.details.devicePhotos' | transloco }}
+      </h4>
+
+      @if (nameplatePhotos().length) {
+        <div class="mt-2 grid gap-3 sm:grid-cols-2">
+          @for (photo of nameplatePhotos(); track photo.id) {
+            <figure class="overflow-hidden rounded-[0.9rem] border border-border/85 bg-surface">
+              <img
+                [src]="photo.url"
+                [alt]="photo.fileName"
+                class="h-40 w-full object-cover"
+                loading="lazy"
+              />
+              <figcaption class="px-3 py-2 text-small text-text-main">
+                {{ photo.fileName }}
+              </figcaption>
+            </figure>
+          }
+        </div>
+      } @else {
+        <p
+          class="mt-2 rounded-[0.9rem] border border-dashed border-border/90 px-3 py-3 text-small text-text-muted"
+        >
+          {{ 'serviceOrders.details.noDevicePhotos' | transloco }}
+        </p>
+      }
+    </section>
+  }
+</article>

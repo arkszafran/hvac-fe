@@ -1,4 +1,4 @@
-import type { DeviceType } from '../../customers/models/device.model';
+import type { Device } from '../../customers/models/device.model';
 
 export type ServiceOrderType = 'installation' | 'repair' | 'inspection';
 export type ServiceOrderSource = 'customer-panel' | 'website-form' | 'user';
@@ -21,7 +21,7 @@ export interface ServiceOrderAttachment {
 }
 
 export interface ServiceOrderCustomer {
-  systemCustomerId?: string;
+  customerId?: string;
   customerType: ServiceOrderCustomerType;
   fullName: string;
   companyName: string;
@@ -42,16 +42,14 @@ export interface ServiceOrderRoom {
   photos: ServiceOrderAttachment[];
 }
 
-export interface ServiceOrderDevice {
+type ServiceOrderDeviceCharacteristics = Pick<
+  Device,
+  'type' | 'brand' | 'model' | 'serialNumber' | 'refrigerant' | 'refrigerantAmount'
+>;
+
+export interface ServiceOrderDevice extends ServiceOrderDeviceCharacteristics {
   id: string;
   systemDeviceId?: string;
-  type: DeviceType;
-  brand: string;
-  model: string;
-  serialNumber: string;
-  year: number | null;
-  refrigerant: string;
-  refrigerantAmount: string;
   displayedError?: string;
   nameplatePhotos: ServiceOrderAttachment[];
 }
@@ -80,13 +78,13 @@ export type ServiceOrderData =
   | RepairServiceOrderData
   | InspectionServiceOrderData;
 
-export interface ServiceOrder {
+export interface ServiceOrder extends ServiceOrderCustomer {
   id: string;
   type: ServiceOrderType;
   source: ServiceOrderSource;
   status: ServiceOrderStatus;
-  customer: ServiceOrderCustomer;
   serviceData: ServiceOrderData;
+  orderDate: string;
   scheduledAt: string;
   createdAt: string;
   updatedAt: string;

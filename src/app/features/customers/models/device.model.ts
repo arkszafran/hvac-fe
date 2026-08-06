@@ -9,6 +9,7 @@ export interface Device {
   type: DeviceType;
   brand: string;
   model: string;
+  powerKw: number | null;
   serialNumber: string;
   installationDate: string;
   warrantyMonths: number;
@@ -59,6 +60,7 @@ export function createEmptyDeviceDraft(): DeviceDraft {
     type: '',
     brand: '',
     model: '',
+    powerKw: null,
     serialNumber: '',
     installationDate: '',
     warrantyMonths: 0,
@@ -106,6 +108,29 @@ export function getDeviceTypeLabel(type: DeviceType, transloco: TranslocoService
     default:
       return transloco.translate('common.notSpecified');
   }
+}
+
+export function parseDevicePowerKw(value: string): number | null {
+  if (!value.trim()) {
+    return null;
+  }
+
+  const parsedValue = Number(value);
+
+  return Number.isFinite(parsedValue) ? parsedValue : null;
+}
+
+export function formatDevicePowerKw(
+  powerKw: number | null | undefined,
+  transloco: TranslocoService,
+): string {
+  if (powerKw === null || powerKw === undefined) {
+    return '--';
+  }
+
+  const locale = transloco.getActiveLang() === 'pl' ? 'pl-PL' : 'en-US';
+
+  return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 3 }).format(powerKw)} kW`;
 }
 
 function formatWarrantyOptionLabel(months: number, transloco: TranslocoService): string {

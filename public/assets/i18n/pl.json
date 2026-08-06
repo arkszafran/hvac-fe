@@ -378,6 +378,7 @@
       "customer": "Klient",
       "devices": "Urządzenia",
       "type": "Typ",
+      "handledBy": "Osoba obsługująca",
       "visitType": "Typ wizyty",
       "visitTypePlaceholder": "Wybierz typ wizyty",
       "note": "Notatka",
@@ -429,7 +430,6 @@
         "required": "Uzupełnij wymagane dane wizyty."
       },
       "serviceOrderNotes": {
-        "year": "Rok urządzenia: {{year}}.",
         "error": "Błąd ze zgłoszenia: {{error}}."
       }
     },
@@ -467,6 +467,7 @@
     "fields": {
       "search": "Szukaj",
       "searchPlaceholder": "Klient, telefon, e-mail albo adres",
+      "dateFilter": "Termin wizyty",
       "status": "Status",
       "statusPlaceholder": "Wybierz statusy",
       "type": "Rodzaj zlecenia",
@@ -474,8 +475,9 @@
       "typeAndStatus": "Rodzaj i status",
       "customer": "Klient",
       "customerAndAddress": "Klient i adres",
-      "date": "Termin",
-      "noDate": "Nie ustalono terminu",
+      "orderDate": "Data zlecenia",
+      "date": "Termin wizyty",
+      "noDate": "Nie ustalono terminu wizyty",
       "phone": "Telefon",
       "email": "E-mail",
       "address": "Adres",
@@ -496,6 +498,12 @@
       "completed": "Zakończone",
       "cancelled": "Anulowane"
     },
+    "dateFilters": {
+      "today": "Dziś",
+      "tomorrow": "Jutro",
+      "this_week": "Ten tydzień",
+      "all": "Wszystkie"
+    },
     "sources": {
       "customerPanel": "Panel klienta",
       "websiteForm": "Formularz na stronie",
@@ -506,8 +514,8 @@
       "notConfirmed": "Klient nie potwierdził"
     },
     "actions": {
-      "setDate": "Ustal termin",
-      "changeDate": "Zmień termin",
+      "setDate": "Ustal termin wizyty",
+      "changeDate": "Zmień termin wizyty",
       "createVisit": "Utwórz wizytę",
       "call": "Zadzwoń",
       "addNote": "Dodaj notatkę"
@@ -537,7 +545,8 @@
     },
     "details": {
       "backToList": "Wróć do zleceń",
-      "dateSummary": "Termin: {{date}}",
+      "orderDateSummary": "Data zlecenia: {{date}}",
+      "dateSummary": "Termin wizyty: {{date}}",
       "actionsLabel": "Akcje zlecenia",
       "customer": "Dane klienta",
       "installationTitle": "Szczegóły montażu",
@@ -552,10 +561,13 @@
       "floor": "Piętro",
       "orderPhotos": "Zdjęcia do zlecenia",
       "device": "Urządzenie {{index}}: {{device}}",
+      "deviceType": "Typ urządzenia",
       "serialNumber": "Numer seryjny",
-      "year": "Rok",
       "refrigerant": "Czynnik",
+      "refrigerantAmount": "Ilość czynnika",
       "reportedError": "Zgłoszony problem",
+      "devicePhotos": "Zdjęcia urządzenia",
+      "noDevicePhotos": "Nie dodano zdjęć tego urządzenia.",
       "noDevices": "Brak urządzeń przypisanych do tego przeglądu.",
       "notesTitle": "Historia notatek",
       "noNotes": "Do tego zlecenia nie dodano jeszcze notatek.",
@@ -564,9 +576,9 @@
       "notFoundDescription": "Zlecenie nie istnieje albo zostało usunięte."
     },
     "scheduleModal": {
-      "title": "Ustal termin",
+      "title": "Ustal termin wizyty",
       "description": "Wybierz dzień, w którym instalator ma pojawić się u klienta.",
-      "validation": "Termin jest wymagany."
+      "validation": "Termin wizyty jest wymagany."
     },
     "noteModal": {
       "title": "Dodaj notatkę",
@@ -612,10 +624,9 @@
       "edit": "Edytuj klienta"
     },
     "detail": {
-      "planning": "Planowanie",
-      "activeInspections": "Aktywne przeglądy",
-      "noActiveInspectionsTitle": "Brak aktywnych przeglądów",
-      "noActiveInspectionsDescription": "Gdy urządzenia klienta będą miały aktywne terminy przeglądów, zobaczysz tutaj pogrupowane sprawy.",
+      "noOrdersTitle": "Brak zleceń",
+      "noOrdersDescription": "Zlecenia przypisane do tego klienta pojawią się tutaj.",
+      "openOrderDetailsAria": "Otwórz szczegóły zlecenia: {{type}}, {{date}}",
       "editModalDescription": "Zaktualizuj dane klienta bez opuszczania widoku szczegółów.",
       "notFoundTitle": "Nie znaleźliśmy tego klienta",
       "notFoundDescription": "Profil może jeszcze nie istnieć albo identyfikator jest nieprawidłowy."
@@ -709,6 +720,8 @@
       "brandPlaceholder": "Wybierz markę",
       "model": "Model",
       "modelPlaceholder": "np. Stylish FTXA35",
+      "powerKw": "Moc (kW)",
+      "powerKwPlaceholder": "np. 3,5",
       "serialNumber": "Numer seryjny",
       "serialNumberPlaceholder": "np. SN-45812",
       "refrigerant": "Czynnik",
@@ -773,6 +786,7 @@
       "fields": {
         "brand": "Marka",
         "model": "Model",
+        "powerKw": "Moc",
         "installationDate": "Data uruchomienia",
         "warrantyUntil": "Gwarancja do",
         "serialNumber": "Numer seryjny",
@@ -815,7 +829,8 @@
       "installationDateRequired": "Data uruchomienia jest wymagana, gdy wybrano gwarancję.",
       "nextInspectionDateRequired": "Data następnego przeglądu jest wymagana, gdy przeglądy są włączone.",
       "brandRequired": "Marka jest wymagana.",
-      "modelRequired": "Model jest wymagany."
+      "modelRequired": "Model jest wymagany.",
+      "powerNonNegative": "Moc nie może być wartością ujemną."
     },
     "nextInspectionModal": {
       "title": "Zmień ustawienia przeglądów",

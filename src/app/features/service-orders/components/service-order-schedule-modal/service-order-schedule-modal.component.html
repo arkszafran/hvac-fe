@@ -1,0 +1,26 @@
+<ui-modal
+  [open]="open()"
+  [title]="'serviceOrders.scheduleModal.title' | transloco"
+  [description]="'serviceOrders.scheduleModal.description' | transloco"
+  (close)="close.emit()"
+>
+  <ui-input
+    type="date"
+    required
+    [label]="'serviceOrders.fields.date' | transloco"
+    [error]="
+      scheduleControl.invalid && scheduleControl.touched
+        ? ('serviceOrders.scheduleModal.validation' | transloco)
+        : ''
+    "
+    [formControl]="scheduleControl"
+  />
+  <div modal-footer class="grid gap-3 sm:grid-cols-2">
+    <ui-button variant="ghost" [block]="true" (pressed)="close.emit()">
+      {{ 'common.actions.cancel' | transloco }}
+    </ui-button>
+    <ui-button [block]="true" (pressed)="saveSchedule()">
+      {{ 'common.actions.save' | transloco }}
+    </ui-button>
+  </div>
+</ui-modal>

@@ -2,25 +2,37 @@
   @if (details(); as details) {
     <section class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
       <div class="space-y-1">
-        <nav class="flex flex-wrap items-center gap-2 text-[13px]/5 font-semibold text-text-muted">
-          <a
-            routerLink="/service-orders"
-            class="text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary"
-          >
-            {{ 'serviceOrders.details.backToList' | transloco }}
-          </a>
-          <span aria-hidden="true">/</span>
-          <span class="text-text-main">{{ formatCustomerName(details.order.customer) }}</span>
-        </nav>
         <h1 class="text-display tracking-[-0.04em] text-text-main">
-          {{ getTypeLabel(details.order) }} — {{ formatCustomerName(details.order.customer) }}
+          {{ getTypeLabel(details.order) }} — {{ formatCustomerName(details.order) }}
         </h1>
-        <p class="text-body text-text-muted">
-          {{
-            'serviceOrders.details.dateSummary'
-              | transloco: { date: formatDate(details.order.scheduledAt) }
-          }}
-        </p>
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+          <p class="text-body text-text-muted">
+            {{
+              'serviceOrders.details.orderDateSummary'
+                | transloco: { date: formatDate(details.order.orderDate) }
+            }}
+          </p>
+          <p class="text-body text-text-muted">
+            {{
+              'serviceOrders.details.dateSummary'
+                | transloco: { date: formatDate(details.order.scheduledAt) }
+            }}
+          </p>
+          @if (details.order.serviceData.type === 'inspection') {
+            @switch (details.order.serviceData.customerConfirmationStatus) {
+              @case ('confirmed') {
+                <ui-badge variant="success">
+                  {{ 'serviceOrders.confirmation.confirmed' | transloco }}
+                </ui-badge>
+              }
+              @case ('not_confirmed') {
+                <ui-badge variant="warning">
+                  {{ 'serviceOrders.confirmation.notConfirmed' | transloco }}
+                </ui-badge>
+              }
+            }
+          }
+        </div>
       </div>
 
       <div class="flex flex-wrap items-center gap-2">
@@ -37,16 +49,8 @@
       class="flex flex-wrap gap-2"
       [attr.aria-label]="'serviceOrders.details.actionsLabel' | transloco"
     >
-      @if (details.order.customer.phone) {
-        <a
-          [href]="phoneHref(details.order.customer.phone)"
-          class="ui-focus-ring inline-flex min-h-11 items-center justify-center rounded-[0.95rem] border border-border/90 bg-white px-4 text-label font-semibold text-primary-strong transition hover:border-primary/30 hover:bg-primary-soft/20"
-        >
-          {{ 'serviceOrders.actions.call' | transloco }}
-        </a>
-      }
       @if (canChangeOrder(details.order)) {
-        <ui-button variant="secondary" (pressed)="openSchedule(details.order)">
+        <ui-button variant="secondary" (pressed)="openSchedule()">
           {{
             (details.order.scheduledAt
               ? 'serviceOrders.actions.changeDate'
@@ -79,21 +83,32 @@
               {{ 'serviceOrders.fields.customer' | transloco }}
             </dt>
             <dd class="text-label text-text-main">
-              {{ formatCustomerName(details.order.customer) }}
+              {{ formatCustomerName(details.order) }}
             </dd>
           </div>
           <div>
             <dt class="text-small font-semibold text-text-muted">
               {{ 'serviceOrders.fields.phone' | transloco }}
             </dt>
-            <dd class="text-label text-text-main">{{ details.order.customer.phone || '--' }}</dd>
+            <dd class="text-label text-text-main">
+              @if (details.order.phone) {
+                <a
+                  [href]="phoneHref(details.order.phone)"
+                  class="ui-focus-ring inline-flex min-h-11 items-center text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary"
+                >
+                  {{ details.order.phone }}
+                </a>
+              } @else {
+                --
+              }
+            </dd>
           </div>
           <div>
             <dt class="text-small font-semibold text-text-muted">
               {{ 'serviceOrders.fields.email' | transloco }}
             </dt>
             <dd class="text-label text-text-main [overflow-wrap:anywhere]">
-              {{ details.order.customer.email || '--' }}
+              {{ details.order.email || '--' }}
             </dd>
           </div>
           <div>
@@ -101,7 +116,18 @@
               {{ 'serviceOrders.fields.address' | transloco }}
             </dt>
             <dd class="text-label text-text-main">
-              {{ formatCustomerAddress(details.order.customer) }}
+              @if (mapHref(details.order); as href) {
+                <a
+                  [href]="href"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="ui-focus-ring inline-flex min-h-11 items-center text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary"
+                >
+                  {{ formatCustomerAddress(details.order) }}
+                </a>
+              } @else {
+                --
+              }
             </dd>
           </div>
           <div>
@@ -186,32 +212,12 @@
       </ui-card>
     }
 
-    <ui-modal
+    <app-service-order-schedule-modal
       [open]="isScheduleModalOpen()"
-      [title]="'serviceOrders.scheduleModal.title' | transloco"
-      [description]="'serviceOrders.scheduleModal.description' | transloco"
+      [scheduledAt]="details.order.scheduledAt"
       (close)="closeSchedule()"
-    >
-      <ui-input
-        type="date"
-        required
-        [label]="'serviceOrders.fields.date' | transloco"
-        [error]="
-          scheduleControl.invalid && scheduleControl.touched
-            ? ('serviceOrders.scheduleModal.validation' | transloco)
-            : ''
-        "
-        [formControl]="scheduleControl"
-      />
-      <div modal-footer class="grid gap-3 sm:grid-cols-2">
-        <ui-button variant="ghost" [block]="true" (pressed)="closeSchedule()">{{
-          'common.actions.cancel' | transloco
-        }}</ui-button>
-        <ui-button [block]="true" (pressed)="saveSchedule()">{{
-          'common.actions.save' | transloco
-        }}</ui-button>
-      </div>
-    </ui-modal>
+      (saved)="saveSchedule($event)"
+    />
 
     <ui-modal
       [open]="isNoteModalOpen()"

@@ -11,6 +11,8 @@ import {
   UiModalComponent,
   UiMultiselectComponent,
   UiMultiselectOption,
+  UiSelectComponent,
+  UiSelectOption,
 } from '../../../../ui';
 import { ServiceOrdersStore } from '../../data/service-orders.store';
 import {
@@ -22,10 +24,16 @@ import {
   getServiceOrderStatusLabel,
   getServiceOrderTypeLabel,
 } from '../../utils/service-order-ui.util';
+import {
+  ServiceOrderDateFilter,
+  matchesServiceOrderDateFilter,
+} from '../../utils/service-order-date-filter.util';
+import { ServiceOrderScheduleModalComponent } from '../service-order-schedule-modal/service-order-schedule-modal.component';
 import { ServiceOrderTableComponent } from '../service-order-table/service-order-table.component';
 
 const DEFAULT_STATUS_FILTERS: ServiceOrderStatus[] = ['contact_required', 'scheduled'];
 const DEFAULT_TYPE_FILTERS: ServiceOrderType[] = ['installation', 'repair', 'inspection'];
+const DEFAULT_DATE_FILTER: ServiceOrderDateFilter = 'today';
 
 @Component({
   selector: 'app-service-orders-view',
@@ -37,6 +45,8 @@ const DEFAULT_TYPE_FILTERS: ServiceOrderType[] = ['installation', 'repair', 'ins
     UiInputComponent,
     UiModalComponent,
     UiMultiselectComponent,
+    UiSelectComponent,
+    ServiceOrderScheduleModalComponent,
     ServiceOrderTableComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -51,7 +61,11 @@ export class ServiceOrdersViewComponent {
   });
 
   protected readonly searchControl = new FormControl('', { nonNullable: true });
+  protected readonly dateControl = new FormControl<ServiceOrderDateFilter>(DEFAULT_DATE_FILTER, {
+    nonNullable: true,
+  });
   protected readonly orderPendingCancellation = signal<ServiceOrder | null>(null);
+  protected readonly orderBeingScheduled = signal<ServiceOrder | null>(null);
   protected readonly statusControl = new FormControl<ServiceOrderStatus[]>(DEFAULT_STATUS_FILTERS, {
     nonNullable: true,
   });
@@ -59,6 +73,9 @@ export class ServiceOrdersViewComponent {
     nonNullable: true,
   });
   private readonly searchQuery = toSignal(this.searchControl.valueChanges, { initialValue: '' });
+  private readonly dateFilter = toSignal(this.dateControl.valueChanges, {
+    initialValue: DEFAULT_DATE_FILTER,
+  });
   private readonly statusFilter = toSignal(this.statusControl.valueChanges, {
     initialValue: DEFAULT_STATUS_FILTERS,
   });
@@ -76,6 +93,14 @@ export class ServiceOrdersViewComponent {
       }),
     );
   });
+  protected readonly dateOptions = computed<UiSelectOption[]>(() => {
+    this.activeLanguage();
+
+    return (['today', 'tomorrow', 'this_week', 'all'] as const).map((filter) => ({
+      value: filter,
+      label: this.transloco.translate(`serviceOrders.dateFilters.${filter}`),
+    }));
+  });
   protected readonly typeOptions = computed<UiMultiselectOption[]>(() => {
     this.activeLanguage();
 
@@ -86,6 +111,7 @@ export class ServiceOrdersViewComponent {
   });
   protected readonly filteredOrders = computed(() => {
     const query = normalizeValue(this.searchQuery());
+    const date = this.dateFilter();
     const status = this.statusFilter();
     const type = this.typeFilter();
 
@@ -98,29 +124,48 @@ export class ServiceOrdersViewComponent {
         return false;
       }
 
+      if (!matchesServiceOrderDateFilter(order, date)) {
+        return false;
+      }
+
       return (
         !query ||
         normalizeValue(
           [
-            order.customer.companyName,
-            order.customer.fullName,
-            order.customer.phone,
-            order.customer.email,
-            order.customer.address,
-            order.customer.city,
+            order.companyName,
+            order.fullName,
+            order.phone,
+            order.email,
+            order.address,
+            order.city,
           ].join(' '),
         ).includes(query)
       );
     });
   });
   protected openDetails(order: ServiceOrder): void {
-    void this.router.navigate(['/service-orders', order.id]);
+    void this.router.navigate(['/service-orders', order.id], {
+      state: { fromServiceOrderList: true },
+    });
   }
 
   protected openSchedule(order: ServiceOrder): void {
-    void this.router.navigate(['/service-orders', order.id], {
-      queryParams: { action: 'schedule' },
-    });
+    this.orderBeingScheduled.set(order);
+  }
+
+  protected closeScheduleModal(): void {
+    this.orderBeingScheduled.set(null);
+  }
+
+  protected saveSchedule(scheduledAt: string): void {
+    const order = this.orderBeingScheduled();
+
+    if (!order) {
+      return;
+    }
+
+    this.store.scheduleOrder(order.id, scheduledAt);
+    this.closeScheduleModal();
   }
 
   protected createVisit(order: ServiceOrder): void {
