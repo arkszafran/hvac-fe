@@ -11,7 +11,10 @@
       "save": "Zapisz",
       "saveChanges": "Zapisz zmiany",
       "edit": "Edytuj",
-      "details": "Szczegóły"
+      "details": "Szczegóły",
+      "retry": "Spróbuj ponownie",
+      "confirm": "Zatwierdź",
+      "more": "Więcej"
     },
     "search": {
       "label": "Szukaj"
@@ -466,8 +469,8 @@
     },
     "fields": {
       "search": "Szukaj",
-      "searchPlaceholder": "Klient, telefon, e-mail albo adres",
-      "dateFilter": "Termin wizyty",
+      "searchPlaceholder": "Klient, e-mail, adres albo opiekun",
+      "dateFilter": "Następna akcja",
       "status": "Status",
       "statusPlaceholder": "Wybierz statusy",
       "type": "Rodzaj zlecenia",
@@ -476,7 +479,11 @@
       "customer": "Klient",
       "customerAndAddress": "Klient i adres",
       "orderDate": "Data zlecenia",
-      "date": "Termin wizyty",
+      "date": "Następna akcja",
+      "visitDateTime": "Termin wizyty",
+      "nextAction": "Następna akcja",
+      "nextContactAt": "Data i godzina kolejnego kontaktu",
+      "assignee": "Opiekun",
       "noDate": "Nie ustalono terminu wizyty",
       "phone": "Telefon",
       "email": "E-mail",
@@ -507,7 +514,8 @@
     "sources": {
       "customerPanel": "Panel klienta",
       "websiteForm": "Formularz na stronie",
-      "user": "Użytkownik"
+      "user": "Użytkownik",
+      "system": "System"
     },
     "confirmation": {
       "confirmed": "Klient potwierdził",
@@ -517,8 +525,24 @@
       "setDate": "Ustal termin wizyty",
       "changeDate": "Zmień termin wizyty",
       "createVisit": "Utwórz wizytę",
+      "complete": "Zrealizuj",
       "call": "Zadzwoń",
-      "addNote": "Dodaj notatkę"
+      "addNote": "Dodaj notatkę",
+      "actions": "Akcje",
+      "openMenu": "Otwórz menu akcji",
+      "menuLabel": "Akcje zlecenia",
+      "setNextContact": "Ustal kolejny kontakt",
+      "assignAssignee": "Przypisz opiekuna",
+      "customerCancelled": "Klient zrezygnował"
+    },
+    "nextAction": {
+      "today": "Dziś",
+      "scheduledVisit": "Zaplanowana wizyta",
+      "callCustomer": "Zadzwoń do klienta",
+      "scheduledCall": "Zadzwoń do klienta w dniu"
+    },
+    "assignee": {
+      "unassigned": "Nie przypisano"
     },
     "table": {
       "openDetailsAria": "Otwórz szczegóły zlecenia klienta {{customer}}"
@@ -546,7 +570,7 @@
     "details": {
       "backToList": "Wróć do zleceń",
       "orderDateSummary": "Data zlecenia: {{date}}",
-      "dateSummary": "Termin wizyty: {{date}}",
+      "dateSummary": "Następna akcja: {{date}}",
       "actionsLabel": "Akcje zlecenia",
       "customer": "Dane klienta",
       "installationTitle": "Szczegóły montażu",
@@ -577,7 +601,7 @@
     },
     "scheduleModal": {
       "title": "Ustal termin wizyty",
-      "description": "Wybierz dzień, w którym instalator ma pojawić się u klienta.",
+      "description": "Wybierz dzień i godzinę, o której instalator ma pojawić się u klienta.",
       "validation": "Termin wizyty jest wymagany."
     },
     "noteModal": {
@@ -586,6 +610,25 @@
       "label": "Treść notatki",
       "placeholder": "Wpisz najważniejsze ustalenia",
       "validation": "Treść notatki jest wymagana."
+    },
+    "notePreview": {
+      "title": "Notatka do zlecenia"
+    },
+    "nextContactModal": {
+      "title": "Ustal kolejny kontakt",
+      "description": "Wybierz datę i godzinę kontaktu oraz zapisz ustalenia w notatce.",
+      "dateValidation": "Data i godzina kolejnego kontaktu są wymagane.",
+      "notePlaceholder": "Wpisz ustalenia dotyczące kolejnego kontaktu"
+    },
+    "assigneeModal": {
+      "title": "Przypisz opiekuna",
+      "description": "Wybierz osobę odpowiedzialną za dalszą obsługę zlecenia.",
+      "searchLabel": "Szukaj osoby",
+      "searchPlaceholder": "Imię, nazwisko lub e-mail",
+      "loading": "Pobieranie użytkowników…",
+      "error": "Nie udało się pobrać listy użytkowników.",
+      "empty": "Nie znaleziono pasujących osób.",
+      "usersLabel": "Lista użytkowników"
     },
     "deviceFlow": {
       "attachExistingTitle": "Dołączyć urządzenie do istniejącego przeglądu?",

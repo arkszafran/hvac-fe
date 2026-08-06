@@ -8,12 +8,17 @@ import {
   CreateTenantDto,
   CreateTenantResponseDto,
   SetupNewUserCredentialsDto,
+  UsersListResponseDto,
   UsersSuccessResponseDto,
 } from './users.model';
 
 @Injectable({ providedIn: 'root' })
 export class UsersApi {
   private readonly api = inject(ApiClientService);
+
+  getUsers(options?: ApiRequestOptions): Observable<UsersListResponseDto> {
+    return this.api.get<UsersListResponseDto>('/users', options);
+  }
 
   createTenant(
     body: CreateTenantDto,

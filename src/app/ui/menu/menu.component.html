@@ -13,10 +13,13 @@
 
 @if (isOpen()) {
   <div
+    #menuPanel
     [id]="menuId"
     role="menu"
     [attr.aria-label]="menuLabel() ?? triggerLabel()"
     [class]="menuPanelClasses()"
+    [style.top]="isOpeningUpward() ? 'auto' : null"
+    [style.bottom]="isOpeningUpward() ? 'calc(100% + 0.5rem)' : null"
     (click)="handleMenuClick()"
   >
     <ng-content />

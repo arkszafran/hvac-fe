@@ -12,26 +12,46 @@
                 | transloco: { date: formatDate(details.order.orderDate) }
             }}
           </p>
-          <p class="text-body text-text-muted">
-            {{
-              'serviceOrders.details.dateSummary'
-                | transloco: { date: formatDate(details.order.scheduledAt) }
-            }}
-          </p>
-          @if (details.order.serviceData.type === 'inspection') {
-            @switch (details.order.serviceData.customerConfirmationStatus) {
-              @case ('confirmed') {
-                <ui-badge variant="success">
-                  {{ 'serviceOrders.confirmation.confirmed' | transloco }}
-                </ui-badge>
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-body">
+            <span class="text-text-muted"
+              >{{ 'serviceOrders.fields.nextAction' | transloco }}:</span
+            >
+            @if (details.order.scheduledAt) {
+              <span class="font-semibold text-text-main">
+                {{ formatNextActionDate(details.order.scheduledAt) }}
+              </span>
+              @if (details.order.status === 'scheduled') {
+                <span class="text-small font-medium text-text-muted">
+                  {{ 'serviceOrders.nextAction.scheduledVisit' | transloco }}
+                </span>
               }
-              @case ('not_confirmed') {
-                <ui-badge variant="warning">
-                  {{ 'serviceOrders.confirmation.notConfirmed' | transloco }}
-                </ui-badge>
+              @if (confirmationLabelKey(details.order); as confirmationKey) {
+                <span class="text-small font-medium text-text-muted">
+                  {{ confirmationKey | transloco }}
+                </span>
               }
+              @if (details.order.status === 'contact_required') {
+                <span class="text-small font-semibold text-text-main">
+                  {{ 'serviceOrders.nextAction.callCustomer' | transloco }}
+                </span>
+              }
+            } @else if (details.order.nextContactAt) {
+              <span class="font-semibold text-text-main">
+                <span class="block">{{
+                  'serviceOrders.nextAction.scheduledCall' | transloco
+                }}</span>
+                <span class="mt-1 block">
+                  {{ formatNextActionDate(details.order.nextContactAt) }}
+                </span>
+              </span>
+            } @else if (details.order.status === 'contact_required') {
+              <span class="font-semibold text-text-main">
+                {{ 'serviceOrders.nextAction.callCustomer' | transloco }}
+              </span>
+            } @else {
+              <span class="text-text-muted">--</span>
             }
-          }
+          </div>
         </div>
       </div>
 
@@ -46,30 +66,28 @@
     </section>
 
     <section
-      class="flex flex-wrap gap-2"
+      class="flex flex-wrap items-center gap-2"
       [attr.aria-label]="'serviceOrders.details.actionsLabel' | transloco"
     >
+      <a
+        [href]="phoneHref(details.order.phone)"
+        class="ui-focus-ring inline-flex min-h-10 items-center justify-center rounded-[0.95rem] border border-border/75 bg-white px-3.5 text-label font-semibold text-primary-strong transition hover:bg-primary-soft/60 active:bg-primary-soft/60"
+      >
+        {{ 'serviceOrders.actions.call' | transloco }}
+      </a>
       @if (canChangeOrder(details.order)) {
-        <ui-button variant="secondary" (pressed)="openSchedule()">
-          {{
-            (details.order.scheduledAt
-              ? 'serviceOrders.actions.changeDate'
-              : 'serviceOrders.actions.setDate'
-            ) | transloco
-          }}
+        <ui-button size="sm" (pressed)="createVisit()">
+          {{ 'serviceOrders.actions.complete' | transloco }}
         </ui-button>
       }
-      <ui-button variant="secondary" (pressed)="openNote()">
-        {{ 'serviceOrders.actions.addNote' | transloco }}
-      </ui-button>
-      @if (canChangeOrder(details.order)) {
-        <ui-button (pressed)="createVisit()">{{
-          'serviceOrders.actions.createVisit' | transloco
-        }}</ui-button>
-        <ui-button variant="ghost" (pressed)="cancelOrder()">{{
-          'common.actions.cancel' | transloco
-        }}</ui-button>
-      }
+      <app-service-order-actions-menu
+        [order]="details.order"
+        (scheduleRequested)="openSchedule()"
+        (nextContactRequested)="isNextContactModalOpen.set(true)"
+        (noteRequested)="openNote()"
+        (assigneeRequested)="isAssigneeModalOpen.set(true)"
+        (cancellationRequested)="isCancellationModalOpen.set(true)"
+      />
     </section>
 
     <section class="grid gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
@@ -135,6 +153,16 @@
               {{ 'serviceOrders.fields.source' | transloco }}
             </dt>
             <dd class="text-label text-text-main">{{ getSourceLabel(details.order) }}</dd>
+          </div>
+          <div>
+            <dt class="text-small font-semibold text-text-muted">
+              {{ 'serviceOrders.fields.assignee' | transloco }}
+            </dt>
+            <dd class="text-label text-text-main">
+              {{
+                details.order.assignee?.name || ('serviceOrders.assignee.unassigned' | transloco)
+              }}
+            </dd>
           </div>
         </dl>
       </ui-card>
@@ -219,35 +247,46 @@
       (saved)="saveSchedule($event)"
     />
 
-    <ui-modal
+    <app-service-order-next-contact-modal
+      [open]="isNextContactModalOpen()"
+      [nextContactAt]="details.order.nextContactAt || ''"
+      (close)="isNextContactModalOpen.set(false)"
+      (saved)="saveNextContact($event)"
+    />
+
+    <app-service-order-note-modal
       [open]="isNoteModalOpen()"
-      [title]="'serviceOrders.noteModal.title' | transloco"
-      [description]="'serviceOrders.noteModal.description' | transloco"
       (close)="isNoteModalOpen.set(false)"
+      (saved)="saveNote($event)"
+    />
+
+    <app-service-order-assignee-modal
+      [open]="isAssigneeModalOpen()"
+      [currentAssignee]="details.order.assignee"
+      (close)="isAssigneeModalOpen.set(false)"
+      (assigned)="assignUser($event)"
+    />
+
+    <ui-modal
+      [open]="isCancellationModalOpen()"
+      [title]="'serviceOrders.cancelModal.title' | transloco"
+      [description]="
+        'serviceOrders.cancelModal.description'
+          | transloco: { customer: details.order.companyName || details.order.fullName || '--' }
+      "
+      (close)="isCancellationModalOpen.set(false)"
     >
-      <label class="block">
-        <span class="text-label text-text-main">{{
-          'serviceOrders.noteModal.label' | transloco
-        }}</span>
-        <textarea
-          class="mt-2"
-          [class]="textareaClasses"
-          [formControl]="noteControl"
-          [attr.placeholder]="'serviceOrders.noteModal.placeholder' | transloco"
-        ></textarea>
-      </label>
-      @if (noteControl.invalid && noteControl.touched) {
-        <p class="mt-2 text-small text-danger">
-          {{ 'serviceOrders.noteModal.validation' | transloco }}
-        </p>
-      }
+      <p class="text-body text-text-main">
+        {{ 'serviceOrders.cancelModal.warning' | transloco }}
+      </p>
+
       <div modal-footer class="grid gap-3 sm:grid-cols-2">
-        <ui-button variant="ghost" [block]="true" (pressed)="isNoteModalOpen.set(false)">{{
-          'common.actions.cancel' | transloco
-        }}</ui-button>
-        <ui-button [block]="true" (pressed)="saveNote()">{{
-          'common.actions.save' | transloco
-        }}</ui-button>
+        <ui-button variant="ghost" [block]="true" (pressed)="isCancellationModalOpen.set(false)">
+          {{ 'serviceOrders.cancelModal.back' | transloco }}
+        </ui-button>
+        <ui-button variant="danger" [block]="true" (pressed)="confirmCancellation()">
+          {{ 'serviceOrders.cancelModal.confirm' | transloco }}
+        </ui-button>
       </div>
     </ui-modal>
   } @else {

@@ -7,11 +7,11 @@ import {
   signal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { map } from 'rxjs';
 
+import { UserListItemDto } from '../../../../common/api/users';
 import {
   UiBadgeComponent,
   UiButtonComponent,
@@ -26,6 +26,7 @@ import {
   formatServiceOrderCustomerAddress,
   formatServiceOrderCustomerName,
   formatServiceOrderDate,
+  formatServiceOrderNextActionDateTime,
   getServiceOrderSourceLabel,
   getServiceOrderStatusLabel,
   getServiceOrderStatusVariant,
@@ -36,24 +37,31 @@ import {
 } from '../../utils/service-order-ui.util';
 import { ServiceOrderInspectionDetailsComponent } from '../service-order-inspection-details/service-order-inspection-details.component';
 import { ServiceOrderInstallationDetailsComponent } from '../service-order-installation-details/service-order-installation-details.component';
+import { ServiceOrderActionsMenuComponent } from '../service-order-actions-menu/service-order-actions-menu.component';
+import { ServiceOrderAssigneeModalComponent } from '../service-order-assignee-modal/service-order-assignee-modal.component';
+import {
+  ServiceOrderNextContactFormValue,
+  ServiceOrderNextContactModalComponent,
+} from '../service-order-next-contact-modal/service-order-next-contact-modal.component';
+import { ServiceOrderNoteModalComponent } from '../service-order-note-modal/service-order-note-modal.component';
 import { ServiceOrderRepairDetailsComponent } from '../service-order-repair-details/service-order-repair-details.component';
 import { ServiceOrderScheduleModalComponent } from '../service-order-schedule-modal/service-order-schedule-modal.component';
-
-const TEXTAREA_CLASSES =
-  'ui-focus-ring block min-h-32 w-full rounded-[0.95rem] border border-border/90 bg-white px-4 py-3.5 text-[15px]/6 text-text-main transition placeholder:text-text-muted/78 hover:border-primary/24 focus:border-primary';
 
 @Component({
   selector: 'app-service-order-detail-view',
   imports: [
-    ReactiveFormsModule,
     TranslocoPipe,
     UiBadgeComponent,
     UiButtonComponent,
     UiCardComponent,
     UiEmptyStateComponent,
     UiModalComponent,
+    ServiceOrderActionsMenuComponent,
+    ServiceOrderAssigneeModalComponent,
     ServiceOrderInspectionDetailsComponent,
     ServiceOrderInstallationDetailsComponent,
+    ServiceOrderNextContactModalComponent,
+    ServiceOrderNoteModalComponent,
     ServiceOrderRepairDetailsComponent,
     ServiceOrderScheduleModalComponent,
   ],
@@ -72,15 +80,13 @@ export class ServiceOrderDetailViewComponent {
 
   readonly closeRequested = output<void>();
 
-  protected readonly textareaClasses = TEXTAREA_CLASSES;
   protected readonly isScheduleModalOpen = signal(
     this.route.snapshot.queryParamMap.get('action') === 'schedule',
   );
+  protected readonly isAssigneeModalOpen = signal(false);
+  protected readonly isCancellationModalOpen = signal(false);
+  protected readonly isNextContactModalOpen = signal(false);
   protected readonly isNoteModalOpen = signal(false);
-  protected readonly noteControl = new FormControl('', {
-    nonNullable: true,
-    validators: [Validators.required],
-  });
   protected readonly orderId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('serviceOrderId') ?? '')),
     { initialValue: this.route.snapshot.paramMap.get('serviceOrderId') ?? '' },
@@ -117,6 +123,26 @@ export class ServiceOrderDetailViewComponent {
     return formatServiceOrderDate(value, this.transloco.getActiveLang());
   }
 
+  protected formatNextActionDate(value: string): string {
+    this.activeLanguage();
+    const formatted = formatServiceOrderNextActionDateTime(value, this.transloco.getActiveLang());
+    const date = formatted.isToday
+      ? this.transloco.translate('serviceOrders.nextAction.today')
+      : formatted.date;
+
+    return `${date}, ${formatted.time}`;
+  }
+
+  protected confirmationLabelKey(order: ServiceOrder): string {
+    if (order.serviceData.type !== 'inspection' || order.source !== 'system') {
+      return '';
+    }
+
+    return order.serviceData.customerConfirmationStatus === 'confirmed'
+      ? 'serviceOrders.confirmation.confirmed'
+      : 'serviceOrders.confirmation.notConfirmed';
+  }
+
   protected canChangeOrder(order: ServiceOrder): boolean {
     return order.status !== 'completed' && order.status !== 'cancelled';
   }
@@ -140,18 +166,25 @@ export class ServiceOrderDetailViewComponent {
   }
 
   protected openNote(): void {
-    this.noteControl.reset('');
     this.isNoteModalOpen.set(true);
   }
 
-  protected saveNote(): void {
-    if (this.noteControl.invalid) {
-      this.noteControl.markAsTouched();
-      return;
-    }
-
-    this.store.addNote(this.orderId(), this.noteControl.getRawValue());
+  protected saveNote(content: string): void {
+    this.store.addNote(this.orderId(), content);
     this.isNoteModalOpen.set(false);
+  }
+
+  protected saveNextContact(value: ServiceOrderNextContactFormValue): void {
+    this.store.scheduleNextContact(this.orderId(), value.nextContactAt, value.note);
+    this.isNextContactModalOpen.set(false);
+  }
+
+  protected assignUser(user: UserListItemDto): void {
+    this.store.assignAssignee(this.orderId(), user.id, {
+      name: user.name,
+      email: user.email,
+    });
+    this.isAssigneeModalOpen.set(false);
   }
 
   protected createVisit(): void {
@@ -160,8 +193,9 @@ export class ServiceOrderDetailViewComponent {
     });
   }
 
-  protected cancelOrder(): void {
+  protected confirmCancellation(): void {
     this.store.cancelOrder(this.orderId());
+    this.isCancellationModalOpen.set(false);
   }
 
   protected backToList(): void {

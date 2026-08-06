@@ -1,0 +1,28 @@
+<ui-modal
+  [open]="open()"
+  [title]="'serviceOrders.noteModal.title' | transloco"
+  [description]="'serviceOrders.noteModal.description' | transloco"
+  (close)="close.emit()"
+>
+  <label class="block">
+    <span class="text-label text-text-main">{{ 'serviceOrders.noteModal.label' | transloco }}</span>
+    <textarea
+      [class]="textareaClasses"
+      [formControl]="noteControl"
+      [attr.placeholder]="'serviceOrders.noteModal.placeholder' | transloco"
+    ></textarea>
+  </label>
+  @if (noteControl.invalid && noteControl.touched) {
+    <p class="mt-2 text-small text-danger">
+      {{ 'serviceOrders.noteModal.validation' | transloco }}
+    </p>
+  }
+  <div modal-footer class="grid gap-3 sm:grid-cols-2">
+    <ui-button variant="ghost" [block]="true" (pressed)="close.emit()">
+      {{ 'common.actions.cancel' | transloco }}
+    </ui-button>
+    <ui-button [block]="true" (pressed)="saveNote()">
+      {{ 'common.actions.save' | transloco }}
+    </ui-button>
+  </div>
+</ui-modal>

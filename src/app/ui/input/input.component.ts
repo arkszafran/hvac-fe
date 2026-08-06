@@ -12,7 +12,16 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 import { classNames } from '../utils/classnames';
 
-type UiInputType = 'text' | 'email' | 'tel' | 'number' | 'password' | 'search' | 'date';
+type UiInputType =
+  | 'text'
+  | 'email'
+  | 'tel'
+  | 'number'
+  | 'password'
+  | 'search'
+  | 'date'
+  | 'time'
+  | 'datetime-local';
 
 let nextInputId = 0;
 

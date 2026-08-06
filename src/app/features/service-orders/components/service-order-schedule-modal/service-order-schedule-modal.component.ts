@@ -3,6 +3,7 @@ import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 import { UiButtonComponent, UiInputComponent, UiModalComponent } from '../../../../ui';
+import { toServiceOrderDateTimeLocalValue } from '../../utils/service-order-ui.util';
 
 @Component({
   selector: 'app-service-order-schedule-modal',
@@ -33,7 +34,7 @@ export class ServiceOrderScheduleModalComponent {
         return;
       }
 
-      this.scheduleControl.setValue(this.scheduledAt());
+      this.scheduleControl.setValue(toServiceOrderDateTimeLocalValue(this.scheduledAt()));
       this.scheduleControl.markAsUntouched();
     });
   }

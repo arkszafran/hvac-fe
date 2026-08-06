@@ -7,6 +7,7 @@ import { SERVICE_ORDER_MOCK_DATA } from './service-order.mock';
 import {
   CustomerConfirmationStatus,
   ServiceOrder,
+  ServiceOrderAssignee,
   ServiceOrderCustomer,
   ServiceOrderDevice,
   ServiceOrderNote,
@@ -136,7 +137,9 @@ export class ServiceOrdersStore {
     const customer = this.customersStore.getCustomerById(input.customerId);
     const deviceIds = Array.from(new Set(input.deviceIds.map((id) => id.trim()).filter(Boolean)));
 
-    if (!customer || !deviceIds.length || !input.scheduledAt.trim()) {
+    const scheduledAt = normalizeDateTime(input.scheduledAt);
+
+    if (!customer || !deviceIds.length || !scheduledAt) {
       return undefined;
     }
 
@@ -154,7 +157,7 @@ export class ServiceOrdersStore {
         customerConfirmationStatus: 'pending',
       },
       orderDate: now,
-      scheduledAt: input.scheduledAt.trim(),
+      scheduledAt,
       createdAt: now,
       updatedAt: now,
     };
@@ -165,13 +168,58 @@ export class ServiceOrdersStore {
   }
 
   scheduleOrder(orderId: string, scheduledAt: string): ServiceOrder | undefined {
-    const normalizedDate = scheduledAt.trim();
+    const normalizedDate = normalizeDateTime(scheduledAt);
 
     if (!normalizedDate) {
       return undefined;
     }
 
-    return this.patchOrder(orderId, { scheduledAt: normalizedDate, status: 'scheduled' });
+    return this.patchOrder(orderId, {
+      scheduledAt: normalizedDate,
+      nextContactAt: undefined,
+      status: 'scheduled',
+    });
+  }
+
+  scheduleNextContact(
+    orderId: string,
+    nextContactAt: string,
+    noteContent: string,
+  ): ServiceOrder | undefined {
+    const normalizedDate = normalizeDateTime(nextContactAt);
+
+    if (!normalizedDate) {
+      return undefined;
+    }
+
+    const order = this.getOrderById(orderId);
+
+    if (!order) {
+      return undefined;
+    }
+
+    const updatedOrder = this.patchOrder(orderId, {
+      nextContactAt: normalizedDate,
+      status: order.scheduledAt ? order.status : 'contact_required',
+    });
+
+    if (noteContent.trim()) {
+      this.addNote(orderId, noteContent);
+    }
+
+    return updatedOrder;
+  }
+
+  assignAssignee(
+    orderId: string,
+    userId: string,
+    assignee: ServiceOrderAssignee,
+  ): ServiceOrder | undefined {
+    if (!userId.trim()) {
+      return undefined;
+    }
+
+    return this.patchOrder(orderId, { assignee });
   }
 
   completeOrder(orderId: string): ServiceOrder | undefined {
@@ -357,7 +405,7 @@ export class ServiceOrdersStore {
           ? {
               id: seed.id,
               type: 'inspection',
-              source: 'user',
+              source: 'system',
               status: seed.status,
               ...toServiceOrderCustomer(customer),
               serviceData: {
@@ -367,7 +415,7 @@ export class ServiceOrdersStore {
                 customerConfirmationStatus: seed.confirmation,
               },
               orderDate: now,
-              scheduledAt: seed.date,
+              scheduledAt: normalizeDateTime(seed.date),
               createdAt: now,
               updatedAt: now,
             }
@@ -421,4 +469,10 @@ function createInitialNotes(): ServiceOrderNote[] {
 
 function createEntityId(prefix: string): string {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function normalizeDateTime(value: string): string {
+  const normalizedValue = value.trim();
+
+  return /^\d{4}-\d{2}-\d{2}$/.test(normalizedValue) ? `${normalizedValue}T09:00` : normalizedValue;
 }

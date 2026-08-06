@@ -1,7 +1,8 @@
-@if (orders().length) {
-  <div class="overflow-hidden rounded-[1.1rem] border border-border/90 bg-white shadow-card">
+@if (items().length) {
+  <div class="rounded-[1.1rem] border border-border/90 bg-white shadow-card">
     <div class="min-[1200px]:hidden">
-      @for (order of orders(); track order.id) {
+      @for (item of items(); track item.order.id) {
+        @let order = item.order;
         <article
           class="cursor-pointer space-y-4 border-b border-border/80 px-4 py-4 outline-none transition last:border-b-0 hover:bg-primary-soft/20 focus-visible:bg-primary-soft/20"
           tabindex="0"
@@ -17,11 +18,6 @@
             <ui-badge [variant]="getStatusVariant(order.status)">{{
               getStatusLabel(order)
             }}</ui-badge>
-            @if (confirmationLabelKey(order); as confirmationKey) {
-              <p class="basis-full pt-1 text-small font-medium whitespace-nowrap text-text-muted">
-                {{ confirmationKey | transloco }}
-              </p>
-            }
           </div>
 
           <div>
@@ -31,7 +27,7 @@
                 [href]="href"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="ui-focus-ring text-small text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
+                class="ui-focus-ring text-small text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary"
                 (click)="$event.stopPropagation()"
               >
                 {{ formatCustomerAddress(order) }}
@@ -39,103 +35,128 @@
             } @else {
               <p class="text-small text-text-muted">--</p>
             }
+            <p class="mt-2 text-small text-text-muted">
+              <span class="font-semibold">{{ 'serviceOrders.fields.orderDate' | transloco }}:</span>
+              {{ formatDate(order.orderDate) }}
+            </p>
+            <p class="mt-2 text-small text-text-muted">
+              <span class="font-semibold">{{ 'serviceOrders.fields.assignee' | transloco }}:</span>
+              {{ order.assignee?.name || ('serviceOrders.assignee.unassigned' | transloco) }}
+            </p>
           </div>
 
-          <div class="grid grid-cols-2 gap-3 text-small sm:grid-cols-3">
-            <div>
-              <p class="font-semibold text-text-muted">
-                {{ 'serviceOrders.fields.orderDate' | transloco }}
-              </p>
-              <p class="mt-1 text-text-main">{{ formatDate(order.orderDate) }}</p>
+          <div class="rounded-[0.95rem] border border-border/70 bg-surface-muted/55 p-3">
+            <p class="text-small font-semibold text-text-muted">
+              {{ 'serviceOrders.fields.nextAction' | transloco }}
+            </p>
+            <div class="mt-1 flex flex-wrap items-center gap-2">
+              @if (order.scheduledAt) {
+                <p class="text-label font-semibold text-text-main">
+                  {{ formatNextActionDate(order.scheduledAt) }}
+                </p>
+                @if (order.status === 'scheduled') {
+                  <span class="text-small font-medium text-text-muted">
+                    {{ 'serviceOrders.nextAction.scheduledVisit' | transloco }}
+                  </span>
+                }
+                @if (confirmationLabelKey(order); as confirmationKey) {
+                  <span class="text-small font-medium text-text-muted">
+                    {{ confirmationKey | transloco }}
+                  </span>
+                }
+                @if (order.status === 'contact_required') {
+                  <span class="text-small font-semibold text-text-main">
+                    {{ 'serviceOrders.nextAction.callCustomer' | transloco }}
+                  </span>
+                }
+              } @else if (order.nextContactAt) {
+                <p class="text-label font-semibold text-text-main">
+                  <span class="block">{{
+                    'serviceOrders.nextAction.scheduledCall' | transloco
+                  }}</span>
+                  <span class="mt-1 block">{{ formatNextActionDate(order.nextContactAt) }}</span>
+                </p>
+              } @else if (order.status === 'contact_required') {
+                <p class="text-label font-semibold text-text-main">
+                  {{ 'serviceOrders.nextAction.callCustomer' | transloco }}
+                </p>
+              } @else {
+                <p class="text-label text-text-muted">--</p>
+              }
             </div>
-            <div>
-              <p class="font-semibold text-text-muted">
-                {{ 'serviceOrders.fields.date' | transloco }}
-              </p>
-              <p class="mt-1 text-text-main">{{ formatDate(order.scheduledAt) }}</p>
-            </div>
-            <div>
-              <p class="font-semibold text-text-muted">
-                {{ 'serviceOrders.fields.phone' | transloco }}
-              </p>
-              <a
-                [href]="phoneHref(order.phone)"
-                class="ui-focus-ring inline-flex min-h-11 items-start pt-1 text-primary-strong underline decoration-primary/35 underline-offset-4"
-                (click)="$event.stopPropagation()"
-              >
-                {{ order.phone || '--' }}
-              </a>
-            </div>
+            @if (item.notes[0]; as note) {
+              <div class="mt-2 flex min-w-0 items-center gap-2">
+                <p class="min-w-0 flex-1 truncate text-small text-text-muted">{{ note.content }}</p>
+                <button
+                  type="button"
+                  class="ui-focus-ring min-h-11 shrink-0 rounded-lg px-2 text-small font-semibold text-primary-strong"
+                  (click)="openFullNote($event, note)"
+                >
+                  {{ 'common.actions.more' | transloco }}
+                </button>
+              </div>
+            }
           </div>
 
-          <div class="flex flex-wrap gap-2">
+          <div class="flex flex-wrap items-center gap-2">
+            <a
+              [href]="phoneHref(order.phone)"
+              class="ui-focus-ring inline-flex min-h-10 items-center justify-center rounded-[0.95rem] border border-border/75 bg-white px-3.5 text-label font-semibold text-primary-strong transition active:bg-primary-soft/60"
+              (click)="$event.stopPropagation()"
+            >
+              {{ 'serviceOrders.actions.call' | transloco }}
+            </a>
             @if (canChangeOrder(order)) {
-              <ui-button
-                size="sm"
-                variant="ghost"
-                (pressed)="$event.stopPropagation(); scheduleRequested.emit(order)"
-              >
-                {{
-                  (order.scheduledAt
-                    ? 'serviceOrders.actions.changeDate'
-                    : 'serviceOrders.actions.setDate'
-                  ) | transloco
-                }}
-              </ui-button>
               <ui-button size="sm" (pressed)="$event.stopPropagation(); visitRequested.emit(order)">
-                {{ 'serviceOrders.actions.createVisit' | transloco }}
-              </ui-button>
-              <ui-button
-                size="sm"
-                variant="danger"
-                (pressed)="$event.stopPropagation(); cancellationRequested.emit(order)"
-              >
-                {{ 'common.actions.cancel' | transloco }}
+                {{ 'serviceOrders.actions.complete' | transloco }}
               </ui-button>
             }
+            <app-service-order-actions-menu
+              [order]="order"
+              (scheduleRequested)="scheduleRequested.emit(order)"
+              (nextContactRequested)="nextContactRequested.emit(order)"
+              (noteRequested)="noteRequested.emit(order)"
+              (assigneeRequested)="assigneeRequested.emit(order)"
+              (cancellationRequested)="cancellationRequested.emit(order)"
+            />
           </div>
         </article>
       }
     </div>
 
-    <div class="hidden overflow-x-auto min-[1200px]:block">
-      <table class="min-w-full border-separate border-spacing-0">
+    <div class="hidden w-full min-w-0 min-[1200px]:block">
+      <table class="w-full table-fixed border-separate border-spacing-0">
         <thead>
           <tr>
             <th
-              class="w-32 min-w-32 border-b border-border/90 px-4 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
-            >
-              {{ 'serviceOrders.fields.typeAndStatus' | transloco }}
-            </th>
+              class="w-[14%] border-b border-border/90 px-3 py-4"
+              [attr.aria-label]="'serviceOrders.fields.typeAndStatus' | transloco"
+            ></th>
             <th
-              class="w-[34%] border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
+              class="w-[24%] border-b border-border/90 px-4 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
             >
               {{ 'serviceOrders.fields.customerAndAddress' | transloco }}
             </th>
             <th
-              class="border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
+              class="w-[24%] border-b border-border/90 px-4 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
             >
-              {{ 'serviceOrders.fields.orderDate' | transloco }}
+              {{ 'serviceOrders.fields.nextAction' | transloco }}
             </th>
             <th
-              class="border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
+              class="w-[21%] border-b border-border/90 px-3 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
             >
-              {{ 'serviceOrders.fields.date' | transloco }}
+              {{ 'serviceOrders.fields.assignee' | transloco }}
             </th>
             <th
-              class="border-b border-border/90 px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
-            >
-              {{ 'serviceOrders.fields.phone' | transloco }}
-            </th>
-            <th
-              class="w-36 border-b border-border/90 px-3 py-4 text-right text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
+              class="w-[17%] border-b border-border/90 px-3 py-4 text-right text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted"
             >
               {{ 'serviceOrders.fields.actions' | transloco }}
             </th>
           </tr>
         </thead>
         <tbody>
-          @for (order of orders(); track order.id) {
+          @for (item of items(); track item.order.id) {
+            @let order = item.order;
             <tr
               class="group/row cursor-pointer outline-none transition focus-visible:bg-primary-soft/20"
               tabindex="0"
@@ -148,96 +169,132 @@
               (keydown)="handleRowKeydown($event, order)"
             >
               <td
-                class="border-b border-border/80 px-4 py-4 align-top group-hover/row:bg-primary-soft/18"
+                class="min-w-0 overflow-hidden border-b border-border/80 px-3 py-4 align-top group-hover/row:bg-primary-soft/18"
               >
-                <div class="w-24 space-y-2">
-                  <p class="text-[15px]/5 font-semibold tracking-[-0.01em] text-text-main">
+                <div class="space-y-2">
+                  <p class="text-[15px]/5 font-semibold text-text-main">
                     {{ getTypeLabel(order) }}
                   </p>
                   <ui-badge [variant]="getStatusVariant(order.status)">{{
                     getStatusLabel(order)
                   }}</ui-badge>
-                  @if (confirmationLabelKey(order); as confirmationKey) {
-                    <p class="pt-1 text-small leading-5 font-medium text-text-muted">
-                      {{ confirmationKey | transloco }}
-                    </p>
-                  }
                 </div>
               </td>
               <td
-                class="border-b border-border/80 px-5 py-4 align-top group-hover/row:bg-primary-soft/18"
+                class="min-w-0 overflow-hidden border-b border-border/80 px-4 py-4 align-top group-hover/row:bg-primary-soft/18"
               >
-                <p class="text-label text-text-main">{{ formatCustomerName(order) }}</p>
+                <p class="truncate text-label text-text-main">{{ formatCustomerName(order) }}</p>
                 @if (mapHref(order); as href) {
                   <a
                     [href]="href"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="ui-focus-ring mt-1 inline-block max-w-[28rem] text-small text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
+                    class="ui-focus-ring mt-1 block max-w-full truncate text-small text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary"
                     (click)="$event.stopPropagation()"
+                    >{{ formatCustomerAddress(order) }}</a
                   >
-                    {{ formatCustomerAddress(order) }}
-                  </a>
                 } @else {
                   <p class="mt-1 text-small text-text-muted">--</p>
                 }
               </td>
               <td
-                class="border-b border-border/80 px-5 py-4 align-top whitespace-nowrap text-label text-text-main group-hover/row:bg-primary-soft/18"
+                class="min-w-0 overflow-hidden border-b border-border/80 px-4 py-4 align-top group-hover/row:bg-primary-soft/18"
               >
-                {{ formatDate(order.orderDate) }}
-              </td>
-              <td
-                class="border-b border-border/80 px-5 py-4 align-top text-label text-text-main group-hover/row:bg-primary-soft/18"
-              >
-                <div class="flex min-w-32 flex-col items-start gap-2">
-                  <span>{{ formatDate(order.scheduledAt) }}</span>
-                  @if (canChangeOrder(order)) {
-                    <ui-button
-                      size="xs"
-                      variant="ghost"
-                      (pressed)="$event.stopPropagation(); scheduleRequested.emit(order)"
-                    >
-                      {{
-                        (order.scheduledAt
-                          ? 'serviceOrders.actions.changeDate'
-                          : 'serviceOrders.actions.setDate'
-                        ) | transloco
-                      }}
-                    </ui-button>
+                <div class="flex min-w-0 flex-wrap items-start gap-x-2 gap-y-1.5">
+                  @if (order.scheduledAt) {
+                    <span class="max-w-full break-words text-label font-semibold text-text-main">{{
+                      formatNextActionDate(order.scheduledAt)
+                    }}</span>
+                    @if (order.status === 'scheduled') {
+                      <span class="text-small font-medium text-text-muted">
+                        {{ 'serviceOrders.nextAction.scheduledVisit' | transloco }}
+                      </span>
+                    }
+                    @if (confirmationLabelKey(order); as confirmationKey) {
+                      <span class="text-small font-medium text-text-muted">
+                        {{ confirmationKey | transloco }}
+                      </span>
+                    }
+                    @if (order.status === 'contact_required') {
+                      <span class="text-small font-semibold text-text-main">
+                        {{ 'serviceOrders.nextAction.callCustomer' | transloco }}
+                      </span>
+                    }
+                  } @else if (order.nextContactAt) {
+                    <span class="max-w-full break-words text-label font-semibold text-text-main">
+                      <span class="block">{{
+                        'serviceOrders.nextAction.scheduledCall' | transloco
+                      }}</span>
+                      <span class="mt-1 block">{{
+                        formatNextActionDate(order.nextContactAt)
+                      }}</span>
+                    </span>
+                  } @else if (order.status === 'contact_required') {
+                    <span class="text-label font-semibold text-text-main">{{
+                      'serviceOrders.nextAction.callCustomer' | transloco
+                    }}</span>
+                  } @else {
+                    <span class="text-label text-text-muted">--</span>
                   }
                 </div>
+                @if (item.notes[0]; as note) {
+                  <div class="mt-2 flex w-full min-w-0 items-center gap-1 overflow-hidden">
+                    <p class="min-w-0 flex-1 truncate text-small text-text-muted">
+                      {{ note.content }}
+                    </p>
+                    <button
+                      type="button"
+                      class="ui-focus-ring min-h-8 shrink-0 rounded-lg px-2 text-small font-semibold text-primary-strong"
+                      (click)="openFullNote($event, note)"
+                    >
+                      {{ 'common.actions.more' | transloco }}
+                    </button>
+                  </div>
+                }
               </td>
               <td
-                class="border-b border-border/80 px-5 py-4 align-top group-hover/row:bg-primary-soft/18"
+                class="min-w-0 overflow-hidden border-b border-border/80 px-3 py-4 align-top group-hover/row:bg-primary-soft/18"
               >
-                <a
-                  [href]="phoneHref(order.phone)"
-                  class="ui-focus-ring inline-flex min-h-11 items-start whitespace-nowrap text-label font-semibold text-primary-strong underline decoration-primary/35 underline-offset-4"
-                  (click)="$event.stopPropagation()"
-                >
-                  {{ order.phone || '--' }}
-                </a>
+                @if (order.assignee; as assignee) {
+                  <p class="truncate text-label font-semibold text-text-main">
+                    {{ assignee.name }}
+                  </p>
+                  <p class="mt-1 max-w-full truncate text-small text-text-muted">
+                    {{ assignee.email }}
+                  </p>
+                } @else {
+                  <p class="text-small text-text-muted">
+                    {{ 'serviceOrders.assignee.unassigned' | transloco }}
+                  </p>
+                }
               </td>
               <td
-                class="w-36 border-b border-border/80 px-3 py-4 align-top group-hover/row:bg-primary-soft/18"
+                class="min-w-0 border-b border-border/80 px-3 py-4 align-top group-hover/row:bg-primary-soft/18"
               >
-                <div class="flex min-w-0 flex-col items-end gap-2">
+                <div class="ml-auto flex w-full max-w-28 min-w-0 flex-col items-stretch gap-2">
+                  <a
+                    [href]="phoneHref(order.phone)"
+                    class="ui-focus-ring inline-flex min-h-10 w-full items-center justify-center rounded-[0.95rem] border border-border/75 bg-white px-3 text-label font-semibold text-primary-strong transition hover:bg-primary-soft/60"
+                    (click)="$event.stopPropagation()"
+                    >{{ 'serviceOrders.actions.call' | transloco }}</a
+                  >
                   @if (canChangeOrder(order)) {
                     <ui-button
-                      size="xs"
+                      size="sm"
+                      [block]="true"
                       (pressed)="$event.stopPropagation(); visitRequested.emit(order)"
+                      >{{ 'serviceOrders.actions.complete' | transloco }}</ui-button
                     >
-                      {{ 'serviceOrders.actions.createVisit' | transloco }}
-                    </ui-button>
-                    <ui-button
-                      size="xs"
-                      variant="danger"
-                      (pressed)="$event.stopPropagation(); cancellationRequested.emit(order)"
-                    >
-                      {{ 'common.actions.cancel' | transloco }}
-                    </ui-button>
                   }
+                  <app-service-order-actions-menu
+                    class="block w-full"
+                    [order]="order"
+                    (scheduleRequested)="scheduleRequested.emit(order)"
+                    (nextContactRequested)="nextContactRequested.emit(order)"
+                    (noteRequested)="noteRequested.emit(order)"
+                    (assigneeRequested)="assigneeRequested.emit(order)"
+                    (cancellationRequested)="cancellationRequested.emit(order)"
+                  />
                 </div>
               </td>
             </tr>
@@ -246,6 +303,16 @@
       </table>
     </div>
   </div>
+
+  @if (selectedNote(); as note) {
+    <ui-modal
+      [open]="true"
+      [title]="'serviceOrders.notePreview.title' | transloco"
+      (close)="selectedNote.set(null)"
+    >
+      <p class="whitespace-pre-line text-body text-text-main">{{ note.content }}</p>
+    </ui-modal>
+  }
 } @else {
   <ui-empty-state
     [title]="'serviceOrders.empty.title' | transloco"

@@ -1,34 +1,57 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
-import { UiBadgeComponent, UiButtonComponent, UiEmptyStateComponent } from '../../../../ui';
-import { ServiceOrder } from '../../models/service-order.model';
+import {
+  UiBadgeComponent,
+  UiButtonComponent,
+  UiEmptyStateComponent,
+  UiModalComponent,
+} from '../../../../ui';
+import { ServiceOrder, ServiceOrderNote } from '../../models/service-order.model';
 import {
   formatServiceOrderCustomerAddress,
   formatServiceOrderCustomerName,
   formatServiceOrderDate,
+  formatServiceOrderNextActionDateTime,
   getServiceOrderStatusLabel,
   getServiceOrderStatusVariant,
   getServiceOrderTypeLabel,
   serviceOrderMapHref,
   serviceOrderPhoneHref,
 } from '../../utils/service-order-ui.util';
+import { ServiceOrderActionsMenuComponent } from '../service-order-actions-menu/service-order-actions-menu.component';
+
+export interface ServiceOrderTableItem {
+  order: ServiceOrder;
+  notes: ServiceOrderNote[];
+}
 
 @Component({
   selector: 'app-service-order-table',
-  imports: [TranslocoPipe, UiBadgeComponent, UiButtonComponent, UiEmptyStateComponent],
+  imports: [
+    TranslocoPipe,
+    UiBadgeComponent,
+    UiButtonComponent,
+    UiEmptyStateComponent,
+    UiModalComponent,
+    ServiceOrderActionsMenuComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './service-order-table.component.html',
 })
 export class ServiceOrderTableComponent {
   private readonly transloco = inject(TranslocoService);
 
-  readonly orders = input<ServiceOrder[]>([]);
+  readonly items = input<ServiceOrderTableItem[]>([]);
   readonly detailsRequested = output<ServiceOrder>();
   readonly scheduleRequested = output<ServiceOrder>();
   readonly visitRequested = output<ServiceOrder>();
+  readonly nextContactRequested = output<ServiceOrder>();
+  readonly noteRequested = output<ServiceOrder>();
+  readonly assigneeRequested = output<ServiceOrder>();
   readonly cancellationRequested = output<ServiceOrder>();
 
+  protected readonly selectedNote = signal<ServiceOrderNote | null>(null);
   protected readonly formatCustomerName = formatServiceOrderCustomerName;
   protected readonly formatCustomerAddress = formatServiceOrderCustomerAddress;
   protected readonly getStatusVariant = getServiceOrderStatusVariant;
@@ -47,19 +70,23 @@ export class ServiceOrderTableComponent {
     return formatServiceOrderDate(value, this.transloco.getActiveLang());
   }
 
+  protected formatNextActionDate(value: string): string {
+    const formatted = formatServiceOrderNextActionDateTime(value, this.transloco.getActiveLang());
+    const date = formatted.isToday
+      ? this.transloco.translate('serviceOrders.nextAction.today')
+      : formatted.date;
+
+    return `${date}, ${formatted.time}`;
+  }
+
   protected confirmationLabelKey(order: ServiceOrder): string {
-    if (order.serviceData.type !== 'inspection' || order.status !== 'contact_required') {
+    if (order.serviceData.type !== 'inspection' || order.source !== 'system') {
       return '';
     }
 
-    switch (order.serviceData.customerConfirmationStatus) {
-      case 'confirmed':
-        return 'serviceOrders.confirmation.confirmed';
-      case 'not_confirmed':
-        return 'serviceOrders.confirmation.notConfirmed';
-      case 'pending':
-        return '';
-    }
+    return order.serviceData.customerConfirmationStatus === 'confirmed'
+      ? 'serviceOrders.confirmation.confirmed'
+      : 'serviceOrders.confirmation.notConfirmed';
   }
 
   protected canChangeOrder(order: ServiceOrder): boolean {
@@ -68,6 +95,11 @@ export class ServiceOrderTableComponent {
 
   protected openDetails(order: ServiceOrder): void {
     this.detailsRequested.emit(order);
+  }
+
+  protected openFullNote(event: MouseEvent, note: ServiceOrderNote): void {
+    event.stopPropagation();
+    this.selectedNote.set(note);
   }
 
   protected handleRowClick(event: MouseEvent, order: ServiceOrder): void {
@@ -93,5 +125,5 @@ export class ServiceOrderTableComponent {
 }
 
 function isInteractiveTarget(target: EventTarget | null): boolean {
-  return target instanceof Element && Boolean(target.closest('a, button, ui-button'));
+  return target instanceof Element && Boolean(target.closest('a, button, ui-button, ui-menu'));
 }

@@ -1,7 +1,7 @@
 import type { Device } from '../../customers/models/device.model';
 
 export type ServiceOrderType = 'installation' | 'repair' | 'inspection';
-export type ServiceOrderSource = 'customer-panel' | 'website-form' | 'user';
+export type ServiceOrderSource = 'customer-panel' | 'website-form' | 'user' | 'system';
 export type ServiceOrderStatus =
   | 'new'
   | 'contact_required'
@@ -12,6 +12,11 @@ export type ServiceOrderCustomerType = 'company' | 'individual';
 export type ServiceOrderBuildingType = 'apartment-block' | 'house' | 'office-building';
 export type ServiceOrderOutdoorUnitPlace = 'wall' | 'balcony';
 export type CustomerConfirmationStatus = 'pending' | 'confirmed' | 'not_confirmed';
+
+export interface ServiceOrderAssignee {
+  name: string;
+  email: string;
+}
 
 export interface ServiceOrderAttachment {
   id: string;
@@ -86,6 +91,8 @@ export interface ServiceOrder extends ServiceOrderCustomer {
   serviceData: ServiceOrderData;
   orderDate: string;
   scheduledAt: string;
+  nextContactAt?: string;
+  assignee?: ServiceOrderAssignee;
   createdAt: string;
   updatedAt: string;
 }

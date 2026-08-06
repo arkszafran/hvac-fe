@@ -39,10 +39,13 @@
 
   <div class="mt-6">
     <app-service-order-table
-      [orders]="filteredOrders()"
+      [items]="filteredOrders()"
       (detailsRequested)="openDetails($event)"
       (scheduleRequested)="openSchedule($event)"
       (visitRequested)="createVisit($event)"
+      (nextContactRequested)="openNextContact($event)"
+      (noteRequested)="openNote($event)"
+      (assigneeRequested)="openAssignee($event)"
       (cancellationRequested)="requestCancellation($event)"
     />
   </div>
@@ -53,6 +56,32 @@
       [scheduledAt]="order.scheduledAt"
       (close)="closeScheduleModal()"
       (saved)="saveSchedule($event)"
+    />
+  }
+
+  @if (orderForNextContact(); as order) {
+    <app-service-order-next-contact-modal
+      [open]="true"
+      [nextContactAt]="order.nextContactAt || ''"
+      (close)="orderForNextContact.set(null)"
+      (saved)="saveNextContact($event)"
+    />
+  }
+
+  @if (orderForNote()) {
+    <app-service-order-note-modal
+      [open]="true"
+      (close)="orderForNote.set(null)"
+      (saved)="saveNote($event)"
+    />
+  }
+
+  @if (orderForAssignee(); as order) {
+    <app-service-order-assignee-modal
+      [open]="true"
+      [currentAssignee]="order.assignee"
+      (close)="orderForAssignee.set(null)"
+      (assigned)="assignUser($event)"
     />
   }
 

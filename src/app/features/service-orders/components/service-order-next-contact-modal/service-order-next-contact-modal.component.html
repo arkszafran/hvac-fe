@@ -1,0 +1,43 @@
+<ui-modal
+  [open]="open()"
+  [title]="'serviceOrders.nextContactModal.title' | transloco"
+  [description]="'serviceOrders.nextContactModal.description' | transloco"
+  (close)="close.emit()"
+>
+  <div class="space-y-5">
+    <ui-input
+      type="datetime-local"
+      required
+      [label]="'serviceOrders.fields.nextContactAt' | transloco"
+      [error]="
+        dateControl.invalid && dateControl.touched
+          ? ('serviceOrders.nextContactModal.dateValidation' | transloco)
+          : ''
+      "
+      [formControl]="dateControl"
+    />
+    <label class="block">
+      <span class="text-label text-text-main">
+        {{ 'serviceOrders.noteModal.label' | transloco }}
+      </span>
+      <textarea
+        [class]="textareaClasses"
+        [formControl]="noteControl"
+        [attr.placeholder]="'serviceOrders.nextContactModal.notePlaceholder' | transloco"
+      ></textarea>
+    </label>
+    @if (noteControl.invalid && noteControl.touched) {
+      <p class="text-small text-danger">
+        {{ 'serviceOrders.noteModal.validation' | transloco }}
+      </p>
+    }
+  </div>
+  <div modal-footer class="grid gap-3 sm:grid-cols-2">
+    <ui-button variant="ghost" [block]="true" (pressed)="close.emit()">
+      {{ 'common.actions.cancel' | transloco }}
+    </ui-button>
+    <ui-button [block]="true" (pressed)="saveContact()">
+      {{ 'common.actions.save' | transloco }}
+    </ui-button>
+  </div>
+</ui-modal>

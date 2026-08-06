@@ -4,6 +4,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
+import { UserListItemDto } from '../../../../common/api/users';
 import {
   UiButtonComponent,
   UiCardComponent,
@@ -29,6 +30,12 @@ import {
   matchesServiceOrderDateFilter,
 } from '../../utils/service-order-date-filter.util';
 import { ServiceOrderScheduleModalComponent } from '../service-order-schedule-modal/service-order-schedule-modal.component';
+import { ServiceOrderAssigneeModalComponent } from '../service-order-assignee-modal/service-order-assignee-modal.component';
+import {
+  ServiceOrderNextContactFormValue,
+  ServiceOrderNextContactModalComponent,
+} from '../service-order-next-contact-modal/service-order-next-contact-modal.component';
+import { ServiceOrderNoteModalComponent } from '../service-order-note-modal/service-order-note-modal.component';
 import { ServiceOrderTableComponent } from '../service-order-table/service-order-table.component';
 
 const DEFAULT_STATUS_FILTERS: ServiceOrderStatus[] = ['contact_required', 'scheduled'];
@@ -47,6 +54,9 @@ const DEFAULT_DATE_FILTER: ServiceOrderDateFilter = 'today';
     UiMultiselectComponent,
     UiSelectComponent,
     ServiceOrderScheduleModalComponent,
+    ServiceOrderAssigneeModalComponent,
+    ServiceOrderNextContactModalComponent,
+    ServiceOrderNoteModalComponent,
     ServiceOrderTableComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -66,6 +76,9 @@ export class ServiceOrdersViewComponent {
   });
   protected readonly orderPendingCancellation = signal<ServiceOrder | null>(null);
   protected readonly orderBeingScheduled = signal<ServiceOrder | null>(null);
+  protected readonly orderForNextContact = signal<ServiceOrder | null>(null);
+  protected readonly orderForNote = signal<ServiceOrder | null>(null);
+  protected readonly orderForAssignee = signal<ServiceOrder | null>(null);
   protected readonly statusControl = new FormControl<ServiceOrderStatus[]>(DEFAULT_STATUS_FILTERS, {
     nonNullable: true,
   });
@@ -115,7 +128,7 @@ export class ServiceOrdersViewComponent {
     const status = this.statusFilter();
     const type = this.typeFilter();
 
-    return this.store.orders().filter((order) => {
+    return this.store.orderDetails().filter(({ order }) => {
       if (!status.includes(order.status)) {
         return false;
       }
@@ -138,6 +151,8 @@ export class ServiceOrdersViewComponent {
             order.email,
             order.address,
             order.city,
+            order.assignee?.name ?? '',
+            order.assignee?.email ?? '',
           ].join(' '),
         ).includes(query)
       );
@@ -170,6 +185,51 @@ export class ServiceOrdersViewComponent {
 
   protected createVisit(order: ServiceOrder): void {
     void this.router.navigate(['/visits/new'], { queryParams: { serviceOrderId: order.id } });
+  }
+
+  protected openNextContact(order: ServiceOrder): void {
+    this.orderForNextContact.set(order);
+  }
+
+  protected saveNextContact(value: ServiceOrderNextContactFormValue): void {
+    const order = this.orderForNextContact();
+
+    if (!order) {
+      return;
+    }
+
+    this.store.scheduleNextContact(order.id, value.nextContactAt, value.note);
+    this.orderForNextContact.set(null);
+  }
+
+  protected openNote(order: ServiceOrder): void {
+    this.orderForNote.set(order);
+  }
+
+  protected saveNote(content: string): void {
+    const order = this.orderForNote();
+
+    if (!order) {
+      return;
+    }
+
+    this.store.addNote(order.id, content);
+    this.orderForNote.set(null);
+  }
+
+  protected openAssignee(order: ServiceOrder): void {
+    this.orderForAssignee.set(order);
+  }
+
+  protected assignUser(user: UserListItemDto): void {
+    const order = this.orderForAssignee();
+
+    if (!order) {
+      return;
+    }
+
+    this.store.assignAssignee(order.id, user.id, { name: user.name, email: user.email });
+    this.orderForAssignee.set(null);
   }
 
   protected requestCancellation(order: ServiceOrder): void {

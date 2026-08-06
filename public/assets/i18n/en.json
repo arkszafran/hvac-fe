@@ -11,7 +11,10 @@
       "save": "Save",
       "saveChanges": "Save changes",
       "edit": "Edit",
-      "details": "Details"
+      "details": "Details",
+      "retry": "Try again",
+      "confirm": "Confirm",
+      "more": "More"
     },
     "search": {
       "label": "Search"
@@ -466,8 +469,8 @@
     },
     "fields": {
       "search": "Search",
-      "searchPlaceholder": "Customer, phone, email, or address",
-      "dateFilter": "Visit date",
+      "searchPlaceholder": "Customer, email, address, or assignee",
+      "dateFilter": "Next action",
       "status": "Status",
       "statusPlaceholder": "Select statuses",
       "type": "Order type",
@@ -476,7 +479,11 @@
       "customer": "Customer",
       "customerAndAddress": "Customer and address",
       "orderDate": "Order date",
-      "date": "Visit date",
+      "date": "Next action",
+      "visitDateTime": "Visit date",
+      "nextAction": "Next action",
+      "nextContactAt": "Next contact date and time",
+      "assignee": "Assignee",
       "noDate": "No visit date set",
       "phone": "Phone",
       "email": "Email",
@@ -507,7 +514,8 @@
     "sources": {
       "customerPanel": "Customer panel",
       "websiteForm": "Website form",
-      "user": "User"
+      "user": "User",
+      "system": "System"
     },
     "confirmation": {
       "confirmed": "Customer confirmed",
@@ -517,8 +525,24 @@
       "setDate": "Set visit date",
       "changeDate": "Change visit date",
       "createVisit": "Create visit",
+      "complete": "Complete",
       "call": "Call",
-      "addNote": "Add note"
+      "addNote": "Add note",
+      "actions": "Actions",
+      "openMenu": "Open actions menu",
+      "menuLabel": "Service order actions",
+      "setNextContact": "Set next contact",
+      "assignAssignee": "Assign owner",
+      "customerCancelled": "Customer cancelled"
+    },
+    "nextAction": {
+      "today": "Today",
+      "scheduledVisit": "Scheduled visit",
+      "callCustomer": "Call customer",
+      "scheduledCall": "Call the customer on"
+    },
+    "assignee": {
+      "unassigned": "Unassigned"
     },
     "table": {
       "openDetailsAria": "Open service order details for {{customer}}"
@@ -546,7 +570,7 @@
     "details": {
       "backToList": "Back to service orders",
       "orderDateSummary": "Order date: {{date}}",
-      "dateSummary": "Visit date: {{date}}",
+      "dateSummary": "Next action: {{date}}",
       "actionsLabel": "Service order actions",
       "customer": "Customer details",
       "installationTitle": "Installation details",
@@ -577,7 +601,7 @@
     },
     "scheduleModal": {
       "title": "Set visit date",
-      "description": "Choose the day when the installer should visit the customer.",
+      "description": "Choose the day and time when the installer should visit the customer.",
       "validation": "A visit date is required."
     },
     "noteModal": {
@@ -586,6 +610,25 @@
       "label": "Note",
       "placeholder": "Enter the most important arrangements",
       "validation": "A note is required."
+    },
+    "notePreview": {
+      "title": "Service order note"
+    },
+    "nextContactModal": {
+      "title": "Set next contact",
+      "description": "Choose the contact date and time and save the arrangements in a note.",
+      "dateValidation": "The next contact date and time are required.",
+      "notePlaceholder": "Enter the arrangements for the next contact"
+    },
+    "assigneeModal": {
+      "title": "Assign owner",
+      "description": "Choose the person responsible for further handling of the service order.",
+      "searchLabel": "Search for a person",
+      "searchPlaceholder": "Name or email",
+      "loading": "Loading users…",
+      "error": "The user list could not be loaded.",
+      "empty": "No matching people found.",
+      "usersLabel": "User list"
     },
     "deviceFlow": {
       "attachExistingTitle": "Attach device to an existing inspection?",

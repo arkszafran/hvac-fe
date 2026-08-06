@@ -43,3 +43,11 @@ export interface ChangePinDto {
 }
 
 export type UsersSuccessResponseDto = ApiSuccessResponse<Record<string, never> | null>;
+
+export interface UserListItemDto {
+  id: string;
+  email: string;
+  name: string;
+}
+
+export type UsersListResponseDto = ApiSuccessResponse<UserListItemDto[]>;

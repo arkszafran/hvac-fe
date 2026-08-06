@@ -41,6 +41,7 @@ export class UiMenuComponent {
   readonly closeOnMenuClick = input(true, { transform: booleanAttribute });
 
   protected readonly isOpen = signal(false);
+  protected readonly isOpeningUpward = signal(false);
   protected readonly menuId = `ui-menu-${nextMenuId++}`;
   protected readonly menuPanelClasses = computed(() =>
     classNames(this.panelClass(), this.align() === 'end' ? 'right-0' : 'left-0'),
@@ -49,7 +50,9 @@ export class UiMenuComponent {
   private readonly document = inject(DOCUMENT);
   private readonly destroyRef = inject(DestroyRef);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly menuPanel = viewChild<ElementRef<HTMLElement>>('menuPanel');
   private readonly triggerButton = viewChild<ElementRef<HTMLButtonElement>>('triggerButton');
+  private placementFrameId: number | undefined;
 
   constructor() {
     const handleDocumentClick = (event: MouseEvent): void => {
@@ -74,12 +77,19 @@ export class UiMenuComponent {
     this.destroyRef.onDestroy(() => {
       this.document.removeEventListener('click', handleDocumentClick);
       this.document.removeEventListener('keydown', handleDocumentKeydown);
+      this.cancelPlacementUpdate();
     });
   }
 
   protected toggle(event: MouseEvent): void {
     event.stopPropagation();
-    this.isOpen.update((isOpen) => !isOpen);
+    const shouldOpen = !this.isOpen();
+    this.isOpen.set(shouldOpen);
+
+    if (shouldOpen) {
+      this.isOpeningUpward.set(false);
+      this.schedulePlacementUpdate();
+    }
   }
 
   protected handleMenuClick(): void {
@@ -92,6 +102,49 @@ export class UiMenuComponent {
 
   private close(): void {
     this.isOpen.set(false);
+    this.cancelPlacementUpdate();
+  }
+
+  private schedulePlacementUpdate(): void {
+    const window = this.document.defaultView;
+
+    if (!window) {
+      return;
+    }
+
+    this.cancelPlacementUpdate();
+    this.placementFrameId = window.requestAnimationFrame(() => {
+      this.placementFrameId = undefined;
+      this.updatePlacement();
+    });
+  }
+
+  private updatePlacement(): void {
+    const panel = this.menuPanel()?.nativeElement;
+    const trigger = this.triggerButton()?.nativeElement;
+    const window = this.document.defaultView;
+
+    if (!panel || !trigger || !window) {
+      return;
+    }
+
+    const triggerRect = trigger.getBoundingClientRect();
+    const spaceBelow = window.innerHeight - triggerRect.bottom;
+    const spaceAbove = triggerRect.top;
+    const requiredSpace = panel.offsetHeight + 8;
+
+    this.isOpeningUpward.set(requiredSpace > spaceBelow && spaceAbove > spaceBelow);
+  }
+
+  private cancelPlacementUpdate(): void {
+    const window = this.document.defaultView;
+
+    if (this.placementFrameId === undefined || !window) {
+      return;
+    }
+
+    window.cancelAnimationFrame(this.placementFrameId);
+    this.placementFrameId = undefined;
   }
 
   private containsTarget(target: EventTarget | null): boolean {

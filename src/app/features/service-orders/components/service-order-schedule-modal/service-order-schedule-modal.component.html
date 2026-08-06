@@ -5,9 +5,9 @@
   (close)="close.emit()"
 >
   <ui-input
-    type="date"
+    type="datetime-local"
     required
-    [label]="'serviceOrders.fields.date' | transloco"
+    [label]="'serviceOrders.fields.visitDateTime' | transloco"
     [error]="
       scheduleControl.invalid && scheduleControl.touched
         ? ('serviceOrders.scheduleModal.validation' | transloco)

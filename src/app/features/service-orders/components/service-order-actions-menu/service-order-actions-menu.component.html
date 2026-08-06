@@ -1,0 +1,122 @@
+<div class="hidden min-[1200px]:block">
+  <ui-menu
+    class="w-full"
+    [triggerLabel]="'serviceOrders.actions.openMenu' | transloco"
+    [menuLabel]="'serviceOrders.actions.menuLabel' | transloco"
+    triggerClass="ui-focus-ring inline-flex min-h-10 w-full items-center justify-center rounded-[0.95rem] border border-border/90 bg-white px-3 text-label font-semibold text-text-main transition hover:border-primary/18 hover:bg-primary-soft/32 active:bg-primary-soft/45"
+  >
+    <span menu-trigger>{{ 'serviceOrders.actions.actions' | transloco }}</span>
+    @if (canChangeOrder()) {
+      <button
+        type="button"
+        role="menuitem"
+        class="ui-focus-ring flex min-h-11 w-full items-center rounded-lg px-3 text-left text-small font-semibold text-text-main transition hover:bg-primary-soft/50"
+        (click)="requestSchedule()"
+      >
+        {{
+          (order().scheduledAt
+            ? 'serviceOrders.actions.changeDate'
+            : 'serviceOrders.actions.setDate'
+          ) | transloco
+        }}
+      </button>
+      <button
+        type="button"
+        role="menuitem"
+        class="ui-focus-ring flex min-h-11 w-full items-center rounded-lg px-3 text-left text-small font-semibold text-text-main transition hover:bg-primary-soft/50"
+        (click)="requestNextContact()"
+      >
+        {{ 'serviceOrders.actions.setNextContact' | transloco }}
+      </button>
+    }
+    <button
+      type="button"
+      role="menuitem"
+      class="ui-focus-ring flex min-h-11 w-full items-center rounded-lg px-3 text-left text-small font-semibold text-text-main transition hover:bg-primary-soft/50"
+      (click)="requestNote()"
+    >
+      {{ 'serviceOrders.actions.addNote' | transloco }}
+    </button>
+    <button
+      type="button"
+      role="menuitem"
+      class="ui-focus-ring flex min-h-11 w-full items-center rounded-lg px-3 text-left text-small font-semibold text-text-main transition hover:bg-primary-soft/50"
+      (click)="requestAssignee()"
+    >
+      {{ 'serviceOrders.actions.assignAssignee' | transloco }}
+    </button>
+    @if (canChangeOrder()) {
+      <button
+        type="button"
+        role="menuitem"
+        class="ui-focus-ring flex min-h-11 w-full items-center rounded-lg px-3 text-left text-small font-semibold text-danger transition hover:bg-danger/5"
+        (click)="requestCancellation()"
+      >
+        {{ 'serviceOrders.actions.customerCancelled' | transloco }}
+      </button>
+    }
+  </ui-menu>
+</div>
+
+<div class="min-[1200px]:hidden">
+  <ui-button
+    size="sm"
+    variant="secondary"
+    (pressed)="$event.stopPropagation(); isMobileMenuOpen.set(true)"
+  >
+    {{ 'serviceOrders.actions.actions' | transloco }}
+  </ui-button>
+</div>
+
+<ui-modal
+  [open]="isMobileMenuOpen()"
+  [title]="'serviceOrders.actions.menuLabel' | transloco"
+  (close)="closeMobileMenu()"
+>
+  <div class="space-y-2">
+    @if (canChangeOrder()) {
+      <button
+        type="button"
+        class="ui-focus-ring flex min-h-12 w-full items-center rounded-[0.95rem] border border-border/80 px-4 text-left text-label font-semibold text-text-main"
+        (click)="requestSchedule()"
+      >
+        {{
+          (order().scheduledAt
+            ? 'serviceOrders.actions.changeDate'
+            : 'serviceOrders.actions.setDate'
+          ) | transloco
+        }}
+      </button>
+      <button
+        type="button"
+        class="ui-focus-ring flex min-h-12 w-full items-center rounded-[0.95rem] border border-border/80 px-4 text-left text-label font-semibold text-text-main"
+        (click)="requestNextContact()"
+      >
+        {{ 'serviceOrders.actions.setNextContact' | transloco }}
+      </button>
+    }
+    <button
+      type="button"
+      class="ui-focus-ring flex min-h-12 w-full items-center rounded-[0.95rem] border border-border/80 px-4 text-left text-label font-semibold text-text-main"
+      (click)="requestNote()"
+    >
+      {{ 'serviceOrders.actions.addNote' | transloco }}
+    </button>
+    <button
+      type="button"
+      class="ui-focus-ring flex min-h-12 w-full items-center rounded-[0.95rem] border border-border/80 px-4 text-left text-label font-semibold text-text-main"
+      (click)="requestAssignee()"
+    >
+      {{ 'serviceOrders.actions.assignAssignee' | transloco }}
+    </button>
+    @if (canChangeOrder()) {
+      <button
+        type="button"
+        class="ui-focus-ring flex min-h-12 w-full items-center rounded-[0.95rem] border border-danger/30 px-4 text-left text-label font-semibold text-danger"
+        (click)="requestCancellation()"
+      >
+        {{ 'serviceOrders.actions.customerCancelled' | transloco }}
+      </button>
+    }
+  </div>
+</ui-modal>
