@@ -16,7 +16,7 @@ import { AppTopBarComponent } from '../top-bar/top-bar.component';
 
       <div class="ui-shell py-4 md:py-6 lg:py-8">
         <div class="flex flex-col gap-4 md:flex-row md:items-start md:gap-6 lg:gap-8">
-          <div class="hidden md:block md:w-64 md:shrink-0 lg:w-[17rem]">
+          <div class="hidden w-56 shrink-0 md:block">
             <app-sidebar />
           </div>
 
@@ -30,10 +30,7 @@ import { AppTopBarComponent } from '../top-bar/top-bar.component';
         </div>
       </div>
 
-      <app-mobile-nav-drawer
-        [open]="isMobileNavOpen()"
-        (close)="isMobileNavOpen.set(false)"
-      />
+      <app-mobile-nav-drawer [open]="isMobileNavOpen()" (close)="isMobileNavOpen.set(false)" />
     </div>
   `,
 })

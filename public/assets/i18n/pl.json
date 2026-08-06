@@ -34,12 +34,14 @@
       "changeTo": "Zmień język na {{language}}"
     },
     "navigation": {
+      "mainMenu": "Menu główne",
       "dashboard": "Dashboard",
       "customers": "Klienci",
       "devices": "Urządzenia",
       "serviceOrders": "Zlecenia",
       "visits": "Wizyty",
-      "settings": "Ustawienia"
+      "settings": "Ustawienia",
+      "openServiceOrdersCount": "Otwarte zlecenia: {{count}}"
     },
     "topBar": {
       "openMenu": "Otwórz menu",
@@ -242,7 +244,7 @@
         "placeholder": "spokojny placeholder bez ryzyka mieszania logiki biznesowej"
       }
     },
-    "styleGuide": {
+    "styleGuideLegacy": {
       "hero": {
         "title": "Wyrazisty design system dla operacyjnego SaaS",
         "description": "Chłodny granat jako primary, pomarańczowy akcent i bardziej zdecydowane komponenty. System jest nadal lekki, ale ma już mocniejsze CTA, stany i podział sekcji.",
@@ -356,6 +358,133 @@
           "note": "Dokumentacja dla audytu",
           "amount": "980 zł"
         }
+      }
+    },
+    "styleGuide": {
+      "hero": {
+        "mark": "H",
+        "brand": "HAVAC",
+        "version": "Design system v1",
+        "title": "Styleguide",
+        "description": "Stalowy błękit i cyjan, jedna rodzina krojów, mocno ograniczona paleta. Wszystko poniżej jest tym samym zestawem, z którego zbudowany jest ekran zleceń."
+      },
+      "sections": {
+        "colors": "01 — Kolory",
+        "typography": "02 — Typografia",
+        "components": "03 — Komponenty",
+        "rules": "04 — Zasady"
+      },
+      "colors": {
+        "brandGroup": "Marka i akcent",
+        "neutralGroup": "Neutralne (chłodne)",
+        "brand": "Granat marki",
+        "action": "Cyjan / akcja",
+        "actionHover": "Cyjan hover",
+        "actionSoft": "Cyjan tło",
+        "textMain": "Tekst główny",
+        "textMuted": "Tekst drugi",
+        "border": "Obramowanie",
+        "background": "Tło aplikacji",
+        "surface": "Powierzchnia"
+      },
+      "statuses": {
+        "title": "Statusy zlecenia",
+        "contact": "Do kontaktu",
+        "planned": "Zaplanowane",
+        "inProgress": "W trakcie",
+        "completed": "Zrealizowane",
+        "cancelled": "Anulowane"
+      },
+      "typography": {
+        "geist": "Geist",
+        "geistDescription": "Interfejs, nagłówki, treść.",
+        "geistWeights": "300 · 400 · 500 · 600 · 700",
+        "geistMono": "Geist Mono",
+        "monoDescription": "Numery seryjne, daty, telefony, kg czynnika.",
+        "monoWeights": "400 · 500",
+        "displaySpec": "44 / 600 / -3%",
+        "displaySample": "Styleguide",
+        "titleSpec": "30 / 600 / -2.5%",
+        "titleSample": "Zlecenia",
+        "headingSpec": "16.5 / 600",
+        "headingSample": "Polaris Pharma",
+        "bodySpec": "14 / 400",
+        "bodySample": "Tekst podstawowy — etykiety pól, treść kart, opisy.",
+        "smallSpec": "12.5 / 400 / szary",
+        "smallSample": "ul. Puławska 145, 02–715 Warszawa",
+        "kickerSpec": "10.5 / 600 / +8%",
+        "kickerSample": "Następny krok",
+        "monoSpec": "13.5 / mono",
+        "monoSample": "PN-Z35-8821 · R32 · 0.9 kg"
+      },
+      "components": {
+        "buttons": "Przyciski",
+        "mobileButtons": "Mobile — wysokość 46–50 px, do obsługi w rękawicach",
+        "formFields": "Pola formularza",
+        "nextStep": "Blok „Następny krok”",
+        "mobileOrderCard": "Karta zlecenia (mobile)",
+        "chips": "Chipy i filtry",
+        "photoArea": "Miejsce na zdjęcie",
+        "icons": "Ikony (stroke 1.4–1.6, 16 px)"
+      },
+      "actions": {
+        "newOrder": "Nowe zlecenie",
+        "complete": "Zrealizuj",
+        "call": "Zadzwoń",
+        "actions": "Akcje",
+        "more": "Więcej akcji",
+        "disabled": "Nieaktywny"
+      },
+      "form": {
+        "search": "Szukaj",
+        "searchPlaceholder": "Klient, adres, e-mail...",
+        "status": "Status",
+        "open": "Otwarte",
+        "closed": "Zamknięte",
+        "visitDate": "Termin wizyty",
+        "datePlaceholder": "dd.mm.rrrr  --:--",
+        "errorState": "Stan błędu",
+        "required": "Pole wymagane"
+      },
+      "order": {
+        "type": "Przegląd",
+        "customer": "Polaris Pharma",
+        "address": "ul. Puławska 145, 02–715 Warszawa",
+        "nextStep": "Zadzwoń do klienta · Dziś, do 12:00",
+        "callCustomer": "Zadzwoń do klienta",
+        "deadline": "Dziś, do 12:00"
+      },
+      "filters": {
+        "today": "Dziś · 4",
+        "week": "Ten tydzień",
+        "all": "Wszystkie",
+        "filters": "Filtry",
+        "tomorrow": "Jutro 8:00"
+      },
+      "photo": {
+        "filename": "tabliczka-kit-z35.jpg",
+        "add": "Dodaj zdjęcie"
+      },
+      "icons": {
+        "dashboard": "Pulpit",
+        "customers": "Klienci",
+        "devices": "Urządzenia",
+        "orders": "Zlecenia",
+        "calendar": "Kalendarz",
+        "target": "Cel",
+        "phone": "Telefon",
+        "search": "Szukaj",
+        "help": "Pomoc"
+      },
+      "rules": {
+        "radiiTitle": "Promienie",
+        "radii": "9 px — małe przyciski\n11–13 px — pola, przyciski\n16 px — karty\n999 px — chipy, statusy",
+        "spacingTitle": "Odstępy",
+        "spacing": "skala 4 · 7 · 10 · 14 · 20 · 32 · 56",
+        "shadowTitle": "Cień",
+        "shadow": "Tylko dla elementów unoszących się nad treścią — modal, przełącznik. Karty i tabele opierają się na obramowaniu 1 px.",
+        "copyTitle": "Copy",
+        "copy": "Mów do instalatora jak człowiek do człowieka. Czasownik na początku: „Zadzwoń do klienta”, nie „Kontakt telefoniczny”."
       }
     }
   },

@@ -1,6 +1,7 @@
 @use 'sass:meta';
 
+@use '@fontsource-variable/geist';
+@use '@fontsource-variable/geist-mono';
 @use 'tailwindcss';
 @use './styles/design-system';
 @config '../tailwind.config.ts';
-

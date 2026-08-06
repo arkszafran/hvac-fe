@@ -1,9 +1,6 @@
-<div class="space-y-2.5">
+<div class="space-y-1.5">
   @if (label()) {
-    <label
-      [attr.for]="inputId()"
-      class="flex items-center gap-1 text-[13px]/5 font-semibold tracking-[-0.01em] text-text-main"
-    >
+    <label [attr.for]="inputId()" class="flex items-center gap-1 text-label text-text-muted">
       {{ label() }}
     </label>
   }
@@ -14,7 +11,7 @@
       type="button"
       [id]="inputId()"
       [disabled]="isDisabled()"
-      class="ui-focus-ring flex min-h-13 w-full items-center justify-between gap-3 rounded-[0.95rem] border border-border/90 bg-white px-4 py-3 text-left text-[15px]/6 text-text-main shadow-[inset_0_1px_0_rgb(255_255_255/0.82),0_1px_2px_rgb(15_23_42/0.05)] backdrop-blur-xl transition duration-200 hover:border-primary/24 focus:border-primary disabled:cursor-not-allowed disabled:border-transparent disabled:bg-surface-muted disabled:text-text-muted"
+      [class]="triggerClasses()"
       [attr.aria-expanded]="isOpen()"
       [attr.aria-controls]="isOpen() ? panelId() : null"
       [attr.aria-invalid]="error() ? 'true' : 'false'"
@@ -28,7 +25,7 @@
       <svg
         viewBox="0 0 20 20"
         fill="none"
-        class="size-4 shrink-0 text-text-muted transition-transform duration-200"
+        class="size-4 shrink-0 text-text-muted transition-transform duration-200 motion-reduce:transition-none"
         [class.rotate-180]="isOpen()"
         aria-hidden="true"
       >
@@ -47,22 +44,22 @@
         [id]="panelId()"
         role="group"
         [attr.aria-label]="label() || placeholder()"
-        class="absolute left-0 top-full z-50 max-h-72 w-full min-w-56 overflow-y-auto rounded-[0.95rem] border border-border/90 bg-white p-1.5 shadow-[0_24px_48px_-28px_rgb(15_23_42/0.35)]"
+        class="absolute left-0 top-[calc(100%+0.4375rem)] z-50 max-h-72 w-full overflow-y-auto overscroll-contain rounded-field border border-border bg-surface p-1.5 shadow-floating motion-safe:animate-[ui-fade-in_120ms_ease-out]"
       >
         @for (option of options(); track option.value) {
           <label
-            class="flex min-h-11 cursor-pointer items-center gap-3 rounded-[0.75rem] px-3 py-2 text-label text-text-main transition hover:bg-primary-soft/55 active:bg-primary-soft/70"
+            class="flex min-h-11 cursor-pointer items-center gap-3 rounded-button px-3 py-2 text-body text-text-main transition-colors duration-150 hover:bg-action-soft active:bg-action-soft motion-reduce:transition-none"
             [class.cursor-not-allowed]="option.disabled"
-            [class.opacity-55]="option.disabled"
+            [class.text-text-muted]="option.disabled"
           >
             <input
               type="checkbox"
-              class="size-4 shrink-0 rounded border-border accent-[var(--color-primary)]"
+              class="ui-focus-ring size-4 shrink-0 rounded border-border accent-[var(--color-action-contrast)] disabled:opacity-50"
               [checked]="isSelected(option.value)"
               [disabled]="option.disabled"
               (change)="toggleOption(option.value)"
             />
-            <span class="min-w-0 flex-1">{{ option.label }}</span>
+            <span class="min-w-0 flex-1 [overflow-wrap:anywhere]">{{ option.label }}</span>
           </label>
         }
       </div>

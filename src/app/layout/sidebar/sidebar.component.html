@@ -1,0 +1,50 @@
+<aside class="hidden md:block">
+  <div class="sticky top-24 rounded-card border border-border bg-surface p-2.5">
+    <nav class="flex flex-col" [attr.aria-label]="'layout.navigation.mainMenu' | transloco">
+      @for (item of navigationItems; track item.path) {
+        <div>
+          <a
+            [routerLink]="item.path"
+            [queryParams]="item.queryParams"
+            routerLinkActive
+            #rla="routerLinkActive"
+            [routerLinkActiveOptions]="item.activeMatchOptions ?? { exact: item.exact ?? true }"
+            [class]="navLinkClasses(rla.isActive)"
+          >
+            <span [class]="iconWrapperClasses(rla.isActive)" aria-hidden="true">
+              <app-layout-icon [name]="item.icon" />
+            </span>
+
+            <span [class]="labelClasses(rla.isActive)">
+              {{ item.labelKey | transloco }}
+            </span>
+
+            @if (item.path === '/service-orders' && openServiceOrderCount(); as count) {
+              <span [class]="countClasses(rla.isActive)" aria-hidden="true">{{ count }}</span>
+              <span class="sr-only">
+                {{ 'layout.navigation.openServiceOrdersCount' | transloco: { count } }}
+              </span>
+            }
+          </a>
+
+          @if (item.children?.length) {
+            <div class="ml-7 mt-1 space-y-1 border-l border-border pl-3">
+              @for (child of item.children; track child.labelKey) {
+                <a
+                  [routerLink]="child.path"
+                  [queryParams]="child.queryParams"
+                  routerLinkActive
+                  #childRla="routerLinkActive"
+                  [routerLinkActiveOptions]="child.activeMatchOptions ?? { exact: true }"
+                  [class]="childLinkClasses(childRla.isActive)"
+                >
+                  <span>{{ child.labelKey | transloco }}</span>
+                </a>
+              }
+            </div>
+          }
+        </div>
+      }
+    </nav>
+  </div>
+</aside>

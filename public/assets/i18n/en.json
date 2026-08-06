@@ -34,12 +34,14 @@
       "changeTo": "Change language to {{language}}"
     },
     "navigation": {
+      "mainMenu": "Main navigation",
       "dashboard": "Dashboard",
       "customers": "Customers",
       "devices": "Devices",
       "serviceOrders": "Service orders",
       "visits": "Visits",
-      "settings": "Settings"
+      "settings": "Settings",
+      "openServiceOrdersCount": "Open service orders: {{count}}"
     },
     "topBar": {
       "openMenu": "Open menu",
@@ -242,7 +244,7 @@
         "placeholder": "calm placeholder without mixing business logic"
       }
     },
-    "styleGuide": {
+    "styleGuideLegacy": {
       "hero": {
         "title": "Expressive design system for operational SaaS",
         "description": "Cool navy as primary, an orange accent, and more decisive components. The system is still lightweight, but now has stronger CTAs, states, and section separation.",
@@ -356,6 +358,133 @@
           "note": "Audit documentation",
           "amount": "980 PLN"
         }
+      }
+    },
+    "styleGuide": {
+      "hero": {
+        "mark": "H",
+        "brand": "HAVAC",
+        "version": "Design system v1",
+        "title": "Styleguide",
+        "description": "Steel blue and cyan, one type family, and a tightly constrained palette. Everything below uses the same system that builds the service orders screen."
+      },
+      "sections": {
+        "colors": "01 — Colors",
+        "typography": "02 — Typography",
+        "components": "03 — Components",
+        "rules": "04 — Rules"
+      },
+      "colors": {
+        "brandGroup": "Brand and accent",
+        "neutralGroup": "Neutrals (cool)",
+        "brand": "Brand navy",
+        "action": "Cyan / action",
+        "actionHover": "Cyan hover",
+        "actionSoft": "Cyan background",
+        "textMain": "Primary text",
+        "textMuted": "Secondary text",
+        "border": "Border",
+        "background": "App background",
+        "surface": "Surface"
+      },
+      "statuses": {
+        "title": "Service order statuses",
+        "contact": "Contact required",
+        "planned": "Planned",
+        "inProgress": "In progress",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      },
+      "typography": {
+        "geist": "Geist",
+        "geistDescription": "Interface, headings, content.",
+        "geistWeights": "300 · 400 · 500 · 600 · 700",
+        "geistMono": "Geist Mono",
+        "monoDescription": "Serial numbers, dates, phone numbers, refrigerant weight.",
+        "monoWeights": "400 · 500",
+        "displaySpec": "44 / 600 / -3%",
+        "displaySample": "Styleguide",
+        "titleSpec": "30 / 600 / -2.5%",
+        "titleSample": "Service orders",
+        "headingSpec": "16.5 / 600",
+        "headingSample": "Polaris Pharma",
+        "bodySpec": "14 / 400",
+        "bodySample": "Base text — field labels, card content, descriptions.",
+        "smallSpec": "12.5 / 400 / grey",
+        "smallSample": "145 Pulawska St., 02–715 Warsaw",
+        "kickerSpec": "10.5 / 600 / +8%",
+        "kickerSample": "Next step",
+        "monoSpec": "13.5 / mono",
+        "monoSample": "PN-Z35-8821 · R32 · 0.9 kg"
+      },
+      "components": {
+        "buttons": "Buttons",
+        "mobileButtons": "Mobile — 46–50 px high, glove-friendly",
+        "formFields": "Form fields",
+        "nextStep": "“Next step” block",
+        "mobileOrderCard": "Service order card (mobile)",
+        "chips": "Chips and filters",
+        "photoArea": "Photo area",
+        "icons": "Icons (1.4–1.6 stroke, 16 px)"
+      },
+      "actions": {
+        "newOrder": "New order",
+        "complete": "Complete",
+        "call": "Call",
+        "actions": "Actions",
+        "more": "More actions",
+        "disabled": "Disabled"
+      },
+      "form": {
+        "search": "Search",
+        "searchPlaceholder": "Customer, address, email...",
+        "status": "Status",
+        "open": "Open",
+        "closed": "Closed",
+        "visitDate": "Visit date",
+        "datePlaceholder": "dd.mm.yyyy  --:--",
+        "errorState": "Error state",
+        "required": "Required field"
+      },
+      "order": {
+        "type": "Inspection",
+        "customer": "Polaris Pharma",
+        "address": "145 Pulawska St., 02–715 Warsaw",
+        "nextStep": "Call the customer · Today, by 12:00",
+        "callCustomer": "Call the customer",
+        "deadline": "Today, by 12:00"
+      },
+      "filters": {
+        "today": "Today · 4",
+        "week": "This week",
+        "all": "All",
+        "filters": "Filters",
+        "tomorrow": "Tomorrow 8:00"
+      },
+      "photo": {
+        "filename": "nameplate-kit-z35.jpg",
+        "add": "Add photo"
+      },
+      "icons": {
+        "dashboard": "Dashboard",
+        "customers": "Customers",
+        "devices": "Devices",
+        "orders": "Orders",
+        "calendar": "Calendar",
+        "target": "Target",
+        "phone": "Phone",
+        "search": "Search",
+        "help": "Help"
+      },
+      "rules": {
+        "radiiTitle": "Radii",
+        "radii": "9 px — small buttons\n11–13 px — fields, buttons\n16 px — cards\n999 px — chips, statuses",
+        "spacingTitle": "Spacing",
+        "spacing": "scale 4 · 7 · 10 · 14 · 20 · 32 · 56",
+        "shadowTitle": "Shadow",
+        "shadow": "Only for elements floating above content — modal, switch. Cards and tables rely on a 1 px border.",
+        "copyTitle": "Copy",
+        "copy": "Talk to the installer person to person. Start with a verb: “Call the customer”, not “Telephone contact”."
       }
     }
   },

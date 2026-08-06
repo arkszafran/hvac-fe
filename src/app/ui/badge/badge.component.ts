@@ -1,33 +1,43 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  booleanAttribute,
+  computed,
+  input,
+} from '@angular/core';
 
 import { classNames } from '../utils/classnames';
 
-export type UiBadgeVariant = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
+export type UiBadgeVariant = 'neutral' | 'info' | 'progress' | 'success' | 'warning' | 'danger';
 
 const VARIANT_CLASSES: Record<UiBadgeVariant, string> = {
-  neutral: 'border border-border/85 bg-surface text-text-main backdrop-blur-xl',
-  info: 'border border-primary/12 bg-primary-soft text-primary-strong',
-  success: 'border border-success/14 bg-success-soft text-success',
-  warning: 'border border-warning/18 bg-warning-soft text-accent-strong',
-  danger: 'border border-danger/12 bg-danger-soft text-danger',
+  neutral: 'bg-surface-muted text-text-muted',
+  info: 'bg-info-soft text-info',
+  progress: 'bg-progress-soft text-progress',
+  success: 'bg-success-soft text-success',
+  warning: 'bg-warning-soft text-warning',
+  danger: 'bg-danger-soft text-danger',
 };
 
 @Component({
   selector: 'ui-badge',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <span [class]="badgeClasses()">
+      @if (dot()) {
+        <span class="size-1.5 shrink-0 rounded-full bg-current" aria-hidden="true"></span>
+      }
       <ng-content />
     </span>
   `,
 })
 export class UiBadgeComponent {
   readonly variant = input<UiBadgeVariant>('neutral');
+  readonly dot = input(false, { transform: booleanAttribute });
 
   protected readonly badgeClasses = computed(() =>
     classNames(
-      'inline-flex items-center rounded-[0.75rem] px-2.5 py-1 text-small font-semibold tracking-[-0.01em]',
+      'inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-label',
       VARIANT_CLASSES[this.variant()],
     ),
   );

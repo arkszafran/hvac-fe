@@ -4,6 +4,7 @@ export * from './card/card.component';
 export * from './drawer/drawer.component';
 export * from './empty-state/empty-state.component';
 export * from './fullscreen-panel/fullscreen-panel.component';
+export * from './icon/icon.component';
 export * from './input/input.component';
 export * from './loader/app-loader-host.component';
 export * from './menu/menu.component';

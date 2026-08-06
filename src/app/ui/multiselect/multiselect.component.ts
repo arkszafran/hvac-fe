@@ -15,6 +15,8 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
+import { classNames } from '../utils/classnames';
+
 export interface UiMultiselectOption {
   value: string;
   label: string;
@@ -83,6 +85,15 @@ export class UiMultiselectComponent implements ControlValueAccessor {
     ]
       .filter(Boolean)
       .join(' '),
+  );
+  protected readonly triggerClasses = computed(() =>
+    classNames(
+      'ui-focus-ring flex min-h-11 w-full items-center justify-between gap-3 rounded-field border bg-surface-muted px-3.5 py-2.5 text-left text-body text-text-main transition-colors duration-200 motion-reduce:transition-none disabled:cursor-not-allowed disabled:text-text-muted',
+      this.error()
+        ? 'border-danger bg-danger-soft hover:border-danger focus:border-danger focus-visible:ring-danger/20'
+        : 'border-transparent hover:border-border focus:border-action focus:bg-surface',
+      this.isOpen() && !this.error() && 'border-action bg-surface',
+    ),
   );
 
   private disabledByForms = false;
