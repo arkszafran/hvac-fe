@@ -1,5 +1,9 @@
-<div class="space-y-3">
-  @for (device of data().devices; track device.id; let index = $index) {
-    <app-service-order-device-details [device]="device" [index]="index" />
+<div class="md:space-y-3">
+  @for (device of data().devices; track device.id; let isLast = $last) {
+    <app-service-order-device-details [device]="device" [isLast]="isLast" />
+  } @empty {
+    <p class="py-5 text-body text-text-muted">
+      {{ 'serviceOrders.details.noRepairDevices' | transloco }}
+    </p>
   }
 </div>

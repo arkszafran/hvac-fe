@@ -1,149 +1,182 @@
-<div class="space-y-8">
+<div class="space-y-4">
   @if (customer(); as customer) {
     @if (device(); as device) {
-      <section class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-        <div class="space-y-1">
-          <nav
-            class="flex flex-wrap items-center gap-2 text-[13px]/5 font-semibold text-text-muted"
+      <a
+        [routerLink]="['/customers', customer.id]"
+        class="ui-focus-ring inline-flex min-h-11 items-center gap-2 rounded-button px-2 text-body text-text-main transition-colors hover:bg-surface-muted active:bg-surface-muted"
+      >
+        <ui-icon class="size-4 rotate-180" name="chevron-right" />
+        {{ 'devices.detail.backToCustomer' | transloco }}
+      </a>
+
+      <section class="sm:p-6 md:rounded-card md:border md:border-border md:bg-surface">
+        <div class="flex items-start justify-between gap-4">
+          <div class="min-w-0">
+            <ui-badge size="sm" variant="neutral">
+              {{ getDeviceTypeLabel(device.type) }}
+            </ui-badge>
+
+            <h1 class="mt-2 w-fit max-w-full border-b border-action text-h1 text-text-main">
+              <span class="block max-w-full truncate"> {{ device.brand }} {{ device.model }} </span>
+            </h1>
+
+            <p class="mt-1 text-small text-text-muted">
+              <a
+                [routerLink]="['/customers', customer.id]"
+                class="ui-focus-ring rounded-sm text-text-main hover:text-action-hover"
+              >
+                {{
+                  'devices.detail.breadcrumbs.customer'
+                    | transloco: { customer: customerTitle(customer) }
+                }}
+              </a>
+            </p>
+          </div>
+
+          <ui-button
+            class="hidden shrink-0 sm:block"
+            size="sm"
+            (pressed)="isEditDeviceModalOpen.set(true)"
           >
-            <a
-              routerLink="/customers"
-              class="text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
-            >
-              {{ 'devices.detail.breadcrumbs.customerList' | transloco }}
-            </a>
-            <span aria-hidden="true">/</span>
-            <a
-              [routerLink]="['/customers', customer.id]"
-              class="text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
-            >
-              {{
-                'devices.detail.breadcrumbs.customer'
-                  | transloco: { customer: customerTitle(customer) }
-              }}
-            </a>
-            <span aria-hidden="true">/</span>
-            <span class="text-text-main">{{
-              'devices.detail.breadcrumbs.device' | transloco
-            }}</span>
-          </nav>
-
-          <h1 class="text-display tracking-[-0.04em] text-text-main">
-            {{ device.brand }} {{ device.model }}
-          </h1>
-          <p class="text-body text-text-muted">
-            {{ getDeviceTypeLabel(device.type) }} - {{ customerTitle(customer) }}
-          </p>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-3">
-          <ui-button size="sm" (pressed)="isEditDeviceModalOpen.set(true)">
             {{ 'devices.actions.edit' | transloco }}
+          </ui-button>
+          <ui-button
+            class="shrink-0 sm:hidden"
+            size="lg"
+            (pressed)="isEditDeviceModalOpen.set(true)"
+          >
+            {{ 'common.actions.edit' | transloco }}
           </ui-button>
         </div>
       </section>
 
-      <section>
-        <ui-card>
-          <h2 card-header class="text-h3 tracking-[-0.02em] text-text-main">
+      <div class="space-y-4">
+        <section class="rounded-card border border-border bg-surface p-4 sm:p-6">
+          <h2 class="border-b border-border pb-3 text-h3 text-text-main">
             {{ 'devices.detail.sections.deviceData' | transloco }}
           </h2>
 
-          <dl class="grid gap-3 sm:grid-cols-2">
+          <dl class="mt-4 grid gap-x-8 gap-y-4 sm:grid-cols-2">
             @for (item of deviceOverviewItems(); track item.labelKey) {
-              <div>
-                <dt class="text-small font-semibold text-text-muted">
+              <div class="min-w-0">
+                <dt class="text-small text-text-muted">
                   {{ item.labelKey | transloco }}
                 </dt>
-                <dd class="text-label text-text-main">{{ item.value }}</dd>
+                <dd
+                  class="mt-0.5 text-body text-text-main [overflow-wrap:anywhere]"
+                  [class.font-mono]="item.isTechnical"
+                  [class.text-mono]="item.isTechnical"
+                >
+                  {{ item.value }}
+                </dd>
               </div>
             }
+          </dl>
+        </section>
 
-            <div class="sm:col-span-2">
-              <div
-                class="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <dt class="text-small font-semibold text-text-muted">
-                  {{ 'devices.detail.fields.nextInspection' | transloco }}
-                </dt>
+        <div class="grid items-start gap-4 lg:grid-cols-2">
+          <section class="rounded-card border border-border bg-surface p-4 sm:p-6">
+            <h2 class="text-h3 text-text-main">
+              {{ 'devices.detail.sections.inspectionService' | transloco }}
+            </h2>
 
-                <ui-button variant="secondary" (pressed)="isNextInspectionModalOpen.set(true)">
-                  {{ 'devices.actions.manageInspections' | transloco }}
-                </ui-button>
-              </div>
-
-              <dd class="text-label text-text-main">{{ nextInspectionDateLabel() }}</dd>
+            <div class="mt-4 rounded-field border border-action/20 bg-action-soft px-4 py-3.5">
+              <p class="text-kicker uppercase text-brand">
+                {{ 'devices.detail.fields.nextInspection' | transloco }}
+              </p>
+              <p class="mt-1 font-mono text-body font-semibold text-text-main">
+                {{ nextInspectionDateLabel() }}
+              </p>
               <p class="mt-1 text-small text-text-muted">
                 {{ nextInspectionStatusLabel() }}
               </p>
             </div>
-          </dl>
-        </ui-card>
-      </section>
 
-      <section>
-        <ui-card>
-          <h2 card-header class="text-h3 tracking-[-0.02em] text-text-main">
-            {{ 'devices.detail.sections.locationAndNotes' | transloco }}
-          </h2>
+            <div class="mt-4">
+              <ui-button
+                variant="secondary"
+                size="lg"
+                [block]="true"
+                (pressed)="isNextInspectionModalOpen.set(true)"
+              >
+                {{ 'devices.actions.manageInspections' | transloco }}
+              </ui-button>
+            </div>
+          </section>
 
-          <div class="space-y-5">
-            <dl class="space-y-4">
+          <section class="rounded-card border border-border bg-surface p-4 sm:p-6">
+            <h2 class="border-b border-border pb-3 text-h3 text-text-main">
+              {{ 'devices.detail.sections.locationAndNotes' | transloco }}
+            </h2>
+
+            <dl class="mt-4 space-y-3">
               @for (item of installationFacts(); track item.labelKey) {
                 <div>
-                  <dt class="text-small font-semibold text-text-muted">
+                  <dt class="text-small text-text-muted">
                     {{ item.labelKey | transloco }}
                   </dt>
-                  <dd class="whitespace-pre-line text-label text-text-main">
+                  <dd class="mt-0.5 whitespace-pre-line text-body text-text-main">
                     {{ item.value }}
                   </dd>
                 </div>
               }
+
+              <div>
+                <dt class="text-small text-text-muted">
+                  {{ 'devices.detail.fields.note' | transloco }}
+                </dt>
+                <dd class="mt-0.5 whitespace-pre-wrap text-body text-text-main">
+                  {{ device.note || ('devices.detail.noNote' | transloco) }}
+                </dd>
+              </div>
             </dl>
+          </section>
+        </div>
+      </div>
 
-            <div>
-              <p class="text-small font-semibold text-text-muted">
-                {{ 'devices.detail.fields.note' | transloco }}
-              </p>
-              <p class="whitespace-pre-wrap text-label text-text-main">
-                {{ device.note || ('devices.detail.noNote' | transloco) }}
-              </p>
-            </div>
-          </div>
-        </ui-card>
-      </section>
+      <section class="rounded-card border border-border bg-surface p-4 sm:p-6">
+        <h2 class="border-b border-border pb-3 text-h3 text-text-main">
+          {{ 'devices.detail.sections.serviceHistory' | transloco }}
+        </h2>
 
-      <section>
-        <ui-card>
-          <h2 card-header class="text-h3 tracking-[-0.02em] text-text-main">
-            {{ 'devices.detail.sections.serviceHistory' | transloco }}
-          </h2>
-
-          @if (deviceVisits().length) {
-            <div class="space-y-3">
-              @for (visit of deviceVisits(); track visit.id) {
-                <article class="rounded-[1rem] border border-border/80 bg-white/76 px-4 py-3">
-                  <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p class="text-label text-text-main">{{ getVisitTypeLabel(visit.type) }}</p>
-                      <p class="text-small text-text-muted">
-                        {{ 'visits.fields.handledBy' | transloco }}: {{ visit.userName || '--' }}
+        @if (deviceVisits().length) {
+          <ol class="mt-1 divide-y divide-border">
+            @for (visit of deviceVisits(); track visit.id) {
+              <li class="py-4 first:pt-3 last:pb-0">
+                <article>
+                  <div class="flex items-start justify-between gap-4">
+                    <div class="min-w-0">
+                      <h3 class="text-body font-semibold text-text-main">
+                        {{ getVisitTypeLabel(visit.type) }}
+                      </h3>
+                      <p class="mt-0.5 text-small text-text-muted">
+                        {{ 'visits.fields.handledBy' | transloco }}:
+                        <span class="text-text-main">{{ visit.userName || '--' }}</span>
                       </p>
                     </div>
-                    <p class="text-small text-text-muted">{{ formatDate(visit.date) }}</p>
+                    <time
+                      class="shrink-0 font-mono text-mono text-text-muted"
+                      [attr.datetime]="visit.date"
+                    >
+                      {{ formatDate(visit.date) }}
+                    </time>
                   </div>
 
-                  <p class="mt-2 text-body text-text-main">{{ visitNote(visit, device.id) }}</p>
+                  <p class="mt-2 whitespace-pre-wrap text-body text-text-main">
+                    {{ visitNote(visit, device.id) }}
+                  </p>
                 </article>
-              }
-            </div>
-          } @else {
+              </li>
+            }
+          </ol>
+        } @else {
+          <div class="mt-4">
             <ui-empty-state
               [title]="'devices.detail.noServiceHistoryTitle' | transloco"
               [description]="'devices.detail.noServiceHistoryDescription' | transloco"
             />
-          }
-        </ui-card>
+          </div>
+        }
       </section>
 
       <app-device-form-modal

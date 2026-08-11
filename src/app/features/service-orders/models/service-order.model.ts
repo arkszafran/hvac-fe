@@ -76,6 +76,7 @@ export interface InspectionServiceOrderData {
   deviceIds: string[];
   devices: ServiceOrderDevice[];
   customerConfirmationStatus: CustomerConfirmationStatus;
+  confirmationReminderSentAt?: string;
 }
 
 export type ServiceOrderData =

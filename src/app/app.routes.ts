@@ -117,20 +117,18 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'service-orders/:serviceOrderId',
+        loadComponent: () =>
+          import('./pages/service-orders/service-order-detail.page').then(
+            (module) => module.ServiceOrderDetailPageComponent,
+          ),
+      },
+      {
         path: 'service-orders',
         loadComponent: () =>
           import('./pages/service-orders/service-orders.page').then(
             (module) => module.ServiceOrdersPageComponent,
           ),
-        children: [
-          {
-            path: ':serviceOrderId',
-            loadComponent: () =>
-              import('./pages/service-orders/service-order-detail.page').then(
-                (module) => module.ServiceOrderDetailPageComponent,
-              ),
-          },
-        ],
       },
       {
         path: 'visits/new',

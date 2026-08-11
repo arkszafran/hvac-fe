@@ -591,26 +591,36 @@
   },
   "serviceOrders": {
     "title": "Service orders",
-    "description": "Installations, repairs, and inspections requiring contact, scheduling, or a completed visit.",
+    "description": "Three calls and one visit are waiting today. Start at the top — the most urgent tasks come first.",
     "summary": {
       "contactRequired": "Contact required: {{count}}",
       "scheduled": "Scheduled: {{count}}"
     },
+    "filters": {
+      "open": "Open",
+      "all": "All",
+      "filters": "Filters",
+      "todayCount": "Today · {{count}}",
+      "quickFiltersLabel": "Quick service order filters",
+      "drawerTitle": "Service order filters",
+      "drawerDescription": "Narrow the list by customer, status, or service order type.",
+      "showResults": "Show results"
+    },
     "fields": {
       "search": "Search",
-      "searchPlaceholder": "Customer, email, address, or assignee",
-      "dateFilter": "Next action",
+      "searchPlaceholder": "Customer, address, email...",
+      "dateFilter": "Date",
       "status": "Status",
       "statusPlaceholder": "Select statuses",
-      "type": "Order type",
+      "type": "Type",
       "typePlaceholder": "Select order types",
-      "typeAndStatus": "Type and status",
+      "typeAndStatus": "Service order",
       "customer": "Customer",
       "customerAndAddress": "Customer and address",
       "orderDate": "Order date",
-      "date": "Next action",
+      "date": "Next step",
       "visitDateTime": "Visit date",
-      "nextAction": "Next action",
+      "nextAction": "Next step",
       "nextContactAt": "Next contact date and time",
       "assignee": "Assignee",
       "noDate": "No visit date set",
@@ -647,10 +657,17 @@
       "system": "System"
     },
     "confirmation": {
-      "confirmed": "Customer confirmed",
-      "notConfirmed": "Customer did not confirm"
+      "waitingTitle": "Date awaiting confirmation",
+      "confirmedTitle": "Customer confirmed the date",
+      "reminderSent": "Reminder sent on {{date}}",
+      "confirmedCallInstruction": "Call to give the final confirmation for the visit.",
+      "unconfirmedCompact": "Date {{date}} — unconfirmed",
+      "waitingCompact": "{{date}} — awaiting confirmation",
+      "confirmedCompact": "Date {{date}} — customer confirmed",
+      "confirmDate": "Confirm date"
     },
     "actions": {
+      "newOrder": "New service order",
       "setDate": "Set visit date",
       "changeDate": "Change visit date",
       "createVisit": "Create visit",
@@ -667,11 +684,15 @@
     "nextAction": {
       "today": "Today",
       "scheduledVisit": "Scheduled visit",
+      "visitCustomer": "Customer visit",
       "callCustomer": "Call customer",
       "scheduledCall": "Call the customer on"
     },
     "assignee": {
       "unassigned": "Unassigned"
+    },
+    "customer": {
+      "newBadge": "New"
     },
     "table": {
       "openDetailsAria": "Open service order details for {{customer}}"
@@ -698,13 +719,21 @@
     },
     "details": {
       "backToList": "Back to service orders",
-      "orderDateSummary": "Order date: {{date}}",
-      "dateSummary": "Next action: {{date}}",
+      "backToCustomer": "Back to customer details",
+      "orderDateSummary": "Order from {{date}}",
+      "dateSummary": "Next step: {{date}}",
       "actionsLabel": "Service order actions",
+      "assigneeLabel": "Assignee",
+      "mapHint": "Opens Google Maps",
+      "sourceOrigin": "Source",
       "customer": "Customer details",
       "installationTitle": "Installation details",
       "repairTitle": "Repair details",
       "inspectionTitle": "Inspection details",
+      "installationSectionTitle": "Installation scope",
+      "repairSectionTitle": "Devices to repair",
+      "inspectionSectionTitle": "Devices on site",
+      "addDevice": "Add device",
       "buildingType": "Building type",
       "room": "Room {{index}}",
       "area": "Area",
@@ -719,7 +748,14 @@
       "refrigerant": "Refrigerant",
       "refrigerantAmount": "Refrigerant amount",
       "reportedError": "Reported issue",
-      "devicePhotos": "Device photos",
+      "devicePhotos": "Nameplate photo",
+      "addPhoto": "Add photo",
+      "missingData": "Missing data",
+      "completeData": "— complete",
+      "refrigerantCombined": "Refrigerant / amount",
+      "roomPhotos": "Room photos",
+      "noRooms": "No rooms have been added to this installation yet.",
+      "noRepairDevices": "No devices have been added to this repair order yet.",
       "noDevicePhotos": "No photos were added for this device.",
       "noDevices": "No devices are assigned to this inspection.",
       "notesTitle": "Notes history",
@@ -790,12 +826,17 @@
     "title": "Customers",
     "fallbackName": "Customer",
     "newCustomer": "New customer",
-    "searchPlaceholder": "Company name, person, email, or address",
+    "description": "Contacts, locations, devices, and service history in one place.",
+    "searchLabel": "Search customers",
+    "searchPlaceholder": "Customer, phone, email, address...",
     "actions": {
       "add": "Add customer",
       "edit": "Edit customer"
     },
     "detail": {
+      "customerData": "Customer details",
+      "contactPerson": "Contact person",
+      "mapHint": "Opens Google Maps",
       "noOrdersTitle": "No service orders",
       "noOrdersDescription": "Service orders assigned to this customer will appear here.",
       "openOrderDetailsAria": "Open service order details: {{type}}, {{date}}",
@@ -818,6 +859,7 @@
     "table": {
       "rowActionLabel": "Open customer details",
       "emptyTitle": "No customers",
+      "emptyDescription": "Add your first customer or change the search query.",
       "client": "Customer",
       "contact": "Contact",
       "location": "Location"

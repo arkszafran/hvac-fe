@@ -1,10 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
-import { ServiceOrderDetailPanelComponent } from '../../features/service-orders/components/service-order-detail-panel/service-order-detail-panel.component';
+import { ServiceOrderDetailViewComponent } from '../../features/service-orders/components/service-order-detail-view/service-order-detail-view.component';
 
 @Component({
   selector: 'app-service-order-detail-page',
-  imports: [ServiceOrderDetailPanelComponent],
+  imports: [ServiceOrderDetailViewComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './service-order-detail.page.html',
 })

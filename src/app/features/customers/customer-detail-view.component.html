@@ -1,0 +1,291 @@
+<div class="space-y-4">
+  <button
+    type="button"
+    class="ui-focus-ring inline-flex min-h-11 items-center gap-2 rounded-button px-2 text-body text-text-main transition-colors hover:bg-surface-muted active:bg-surface-muted"
+    (click)="navigateToCustomers()"
+  >
+    <ui-icon class="size-4 rotate-180" name="chevron-right" />
+    {{ 'devices.detail.backToCustomers' | transloco }}
+  </button>
+
+  @if (customer(); as customer) {
+    <section class="sm:p-6 md:rounded-card md:border md:border-border md:bg-surface">
+      <div class="flex items-start justify-between gap-4">
+        <div class="min-w-0">
+          <ui-badge size="sm" variant="neutral">
+            {{ customerTypeLabel(customer) }}
+          </ui-badge>
+
+          <h1 class="mt-2 w-fit max-w-full border-b border-action text-h1 text-text-main">
+            <span class="block max-w-full truncate">{{ customerTitle(customer) }}</span>
+          </h1>
+
+          @if (customer.type === 'company' && customer.fullName) {
+            <p class="mt-1 text-small text-text-muted">
+              {{ 'customers.detail.contactPerson' | transloco }}:
+              <span class="text-text-main">{{ customer.fullName }}</span>
+            </p>
+          }
+        </div>
+
+        <ui-button
+          class="hidden shrink-0 sm:block"
+          size="sm"
+          (pressed)="isEditCustomerModalOpen.set(true)"
+        >
+          {{ 'customers.actions.edit' | transloco }}
+        </ui-button>
+        <ui-button
+          class="shrink-0 sm:hidden"
+          size="sm"
+          (pressed)="isEditCustomerModalOpen.set(true)"
+        >
+          {{ 'common.actions.edit' | transloco }}
+        </ui-button>
+      </div>
+    </section>
+
+    <div class="grid items-start gap-4 lg:grid-cols-3">
+      <section class="rounded-card border border-border bg-surface p-4 sm:p-6">
+        <h2 class="text-h3 text-text-main">
+          {{ 'customers.detail.customerData' | transloco }}
+        </h2>
+
+        <dl class="mt-4 space-y-3">
+          @if (customer.type === 'company') {
+            <div>
+              <dt class="text-small text-text-muted">
+                {{ 'customers.form.company' | transloco }}
+              </dt>
+              <dd class="mt-0.5 text-body text-text-main">
+                {{ customer.companyName || '--' }}
+              </dd>
+            </div>
+
+            <div>
+              <dt class="text-small text-text-muted">
+                {{ 'customers.detail.contactPerson' | transloco }}
+              </dt>
+              <dd class="mt-0.5 text-body text-text-main">
+                {{ customer.fullName || '--' }}
+              </dd>
+            </div>
+          } @else {
+            <div>
+              <dt class="text-small text-text-muted">
+                {{ 'customers.form.fullName' | transloco }}
+              </dt>
+              <dd class="mt-0.5 text-body text-text-main">
+                {{ customer.fullName || '--' }}
+              </dd>
+            </div>
+          }
+
+          <div>
+            <dt class="text-small text-text-muted">
+              {{ 'customers.form.phone' | transloco }}
+            </dt>
+            <dd class="mt-0.5">
+              @if (customer.phone) {
+                <a
+                  [href]="phoneHref(customer.phone)"
+                  class="ui-focus-ring rounded-sm font-mono text-mono text-action-contrast hover:text-action-hover"
+                >
+                  {{ customer.phone }}
+                </a>
+              } @else {
+                <span class="text-body text-text-main">--</span>
+              }
+            </dd>
+          </div>
+
+          <div>
+            <dt class="text-small text-text-muted">
+              {{ 'customers.form.email' | transloco }}
+            </dt>
+            <dd class="mt-0.5 text-body text-text-main [overflow-wrap:anywhere]">
+              @if (customer.email) {
+                <a
+                  [href]="emailHref(customer.email)"
+                  class="ui-focus-ring rounded-sm hover:text-action-hover"
+                >
+                  {{ customer.email }}
+                </a>
+              } @else {
+                --
+              }
+            </dd>
+          </div>
+
+          <div>
+            <dt class="text-small text-text-muted">
+              {{ 'customers.form.address' | transloco }}
+            </dt>
+            <dd class="mt-0.5">
+              @if (mapHref(customer); as href) {
+                <a
+                  [href]="href"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="ui-focus-ring inline-flex max-w-full items-start gap-1.5 rounded-sm text-body text-action-contrast hover:text-action-hover"
+                >
+                  <ui-map-pin-icon class="mt-0.5 size-4" />
+                  <span>{{ formatAddress(customer) }}</span>
+                </a>
+                <p class="mt-1 text-small text-text-muted">
+                  {{ 'customers.detail.mapHint' | transloco }}
+                </p>
+              } @else {
+                <span class="text-body text-text-main">--</span>
+              }
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="rounded-card border border-border bg-surface p-4 lg:col-span-2 sm:p-6">
+        <div class="border-b border-border pb-3">
+          <h2 class="text-h3 text-text-main">
+            {{ 'serviceOrders.title' | transloco }}
+          </h2>
+        </div>
+
+        <div class="mt-4">
+          <app-customer-service-order-list [orders]="customerOrders()" />
+        </div>
+      </section>
+    </div>
+
+    <section class="rounded-card border border-border bg-surface p-4 sm:p-6">
+      <div class="flex items-center justify-between gap-3 border-b border-border pb-3">
+        <div class="flex min-w-0 flex-1 items-center justify-between gap-3">
+          <h2 class="truncate text-h3 text-text-main">
+            {{ 'devices.title' | transloco }}
+          </h2>
+          <span class="font-mono text-mono text-text-muted md:hidden">
+            {{ customer.devices.length }}
+          </span>
+        </div>
+        <ui-button variant="secondary" size="xs" (pressed)="isAddDeviceModalOpen.set(true)">
+          <ui-icon button-icon name="plus" />
+          {{ 'devices.actions.add' | transloco }}
+        </ui-button>
+      </div>
+
+      <div class="mt-4">
+        @if (customer.devices.length) {
+          <app-device-list
+            [customerId]="customer.id"
+            [devices]="customer.devices"
+            (deviceEditRequested)="handleEditDevice($event)"
+          />
+        } @else {
+          <ui-empty-state
+            [title]="'devices.table.emptyTitle' | transloco"
+            [description]="'devices.table.emptyDescription' | transloco"
+            [actionLabel]="'devices.actions.add' | transloco"
+            (action)="isAddDeviceModalOpen.set(true)"
+          />
+        }
+      </div>
+    </section>
+
+    <app-customer-form-modal
+      [open]="isEditCustomerModalOpen()"
+      [initialValue]="editableCustomerDraft()"
+      [modalTitle]="'customers.actions.edit' | transloco"
+      [modalDescription]="'customers.detail.editModalDescription' | transloco"
+      [submitLabel]="'common.actions.saveChanges' | transloco"
+      (close)="isEditCustomerModalOpen.set(false)"
+      (save)="handleUpdateCustomer($event)"
+    />
+
+    <app-device-form-modal
+      [open]="isAddDeviceModalOpen()"
+      (close)="isAddDeviceModalOpen.set(false)"
+      (save)="handleAddDevice($event)"
+    />
+
+    <app-device-form-modal
+      [open]="isEditDeviceModalOpen()"
+      [initialValue]="editableDeviceDraft()"
+      [modalTitle]="'devices.actions.edit' | transloco"
+      [submitLabel]="'common.actions.saveChanges' | transloco"
+      (close)="closeEditDeviceModal()"
+      (save)="handleUpdateDevice($event)"
+    />
+
+    @if (pendingCreatePlan(); as createPlan) {
+      @if (createPlan.kind === 'single-candidate') {
+        <app-service-order-link-proposal-modal
+          [open]="true"
+          [title]="createPlan.title"
+          [description]="createPlan.description"
+          [customerName]="createPlan.customerName"
+          [deviceName]="createPlan.deviceName"
+          [order]="createPlan.candidate"
+          [primaryActionLabel]="createPlan.primaryActionLabel"
+          [secondaryActionLabel]="createPlan.createActionLabel"
+          [cancelLabel]="createPlan.cancelActionLabel"
+          (close)="clearCreatePlan()"
+          (confirm)="confirmCreateAttach(createPlan.candidate.id)"
+          (createSeparate)="confirmCreateNewInspection()"
+        />
+      } @else if (createPlan.kind === 'candidate-choice') {
+        <app-service-order-candidate-picker-modal
+          [open]="true"
+          [title]="createPlan.title"
+          [description]="createPlan.description"
+          [customerName]="createPlan.customerName"
+          [deviceName]="createPlan.deviceName"
+          [candidates]="createPlan.candidates"
+          [createActionLabel]="createPlan.createActionLabel"
+          [cancelActionLabel]="createPlan.cancelActionLabel"
+          (close)="clearCreatePlan()"
+          (serviceOrderSelected)="confirmCreateAttach($event)"
+          (createNew)="confirmCreateNewInspection()"
+        />
+      }
+    }
+
+    @if (pendingUpdatePlan(); as updatePlan) {
+      @if (updatePlan.kind === 'single-candidate') {
+        <app-service-order-link-proposal-modal
+          [open]="true"
+          [title]="updatePlan.title"
+          [description]="updatePlan.description"
+          [customerName]="updatePlan.customerName"
+          [deviceName]="updatePlan.deviceName"
+          [order]="updatePlan.candidate"
+          [primaryActionLabel]="updatePlan.primaryActionLabel"
+          [secondaryActionLabel]="updatePlan.createActionLabel"
+          [cancelLabel]="updatePlan.cancelActionLabel"
+          (close)="clearUpdatePlan()"
+          (confirm)="confirmUpdateAttach(updatePlan.candidate.id)"
+          (createSeparate)="confirmUpdateCreateNewInspection()"
+        />
+      } @else if (updatePlan.kind === 'candidate-choice') {
+        <app-service-order-candidate-picker-modal
+          [open]="true"
+          [title]="updatePlan.title"
+          [description]="updatePlan.description"
+          [customerName]="updatePlan.customerName"
+          [deviceName]="updatePlan.deviceName"
+          [candidates]="updatePlan.candidates"
+          [createActionLabel]="updatePlan.createActionLabel"
+          [cancelActionLabel]="updatePlan.cancelActionLabel"
+          (close)="clearUpdatePlan()"
+          (serviceOrderSelected)="confirmUpdateAttach($event)"
+          (createNew)="confirmUpdateCreateNewInspection()"
+        />
+      }
+    }
+  } @else {
+    <ui-empty-state
+      [title]="'customers.detail.notFoundTitle' | transloco"
+      [description]="'customers.detail.notFoundDescription' | transloco"
+      [actionLabel]="'devices.detail.backToCustomers' | transloco"
+      (action)="navigateToCustomers()"
+    />
+  }
+</div>

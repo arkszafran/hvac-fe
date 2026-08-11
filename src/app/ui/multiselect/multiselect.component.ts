@@ -49,8 +49,10 @@ export class UiMultiselectComponent implements ControlValueAccessor {
 
   readonly inputId = input(`ui-multiselect-${++nextMultiselectId}`);
   readonly label = input('');
+  readonly inlineLabel = input('');
   readonly placeholder = input('');
   readonly allSelectedLabel = input('');
+  readonly selectionLabel = input('');
   readonly hint = input('');
   readonly error = input('');
   readonly disabled = input(false, { transform: booleanAttribute });
@@ -66,6 +68,10 @@ export class UiMultiselectComponent implements ControlValueAccessor {
 
     if (!selectedOptions.length) {
       return this.placeholder();
+    }
+
+    if (this.selectionLabel()) {
+      return this.selectionLabel();
     }
 
     if (

@@ -4,9 +4,8 @@ import { CustomersViewComponent } from '../../features/customers/customers-view.
 
 @Component({
   selector: 'app-customers-page',
-  standalone: true,
   imports: [CustomersViewComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: ` <app-customers-view /> `,
+  templateUrl: './customers.page.html',
 })
 export class CustomersPageComponent {}

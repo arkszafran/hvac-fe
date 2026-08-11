@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 import { Device } from '../../../customers/models/device.model';
@@ -14,4 +14,5 @@ import { ServiceOrderDeviceDetailsComponent } from '../service-order-device-deta
 export class ServiceOrderInspectionDetailsComponent {
   readonly data = input.required<InspectionServiceOrderData>();
   readonly systemDevices = input<Device[]>([]);
+  protected readonly devices = computed(() => [...this.systemDevices(), ...this.data().devices]);
 }

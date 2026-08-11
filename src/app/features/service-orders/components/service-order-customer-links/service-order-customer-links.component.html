@@ -1,0 +1,35 @@
+<div class="min-w-0">
+  @if (systemCustomer(); as customer) {
+    <a
+      [routerLink]="['/customers', customer.id]"
+      class="ui-focus-ring block max-w-full truncate rounded-sm text-body font-semibold text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
+      (click)="$event.stopPropagation()"
+    >
+      {{ customerName() }}
+    </a>
+  } @else {
+    <div class="flex min-w-0 items-center gap-2">
+      <p class="min-w-0 truncate text-body font-semibold text-text-main">
+        {{ customerName() }}
+      </p>
+      <ui-badge class="shrink-0 uppercase" size="sm" variant="neutral">
+        {{ 'serviceOrders.customer.newBadge' | transloco }}
+      </ui-badge>
+    </div>
+  }
+
+  @if (mapHref(); as href) {
+    <a
+      [href]="href"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="ui-focus-ring mt-1 flex max-w-full items-center gap-1.5 rounded-sm text-small text-action-contrast transition-colors hover:text-action-hover"
+      (click)="$event.stopPropagation()"
+    >
+      <ui-map-pin-icon class="size-4" />
+      <span class="min-w-0 truncate">{{ customerAddress() }}</span>
+    </a>
+  } @else {
+    <p class="mt-1 text-small text-text-muted">--</p>
+  }
+</div>

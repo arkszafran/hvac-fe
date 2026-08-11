@@ -7,7 +7,8 @@ import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { UserListItemDto } from '../../../../common/api/users';
 import {
   UiButtonComponent,
-  UiCardComponent,
+  UiDrawerComponent,
+  UiIconComponent,
   UiInputComponent,
   UiModalComponent,
   UiMultiselectComponent,
@@ -15,6 +16,7 @@ import {
   UiSelectComponent,
   UiSelectOption,
 } from '../../../../ui';
+import { classNames } from '../../../../ui/utils/classnames';
 import { ServiceOrdersStore } from '../../data/service-orders.store';
 import {
   ServiceOrder,
@@ -48,7 +50,8 @@ const DEFAULT_DATE_FILTER: ServiceOrderDateFilter = 'today';
     ReactiveFormsModule,
     TranslocoPipe,
     UiButtonComponent,
-    UiCardComponent,
+    UiDrawerComponent,
+    UiIconComponent,
     UiInputComponent,
     UiModalComponent,
     UiMultiselectComponent,
@@ -79,6 +82,7 @@ export class ServiceOrdersViewComponent {
   protected readonly orderForNextContact = signal<ServiceOrder | null>(null);
   protected readonly orderForNote = signal<ServiceOrder | null>(null);
   protected readonly orderForAssignee = signal<ServiceOrder | null>(null);
+  protected readonly isMobileFiltersOpen = signal(false);
   protected readonly statusControl = new FormControl<ServiceOrderStatus[]>(DEFAULT_STATUS_FILTERS, {
     nonNullable: true,
   });
@@ -122,9 +126,32 @@ export class ServiceOrdersViewComponent {
       label: getServiceOrderTypeLabel(type, this.transloco),
     }));
   });
-  protected readonly filteredOrders = computed(() => {
+  protected readonly statusSelectionLabel = computed(() => {
+    this.activeLanguage();
+    const selectedStatuses = this.statusFilter();
+
+    return hasSameValues(selectedStatuses, DEFAULT_STATUS_FILTERS)
+      ? this.transloco.translate('serviceOrders.filters.open')
+      : '';
+  });
+  protected readonly filteredOrders = computed(() => this.filterOrders(this.dateFilter()));
+  protected readonly todayOrderCount = computed(() => this.filterOrders('today').length);
+
+  protected selectDateFilter(filter: ServiceOrderDateFilter): void {
+    this.dateControl.setValue(filter);
+  }
+
+  protected dateFilterChipClasses(filter: ServiceOrderDateFilter): string {
+    return classNames(
+      'ui-focus-ring inline-flex min-h-11 shrink-0 items-center justify-center rounded-full px-3.5 text-small transition-colors duration-200 motion-reduce:transition-none',
+      this.dateFilter() === filter
+        ? 'bg-brand font-semibold text-white'
+        : 'bg-surface-muted text-text-main hover:bg-action-soft',
+    );
+  }
+
+  private filterOrders(date: ServiceOrderDateFilter) {
     const query = normalizeValue(this.searchQuery());
-    const date = this.dateFilter();
     const status = this.statusFilter();
     const type = this.typeFilter();
 
@@ -157,11 +184,9 @@ export class ServiceOrdersViewComponent {
         ).includes(query)
       );
     });
-  });
+  }
   protected openDetails(order: ServiceOrder): void {
-    void this.router.navigate(['/service-orders', order.id], {
-      state: { fromServiceOrderList: true },
-    });
+    void this.router.navigate(['/service-orders', order.id]);
   }
 
   protected openSchedule(order: ServiceOrder): void {
@@ -258,4 +283,8 @@ function normalizeValue(value: string): string {
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .trim();
+}
+
+function hasSameValues<T>(left: readonly T[], right: readonly T[]): boolean {
+  return left.length === right.length && left.every((value) => right.includes(value));
 }

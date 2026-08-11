@@ -4,9 +4,8 @@ import { DeviceDetailViewComponent } from '../../features/customers/device-detai
 
 @Component({
   selector: 'app-device-detail-page',
-  standalone: true,
   imports: [DeviceDetailViewComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: ` <app-device-detail-view /> `,
+  templateUrl: './device-detail.page.html',
 })
 export class DeviceDetailPageComponent {}

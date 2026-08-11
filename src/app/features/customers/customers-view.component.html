@@ -1,0 +1,45 @@
+<div class="-mx-2 space-y-3 md:mx-0 md:space-y-4">
+  <header class="flex items-end justify-between gap-4 px-2 md:px-0">
+    <div class="min-w-0">
+      <h1 class="text-h1 text-text-main">
+        {{ 'customers.title' | transloco }}
+      </h1>
+      <p class="mt-1 hidden text-body text-text-muted md:block">
+        {{ 'customers.description' | transloco }}
+      </p>
+    </div>
+
+    <ui-button class="hidden shrink-0 md:block" (pressed)="isCreateCustomerModalOpen.set(true)">
+      <ui-icon button-icon name="plus" />
+      {{ 'customers.actions.add' | transloco }}
+    </ui-button>
+    <ui-button
+      class="shrink-0 md:hidden"
+      size="lg"
+      [iconOnly]="true"
+      [ariaLabel]="'customers.actions.add' | transloco"
+      (pressed)="isCreateCustomerModalOpen.set(true)"
+    >
+      <ui-icon button-icon name="plus" />
+      {{ 'customers.actions.add' | transloco }}
+    </ui-button>
+  </header>
+
+  <section
+    class="rounded-card border border-border bg-surface p-2.5"
+    [attr.aria-label]="'customers.searchLabel' | transloco"
+  >
+    <app-customer-toolbar [control]="searchControl" />
+  </section>
+
+  <app-customer-table
+    [customers]="filteredCustomers()"
+    (customerSelected)="handleCustomerSelected($event)"
+  />
+
+  <app-customer-form-modal
+    [open]="isCreateCustomerModalOpen()"
+    (close)="isCreateCustomerModalOpen.set(false)"
+    (save)="handleCreateCustomer($event)"
+  />
+</div>

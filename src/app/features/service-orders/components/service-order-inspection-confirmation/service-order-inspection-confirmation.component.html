@@ -1,0 +1,90 @@
+<div [class]="containerClasses()">
+  <div class="md:flex md:items-center md:justify-between md:gap-4">
+    <div class="flex min-w-0 gap-2.5">
+      <svg
+        viewBox="0 0 20 20"
+        fill="none"
+        class="mt-0.5 size-4 shrink-0"
+        [class.text-success]="isConfirmed()"
+        [class.text-warning]="!isConfirmed()"
+        aria-hidden="true"
+      >
+        <circle cx="10" cy="10" r="6.5" stroke="currentColor" stroke-width="1.5" />
+        <path
+          d="M10 6.5V10L12.5 11.5"
+          stroke="currentColor"
+          stroke-width="1.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+
+      <div class="min-w-0">
+        @if (isDetails()) {
+          <p
+            class="text-kicker uppercase"
+            [class.text-success]="isConfirmed()"
+            [class.text-warning]="!isConfirmed()"
+          >
+            {{ detailTitleKey() | transloco }}
+          </p>
+          <p class="font-mono text-body font-semibold text-text-main">
+            {{ formattedDateTime() }}
+          </p>
+          @if (isConfirmed()) {
+            <p class="mt-0.5 text-small text-text-muted">
+              {{ 'serviceOrders.confirmation.confirmedCallInstruction' | transloco }}
+            </p>
+          } @else if (reminderSentAt()) {
+            <p class="mt-0.5 text-small text-warning">
+              {{
+                'serviceOrders.confirmation.reminderSent'
+                  | transloco: { date: formattedReminderDate() }
+              }}
+            </p>
+          }
+        } @else {
+          <p
+            class="line-clamp-2 text-small font-semibold"
+            [class.text-success]="isConfirmed()"
+            [class.text-warning]="!isConfirmed()"
+          >
+            {{ compactTitleKey() | transloco: { date: formattedDateTime() } }}
+          </p>
+          @if (isConfirmed()) {
+            <p class="mt-0.5 line-clamp-1 text-small text-text-muted">
+              {{ 'serviceOrders.confirmation.confirmedCallInstruction' | transloco }}
+            </p>
+          } @else if (reminderSentAt()) {
+            <p class="mt-0.5 text-small text-warning">
+              {{
+                'serviceOrders.confirmation.reminderSent'
+                  | transloco: { date: formattedReminderDate() }
+              }}
+            </p>
+          }
+        }
+      </div>
+    </div>
+
+    @if (isDetails()) {
+      <div class="mt-4 grid grid-cols-2 gap-2 md:mt-0 md:shrink-0">
+        <ui-button variant="secondary" [block]="true" (pressed)="changeRequested.emit()">
+          {{ 'serviceOrders.actions.changeDate' | transloco }}
+        </ui-button>
+        <ui-button variant="accent" [block]="true" (pressed)="confirmationRequested.emit()">
+          <svg button-icon viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path
+              d="M5.5 10L8.5 13L14.5 7"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          {{ 'serviceOrders.confirmation.confirmDate' | transloco }}
+        </ui-button>
+      </div>
+    }
+  </div>
+</div>

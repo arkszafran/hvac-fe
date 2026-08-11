@@ -64,8 +64,6 @@ This project uses:
 
 - Angular 21 with standalone components and signals
 - Tailwind CSS for styling
-- Firebase for authentication and Firestore for data sync
-- Angular Material for icons
 
 When generating code for this project:
 

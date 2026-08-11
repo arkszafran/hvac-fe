@@ -18,8 +18,13 @@
       [attr.aria-describedby]="describedBy() || null"
       (click)="toggleDropdown()"
     >
-      <span class="min-w-0 flex-1 truncate" [class.text-text-muted]="!selectedValues().length">
-        {{ selectionText() }}
+      <span class="flex min-w-0 flex-1 items-center gap-1">
+        @if (inlineLabel()) {
+          <span class="shrink-0 text-text-muted">{{ inlineLabel() }}:</span>
+        }
+        <span class="min-w-0 truncate" [class.text-text-muted]="!selectedValues().length">
+          {{ selectionText() }}
+        </span>
       </span>
 
       <svg
@@ -43,7 +48,7 @@
       <div
         [id]="panelId()"
         role="group"
-        [attr.aria-label]="label() || placeholder()"
+        [attr.aria-label]="label() || inlineLabel() || placeholder()"
         class="absolute left-0 top-[calc(100%+0.4375rem)] z-50 max-h-72 w-full overflow-y-auto overscroll-contain rounded-field border border-border bg-surface p-1.5 shadow-floating motion-safe:animate-[ui-fade-in_120ms_ease-out]"
       >
         @for (option of options(); track option.value) {

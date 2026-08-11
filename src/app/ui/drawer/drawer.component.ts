@@ -2,10 +2,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  HostListener,
   OnDestroy,
   OnInit,
   booleanAttribute,
+  computed,
   inject,
   input,
   output,
@@ -13,13 +13,17 @@ import {
 import { DOCUMENT } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 
+import { classNames } from '../utils/classnames';
+
 let nextDrawerId = 0;
 
 @Component({
   selector: 'ui-drawer',
-  standalone: true,
   imports: [TranslocoPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '(document:keydown.escape)': 'handleEscape()',
+  },
   template: `
     @if (open()) {
       <div class="fixed inset-0 z-[80]">
@@ -34,14 +38,14 @@ let nextDrawerId = 0;
           role="dialog"
           aria-modal="true"
           [attr.aria-labelledby]="title() ? titleId : null"
-          class="absolute inset-x-0 bottom-0 max-h-[85vh] overflow-hidden rounded-t-3xl border border-border bg-surface shadow-floating motion-safe:animate-[ui-sheet-up_220ms_cubic-bezier(0.16,1,0.3,1)] lg:inset-y-0 lg:right-0 lg:left-auto lg:h-full lg:max-h-none lg:w-full lg:max-w-md lg:rounded-none lg:rounded-l-3xl lg:motion-safe:animate-[ui-drawer-in_220ms_cubic-bezier(0.16,1,0.3,1)]"
+          [class]="panelClasses()"
         >
-          <div class="px-5 pt-3 sm:px-6 lg:hidden">
+          <div class="shrink-0 px-5 pt-3 sm:px-6 lg:hidden">
             <div class="mx-auto h-1.5 w-14 rounded-full bg-border"></div>
           </div>
 
           <div
-            class="flex items-start justify-between gap-4 border-b border-border px-5 py-4 sm:px-6"
+            class="flex shrink-0 items-start justify-between gap-4 border-b border-border px-5 py-4 sm:px-6"
           >
             <div class="space-y-1">
               @if (title()) {
@@ -74,13 +78,11 @@ let nextDrawerId = 0;
             </button>
           </div>
 
-          <div
-            class="max-h-[calc(85vh-86px)] overflow-y-auto p-5 sm:p-6 lg:max-h-[calc(100vh-86px)]"
-          >
+          <div class="min-h-0 flex-1 overflow-y-auto p-5 sm:p-6">
             <ng-content />
           </div>
 
-          <div class="empty:hidden border-t border-border px-5 py-4 sm:px-6">
+          <div class="empty:hidden shrink-0 border-t border-border px-5 py-4 sm:px-6">
             <ng-content select="[drawer-footer]" />
           </div>
         </section>
@@ -95,11 +97,18 @@ export class UiDrawerComponent implements OnInit, OnDestroy {
   readonly open = input(false, { transform: booleanAttribute });
   readonly title = input('');
   readonly description = input('');
+  readonly expanded = input(false, { transform: booleanAttribute });
   readonly closeOnBackdrop = input(true, { transform: booleanAttribute });
 
   readonly close = output<void>();
 
   protected readonly titleId = `ui-drawer-title-${++nextDrawerId}`;
+  protected readonly panelClasses = computed(() =>
+    classNames(
+      'absolute inset-x-0 bottom-0 flex flex-col overflow-hidden rounded-t-3xl border border-border bg-surface shadow-floating motion-safe:animate-[ui-sheet-up_220ms_cubic-bezier(0.16,1,0.3,1)] lg:inset-y-0 lg:right-0 lg:left-auto lg:h-full lg:max-h-none lg:w-full lg:max-w-md lg:rounded-none lg:rounded-l-3xl lg:motion-safe:animate-[ui-drawer-in_220ms_cubic-bezier(0.16,1,0.3,1)]',
+      this.expanded() ? 'h-[85dvh]' : 'max-h-[85dvh]',
+    ),
+  );
 
   ngOnInit(): void {
     this.document.body.appendChild(this.hostElement);
@@ -109,7 +118,6 @@ export class UiDrawerComponent implements OnInit, OnDestroy {
     this.hostElement.remove();
   }
 
-  @HostListener('document:keydown.escape')
   protected handleEscape(): void {
     if (this.open()) {
       this.close.emit();

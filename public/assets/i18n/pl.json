@@ -591,26 +591,36 @@
   },
   "serviceOrders": {
     "title": "Zlecenia",
-    "description": "Montaże, naprawy i przeglądy wymagające kontaktu, zaplanowania albo realizacji wizyty.",
+    "description": "Dziś czekają 3 telefony i jedna wizyta. Zacznij od góry — najpilniejsze są na wierzchu.",
     "summary": {
       "contactRequired": "Do kontaktu: {{count}}",
       "scheduled": "Zaplanowane: {{count}}"
     },
+    "filters": {
+      "open": "Otwarte",
+      "all": "Wszystkie",
+      "filters": "Filtry",
+      "todayCount": "Dziś · {{count}}",
+      "quickFiltersLabel": "Szybkie filtry zleceń",
+      "drawerTitle": "Filtry zleceń",
+      "drawerDescription": "Zawęź listę według klienta, statusu lub rodzaju zlecenia.",
+      "showResults": "Pokaż wyniki"
+    },
     "fields": {
       "search": "Szukaj",
-      "searchPlaceholder": "Klient, e-mail, adres albo opiekun",
-      "dateFilter": "Następna akcja",
+      "searchPlaceholder": "Klient, adres, e-mail...",
+      "dateFilter": "Termin",
       "status": "Status",
       "statusPlaceholder": "Wybierz statusy",
-      "type": "Rodzaj zlecenia",
+      "type": "Rodzaj",
       "typePlaceholder": "Wybierz rodzaje zleceń",
-      "typeAndStatus": "Rodzaj i status",
+      "typeAndStatus": "Zlecenie",
       "customer": "Klient",
       "customerAndAddress": "Klient i adres",
       "orderDate": "Data zlecenia",
-      "date": "Następna akcja",
+      "date": "Następny krok",
       "visitDateTime": "Termin wizyty",
-      "nextAction": "Następna akcja",
+      "nextAction": "Następny krok",
       "nextContactAt": "Data i godzina kolejnego kontaktu",
       "assignee": "Opiekun",
       "noDate": "Nie ustalono terminu wizyty",
@@ -647,10 +657,17 @@
       "system": "System"
     },
     "confirmation": {
-      "confirmed": "Klient potwierdził",
-      "notConfirmed": "Klient nie potwierdził"
+      "waitingTitle": "Termin czeka na potwierdzenie",
+      "confirmedTitle": "Klient potwierdził termin",
+      "reminderSent": "Wysłano przypomnienie {{date}}",
+      "confirmedCallInstruction": "Zadzwoń, aby ostatecznie potwierdzić wizytę.",
+      "unconfirmedCompact": "Termin {{date}} — niepotwierdzony",
+      "waitingCompact": "{{date}} — czeka na potwierdzenie",
+      "confirmedCompact": "Termin {{date}} — klient potwierdził",
+      "confirmDate": "Potwierdź termin"
     },
     "actions": {
+      "newOrder": "Nowe zlecenie",
       "setDate": "Ustal termin wizyty",
       "changeDate": "Zmień termin wizyty",
       "createVisit": "Utwórz wizytę",
@@ -667,11 +684,15 @@
     "nextAction": {
       "today": "Dziś",
       "scheduledVisit": "Zaplanowana wizyta",
+      "visitCustomer": "Wizyta u klienta",
       "callCustomer": "Zadzwoń do klienta",
       "scheduledCall": "Zadzwoń do klienta w dniu"
     },
     "assignee": {
       "unassigned": "Nie przypisano"
+    },
+    "customer": {
+      "newBadge": "Nowy"
     },
     "table": {
       "openDetailsAria": "Otwórz szczegóły zlecenia klienta {{customer}}"
@@ -698,13 +719,21 @@
     },
     "details": {
       "backToList": "Wróć do zleceń",
-      "orderDateSummary": "Data zlecenia: {{date}}",
-      "dateSummary": "Następna akcja: {{date}}",
+      "backToCustomer": "Wróć do szczegółów klienta",
+      "orderDateSummary": "Zlecenie z {{date}}",
+      "dateSummary": "Następny krok: {{date}}",
       "actionsLabel": "Akcje zlecenia",
+      "assigneeLabel": "Opiekun",
+      "mapHint": "Otwiera Mapy Google",
+      "sourceOrigin": "Skąd trafił",
       "customer": "Dane klienta",
       "installationTitle": "Szczegóły montażu",
       "repairTitle": "Szczegóły naprawy",
       "inspectionTitle": "Szczegóły przeglądu",
+      "installationSectionTitle": "Zakres montażu",
+      "repairSectionTitle": "Urządzenia do naprawy",
+      "inspectionSectionTitle": "Urządzenia na obiekcie",
+      "addDevice": "Dodaj urządzenie",
       "buildingType": "Rodzaj budynku",
       "room": "Pomieszczenie {{index}}",
       "area": "Powierzchnia",
@@ -719,7 +748,14 @@
       "refrigerant": "Czynnik",
       "refrigerantAmount": "Ilość czynnika",
       "reportedError": "Zgłoszony problem",
-      "devicePhotos": "Zdjęcia urządzenia",
+      "devicePhotos": "Zdjęcie tabliczki",
+      "addPhoto": "Dodaj zdjęcie",
+      "missingData": "Brak danych",
+      "completeData": "— uzupełnij",
+      "refrigerantCombined": "Czynnik / ilość",
+      "roomPhotos": "Zdjęcia pomieszczenia",
+      "noRooms": "Nie dodano jeszcze pomieszczeń do tego montażu.",
+      "noRepairDevices": "Nie dodano jeszcze urządzeń do tego zlecenia naprawy.",
       "noDevicePhotos": "Nie dodano zdjęć tego urządzenia.",
       "noDevices": "Brak urządzeń przypisanych do tego przeglądu.",
       "notesTitle": "Historia notatek",
@@ -790,12 +826,17 @@
     "title": "Klienci",
     "fallbackName": "Klient",
     "newCustomer": "Nowy klient",
-    "searchPlaceholder": "Nazwa firmy, osoba, email lub adres",
+    "description": "Kontakty, lokalizacje, urządzenia i historia obsługi klientów w jednym miejscu.",
+    "searchLabel": "Wyszukiwanie klientów",
+    "searchPlaceholder": "Klient, telefon, e-mail, adres...",
     "actions": {
       "add": "Dodaj klienta",
       "edit": "Edytuj klienta"
     },
     "detail": {
+      "customerData": "Dane klienta",
+      "contactPerson": "Osoba kontaktowa",
+      "mapHint": "Otwiera Mapy Google",
       "noOrdersTitle": "Brak zleceń",
       "noOrdersDescription": "Zlecenia przypisane do tego klienta pojawią się tutaj.",
       "openOrderDetailsAria": "Otwórz szczegóły zlecenia: {{type}}, {{date}}",
@@ -818,6 +859,7 @@
     "table": {
       "rowActionLabel": "Otwórz szczegóły klienta",
       "emptyTitle": "Brak klientów",
+      "emptyDescription": "Dodaj pierwszego klienta albo zmień wyszukiwaną frazę.",
       "client": "Klient",
       "contact": "Kontakt",
       "location": "Lokalizacja"

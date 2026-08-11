@@ -1,24 +1,115 @@
-<div class="space-y-6">
-  <section>
-    <h1 class="text-display tracking-[-0.04em] text-text-main">
-      {{ 'serviceOrders.title' | transloco }}
-    </h1>
+<div class="-mx-2 space-y-3 md:mx-0 md:space-y-4">
+  <header class="hidden items-end justify-between gap-6 md:flex">
+    <div class="min-w-0">
+      <h1 class="text-h1 text-text-main">
+        {{ 'serviceOrders.title' | transloco }}
+      </h1>
+      <p class="mt-1 text-body text-text-muted">
+        {{ 'serviceOrders.description' | transloco }}
+      </p>
+    </div>
+
+    <ui-button class="shrink-0">
+      <ui-icon button-icon name="plus" />
+      {{ 'serviceOrders.actions.newOrder' | transloco }}
+    </ui-button>
+  </header>
+
+  <nav
+    class="flex items-center gap-2 overflow-x-auto px-1 pb-1 md:hidden"
+    [attr.aria-label]="'serviceOrders.filters.quickFiltersLabel' | transloco"
+  >
+    <button
+      type="button"
+      [class]="dateFilterChipClasses('today')"
+      [attr.aria-pressed]="dateControl.value === 'today'"
+      (click)="selectDateFilter('today')"
+    >
+      {{ 'serviceOrders.filters.todayCount' | transloco: { count: todayOrderCount() } }}
+    </button>
+    <button
+      type="button"
+      [class]="dateFilterChipClasses('this_week')"
+      [attr.aria-pressed]="dateControl.value === 'this_week'"
+      (click)="selectDateFilter('this_week')"
+    >
+      {{ 'serviceOrders.dateFilters.this_week' | transloco }}
+    </button>
+    <button
+      type="button"
+      [class]="dateFilterChipClasses('all')"
+      [attr.aria-pressed]="dateControl.value === 'all'"
+      (click)="selectDateFilter('all')"
+    >
+      {{ 'serviceOrders.filters.all' | transloco }}
+    </button>
+    <button
+      type="button"
+      class="ui-focus-ring inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-border bg-surface px-3.5 text-small text-text-main transition-colors duration-200 hover:border-action/45 hover:bg-action-soft motion-reduce:transition-none"
+      (click)="isMobileFiltersOpen.set(true)"
+    >
+      <ui-icon class="size-4" name="filter" />
+      {{ 'serviceOrders.filters.filters' | transloco }}
+    </button>
+  </nav>
+
+  <section
+    class="relative z-20 hidden gap-2.5 rounded-card border border-border bg-surface p-2.5 md:grid md:grid-cols-2 xl:grid-cols-[minmax(15rem,1.35fr)_repeat(3,minmax(10rem,0.9fr))]"
+    [attr.aria-label]="'serviceOrders.filters.filters' | transloco"
+  >
+    <ui-input
+      type="search"
+      leadingIcon="search"
+      [placeholder]="'serviceOrders.fields.searchPlaceholder' | transloco"
+      [formControl]="searchControl"
+    />
+    <ui-select
+      [inlineLabel]="'serviceOrders.fields.dateFilter' | transloco"
+      [options]="dateOptions()"
+      [formControl]="dateControl"
+    />
+    <ui-multiselect
+      [inlineLabel]="'serviceOrders.fields.status' | transloco"
+      [placeholder]="'serviceOrders.fields.statusPlaceholder' | transloco"
+      [selectionLabel]="statusSelectionLabel()"
+      [allSelectedLabel]="'serviceOrders.statuses.all' | transloco"
+      [options]="statusOptions()"
+      [formControl]="statusControl"
+    />
+    <ui-multiselect
+      [inlineLabel]="'serviceOrders.fields.type' | transloco"
+      [placeholder]="'serviceOrders.fields.typePlaceholder' | transloco"
+      [allSelectedLabel]="'serviceOrders.filters.all' | transloco"
+      [options]="typeOptions()"
+      [formControl]="typeControl"
+    />
   </section>
 
-  <ui-card class="relative z-10 block" padding="sm">
-    <div
-      class="grid gap-3 lg:grid-cols-2 lg:items-end xl:grid-cols-[minmax(14rem,1fr)_repeat(3,minmax(10rem,13rem))]"
-    >
+  <app-service-order-table
+    [items]="filteredOrders()"
+    (detailsRequested)="openDetails($event)"
+    (scheduleRequested)="openSchedule($event)"
+    (visitRequested)="createVisit($event)"
+    (nextContactRequested)="openNextContact($event)"
+    (noteRequested)="openNote($event)"
+    (assigneeRequested)="openAssignee($event)"
+    (cancellationRequested)="requestCancellation($event)"
+  />
+
+  <ui-drawer
+    expanded
+    [open]="isMobileFiltersOpen()"
+    [title]="'serviceOrders.filters.drawerTitle' | transloco"
+    [description]="'serviceOrders.filters.drawerDescription' | transloco"
+    (close)="isMobileFiltersOpen.set(false)"
+  >
+    <div class="space-y-5">
       <ui-input
         type="search"
+        leadingIcon="search"
         [label]="'serviceOrders.fields.search' | transloco"
         [placeholder]="'serviceOrders.fields.searchPlaceholder' | transloco"
         [formControl]="searchControl"
-      />
-      <ui-select
-        [label]="'serviceOrders.fields.dateFilter' | transloco"
-        [options]="dateOptions()"
-        [formControl]="dateControl"
       />
       <ui-multiselect
         [label]="'serviceOrders.fields.status' | transloco"
@@ -30,25 +121,16 @@
       <ui-multiselect
         [label]="'serviceOrders.fields.type' | transloco"
         [placeholder]="'serviceOrders.fields.typePlaceholder' | transloco"
-        [allSelectedLabel]="'serviceOrders.types.all' | transloco"
+        [allSelectedLabel]="'serviceOrders.filters.all' | transloco"
         [options]="typeOptions()"
         [formControl]="typeControl"
       />
     </div>
-  </ui-card>
 
-  <div class="mt-6">
-    <app-service-order-table
-      [items]="filteredOrders()"
-      (detailsRequested)="openDetails($event)"
-      (scheduleRequested)="openSchedule($event)"
-      (visitRequested)="createVisit($event)"
-      (nextContactRequested)="openNextContact($event)"
-      (noteRequested)="openNote($event)"
-      (assigneeRequested)="openAssignee($event)"
-      (cancellationRequested)="requestCancellation($event)"
-    />
-  </div>
+    <ui-button drawer-footer [block]="true" (pressed)="isMobileFiltersOpen.set(false)">
+      {{ 'serviceOrders.filters.showResults' | transloco }}
+    </ui-button>
+  </ui-drawer>
 
   @if (orderBeingScheduled(); as order) {
     <app-service-order-schedule-modal

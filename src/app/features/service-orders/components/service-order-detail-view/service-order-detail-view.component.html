@@ -1,243 +1,323 @@
-<div class="space-y-8">
+<div class="space-y-4">
+  <button
+    type="button"
+    class="ui-focus-ring inline-flex min-h-11 items-center gap-2 rounded-button px-2 text-body text-text-main transition-colors hover:bg-surface-muted active:bg-surface-muted"
+    (click)="backToOrigin()"
+  >
+    <ui-icon class="size-4 rotate-180" name="chevron-right" />
+    {{ backLabelKey() | transloco }}
+  </button>
+
   @if (details(); as details) {
-    <section class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-      <div class="space-y-1">
-        <h1 class="text-display tracking-[-0.04em] text-text-main">
-          {{ getTypeLabel(details.order) }} — {{ formatCustomerName(details.order) }}
-        </h1>
-        <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <p class="text-body text-text-muted">
-            {{
-              'serviceOrders.details.orderDateSummary'
-                | transloco: { date: formatDate(details.order.orderDate) }
-            }}
-          </p>
-          <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-body">
-            <span class="text-text-muted"
-              >{{ 'serviceOrders.fields.nextAction' | transloco }}:</span
-            >
-            @if (details.order.scheduledAt) {
-              <span class="font-semibold text-text-main">
-                {{ formatNextActionDate(details.order.scheduledAt) }}
-              </span>
-              @if (details.order.status === 'scheduled') {
-                <span class="text-small font-medium text-text-muted">
-                  {{ 'serviceOrders.nextAction.scheduledVisit' | transloco }}
-                </span>
-              }
-              @if (confirmationLabelKey(details.order); as confirmationKey) {
-                <span class="text-small font-medium text-text-muted">
-                  {{ confirmationKey | transloco }}
-                </span>
-              }
-              @if (details.order.status === 'contact_required') {
-                <span class="text-small font-semibold text-text-main">
-                  {{ 'serviceOrders.nextAction.callCustomer' | transloco }}
-                </span>
-              }
-            } @else if (details.order.nextContactAt) {
-              <span class="font-semibold text-text-main">
-                <span class="block">{{
-                  'serviceOrders.nextAction.scheduledCall' | transloco
-                }}</span>
-                <span class="mt-1 block">
-                  {{ formatNextActionDate(details.order.nextContactAt) }}
-                </span>
-              </span>
-            } @else if (details.order.status === 'contact_required') {
-              <span class="font-semibold text-text-main">
-                {{ 'serviceOrders.nextAction.callCustomer' | transloco }}
-              </span>
+    <section class="sm:p-6 md:rounded-card md:border md:border-border md:bg-surface">
+      <div class="justify-between md:flex md:items-start md:gap-6">
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-2">
+            <ui-badge size="sm" [variant]="getStatusVariant(details.order.status)">
+              {{ getStatusLabel(details.order) }}
+            </ui-badge>
+            <ui-badge size="sm" variant="neutral">
+              {{ getTypeLabel(details.order) }}
+            </ui-badge>
+          </div>
+
+          <h1 class="mt-2 w-fit max-w-full border-b border-action text-h1 text-text-main">
+            @if (details.systemCustomer; as customer) {
+              <a
+                [routerLink]="['/customers', customer.id]"
+                class="ui-focus-ring block max-w-full truncate rounded-sm"
+              >
+                {{ formatCustomerName(details.order) }}
+              </a>
             } @else {
-              <span class="text-text-muted">--</span>
+              <span class="block max-w-full truncate">{{ formatCustomerName(details.order) }}</span>
             }
+          </h1>
+
+          <p class="mt-1 flex flex-wrap items-center gap-1 text-small text-text-muted">
+            <span>
+              {{
+                'serviceOrders.details.orderDateSummary'
+                  | transloco: { date: formatDate(details.order.orderDate) }
+              }}
+            </span>
+            <span aria-hidden="true">·</span>
+            <span>{{ 'serviceOrders.details.assigneeLabel' | transloco }}:</span>
+            <span class="text-text-main">
+              {{
+                details.order.assignee?.name || ('serviceOrders.assignee.unassigned' | transloco)
+              }}
+            </span>
+          </p>
+        </div>
+
+        <div
+          class="hidden shrink-0 items-center gap-2 md:flex"
+          [attr.aria-label]="'serviceOrders.details.actionsLabel' | transloco"
+        >
+          <a
+            [href]="phoneHref(details.order.phone)"
+            class="ui-focus-ring inline-flex min-h-10 items-center justify-center gap-2 rounded-button border border-border bg-surface px-4 text-label text-text-main transition-colors hover:border-action/45 hover:bg-action-soft"
+          >
+            <ui-icon class="size-4" name="phone" />
+            {{ 'serviceOrders.actions.call' | transloco }}
+          </a>
+          @if (canChangeOrder(details.order)) {
+            <ui-button variant="accent" (pressed)="createVisit()">
+              {{ 'serviceOrders.actions.complete' | transloco }}
+            </ui-button>
+          }
+          <app-service-order-actions-menu
+            context="details"
+            [order]="details.order"
+            (scheduleRequested)="openSchedule()"
+            (nextContactRequested)="isNextContactModalOpen.set(true)"
+            (noteRequested)="openNote()"
+            (assigneeRequested)="isAssigneeModalOpen.set(true)"
+            (cancellationRequested)="isCancellationModalOpen.set(true)"
+          />
+        </div>
+      </div>
+
+      @if (nextActionLabelKey(details.order); as nextActionKey) {
+        <div
+          class="mt-5 flex min-w-0 gap-3 rounded-field border border-action/20 bg-action-soft px-4 py-3.5"
+        >
+          <span [class]="nextActionDotClasses(details.order)" aria-hidden="true"></span>
+          <div class="min-w-0">
+            <p class="text-kicker uppercase text-brand">
+              {{ 'serviceOrders.fields.nextAction' | transloco }}
+            </p>
+            <p class="text-body font-semibold text-text-main">
+              {{ nextActionKey | transloco }}
+            </p>
+            <p class="font-mono text-mono text-brand">
+              {{ nextActionDate(details.order) }}
+            </p>
           </div>
         </div>
-      </div>
-
-      <div class="flex flex-wrap items-center gap-2">
-        <ui-badge [variant]="getTypeVariant(details.order.type)">{{
-          getTypeLabel(details.order)
-        }}</ui-badge>
-        <ui-badge [variant]="getStatusVariant(details.order.status)">{{
-          getStatusLabel(details.order)
-        }}</ui-badge>
-      </div>
-    </section>
-
-    <section
-      class="flex flex-wrap items-center gap-2"
-      [attr.aria-label]="'serviceOrders.details.actionsLabel' | transloco"
-    >
-      <a
-        [href]="phoneHref(details.order.phone)"
-        class="ui-focus-ring inline-flex min-h-10 items-center justify-center rounded-[0.95rem] border border-border/75 bg-white px-3.5 text-label font-semibold text-primary-strong transition hover:bg-primary-soft/60 active:bg-primary-soft/60"
-      >
-        {{ 'serviceOrders.actions.call' | transloco }}
-      </a>
-      @if (canChangeOrder(details.order)) {
-        <ui-button size="sm" (pressed)="createVisit()">
-          {{ 'serviceOrders.actions.complete' | transloco }}
-        </ui-button>
       }
-      <app-service-order-actions-menu
-        [order]="details.order"
-        (scheduleRequested)="openSchedule()"
-        (nextContactRequested)="isNextContactModalOpen.set(true)"
-        (noteRequested)="openNote()"
-        (assigneeRequested)="isAssigneeModalOpen.set(true)"
-        (cancellationRequested)="isCancellationModalOpen.set(true)"
-      />
+
+      @if (inspectionConfirmation(details.order); as confirmation) {
+        <div class="mt-2">
+          <app-service-order-inspection-confirmation
+            [status]="confirmation.status"
+            [scheduledAt]="confirmation.scheduledAt"
+            [reminderSentAt]="confirmation.reminderSentAt"
+            (changeRequested)="openSchedule()"
+            (confirmationRequested)="openSchedule()"
+          />
+        </div>
+      }
+
+      <div
+        class="mt-4 grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_3rem] items-start gap-2 md:hidden"
+        [attr.aria-label]="'serviceOrders.details.actionsLabel' | transloco"
+      >
+        <a
+          [href]="phoneHref(details.order.phone)"
+          class="ui-focus-ring inline-flex h-12 min-w-0 items-center justify-center gap-2 rounded-button border border-border bg-surface px-3 text-label text-text-main transition-colors active:bg-action-soft"
+        >
+          <ui-icon class="size-4" name="phone" />
+          <span class="truncate">{{ 'serviceOrders.actions.call' | transloco }}</span>
+        </a>
+        @if (canChangeOrder(details.order)) {
+          <ui-button variant="accent" size="lg" [block]="true" (pressed)="createVisit()">
+            {{ 'serviceOrders.actions.complete' | transloco }}
+          </ui-button>
+        } @else {
+          <span aria-hidden="true"></span>
+        }
+        <app-service-order-actions-menu
+          context="details"
+          [order]="details.order"
+          (scheduleRequested)="openSchedule()"
+          (nextContactRequested)="isNextContactModalOpen.set(true)"
+          (noteRequested)="openNote()"
+          (assigneeRequested)="isAssigneeModalOpen.set(true)"
+          (cancellationRequested)="isCancellationModalOpen.set(true)"
+        />
+      </div>
     </section>
 
-    <section class="grid gap-4 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
-      <ui-card>
-        <div card-header>
-          <h2 class="text-h3 text-text-main">{{ 'serviceOrders.details.customer' | transloco }}</h2>
-        </div>
-        <dl class="space-y-3">
-          <div>
-            <dt class="text-small font-semibold text-text-muted">
+    <div class="grid items-start gap-4 sm:grid-cols-3">
+      <section class="rounded-card border border-border bg-surface p-4 sm:p-6">
+        <h2 class="text-h3 text-text-main">
+          {{ 'serviceOrders.details.customer' | transloco }}
+        </h2>
+
+        <dl class="mt-4 space-y-3">
+          <div class="hidden md:block">
+            <dt class="text-small text-text-muted">
               {{ 'serviceOrders.fields.customer' | transloco }}
             </dt>
-            <dd class="text-label text-text-main">
+            <dd class="mt-0.5 text-body text-text-main">
               {{ formatCustomerName(details.order) }}
             </dd>
           </div>
+
           <div>
-            <dt class="text-small font-semibold text-text-muted">
+            <dt class="text-small text-text-muted">
               {{ 'serviceOrders.fields.phone' | transloco }}
             </dt>
-            <dd class="text-label text-text-main">
+            <dd class="mt-0.5">
               @if (details.order.phone) {
                 <a
                   [href]="phoneHref(details.order.phone)"
-                  class="ui-focus-ring inline-flex min-h-11 items-center text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary"
+                  class="ui-focus-ring rounded-sm font-mono text-mono text-action-contrast hover:text-action-hover"
                 >
                   {{ details.order.phone }}
+                </a>
+              } @else {
+                <span class="text-body text-text-main">--</span>
+              }
+            </dd>
+          </div>
+
+          <div>
+            <dt class="text-small text-text-muted">
+              {{ 'serviceOrders.fields.email' | transloco }}
+            </dt>
+            <dd class="mt-0.5 text-body text-text-main [overflow-wrap:anywhere]">
+              @if (details.order.email) {
+                <a
+                  [href]="'mailto:' + details.order.email"
+                  class="ui-focus-ring rounded-sm hover:text-action-hover"
+                >
+                  {{ details.order.email }}
                 </a>
               } @else {
                 --
               }
             </dd>
           </div>
+
           <div>
-            <dt class="text-small font-semibold text-text-muted">
-              {{ 'serviceOrders.fields.email' | transloco }}
-            </dt>
-            <dd class="text-label text-text-main [overflow-wrap:anywhere]">
-              {{ details.order.email || '--' }}
-            </dd>
-          </div>
-          <div>
-            <dt class="text-small font-semibold text-text-muted">
+            <dt class="text-small text-text-muted">
               {{ 'serviceOrders.fields.address' | transloco }}
             </dt>
-            <dd class="text-label text-text-main">
+            <dd class="mt-0.5">
               @if (mapHref(details.order); as href) {
                 <a
                   [href]="href"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="ui-focus-ring inline-flex min-h-11 items-center text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary"
+                  class="ui-focus-ring inline-flex max-w-full items-start gap-1.5 rounded-sm text-body text-action-contrast hover:text-action-hover"
                 >
-                  {{ formatCustomerAddress(details.order) }}
+                  <ui-map-pin-icon class="mt-0.5 size-4" />
+                  <span>{{ formatCustomerAddress(details.order) }}</span>
                 </a>
+                <p class="mt-1 text-small text-text-muted">
+                  {{ 'serviceOrders.details.mapHint' | transloco }}
+                </p>
               } @else {
-                --
+                <span class="text-body text-text-main">--</span>
               }
             </dd>
           </div>
+
           <div>
-            <dt class="text-small font-semibold text-text-muted">
-              {{ 'serviceOrders.fields.source' | transloco }}
+            <dt class="text-small text-text-muted">
+              {{ 'serviceOrders.details.sourceOrigin' | transloco }}
             </dt>
-            <dd class="text-label text-text-main">{{ getSourceLabel(details.order) }}</dd>
-          </div>
-          <div>
-            <dt class="text-small font-semibold text-text-muted">
-              {{ 'serviceOrders.fields.assignee' | transloco }}
-            </dt>
-            <dd class="text-label text-text-main">
-              {{
-                details.order.assignee?.name || ('serviceOrders.assignee.unassigned' | transloco)
-              }}
+            <dd class="mt-0.5 text-body text-text-main">
+              {{ getSourceLabel(details.order) }}
             </dd>
           </div>
         </dl>
-      </ui-card>
+      </section>
 
-      <ui-card>
-        <div card-header>
-          <h2 class="text-h3 text-text-main">
-            @switch (details.order.type) {
-              @case ('installation') {
-                {{ 'serviceOrders.details.installationTitle' | transloco }}
+      <section class="rounded-card border border-border bg-surface p-4 sm:col-span-2 sm:p-6">
+        <div class="flex items-center justify-between gap-4 border-b border-border pb-3">
+          <div class="flex min-w-0 flex-1 items-center justify-between gap-3">
+            <h2 class="truncate text-h3 text-text-main">
+              @switch (details.order.type) {
+                @case ('installation') {
+                  {{ 'serviceOrders.details.installationSectionTitle' | transloco }}
+                }
+                @case ('repair') {
+                  {{ 'serviceOrders.details.repairSectionTitle' | transloco }}
+                }
+                @case ('inspection') {
+                  {{ 'serviceOrders.details.inspectionSectionTitle' | transloco }}
+                }
               }
-              @case ('repair') {
-                {{ 'serviceOrders.details.repairTitle' | transloco }}
-              }
-              @case ('inspection') {
-                {{ 'serviceOrders.details.inspectionTitle' | transloco }}
-              }
-            }
-          </h2>
+            </h2>
+            <span class="text-body text-text-muted md:hidden">
+              {{ detailItemCount(details.order) }}
+            </span>
+          </div>
+          @if (details.order.type === 'inspection') {
+            <ui-button
+              class="hidden md:block"
+              variant="secondary"
+              size="xs"
+              (pressed)="createDevice()"
+            >
+              <ui-icon button-icon name="plus" />
+              {{ 'serviceOrders.details.addDevice' | transloco }}
+            </ui-button>
+          }
         </div>
 
-        @switch (details.order.serviceData.type) {
-          @case ('installation') {
-            <app-service-order-installation-details [data]="details.order.serviceData" />
+        <div class="mt-4">
+          @switch (details.order.serviceData.type) {
+            @case ('installation') {
+              <app-service-order-installation-details [data]="details.order.serviceData" />
+            }
+            @case ('repair') {
+              <app-service-order-repair-details [data]="details.order.serviceData" />
+            }
+            @case ('inspection') {
+              <app-service-order-inspection-details
+                [data]="details.order.serviceData"
+                [systemDevices]="details.systemDevices"
+              />
+            }
           }
-          @case ('repair') {
-            <app-service-order-repair-details [data]="details.order.serviceData" />
-          }
-          @case ('inspection') {
-            <app-service-order-inspection-details
-              [data]="details.order.serviceData"
-              [systemDevices]="details.systemDevices"
-            />
-          }
-        }
-      </ui-card>
-    </section>
+        </div>
+      </section>
+    </div>
 
-    <ui-card>
-      <div card-header class="flex items-center justify-between gap-3">
-        <h2 class="text-h3 text-text-main">{{ 'serviceOrders.details.notesTitle' | transloco }}</h2>
+    <section class="rounded-card border border-border bg-surface p-4 sm:p-6">
+      <div class="flex items-center justify-between gap-3">
+        <h2 class="text-h3 text-text-main">
+          {{ 'serviceOrders.details.notesTitle' | transloco }}
+        </h2>
         <ui-button size="sm" variant="secondary" (pressed)="openNote()">
           {{ 'serviceOrders.actions.addNote' | transloco }}
         </ui-button>
       </div>
 
       @if (details.notes.length) {
-        <ol class="space-y-3">
+        <ol class="mt-4 space-y-2">
           @for (note of details.notes; track note.id) {
-            <li class="rounded-[1rem] border border-border/80 bg-white px-4 py-4">
+            <li class="rounded-field bg-surface-muted px-4 py-3">
               <p class="whitespace-pre-line text-body text-text-main">{{ note.content }}</p>
-              <p class="mt-2 text-small text-text-muted">{{ formatDate(note.createdAt) }}</p>
+              <p class="mt-1 text-small text-text-muted">{{ formatDate(note.createdAt) }}</p>
             </li>
           }
         </ol>
       } @else {
-        <p class="text-body text-text-muted">{{ 'serviceOrders.details.noNotes' | transloco }}</p>
+        <p class="mt-4 text-body text-text-muted">
+          {{ 'serviceOrders.details.noNotes' | transloco }}
+        </p>
       }
-    </ui-card>
+    </section>
 
     @if (relatedVisits().length) {
-      <ui-card>
-        <div card-header>
-          <h2 class="text-h3 text-text-main">
-            {{ 'serviceOrders.details.relatedVisitsTitle' | transloco }}
-          </h2>
-        </div>
-        <div class="space-y-3">
+      <section class="rounded-card border border-border bg-surface p-4 sm:p-6">
+        <h2 class="text-h3 text-text-main">
+          {{ 'serviceOrders.details.relatedVisitsTitle' | transloco }}
+        </h2>
+        <div class="mt-4 space-y-2">
           @for (visit of relatedVisits(); track visit.id) {
-            <article class="rounded-[1rem] border border-border/80 bg-white px-4 py-3">
-              <p class="text-label text-text-main">{{ formatDate(visit.date) }}</p>
+            <article class="rounded-field bg-surface-muted px-4 py-3">
+              <p class="text-body text-text-main">{{ formatDate(visit.date) }}</p>
             </article>
           }
         </div>
-      </ui-card>
+      </section>
     }
 
     <app-service-order-schedule-modal
@@ -293,8 +373,8 @@
     <ui-empty-state
       [title]="'serviceOrders.details.notFoundTitle' | transloco"
       [description]="'serviceOrders.details.notFoundDescription' | transloco"
-      [actionLabel]="'serviceOrders.details.backToList' | transloco"
-      (action)="backToList()"
+      [actionLabel]="backLabelKey() | transloco"
+      (action)="backToOrigin()"
     />
   }
 </div>

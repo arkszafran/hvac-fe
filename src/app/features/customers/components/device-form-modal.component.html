@@ -98,8 +98,12 @@
         />
 
         <span class="min-w-0">
-          <span class="block text-label text-text-main">{{ inspectionCheckboxLabelKey | transloco }}</span>
-          <span class="block text-small text-text-muted">{{ inspectionCheckboxDescriptionKey | transloco }}</span>
+          <span class="block text-label text-text-main">{{
+            inspectionCheckboxLabelKey | transloco
+          }}</span>
+          <span class="block text-small text-text-muted">{{
+            inspectionCheckboxDescriptionKey | transloco
+          }}</span>
         </span>
       </label>
     </div>
@@ -114,7 +118,7 @@
 
         <ui-input
           [label]="'devices.form.nextInspectionDate' | transloco"
-          type="date"
+          type="datetime-local"
           required
           [error]="validationError('nextInspectionDate')"
           formControlName="nextInspectionDate"
@@ -144,24 +148,24 @@
     </div>
 
     @if (hasCustomInstallationAddress()) {
-    <ui-input
-      [label]="'devices.form.installationAddress' | transloco"
-      [placeholder]="'devices.form.installationAddressPlaceholder' | transloco"
+      <ui-input
+        [label]="'devices.form.installationAddress' | transloco"
+        [placeholder]="'devices.form.installationAddressPlaceholder' | transloco"
         formControlName="address"
       />
 
       <div class="grid gap-4 sm:grid-cols-2">
-      <ui-input
-        [label]="'customers.form.postalCode' | transloco"
-        placeholder="00-000"
-        formControlName="postalCode"
-      />
+        <ui-input
+          [label]="'customers.form.postalCode' | transloco"
+          placeholder="00-000"
+          formControlName="postalCode"
+        />
 
-      <ui-input
-        [label]="'customers.form.city' | transloco"
-        [placeholder]="'customers.form.cityPlaceholder' | transloco"
-        formControlName="city"
-      />
+        <ui-input
+          [label]="'customers.form.city' | transloco"
+          [placeholder]="'customers.form.cityPlaceholder' | transloco"
+          formControlName="city"
+        />
       </div>
     }
 
@@ -169,12 +173,12 @@
       <label
         class="flex items-center gap-1 text-[13px]/5 font-semibold tracking-[-0.01em] text-text-main"
       >
-      <span>{{ 'devices.form.note' | transloco }}</span>
+        <span>{{ 'devices.form.note' | transloco }}</span>
       </label>
 
       <textarea
-      formControlName="note"
-      [placeholder]="'devices.form.notePlaceholder' | transloco"
+        formControlName="note"
+        [placeholder]="'devices.form.notePlaceholder' | transloco"
         [class]="textareaClasses"
       ></textarea>
     </div>

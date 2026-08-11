@@ -6,10 +6,11 @@ import {
   getServiceOrderBuildingTypeLabel,
   getServiceOrderOutdoorUnitPlaceLabel,
 } from '../../utils/service-order-ui.util';
+import { ServiceOrderPhotoGalleryComponent } from '../service-order-photo-gallery/service-order-photo-gallery.component';
 
 @Component({
   selector: 'app-service-order-installation-details',
-  imports: [TranslocoPipe],
+  imports: [TranslocoPipe, ServiceOrderPhotoGalleryComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './service-order-installation-details.component.html',
 })

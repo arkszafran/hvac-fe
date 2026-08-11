@@ -7,7 +7,6 @@ import { AppTopBarComponent } from '../top-bar/top-bar.component';
 
 @Component({
   selector: 'app-shell',
-  standalone: true,
   imports: [RouterOutlet, AppMobileNavDrawerComponent, AppSidebarComponent, AppTopBarComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
@@ -21,9 +20,7 @@ import { AppTopBarComponent } from '../top-bar/top-bar.component';
           </div>
 
           <main class="min-w-0 flex-1">
-            <div
-              class="min-h-[calc(100vh-6.5rem)] rounded-[1.35rem] border border-border/80 bg-[linear-gradient(180deg,_rgb(255_255_255/0.8),_rgb(246_249_255/0.64))] px-4 py-4 shadow-[inset_0_1px_0_rgb(255_255_255/0.8)] backdrop-blur-sm sm:px-5 sm:py-5 lg:px-6 lg:py-6"
-            >
+            <div class="min-h-[calc(100vh-6.5rem)]">
               <router-outlet />
             </div>
           </main>

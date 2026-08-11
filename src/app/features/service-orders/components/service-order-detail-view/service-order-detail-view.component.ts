@@ -1,13 +1,6 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  output,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { map } from 'rxjs';
 
@@ -15,10 +8,12 @@ import { UserListItemDto } from '../../../../common/api/users';
 import {
   UiBadgeComponent,
   UiButtonComponent,
-  UiCardComponent,
   UiEmptyStateComponent,
+  UiIconComponent,
   UiModalComponent,
 } from '../../../../ui';
+import { UiMapPinIconComponent } from '../../../../ui/map-pin-icon/map-pin-icon.component';
+import { classNames } from '../../../../ui/utils/classnames';
 import { VisitsStore } from '../../../visits/data/visits.store';
 import { ServiceOrdersStore } from '../../data/service-orders.store';
 import { ServiceOrder } from '../../models/service-order.model';
@@ -27,15 +22,16 @@ import {
   formatServiceOrderCustomerName,
   formatServiceOrderDate,
   formatServiceOrderNextActionDateTime,
+  getServiceOrderInspectionConfirmation,
   getServiceOrderSourceLabel,
   getServiceOrderStatusLabel,
   getServiceOrderStatusVariant,
   getServiceOrderTypeLabel,
-  getServiceOrderTypeVariant,
   serviceOrderMapHref,
   serviceOrderPhoneHref,
 } from '../../utils/service-order-ui.util';
 import { ServiceOrderInspectionDetailsComponent } from '../service-order-inspection-details/service-order-inspection-details.component';
+import { ServiceOrderInspectionConfirmationComponent } from '../service-order-inspection-confirmation/service-order-inspection-confirmation.component';
 import { ServiceOrderInstallationDetailsComponent } from '../service-order-installation-details/service-order-installation-details.component';
 import { ServiceOrderActionsMenuComponent } from '../service-order-actions-menu/service-order-actions-menu.component';
 import { ServiceOrderAssigneeModalComponent } from '../service-order-assignee-modal/service-order-assignee-modal.component';
@@ -51,14 +47,17 @@ import { ServiceOrderScheduleModalComponent } from '../service-order-schedule-mo
   selector: 'app-service-order-detail-view',
   imports: [
     TranslocoPipe,
+    RouterLink,
     UiBadgeComponent,
     UiButtonComponent,
-    UiCardComponent,
     UiEmptyStateComponent,
+    UiIconComponent,
+    UiMapPinIconComponent,
     UiModalComponent,
     ServiceOrderActionsMenuComponent,
     ServiceOrderAssigneeModalComponent,
     ServiceOrderInspectionDetailsComponent,
+    ServiceOrderInspectionConfirmationComponent,
     ServiceOrderInstallationDetailsComponent,
     ServiceOrderNextContactModalComponent,
     ServiceOrderNoteModalComponent,
@@ -78,8 +77,6 @@ export class ServiceOrderDetailViewComponent {
     initialValue: this.transloco.getActiveLang(),
   });
 
-  readonly closeRequested = output<void>();
-
   protected readonly isScheduleModalOpen = signal(
     this.route.snapshot.queryParamMap.get('action') === 'schedule',
   );
@@ -91,6 +88,15 @@ export class ServiceOrderDetailViewComponent {
     this.route.paramMap.pipe(map((params) => params.get('serviceOrderId') ?? '')),
     { initialValue: this.route.snapshot.paramMap.get('serviceOrderId') ?? '' },
   );
+  protected readonly returnCustomerId = toSignal(
+    this.route.queryParamMap.pipe(map((params) => params.get('returnCustomerId') ?? '')),
+    { initialValue: this.route.snapshot.queryParamMap.get('returnCustomerId') ?? '' },
+  );
+  protected readonly backLabelKey = computed(() =>
+    this.returnCustomerId()
+      ? 'serviceOrders.details.backToCustomer'
+      : 'serviceOrders.details.backToList',
+  );
   protected readonly details = computed(() => this.store.getOrderDetailsById(this.orderId()));
   protected readonly relatedVisits = computed(() =>
     this.visitsStore.visits().filter((visit) => visit.serviceOrderId === this.orderId()),
@@ -99,9 +105,9 @@ export class ServiceOrderDetailViewComponent {
   protected readonly formatCustomerName = formatServiceOrderCustomerName;
   protected readonly formatCustomerAddress = formatServiceOrderCustomerAddress;
   protected readonly getStatusVariant = getServiceOrderStatusVariant;
-  protected readonly getTypeVariant = getServiceOrderTypeVariant;
   protected readonly mapHref = serviceOrderMapHref;
   protected readonly phoneHref = serviceOrderPhoneHref;
+  protected readonly inspectionConfirmation = getServiceOrderInspectionConfirmation;
 
   protected getTypeLabel(order: ServiceOrder): string {
     this.activeLanguage();
@@ -133,14 +139,45 @@ export class ServiceOrderDetailViewComponent {
     return `${date}, ${formatted.time}`;
   }
 
-  protected confirmationLabelKey(order: ServiceOrder): string {
-    if (order.serviceData.type !== 'inspection' || order.source !== 'system') {
-      return '';
+  protected nextActionLabelKey(order: ServiceOrder): string {
+    if (order.status === 'scheduled') {
+      return 'serviceOrders.nextAction.visitCustomer';
     }
 
-    return order.serviceData.customerConfirmationStatus === 'confirmed'
-      ? 'serviceOrders.confirmation.confirmed'
-      : 'serviceOrders.confirmation.notConfirmed';
+    if (order.status === 'new' || order.status === 'contact_required') {
+      return 'serviceOrders.nextAction.callCustomer';
+    }
+
+    return '';
+  }
+
+  protected nextActionDate(order: ServiceOrder): string {
+    const date =
+      order.status === 'scheduled' ? order.scheduledAt : order.nextContactAt || order.scheduledAt;
+
+    return date
+      ? this.formatNextActionDate(date)
+      : this.transloco.translate('serviceOrders.nextAction.today');
+  }
+
+  protected nextActionDotClasses(order: ServiceOrder): string {
+    return classNames(
+      'mt-1.5 size-2 shrink-0 rounded-full',
+      order.status === 'contact_required' && 'bg-warning',
+      order.status === 'scheduled' && 'bg-info',
+      order.status === 'new' && 'bg-brand',
+    );
+  }
+
+  protected detailItemCount(order: ServiceOrder): number {
+    switch (order.serviceData.type) {
+      case 'installation':
+        return order.serviceData.rooms.length;
+      case 'repair':
+        return order.serviceData.devices.length;
+      case 'inspection':
+        return (this.details()?.systemDevices.length ?? 0) + order.serviceData.devices.length;
+    }
   }
 
   protected canChangeOrder(order: ServiceOrder): boolean {
@@ -155,7 +192,8 @@ export class ServiceOrderDetailViewComponent {
     this.isScheduleModalOpen.set(false);
     void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: {},
+      queryParams: { action: null },
+      queryParamsHandling: 'merge',
       replaceUrl: true,
     });
   }
@@ -193,12 +231,20 @@ export class ServiceOrderDetailViewComponent {
     });
   }
 
+  protected createDevice(): void {
+    void this.router.navigate(['/devices/new']);
+  }
+
   protected confirmCancellation(): void {
     this.store.cancelOrder(this.orderId());
     this.isCancellationModalOpen.set(false);
   }
 
-  protected backToList(): void {
-    this.closeRequested.emit();
+  protected backToOrigin(): void {
+    const customerId = this.returnCustomerId();
+
+    void this.router.navigate(customerId ? ['/customers', customerId] : ['/service-orders'], {
+      replaceUrl: true,
+    });
   }
 }

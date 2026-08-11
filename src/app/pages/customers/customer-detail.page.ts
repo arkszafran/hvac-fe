@@ -4,9 +4,8 @@ import { CustomerDetailViewComponent } from '../../features/customers/customer-d
 
 @Component({
   selector: 'app-customer-detail-page',
-  standalone: true,
   imports: [CustomerDetailViewComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: ` <app-customer-detail-view /> `,
+  templateUrl: './customer-detail.page.html',
 })
 export class CustomerDetailPageComponent {}

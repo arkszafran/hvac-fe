@@ -1,29 +1,38 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, effect, input, output } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 import { UiInputComponent } from '../../../ui';
 
 @Component({
   selector: 'app-customer-toolbar',
-  standalone: true,
-  imports: [FormsModule, TranslocoPipe, UiInputComponent],
+  imports: [ReactiveFormsModule, TranslocoPipe, UiInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="flex w-full justify-start px-0.5 pt-1 pb-2">
-      <div class="w-full max-w-[30rem] lg:max-w-[32rem]">
-        <ui-input
-          type="search"
-          [placeholder]="'customers.searchPlaceholder' | transloco"
-          [ngModel]="search()"
-          (ngModelChange)="searchChange.emit($event)"
-        />
-      </div>
-    </div>
-  `,
+  templateUrl: './customer-toolbar.component.html',
 })
 export class CustomerToolbarComponent {
+  readonly control = input<FormControl<string> | null>(null);
   readonly search = input('');
-
   readonly searchChange = output<string>();
+
+  protected readonly fallbackControl = new FormControl('', { nonNullable: true });
+
+  constructor() {
+    effect(() => {
+      if (this.control() || this.fallbackControl.value === this.search()) {
+        return;
+      }
+
+      this.fallbackControl.setValue(this.search(), { emitEvent: false });
+    });
+
+    this.fallbackControl.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((value) => this.searchChange.emit(value));
+  }
+
+  protected activeControl(): FormControl<string> {
+    return this.control() ?? this.fallbackControl;
+  }
 }

@@ -33,6 +33,13 @@ const SIZE_CLASSES: Record<UiButtonSize, string> = {
   lg: 'min-h-12 px-5 text-label',
 };
 
+const ICON_ONLY_SIZE_CLASSES: Record<UiButtonSize, string> = {
+  xs: 'size-9 min-h-9 p-0 text-small',
+  sm: 'size-10 min-h-10 p-0 text-label',
+  md: 'size-10 min-h-10 p-0 text-label',
+  lg: 'size-12 min-h-12 p-0 text-label',
+};
+
 @Component({
   selector: 'ui-button',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -69,10 +76,9 @@ export class UiButtonComponent {
   protected readonly buttonClasses = computed(() =>
     classNames(
       'ui-focus-ring inline-flex select-none items-center justify-center rounded-button font-semibold transition-colors duration-200 motion-reduce:transition-none disabled:cursor-not-allowed',
-      SIZE_CLASSES[this.size()],
+      this.iconOnly() ? ICON_ONLY_SIZE_CLASSES[this.size()] : SIZE_CLASSES[this.size()],
       VARIANT_CLASSES[this.variant()],
       this.block() && 'w-full',
-      this.iconOnly() && 'aspect-square px-0',
     ),
   );
 }

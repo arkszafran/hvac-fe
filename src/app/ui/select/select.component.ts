@@ -66,6 +66,16 @@ let nextSelectId = 0;
           }
         </select>
 
+        @if (inlineLabel()) {
+          <span
+            class="pointer-events-none absolute inset-y-0 left-3.5 right-10 flex min-w-0 items-center gap-1 text-body"
+            aria-hidden="true"
+          >
+            <span class="shrink-0 text-text-muted">{{ inlineLabel() }}:</span>
+            <span class="truncate text-text-main">{{ selectedOptionLabel() }}</span>
+          </span>
+        }
+
         <span
           class="pointer-events-none absolute inset-y-0 right-4 flex items-center text-text-muted/90"
         >
@@ -99,6 +109,7 @@ export class UiSelectComponent implements ControlValueAccessor {
 
   readonly inputId = input(`ui-select-${++nextSelectId}`);
   readonly label = input('');
+  readonly inlineLabel = input('');
   readonly placeholder = input('');
   readonly hint = input('');
   readonly error = input('');
@@ -119,8 +130,15 @@ export class UiSelectComponent implements ControlValueAccessor {
       this.error()
         ? 'border-danger bg-danger-soft focus:border-danger focus-visible:ring-danger/20'
         : 'hover:border-border focus:border-action focus:bg-surface',
+      this.inlineLabel() && 'text-transparent [&_option]:text-text-main',
     ),
   );
+
+  protected selectedOptionLabel(): string {
+    return (
+      this.options().find((option) => option.value === this.value)?.label ?? this.placeholderText()
+    );
+  }
 
   protected readonly describedBy = computed(() =>
     [

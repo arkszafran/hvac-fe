@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+} from '@angular/core';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
@@ -15,6 +23,7 @@ import {
   DEVICE_INSPECTIONS_CHECKBOX_DESCRIPTION_KEY,
   DEVICE_INSPECTIONS_CHECKBOX_LABEL_KEY,
   DeviceInspectionPreset,
+  toInspectionDateTimeLocalValue,
 } from '../models/device-inspection.model';
 import { DeviceDraft } from '../models/device.model';
 
@@ -49,7 +58,9 @@ import { DeviceDraft } from '../models/device.model';
             />
 
             <span class="min-w-0">
-              <span class="block text-label text-text-main">{{ inspectionCheckboxLabelKey | transloco }}</span>
+              <span class="block text-label text-text-main">{{
+                inspectionCheckboxLabelKey | transloco
+              }}</span>
               <span class="block text-small text-text-muted">
                 {{ inspectionCheckboxDescriptionKey | transloco }}
               </span>
@@ -67,7 +78,7 @@ import { DeviceDraft } from '../models/device.model';
 
             <ui-input
               [label]="'devices.form.nextInspectionDate' | transloco"
-              type="date"
+              type="datetime-local"
               required
               [error]="validationError()"
               formControlName="nextInspectionDate"
@@ -130,11 +141,9 @@ export class DeviceNextInspectionModalComponent {
         this.applyInspectionPreset(preset);
       });
 
-    this.form.controls.nextInspectionDate.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => {
-        this.syncInspectionPresetWithDate();
-      });
+    this.form.controls.nextInspectionDate.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.syncInspectionPresetWithDate();
+    });
 
     this.syncNextInspectionDateValidator(this.form.controls.hasScheduledInspections.value);
 
@@ -181,10 +190,11 @@ export class DeviceNextInspectionModalComponent {
   }
 
   private resetForm(): void {
-    this.form.reset({
+    this.form.reset(
+      {
         hasScheduledInspections: this.initialEnabled(),
         nextInspectionPreset: 'custom',
-        nextInspectionDate: this.initialDate(),
+        nextInspectionDate: toInspectionDateTimeLocalValue(this.initialDate()),
       },
       { emitEvent: false },
     );
@@ -205,9 +215,11 @@ export class DeviceNextInspectionModalComponent {
     }
 
     const calculatedDate = calculateInspectionDateFromPreset(preset);
+    const currentTime =
+      /T(\d{2}:\d{2})/.exec(this.form.controls.nextInspectionDate.getRawValue())?.[1] ?? '09:00';
 
     this.isApplyingInspectionPreset = true;
-    this.form.controls.nextInspectionDate.setValue(calculatedDate);
+    this.form.controls.nextInspectionDate.setValue(`${calculatedDate}T${currentTime}`);
     this.isApplyingInspectionPreset = false;
   }
 

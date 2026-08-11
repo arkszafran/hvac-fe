@@ -1,25 +1,29 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
-import { UiTableColumn, UiTableComponent } from '../../../ui';
+import { UiBadgeComponent, UiEmptyStateComponent, UiIconComponent } from '../../../ui';
+import { UiMapPinIconComponent } from '../../../ui/map-pin-icon/map-pin-icon.component';
 import { Customer } from '../models/customer.model';
+import {
+  customerEmailHref,
+  customerMapHref,
+  customerPhoneHref,
+  formatCustomerAddress,
+  formatCustomerName,
+} from '../utils/customer-ui.util';
 
 @Component({
   selector: 'app-customer-table',
-  standalone: true,
-  imports: [TranslocoPipe, UiTableComponent],
+  imports: [
+    TranslocoPipe,
+    UiBadgeComponent,
+    UiEmptyStateComponent,
+    UiIconComponent,
+    UiMapPinIconComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <ui-table
-      [columns]="columns()"
-      [data]="customers()"
-      [rowClickable]="true"
-      [rowActionLabel]="'customers.table.rowActionLabel' | transloco"
-      [emptyTitle]="'customers.table.emptyTitle' | transloco"
-      (rowSelected)="customerSelected.emit($event)"
-    />
-  `,
+  templateUrl: './customer-table.component.html',
 })
 export class CustomerTableComponent {
   private readonly transloco = inject(TranslocoService);
@@ -30,40 +34,30 @@ export class CustomerTableComponent {
   readonly customers = input<Customer[]>([]);
   readonly customerSelected = output<Customer>();
 
-  protected readonly columns = computed<UiTableColumn<Customer>[]>(() => {
-    this.activeLanguage();
+  protected readonly formatName = formatCustomerName;
+  protected readonly formatAddress = formatCustomerAddress;
+  protected readonly phoneHref = customerPhoneHref;
+  protected readonly emailHref = customerEmailHref;
+  protected readonly mapHref = customerMapHref;
 
-    return [
-      {
-        id: 'client',
-        header: this.transloco.translate('customers.table.client'),
-        cell: (customer) => customer.companyName || customer.fullName,
-        eyebrow: (customer) =>
-          this.transloco.translate(
-            customer.type === 'company'
-              ? 'customers.types.company.shortLabel'
-              : 'customers.types.individual.shortLabel',
-          ),
-        description: (customer) => (customer.type === 'company' ? customer.fullName : ''),
-        tone: 'primary',
-        width: '34%',
-      },
-      {
-        id: 'contact',
-        header: this.transloco.translate('customers.table.contact'),
-        key: 'phone',
-        description: (customer) => customer.email,
-        tone: 'primary',
-        width: '30%',
-      },
-      {
-        id: 'location',
-        header: this.transloco.translate('customers.table.location'),
-        cell: (customer) => customer.city,
-        description: (customer) => `${customer.address}, ${customer.postalCode}`,
-        tone: 'primary',
-        width: '36%',
-      },
-    ];
-  });
+  protected typeLabel(customer: Customer): string {
+    this.activeLanguage();
+    return this.transloco.translate(
+      customer.type === 'company'
+        ? 'customers.types.company.shortLabel'
+        : 'customers.types.individual.shortLabel',
+    );
+  }
+
+  protected handleRowClick(event: MouseEvent, customer: Customer): void {
+    if (isInteractiveTarget(event.target)) {
+      return;
+    }
+
+    this.customerSelected.emit(customer);
+  }
+}
+
+function isInteractiveTarget(target: EventTarget | null): boolean {
+  return target instanceof Element && Boolean(target.closest('a, button'));
 }

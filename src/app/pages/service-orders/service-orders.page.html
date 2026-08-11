@@ -1,11 +1,1 @@
-<div
-  [attr.aria-hidden]="isDetailPanelOpen() ? 'true' : null"
-  [attr.inert]="isDetailPanelOpen() ? '' : null"
->
-  <app-service-orders-view />
-</div>
-
-<router-outlet
-  (activate)="handleDetailPanelActivation()"
-  (deactivate)="handleDetailPanelDeactivation()"
-/>
+<app-service-orders-view />

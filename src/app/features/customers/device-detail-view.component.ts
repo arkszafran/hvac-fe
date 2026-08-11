@@ -4,7 +4,12 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { map } from 'rxjs';
 
-import { UiButtonComponent, UiCardComponent, UiEmptyStateComponent } from '../../ui';
+import {
+  UiBadgeComponent,
+  UiButtonComponent,
+  UiEmptyStateComponent,
+  UiIconComponent,
+} from '../../ui';
 import { ServiceOrderCandidatePickerModalComponent } from '../service-orders/components/service-order-candidate-picker-modal/service-order-candidate-picker-modal.component';
 import { ServiceOrderLinkProposalModalComponent } from '../service-orders/components/service-order-link-proposal-modal/service-order-link-proposal-modal.component';
 import {
@@ -22,21 +27,23 @@ import {
   formatDevicePowerKw,
   getDeviceTypeLabel as readDeviceTypeLabel,
 } from './models/device.model';
+import { toInspectionDateTimeLocalValue } from './models/device-inspection.model';
 
 interface DeviceDetailItem {
   labelKey: string;
   value: string;
+  isTechnical?: boolean;
 }
 
 @Component({
   selector: 'app-device-detail-view',
-  standalone: true,
   imports: [
     RouterLink,
     TranslocoPipe,
+    UiBadgeComponent,
     UiButtonComponent,
-    UiCardComponent,
     UiEmptyStateComponent,
+    UiIconComponent,
     DeviceFormModalComponent,
     DeviceNextInspectionModalComponent,
     ServiceOrderLinkProposalModalComponent,
@@ -134,26 +141,32 @@ export class DeviceDetailViewComponent {
       {
         labelKey: 'devices.detail.fields.powerKw',
         value: formatDevicePowerKw(device.powerKw, this.transloco),
+        isTechnical: true,
       },
       {
         labelKey: 'devices.detail.fields.installationDate',
         value: this.formatDate(device.installationDate),
+        isTechnical: true,
       },
       {
         labelKey: 'devices.detail.fields.warrantyUntil',
         value: this.formatDate(device.warrantyUntil),
+        isTechnical: true,
       },
       {
         labelKey: 'devices.detail.fields.serialNumber',
         value: this.formatValue(device.serialNumber),
+        isTechnical: true,
       },
       {
         labelKey: 'devices.detail.fields.refrigerant',
         value: this.formatValue(device.refrigerant),
+        isTechnical: true,
       },
       {
         labelKey: 'devices.detail.fields.refrigerantAmount',
         value: this.formatValue(device.refrigerantAmount),
+        isTechnical: true,
       },
     ];
   });
@@ -166,7 +179,7 @@ export class DeviceDetailViewComponent {
     }
 
     return activeInspection.scheduledAt
-      ? this.formatDate(activeInspection.scheduledAt)
+      ? this.formatDateTime(activeInspection.scheduledAt)
       : this.transloco.translate('devices.detail.noInspectionDate');
   });
   protected readonly nextInspectionStatusLabel = computed(() => {
@@ -302,6 +315,19 @@ export class DeviceDetailViewComponent {
     return new Intl.DateTimeFormat(this.activeLanguage() === 'pl' ? 'pl-PL' : 'en-US').format(
       parsedDate,
     );
+  }
+
+  private formatDateTime(value: string): string {
+    const normalizedValue = toInspectionDateTimeLocalValue(value);
+
+    if (!normalizedValue) {
+      return value || '--';
+    }
+
+    return new Intl.DateTimeFormat(this.activeLanguage() === 'pl' ? 'pl-PL' : 'en-US', {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    }).format(new Date(normalizedValue));
   }
 
   private processDeviceUpdate(deviceDraft: DeviceDraft): void {

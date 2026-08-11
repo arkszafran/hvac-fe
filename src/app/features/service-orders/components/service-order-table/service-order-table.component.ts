@@ -1,29 +1,32 @@
-import { ChangeDetectionStrategy, Component, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import {
   UiBadgeComponent,
   UiButtonComponent,
   UiEmptyStateComponent,
-  UiModalComponent,
+  UiIconComponent,
 } from '../../../../ui';
+import { classNames } from '../../../../ui/utils/classnames';
+import type { Customer } from '../../../customers/models/customer.model';
 import { ServiceOrder, ServiceOrderNote } from '../../models/service-order.model';
 import {
-  formatServiceOrderCustomerAddress,
   formatServiceOrderCustomerName,
-  formatServiceOrderDate,
   formatServiceOrderNextActionDateTime,
+  getServiceOrderInspectionConfirmation,
   getServiceOrderStatusLabel,
   getServiceOrderStatusVariant,
   getServiceOrderTypeLabel,
-  serviceOrderMapHref,
   serviceOrderPhoneHref,
 } from '../../utils/service-order-ui.util';
 import { ServiceOrderActionsMenuComponent } from '../service-order-actions-menu/service-order-actions-menu.component';
+import { ServiceOrderCustomerLinksComponent } from '../service-order-customer-links/service-order-customer-links.component';
+import { ServiceOrderInspectionConfirmationComponent } from '../service-order-inspection-confirmation/service-order-inspection-confirmation.component';
 
 export interface ServiceOrderTableItem {
   order: ServiceOrder;
   notes: ServiceOrderNote[];
+  systemCustomer?: Customer;
 }
 
 @Component({
@@ -33,8 +36,10 @@ export interface ServiceOrderTableItem {
     UiBadgeComponent,
     UiButtonComponent,
     UiEmptyStateComponent,
-    UiModalComponent,
+    UiIconComponent,
     ServiceOrderActionsMenuComponent,
+    ServiceOrderCustomerLinksComponent,
+    ServiceOrderInspectionConfirmationComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './service-order-table.component.html',
@@ -51,12 +56,10 @@ export class ServiceOrderTableComponent {
   readonly assigneeRequested = output<ServiceOrder>();
   readonly cancellationRequested = output<ServiceOrder>();
 
-  protected readonly selectedNote = signal<ServiceOrderNote | null>(null);
   protected readonly formatCustomerName = formatServiceOrderCustomerName;
-  protected readonly formatCustomerAddress = formatServiceOrderCustomerAddress;
   protected readonly getStatusVariant = getServiceOrderStatusVariant;
-  protected readonly mapHref = serviceOrderMapHref;
   protected readonly phoneHref = serviceOrderPhoneHref;
+  protected readonly inspectionConfirmation = getServiceOrderInspectionConfirmation;
 
   protected getTypeLabel(order: ServiceOrder): string {
     return getServiceOrderTypeLabel(order.type, this.transloco);
@@ -64,10 +67,6 @@ export class ServiceOrderTableComponent {
 
   protected getStatusLabel(order: ServiceOrder): string {
     return getServiceOrderStatusLabel(order.status, this.transloco);
-  }
-
-  protected formatDate(value: string): string {
-    return formatServiceOrderDate(value, this.transloco.getActiveLang());
   }
 
   protected formatNextActionDate(value: string): string {
@@ -79,14 +78,33 @@ export class ServiceOrderTableComponent {
     return `${date}, ${formatted.time}`;
   }
 
-  protected confirmationLabelKey(order: ServiceOrder): string {
-    if (order.serviceData.type !== 'inspection' || order.source !== 'system') {
-      return '';
+  protected nextActionLabelKey(order: ServiceOrder): string {
+    if (order.status === 'scheduled') {
+      return 'serviceOrders.nextAction.visitCustomer';
     }
 
-    return order.serviceData.customerConfirmationStatus === 'confirmed'
-      ? 'serviceOrders.confirmation.confirmed'
-      : 'serviceOrders.confirmation.notConfirmed';
+    if (order.status === 'new' || order.status === 'contact_required') {
+      return 'serviceOrders.nextAction.callCustomer';
+    }
+
+    return '';
+  }
+
+  protected nextActionDate(order: ServiceOrder): string {
+    const date = order.nextContactAt || order.scheduledAt;
+
+    return date
+      ? this.formatNextActionDate(date)
+      : this.transloco.translate('serviceOrders.nextAction.today');
+  }
+
+  protected nextActionDotClasses(order: ServiceOrder): string {
+    return classNames(
+      'mt-1.5 size-2 shrink-0 rounded-full',
+      order.status === 'contact_required' && 'bg-warning',
+      order.status === 'scheduled' && 'bg-info',
+      order.status === 'new' && 'bg-brand',
+    );
   }
 
   protected canChangeOrder(order: ServiceOrder): boolean {
@@ -97,25 +115,11 @@ export class ServiceOrderTableComponent {
     this.detailsRequested.emit(order);
   }
 
-  protected openFullNote(event: MouseEvent, note: ServiceOrderNote): void {
-    event.stopPropagation();
-    this.selectedNote.set(note);
-  }
-
   protected handleRowClick(event: MouseEvent, order: ServiceOrder): void {
     if (isInteractiveTarget(event.target)) {
       return;
     }
 
-    this.openDetails(order);
-  }
-
-  protected handleRowKeydown(event: KeyboardEvent, order: ServiceOrder): void {
-    if (event.target !== event.currentTarget || (event.key !== 'Enter' && event.key !== ' ')) {
-      return;
-    }
-
-    event.preventDefault();
     this.openDetails(order);
   }
 

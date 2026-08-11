@@ -9,6 +9,12 @@ import {
 import { classNames } from '../utils/classnames';
 
 export type UiBadgeVariant = 'neutral' | 'info' | 'progress' | 'success' | 'warning' | 'danger';
+type UiBadgeSize = 'sm' | 'md';
+
+const SIZE_CLASSES: Record<UiBadgeSize, string> = {
+  sm: 'gap-1.5 px-2 py-0.5 text-[0.6875rem]/4',
+  md: 'gap-2 px-3 py-1.5 text-label',
+};
 
 const VARIANT_CLASSES: Record<UiBadgeVariant, string> = {
   neutral: 'bg-surface-muted text-text-muted',
@@ -33,11 +39,13 @@ const VARIANT_CLASSES: Record<UiBadgeVariant, string> = {
 })
 export class UiBadgeComponent {
   readonly variant = input<UiBadgeVariant>('neutral');
+  readonly size = input<UiBadgeSize>('md');
   readonly dot = input(false, { transform: booleanAttribute });
 
   protected readonly badgeClasses = computed(() =>
     classNames(
-      'inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-label',
+      'inline-flex items-center rounded-full',
+      SIZE_CLASSES[this.size()],
       VARIANT_CLASSES[this.variant()],
     ),
   );

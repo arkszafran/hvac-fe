@@ -1,21 +1,9 @@
-<div class="space-y-4">
-  <div class="space-y-3">
-    @for (device of systemDevices(); track device.id; let index = $index) {
-      <app-service-order-device-details [device]="device" [index]="index" />
-    }
-    @for (device of data().devices; track device.id; let index = $index) {
-      <app-service-order-device-details
-        [device]="device"
-        [index]="systemDevices().length + index"
-      />
-    }
-
-    @if (!systemDevices().length && !data().devices.length) {
-      <p
-        class="rounded-[1rem] border border-dashed border-border/90 px-4 py-5 text-body text-text-muted"
-      >
-        {{ 'serviceOrders.details.noDevices' | transloco }}
-      </p>
-    }
-  </div>
+<div class="md:space-y-3">
+  @for (device of devices(); track device.id; let isLast = $last) {
+    <app-service-order-device-details [device]="device" [isLast]="isLast" />
+  } @empty {
+    <p class="py-5 text-body text-text-muted">
+      {{ 'serviceOrders.details.noDevices' | transloco }}
+    </p>
+  }
 </div>

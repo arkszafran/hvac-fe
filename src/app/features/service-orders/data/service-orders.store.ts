@@ -238,10 +238,12 @@ export class ServiceOrdersStore {
     }
 
     return this.patchOrder(orderId, {
-      status: isConfirmed ? 'scheduled' : 'contact_required',
+      status: 'contact_required',
       serviceData: {
         ...order.serviceData,
         customerConfirmationStatus: isConfirmed ? 'confirmed' : 'not_confirmed',
+        confirmationReminderSentAt:
+          order.serviceData.confirmationReminderSentAt ?? new Date().toISOString(),
       },
     });
   }
@@ -379,14 +381,16 @@ export class ServiceOrdersStore {
       date: string;
       status: ServiceOrderStatus;
       confirmation: CustomerConfirmationStatus;
+      reminderSentAt: string;
     }> = [
       {
         id: 'inspection-01',
         customerId: 'customer-01',
         deviceIds: ['device-01', 'device-02'],
         date: '2026-05-12',
-        status: 'scheduled',
+        status: 'contact_required',
         confirmation: 'confirmed',
+        reminderSentAt: '2026-05-10T08:00:00',
       },
       {
         id: 'inspection-02',
@@ -395,6 +399,7 @@ export class ServiceOrdersStore {
         date: '2026-05-24',
         status: 'contact_required',
         confirmation: 'not_confirmed',
+        reminderSentAt: '2026-05-22T08:00:00',
       },
     ];
     const inspectionOrders = inspectionSeeds
@@ -413,6 +418,7 @@ export class ServiceOrdersStore {
                 deviceIds: seed.deviceIds,
                 devices: [],
                 customerConfirmationStatus: seed.confirmation,
+                confirmationReminderSentAt: seed.reminderSentAt,
               },
               orderDate: now,
               scheduledAt: normalizeDateTime(seed.date),

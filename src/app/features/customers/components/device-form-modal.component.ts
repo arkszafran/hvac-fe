@@ -25,6 +25,7 @@ import {
   DEVICE_INSPECTIONS_CHECKBOX_DESCRIPTION_KEY,
   DEVICE_INSPECTIONS_CHECKBOX_LABEL_KEY,
   DeviceInspectionPreset,
+  toInspectionDateTimeLocalValue,
 } from '../models/device-inspection.model';
 import {
   createDeviceTypeOptions,
@@ -154,11 +155,9 @@ export class DeviceFormModalComponent {
         this.applyInspectionPreset(preset);
       });
 
-    this.form.controls.nextInspectionDate.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => {
-        this.syncInspectionPresetWithDate();
-      });
+    this.form.controls.nextInspectionDate.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.syncInspectionPresetWithDate();
+    });
 
     this.syncInstallationDateValidator(this.form.controls.warrantyMonths.value);
     this.syncNextInspectionDateValidator(this.form.controls.hasScheduledInspections.value);
@@ -245,10 +244,13 @@ export class DeviceFormModalComponent {
         powerKw: draft.powerKw?.toString() ?? '',
         warrantyMonths: draft.warrantyMonths.toString(),
         nextInspectionPreset: 'custom',
+        nextInspectionDate: toInspectionDateTimeLocalValue(draft.nextInspectionDate),
       },
       { emitEvent: false },
     );
-    this.hasCustomInstallationAddress.set(this.form.controls.hasCustomInstallationAddress.getRawValue());
+    this.hasCustomInstallationAddress.set(
+      this.form.controls.hasCustomInstallationAddress.getRawValue(),
+    );
     this.warrantyMonths.set(this.form.controls.warrantyMonths.getRawValue());
     this.hasScheduledInspections.set(this.form.controls.hasScheduledInspections.getRawValue());
     this.syncInstallationDateValidator(this.form.controls.warrantyMonths.getRawValue());
@@ -276,9 +278,11 @@ export class DeviceFormModalComponent {
     }
 
     const calculatedDate = calculateInspectionDateFromPreset(preset);
+    const currentTime =
+      /T(\d{2}:\d{2})/.exec(this.form.controls.nextInspectionDate.getRawValue())?.[1] ?? '09:00';
 
     this.isApplyingInspectionPreset = true;
-    this.form.controls.nextInspectionDate.setValue(calculatedDate);
+    this.form.controls.nextInspectionDate.setValue(`${calculatedDate}T${currentTime}`);
     this.isApplyingInspectionPreset = false;
   }
 

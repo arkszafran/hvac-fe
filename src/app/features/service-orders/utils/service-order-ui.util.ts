@@ -4,11 +4,21 @@ import type { UiBadgeVariant } from '../../../ui';
 import {
   ServiceOrderBuildingType,
   ServiceOrderCustomer,
+  CustomerConfirmationStatus,
+  ServiceOrder,
   ServiceOrderOutdoorUnitPlace,
   ServiceOrderSource,
   ServiceOrderStatus,
   ServiceOrderType,
 } from '../models/service-order.model';
+
+export type ActionableInspectionConfirmationStatus = Exclude<CustomerConfirmationStatus, 'pending'>;
+
+export interface ServiceOrderInspectionConfirmation {
+  status: ActionableInspectionConfirmationStatus;
+  scheduledAt: string;
+  reminderSentAt: string;
+}
 
 const TYPE_LABEL_KEYS: Record<ServiceOrderType, string> = {
   installation: 'serviceOrders.types.installation',
@@ -101,6 +111,26 @@ export function getServiceOrderStatusVariant(status: ServiceOrderStatus): UiBadg
     case 'cancelled':
       return 'danger';
   }
+}
+
+export function getServiceOrderInspectionConfirmation(
+  order: ServiceOrder,
+): ServiceOrderInspectionConfirmation | null {
+  if (
+    order.type !== 'inspection' ||
+    order.serviceData.type !== 'inspection' ||
+    order.status !== 'contact_required' ||
+    !order.scheduledAt.trim() ||
+    order.serviceData.customerConfirmationStatus === 'pending'
+  ) {
+    return null;
+  }
+
+  return {
+    status: order.serviceData.customerConfirmationStatus,
+    scheduledAt: order.scheduledAt,
+    reminderSentAt: order.serviceData.confirmationReminderSentAt ?? '',
+  };
 }
 
 export function formatServiceOrderCustomerName(customer: ServiceOrderCustomer): string {

@@ -1,74 +1,86 @@
-<article class="rounded-[1rem] border border-border/85 bg-white px-4 py-4">
-  <h3 class="text-label text-text-main">
-    {{ 'serviceOrders.details.device' | transloco: { index: index() + 1, device: deviceName() } }}
-  </h3>
+<article
+  class="rounded-card border-border bg-surface py-4 sm:p-4 md:border"
+  [class.border-b]="!isLast()"
+>
+  <header class="flex min-w-0 flex-wrap items-center gap-2">
+    <h3 class="min-w-0 text-body font-semibold text-text-main">
+      {{ deviceName() }}
+    </h3>
+    <ui-badge size="sm" variant="neutral">
+      {{ deviceTypeLabel() }}
+    </ui-badge>
+    @if (hasMissingData()) {
+      <ui-badge size="sm" variant="warning">
+        {{ 'serviceOrders.details.missingData' | transloco }}
+      </ui-badge>
+    }
+  </header>
 
-  <dl class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+  <dl class="mt-3 hidden gap-4 sm:grid sm:grid-cols-3">
     <div>
-      <dt class="text-small font-semibold text-text-muted">
-        {{ 'serviceOrders.details.deviceType' | transloco }}
-      </dt>
-      <dd class="text-label text-text-main">{{ deviceTypeLabel() }}</dd>
-    </div>
-    <div>
-      <dt class="text-small font-semibold text-text-muted">
+      <dt class="text-small text-text-muted">
         {{ 'serviceOrders.details.serialNumber' | transloco }}
       </dt>
-      <dd class="text-label text-text-main">{{ device().serialNumber || '--' }}</dd>
+      <dd class="mt-0.5 font-mono text-mono text-text-main">
+        {{ device().serialNumber || ('serviceOrders.details.completeData' | transloco) }}
+      </dd>
     </div>
     <div>
-      <dt class="text-small font-semibold text-text-muted">
+      <dt class="text-small text-text-muted">
         {{ 'serviceOrders.details.refrigerant' | transloco }}
       </dt>
-      <dd class="text-label text-text-main">{{ device().refrigerant || '--' }}</dd>
+      <dd class="mt-0.5 font-mono text-mono text-text-main">
+        {{ device().refrigerant || ('serviceOrders.details.completeData' | transloco) }}
+      </dd>
     </div>
     <div>
-      <dt class="text-small font-semibold text-text-muted">
+      <dt class="text-small text-text-muted">
         {{ 'serviceOrders.details.refrigerantAmount' | transloco }}
       </dt>
-      <dd class="text-label text-text-main">{{ device().refrigerantAmount || '--' }}</dd>
+      <dd class="mt-0.5 font-mono text-mono text-text-main">
+        {{ device().refrigerantAmount || ('serviceOrders.details.completeData' | transloco) }}
+      </dd>
     </div>
-    @if (displayedError() !== undefined) {
-      <div class="sm:col-span-2 lg:col-span-3">
-        <dt class="text-small font-semibold text-text-muted">
-          {{ 'serviceOrders.details.reportedError' | transloco }}
-        </dt>
-        <dd class="whitespace-pre-wrap text-label text-text-main">
-          {{ displayedError() || '--' }}
-        </dd>
-      </div>
-    }
   </dl>
 
-  @if (hasPhotoSection()) {
-    <section class="mt-4 border-t border-border/70 pt-4">
-      <h4 class="text-small font-semibold text-text-muted">
+  <dl class="mt-3 grid grid-cols-2 gap-4 sm:hidden">
+    <div>
+      <dt class="text-small text-text-muted">
+        {{ 'serviceOrders.details.serialNumber' | transloco }}
+      </dt>
+      <dd class="mt-0.5 font-mono text-mono text-text-main">
+        {{ device().serialNumber || ('serviceOrders.details.completeData' | transloco) }}
+      </dd>
+    </div>
+    <div>
+      <dt class="text-small text-text-muted">
+        {{ 'serviceOrders.details.refrigerantCombined' | transloco }}
+      </dt>
+      <dd class="mt-0.5 font-mono text-mono text-text-main">
+        {{ device().refrigerant || '--' }}
+        <span aria-hidden="true"> · </span>
+        {{ device().refrigerantAmount || '--' }}
+      </dd>
+    </div>
+  </dl>
+
+  @if (displayedError() !== undefined) {
+    <div class="mt-3">
+      <p class="text-small text-text-muted">
+        {{ 'serviceOrders.details.reportedError' | transloco }}
+      </p>
+      <p class="mt-0.5 whitespace-pre-wrap text-body text-text-main">
+        {{ displayedError() || '--' }}
+      </p>
+    </div>
+  }
+
+  @if (hasPhotoSection() && (nameplatePhotos().length || !hasMissingData())) {
+    <section class="mt-4">
+      <h4 class="mb-2 text-small text-text-muted md:block">
         {{ 'serviceOrders.details.devicePhotos' | transloco }}
       </h4>
-
-      @if (nameplatePhotos().length) {
-        <div class="mt-2 grid gap-3 sm:grid-cols-2">
-          @for (photo of nameplatePhotos(); track photo.id) {
-            <figure class="overflow-hidden rounded-[0.9rem] border border-border/85 bg-surface">
-              <img
-                [src]="photo.url"
-                [alt]="photo.fileName"
-                class="h-40 w-full object-cover"
-                loading="lazy"
-              />
-              <figcaption class="px-3 py-2 text-small text-text-main">
-                {{ photo.fileName }}
-              </figcaption>
-            </figure>
-          }
-        </div>
-      } @else {
-        <p
-          class="mt-2 rounded-[0.9rem] border border-dashed border-border/90 px-3 py-3 text-small text-text-muted"
-        >
-          {{ 'serviceOrders.details.noDevicePhotos' | transloco }}
-        </p>
-      }
+      <app-service-order-photo-gallery [photos]="nameplatePhotos()" />
     </section>
   }
 </article>
