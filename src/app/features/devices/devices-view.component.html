@@ -1,0 +1,36 @@
+<div class="-mx-2 space-y-3 md:mx-0 md:space-y-4">
+  <header class="flex flex-col gap-4 px-2 md:flex-row md:items-end md:justify-between md:px-0">
+    <div class="min-w-0">
+      <h1 class="text-h1 text-text-main">
+        {{ 'devices.title' | transloco }}
+      </h1>
+      <p class="mt-1 text-body text-text-muted">
+        {{ 'devices.description' | transloco }}
+      </p>
+    </div>
+
+    <ui-button class="shrink-0 self-start md:self-auto" (pressed)="navigateToCreateDevice()">
+      <ui-icon button-icon name="plus" />
+      {{ 'devices.actions.add' | transloco }}
+    </ui-button>
+  </header>
+
+  <section
+    class="relative z-20 rounded-card border border-border bg-surface p-2.5"
+    [attr.aria-label]="'devices.searchLabel' | transloco"
+  >
+    <app-device-toolbar [searchControl]="searchControl" />
+  </section>
+
+  <app-device-table
+    [devices]="filteredDevices()"
+    (devicePreviewRequested)="handleDevicePreview($event)"
+    (customerPreviewRequested)="selectedCustomer.set($event)"
+  />
+
+  <app-device-customer-modal
+    [open]="selectedCustomer() !== null"
+    [customer]="selectedCustomer()"
+    (close)="selectedCustomer.set(null)"
+  />
+</div>

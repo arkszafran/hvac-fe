@@ -31,37 +31,52 @@
 
         <div class="mt-3 grid gap-2 rounded-field bg-surface-muted px-3 py-2.5 text-small">
           @if (customer.phone) {
-            <a
-              [href]="phoneHref(customer.phone)"
-              class="ui-focus-ring w-fit rounded-sm font-mono text-mono text-action-contrast hover:text-action-hover"
-            >
-              {{ customer.phone }}
-            </a>
+            @if (enableContactLinks()) {
+              <a
+                [href]="phoneHref(customer.phone)"
+                class="ui-focus-ring w-fit rounded-sm font-mono text-mono text-action-contrast hover:text-action-hover"
+              >
+                {{ customer.phone }}
+              </a>
+            } @else {
+              <span class="w-fit font-mono text-mono text-text-main">{{ customer.phone }}</span>
+            }
           } @else {
             <span class="text-text-muted">--</span>
           }
           @if (customer.email) {
-            <a
-              [href]="emailHref(customer.email)"
-              class="ui-focus-ring min-w-0 truncate rounded-sm text-text-main hover:text-action-hover"
-            >
-              {{ customer.email }}
-            </a>
+            @if (enableContactLinks()) {
+              <a
+                [href]="emailHref(customer.email)"
+                class="ui-focus-ring min-w-0 truncate rounded-sm text-text-main hover:text-action-hover"
+              >
+                {{ customer.email }}
+              </a>
+            } @else {
+              <span class="min-w-0 truncate text-text-main">{{ customer.email }}</span>
+            }
           } @else {
             <span class="text-text-muted">--</span>
           }
         </div>
 
         @if (mapHref(customer); as href) {
-          <a
-            [href]="href"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="ui-focus-ring mt-3 inline-flex max-w-full items-start gap-1.5 rounded-sm text-small text-action-contrast hover:text-action-hover"
-          >
-            <ui-map-pin-icon class="mt-0.5 size-4" />
-            <span class="line-clamp-2">{{ formatAddress(customer) }}</span>
-          </a>
+          @if (enableContactLinks()) {
+            <a
+              [href]="href"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="ui-focus-ring mt-3 inline-flex max-w-full items-start gap-1.5 rounded-sm text-small text-action-contrast hover:text-action-hover"
+            >
+              <ui-map-pin-icon class="mt-0.5 size-4" />
+              <span class="line-clamp-2">{{ formatAddress(customer) }}</span>
+            </a>
+          } @else {
+            <p class="mt-3 flex max-w-full items-start gap-1.5 text-small text-text-main">
+              <ui-map-pin-icon class="mt-0.5 size-4" />
+              <span class="line-clamp-2">{{ formatAddress(customer) }}</span>
+            </p>
+          }
         } @else {
           <p class="mt-3 text-small text-text-muted">--</p>
         }
@@ -115,37 +130,56 @@
             </td>
             <td class="min-w-0 border-b border-border px-4 py-4 align-middle">
               @if (customer.phone) {
-                <a
-                  [href]="phoneHref(customer.phone)"
-                  class="ui-focus-ring block w-fit rounded-sm font-mono text-mono text-action-contrast hover:text-action-hover"
-                >
-                  {{ customer.phone }}
-                </a>
+                @if (enableContactLinks()) {
+                  <a
+                    [href]="phoneHref(customer.phone)"
+                    class="ui-focus-ring block w-fit rounded-sm font-mono text-mono text-action-contrast hover:text-action-hover"
+                  >
+                    {{ customer.phone }}
+                  </a>
+                } @else {
+                  <span class="block w-fit font-mono text-mono text-text-main">
+                    {{ customer.phone }}
+                  </span>
+                }
               } @else {
                 <span class="block text-body text-text-muted">--</span>
               }
               @if (customer.email) {
-                <a
-                  [href]="emailHref(customer.email)"
-                  class="ui-focus-ring mt-1 block truncate rounded-sm text-small text-text-muted hover:text-action-hover"
-                >
-                  {{ customer.email }}
-                </a>
+                @if (enableContactLinks()) {
+                  <a
+                    [href]="emailHref(customer.email)"
+                    class="ui-focus-ring mt-1 block truncate rounded-sm text-small text-text-muted hover:text-action-hover"
+                  >
+                    {{ customer.email }}
+                  </a>
+                } @else {
+                  <span class="mt-1 block truncate text-small text-text-muted">
+                    {{ customer.email }}
+                  </span>
+                }
               } @else {
                 <span class="mt-1 block text-small text-text-muted">--</span>
               }
             </td>
             <td class="min-w-0 border-b border-border px-4 py-4 align-middle">
               @if (mapHref(customer); as href) {
-                <a
-                  [href]="href"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="ui-focus-ring inline-flex max-w-full items-start gap-1.5 rounded-sm text-body text-action-contrast hover:text-action-hover"
-                >
-                  <ui-map-pin-icon class="mt-0.5 size-4" />
-                  <span class="line-clamp-2">{{ formatAddress(customer) }}</span>
-                </a>
+                @if (enableContactLinks()) {
+                  <a
+                    [href]="href"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="ui-focus-ring inline-flex max-w-full items-start gap-1.5 rounded-sm text-body text-action-contrast hover:text-action-hover"
+                  >
+                    <ui-map-pin-icon class="mt-0.5 size-4" />
+                    <span class="line-clamp-2">{{ formatAddress(customer) }}</span>
+                  </a>
+                } @else {
+                  <span class="inline-flex max-w-full items-start gap-1.5 text-body text-text-main">
+                    <ui-map-pin-icon class="mt-0.5 size-4" />
+                    <span class="line-clamp-2">{{ formatAddress(customer) }}</span>
+                  </span>
+                }
               } @else {
                 <span class="text-body text-text-muted">--</span>
               }

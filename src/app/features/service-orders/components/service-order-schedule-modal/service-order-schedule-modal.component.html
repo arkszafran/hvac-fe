@@ -1,6 +1,6 @@
 <ui-modal
   [open]="open()"
-  [title]="'serviceOrders.scheduleModal.title' | transloco"
+  [title]="titleKey() | transloco"
   [description]="'serviceOrders.scheduleModal.description' | transloco"
   (close)="close.emit()"
 >

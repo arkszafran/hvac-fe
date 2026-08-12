@@ -781,8 +781,9 @@
     },
     "nextContactModal": {
       "title": "Set next contact",
-      "description": "Choose the contact date and time and save the arrangements in a note.",
+      "description": "Choose the contact date and time. Optionally add a note with the arrangements.",
       "dateValidation": "The next contact date and time are required.",
+      "noteLabel": "Note (optional)",
       "notePlaceholder": "Enter the arrangements for the next contact"
     },
     "assigneeModal": {
@@ -807,8 +808,12 @@
       "newDateChoiceTitle": "Choose inspection for the device",
       "newDateChoiceDescription": "The customer has several active inspections. Choose one or create a new inspection with the entered date.",
       "changeSharedInspectionTitle": "Change the shared inspection date?",
-      "changeSharedInspectionDescription": "This inspection also includes other customer devices. You can change the date for the whole inspection or create a separate inspection only for this device.",
-      "changeSharedInspectionDate": "Change whole inspection date",
+      "changeSharedInspectionDescription": "This inspection order also includes other customer devices.",
+      "changeSharedInspectionDate": "Change date",
+      "relatedDevicesTitle": "Other devices in the inspection",
+      "deviceNameLabel": "Name",
+      "currentInspectionDate": "Current inspection date",
+      "newInspectionDate": "New inspection date",
       "createSeparateWithNewDate": "Create separate inspection",
       "undoDateChange": "Undo date change",
       "linkDefaultTitle": "Attach to inspection?",
@@ -840,20 +845,17 @@
       "noOrdersTitle": "No service orders",
       "noOrdersDescription": "Service orders assigned to this customer will appear here.",
       "openOrderDetailsAria": "Open service order details: {{type}}, {{date}}",
-      "editModalDescription": "Update customer details without leaving the detail view.",
       "notFoundTitle": "We could not find this customer",
       "notFoundDescription": "The profile may not exist yet or the identifier is invalid."
     },
     "types": {
       "individual": {
         "label": "Private person",
-        "shortLabel": "Individual customer",
-        "description": "Individual customer with a home address or private unit."
+        "shortLabel": "Individual customer"
       },
       "company": {
         "label": "Company",
-        "shortLabel": "Company",
-        "description": "Business customer with a company name and contact person."
+        "shortLabel": "Company"
       }
     },
     "table": {
@@ -866,7 +868,6 @@
     },
     "form": {
       "defaultModalTitle": "Add customer",
-      "defaultModalDescription": "Create a new customer profile and go straight to the view with their devices.",
       "defaultSubmitLabel": "Save customer",
       "type": "Customer type",
       "company": "Company",
@@ -891,6 +892,8 @@
   },
   "devices": {
     "title": "Devices",
+    "description": "Customer devices, installation locations, and service history in one place.",
+    "searchLabel": "Search devices",
     "searchPlaceholder": "Brand, model, customer, or installation address",
     "actions": {
       "add": "Add device",
@@ -915,7 +918,7 @@
     },
     "inspections": {
       "checkboxLabel": "Enable periodic inspections",
-      "checkboxDescription": "After enabling, you need to set the nearest inspection date and reminders will be sent.",
+      "checkboxDescription": "Reminders will be sent for an enabled inspection.",
       "disabled": "Inspections disabled",
       "enabledNoDate": "Inspections enabled, no date",
       "nextInspection": "Next inspection: {{date}}",
@@ -949,7 +952,6 @@
       "nextInspectionPreset": "Next inspection in",
       "nextInspectionDate": "Next inspection date",
       "customAddressLabel": "This device has a different installation address than the customer",
-      "customAddressDescription": "Select this if the installation is in another unit, building, or apartment.",
       "installationAddress": "Installation address",
       "installationAddressPlaceholder": "Installation St. 7",
       "note": "Note",
@@ -1023,7 +1025,7 @@
       "noPlanningDescription": "Inspections are disabled or the device does not have a next inspection date yet.",
       "noNote": "No additional note for this device.",
       "entriesCount": "{{count}} entries",
-      "noServiceHistoryTitle": "No service history",
+      "noServiceHistoryTitle": "No entries in the device history",
       "noServiceHistoryDescription": "After the first service visits are completed, you will see the full device history here.",
       "notFoundDeviceTitle": "We could not find this device",
       "notFoundDeviceDescription": "Check the identifier or return to the device list.",
@@ -1037,6 +1039,7 @@
     "serialNumberLabel": "Serial number: {{serialNumber}}",
     "installationDateLabel": "Installation date: {{date}}",
     "customerAddress": "Customer address",
+    "customInstallationAddress": "Custom installation address",
     "sameAddressAsCustomer": "Installation address is the same as the customer address",
     "validation": {
       "typeRequired": "Device type is required.",
@@ -1047,13 +1050,12 @@
       "powerNonNegative": "Power cannot be negative."
     },
     "nextInspectionModal": {
-      "title": "Change inspection settings",
-      "description": "Enable or disable periodic inspections and set the nearest inspection date."
+      "title": "Change inspection settings"
     },
     "create": {
       "backToList": "Back to devices",
       "title": "Add device",
-      "description": "Select an existing customer or add a new one, then complete the device details.",
+      "customerData": "Customer details",
       "deviceData": "Device details",
       "pendingCustomerDescription": "The new customer will be saved together with the device.",
       "noCustomerSelected": "No customer selected",

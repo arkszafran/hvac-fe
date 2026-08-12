@@ -169,17 +169,6 @@ export class ServiceOrderDetailViewComponent {
     );
   }
 
-  protected detailItemCount(order: ServiceOrder): number {
-    switch (order.serviceData.type) {
-      case 'installation':
-        return order.serviceData.rooms.length;
-      case 'repair':
-        return order.serviceData.devices.length;
-      case 'inspection':
-        return (this.details()?.systemDevices.length ?? 0) + order.serviceData.devices.length;
-    }
-  }
-
   protected canChangeOrder(order: ServiceOrder): boolean {
     return order.status !== 'completed' && order.status !== 'cancelled';
   }

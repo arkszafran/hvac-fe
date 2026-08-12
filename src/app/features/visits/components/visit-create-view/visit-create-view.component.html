@@ -1,45 +1,46 @@
-<div class="flex flex-col gap-8">
-  <section class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-    <div class="flex flex-col gap-1">
-      <nav class="flex flex-wrap items-center gap-2 text-[13px]/5 font-semibold text-text-muted">
-        <a
-          routerLink="/visits"
-          class="text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
-        >
-          {{ 'visits.create.breadcrumbs.list' | transloco }}
-        </a>
-        <span aria-hidden="true">/</span>
-        <span class="text-text-main">{{ 'visits.create.breadcrumbs.new' | transloco }}</span>
-      </nav>
+<div class="space-y-4">
+  <button
+    type="button"
+    class="ui-focus-ring inline-flex min-h-11 items-center gap-2 rounded-button px-2 text-body text-text-main transition-colors hover:bg-surface-muted active:bg-surface-muted motion-reduce:transition-none"
+    (click)="navigateToVisits()"
+  >
+    <ui-icon class="size-4 rotate-180" name="chevron-right" />
+    {{ 'visits.create.breadcrumbs.list' | transloco }}
+  </button>
 
-      <h1 class="text-display tracking-[-0.04em] text-text-main">
+  <header class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+    <div class="min-w-0">
+      <h1 class="text-h1 text-text-main">
         {{ 'visits.create.title' | transloco }}
       </h1>
-      <p class="text-body text-text-muted">
+      <p class="mt-1 text-body text-text-muted">
         {{ 'visits.create.description' | transloco }}
       </p>
     </div>
 
-    <ui-button size="sm" (pressed)="submit()">{{ 'visits.actions.save' | transloco }}</ui-button>
-  </section>
+    <ui-button class="hidden shrink-0 md:block" (pressed)="submit()">
+      {{ 'visits.actions.save' | transloco }}
+    </ui-button>
+  </header>
 
   @if (hasValidationErrors()) {
     <div
-      class="rounded-[1rem] border border-danger/30 bg-danger-soft px-4 py-3 text-label text-danger"
+      class="rounded-field border border-danger/30 bg-danger-soft px-4 py-3 text-body text-danger"
+      role="alert"
     >
       {{ validationMessage() }}
     </div>
   }
 
-  <section class="flex flex-col gap-6">
+  <section class="flex flex-col gap-4">
     <ui-card>
       <div card-header>
-        <h2 class="text-h3 tracking-[-0.02em] text-text-main">
+        <h2 class="text-h3 text-text-main">
           {{ 'visits.create.sections.typeAndDate' | transloco }}
         </h2>
       </div>
 
-      <div class="flex flex-col gap-5">
+      <div class="grid gap-4 md:grid-cols-2">
         <ui-select
           [label]="'visits.fields.visitType' | transloco"
           [placeholder]="'visits.fields.visitTypePlaceholder' | transloco"
@@ -59,7 +60,7 @@
 
         @if (visitType() === 'inspection') {
           <div
-            class="mt-1 flex flex-col gap-3 rounded-[1rem] border border-border/80 bg-white px-4 py-4"
+            class="flex flex-col gap-3 rounded-field border border-border bg-surface px-4 py-4 md:col-span-2"
           >
             <p class="text-label text-text-main">
               {{ 'visits.create.scheduledInspectionQuestion' | transloco }}
@@ -67,18 +68,20 @@
             <div class="grid gap-2 sm:grid-cols-2">
               <button
                 type="button"
-                class="ui-focus-ring rounded-[0.9rem] border px-4 py-3 text-label transition"
-                [class.border-primary]="scheduledInspectionAnswer() === 'yes'"
-                [class.bg-primary-soft]="scheduledInspectionAnswer() === 'yes'"
+                class="ui-focus-ring min-h-11 rounded-button border border-border bg-surface px-4 py-3 text-label text-text-main transition-colors duration-200 hover:border-action/45 hover:bg-action-soft motion-reduce:transition-none"
+                [class.border-action]="scheduledInspectionAnswer() === 'yes'"
+                [class.bg-action-soft]="scheduledInspectionAnswer() === 'yes'"
+                [attr.aria-pressed]="scheduledInspectionAnswer() === 'yes'"
                 (click)="setScheduledInspectionAnswer('yes')"
               >
                 {{ 'common.yes' | transloco }}
               </button>
               <button
                 type="button"
-                class="ui-focus-ring rounded-[0.9rem] border px-4 py-3 text-label transition"
-                [class.border-primary]="scheduledInspectionAnswer() === 'no'"
-                [class.bg-primary-soft]="scheduledInspectionAnswer() === 'no'"
+                class="ui-focus-ring min-h-11 rounded-button border border-border bg-surface px-4 py-3 text-label text-text-main transition-colors duration-200 hover:border-action/45 hover:bg-action-soft motion-reduce:transition-none"
+                [class.border-action]="scheduledInspectionAnswer() === 'no'"
+                [class.bg-action-soft]="scheduledInspectionAnswer() === 'no'"
+                [attr.aria-pressed]="scheduledInspectionAnswer() === 'no'"
                 (click)="setScheduledInspectionAnswer('no')"
               >
                 {{ 'common.no' | transloco }}
@@ -86,7 +89,7 @@
             </div>
 
             @if (selectedScheduledInspection(); as details) {
-              <div class="rounded-[0.95rem] border border-primary/18 bg-primary-soft/28 px-3 py-3">
+              <div class="rounded-field border border-action/20 bg-action-soft px-4 py-3.5">
                 <p class="text-label text-text-main">{{ customerName(details.systemCustomer) }}</p>
                 <p class="text-small text-text-muted">
                   {{
@@ -104,16 +107,18 @@
     @if (canShowCustomerStep()) {
       <ui-card>
         <div card-header>
-          <h2 class="text-h3 tracking-[-0.02em] text-text-main">
+          <h2 class="text-h3 text-text-main">
             {{ 'visits.create.sections.customer' | transloco }}
           </h2>
         </div>
 
         @if (selectedCustomer(); as customer) {
-          <div class="rounded-[1rem] border border-border/80 bg-white px-4 py-4">
-            <p class="text-label text-text-main">{{ customerName(customer) }}</p>
-            <p class="text-small text-text-muted">{{ customer.phone || customer.email || '--' }}</p>
-            <p class="text-small text-text-muted">
+          <div class="rounded-field bg-surface-muted px-4 py-3.5">
+            <p class="text-body font-semibold text-text-main">{{ customerName(customer) }}</p>
+            <p class="mt-1 text-small text-text-muted">
+              {{ customer.phone || customer.email || '--' }}
+            </p>
+            <p class="mt-1 text-small text-text-muted">
               {{ customer.address || '--' }}, {{ customer.postalCode }} {{ customer.city }}
             </p>
           </div>
@@ -122,7 +127,7 @@
         }
 
         @if (!isVisitFromScheduledInspection()) {
-          <div class="mt-4 flex flex-wrap gap-2">
+          <div class="mt-4 grid gap-2 sm:flex sm:flex-wrap">
             <ui-button size="sm" variant="secondary" (pressed)="isCustomerPickerOpen.set(true)">
               {{ 'visits.actions.chooseCustomer' | transloco }}
             </ui-button>
@@ -144,7 +149,7 @@
     @if (selectedCustomer()) {
       <ui-card>
         <div card-header>
-          <h2 class="text-h3 tracking-[-0.02em] text-text-main">
+          <h2 class="text-h3 text-text-main">
             {{ 'visits.create.sections.devicesAndNotes' | transloco }}
           </h2>
         </div>
@@ -165,11 +170,13 @@
         @if (deviceEntries().length) {
           <div class="mt-4 flex flex-col gap-3">
             @for (entry of deviceEntries(); track entry.key) {
-              <article class="rounded-[1rem] border border-border/80 bg-white px-4 py-3">
+              <article class="rounded-field border border-border bg-surface px-4 py-3.5">
                 <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p class="text-label text-text-main">{{ entry.label }}</p>
-                    <p class="text-small text-text-muted">{{ entry.description }}</p>
+                  <div class="min-w-0">
+                    <p class="truncate text-body font-semibold text-text-main">{{ entry.label }}</p>
+                    <p class="mt-1 line-clamp-2 text-small text-text-muted">
+                      {{ entry.description }}
+                    </p>
                   </div>
 
                   @if (!isVisitFromScheduledInspection()) {
@@ -192,10 +199,13 @@
 
                 @if (deviceEntries().length === 1 || !commonNoteEnabled()) {
                   <div class="mt-3 flex flex-col gap-2">
-                    <label class="text-[13px]/5 font-semibold text-text-main">{{
-                      'visits.fields.note' | transloco
-                    }}</label>
+                    <label
+                      [attr.for]="'visit-device-note-' + entry.key"
+                      class="text-label text-text-muted"
+                      >{{ 'visits.fields.note' | transloco }}</label
+                    >
                     <textarea
+                      [id]="'visit-device-note-' + entry.key"
                       [class]="textareaClasses"
                       [ngModel]="entryNote(entry)"
                       (ngModelChange)="setDeviceNote(entry.key, $event)"
@@ -219,7 +229,7 @@
         <ui-card>
           <div class="flex flex-col gap-4">
             <label
-              class="flex cursor-pointer items-start gap-3 rounded-[1.05rem] border border-border/90 bg-white px-4 py-3 transition hover:border-primary/28 hover:bg-primary-soft/24"
+              class="flex min-h-11 cursor-pointer items-start gap-3 rounded-field border border-border bg-surface px-4 py-3 transition-colors duration-200 hover:border-action/45 hover:bg-action-soft motion-reduce:transition-none"
             >
               <input
                 type="checkbox"
@@ -239,10 +249,11 @@
 
             @if (commonNoteEnabled()) {
               <div class="flex flex-col gap-2">
-                <label class="text-[13px]/5 font-semibold text-text-main">{{
+                <label for="visit-common-note" class="text-label text-text-muted">{{
                   'visits.fields.note' | transloco
                 }}</label>
                 <textarea
+                  id="visit-common-note"
                   [class]="textareaClasses"
                   [ngModel]="commonNote()"
                   (ngModelChange)="commonNote.set($event)"
@@ -256,14 +267,14 @@
       @if (visitType() === 'inspection') {
         <ui-card>
           <div card-header>
-            <h2 class="text-h3 tracking-[-0.02em] text-text-main">
+            <h2 class="text-h3 text-text-main">
               {{ 'visits.create.sections.nextInspection' | transloco }}
             </h2>
           </div>
 
           <div class="flex flex-col gap-4">
             <label
-              class="flex cursor-pointer items-start gap-3 rounded-[1.05rem] border border-border/90 bg-white px-4 py-3 transition hover:border-primary/28 hover:bg-primary-soft/24"
+              class="flex min-h-11 cursor-pointer items-start gap-3 rounded-field border border-border bg-surface px-4 py-3 transition-colors duration-200 hover:border-action/45 hover:bg-action-soft motion-reduce:transition-none"
             >
               <input
                 type="checkbox"
@@ -305,11 +316,13 @@
     }
   </section>
 
-  <div class="flex justify-end gap-3">
-    <ui-button variant="ghost" (pressed)="navigateToVisits()">{{
+  <div class="grid gap-3 border-t border-border pt-4 sm:flex sm:justify-end">
+    <ui-button variant="ghost" size="lg" [block]="true" (pressed)="navigateToVisits()">{{
       'common.actions.cancel' | transloco
     }}</ui-button>
-    <ui-button (pressed)="submit()">{{ 'visits.actions.save' | transloco }}</ui-button>
+    <ui-button size="lg" [block]="true" (pressed)="submit()">
+      {{ 'visits.actions.save' | transloco }}
+    </ui-button>
   </div>
 
   <app-visit-customer-picker-modal

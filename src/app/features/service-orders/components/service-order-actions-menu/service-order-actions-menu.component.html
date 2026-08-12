@@ -26,6 +26,16 @@
           ) | transloco
         }}
       </button>
+      @if (canConfirmDate()) {
+        <button
+          type="button"
+          role="menuitem"
+          class="ui-focus-ring flex min-h-11 w-full items-center rounded-button px-3 text-left text-small font-medium text-text-main transition-colors hover:bg-action-soft"
+          (click)="requestDateConfirmation()"
+        >
+          {{ 'serviceOrders.confirmation.confirmDate' | transloco }}
+        </button>
+      }
       <button
         type="button"
         role="menuitem"
@@ -96,6 +106,15 @@
           ) | transloco
         }}
       </button>
+      @if (canConfirmDate()) {
+        <button
+          type="button"
+          class="ui-focus-ring flex min-h-12 w-full items-center rounded-button bg-surface-muted px-4 text-left text-label text-text-main"
+          (click)="requestDateConfirmation()"
+        >
+          {{ 'serviceOrders.confirmation.confirmDate' | transloco }}
+        </button>
+      }
       <button
         type="button"
         class="ui-focus-ring flex min-h-12 w-full items-center rounded-button bg-surface-muted px-4 text-left text-label text-text-main"

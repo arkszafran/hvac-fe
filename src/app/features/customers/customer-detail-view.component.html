@@ -162,9 +162,6 @@
           <h2 class="truncate text-h3 text-text-main">
             {{ 'devices.title' | transloco }}
           </h2>
-          <span class="font-mono text-mono text-text-muted md:hidden">
-            {{ customer.devices.length }}
-          </span>
         </div>
         <ui-button variant="secondary" size="xs" (pressed)="isAddDeviceModalOpen.set(true)">
           <ui-icon button-icon name="plus" />
@@ -194,7 +191,6 @@
       [open]="isEditCustomerModalOpen()"
       [initialValue]="editableCustomerDraft()"
       [modalTitle]="'customers.actions.edit' | transloco"
-      [modalDescription]="'customers.detail.editModalDescription' | transloco"
       [submitLabel]="'common.actions.saveChanges' | transloco"
       (close)="isEditCustomerModalOpen.set(false)"
       (save)="handleUpdateCustomer($event)"
@@ -222,7 +218,6 @@
           [title]="createPlan.title"
           [description]="createPlan.description"
           [customerName]="createPlan.customerName"
-          [deviceName]="createPlan.deviceName"
           [order]="createPlan.candidate"
           [primaryActionLabel]="createPlan.primaryActionLabel"
           [secondaryActionLabel]="createPlan.createActionLabel"
@@ -255,7 +250,12 @@
           [title]="updatePlan.title"
           [description]="updatePlan.description"
           [customerName]="updatePlan.customerName"
-          [deviceName]="updatePlan.deviceName"
+          [excludedDeviceId]="editingDeviceId() ?? ''"
+          [proposedDate]="
+            updatePlan.transition === 'change-current-date'
+              ? (pendingUpdateDraft()?.nextInspectionDate ?? '')
+              : ''
+          "
           [order]="updatePlan.candidate"
           [primaryActionLabel]="updatePlan.primaryActionLabel"
           [secondaryActionLabel]="updatePlan.createActionLabel"

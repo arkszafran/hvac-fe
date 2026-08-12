@@ -44,6 +44,11 @@ const DEFAULT_STATUS_FILTERS: ServiceOrderStatus[] = ['contact_required', 'sched
 const DEFAULT_TYPE_FILTERS: ServiceOrderType[] = ['installation', 'repair', 'inspection'];
 const DEFAULT_DATE_FILTER: ServiceOrderDateFilter = 'today';
 
+interface ServiceOrderScheduleModalState {
+  order: ServiceOrder;
+  titleKey: string;
+}
+
 @Component({
   selector: 'app-service-orders-view',
   imports: [
@@ -78,7 +83,7 @@ export class ServiceOrdersViewComponent {
     nonNullable: true,
   });
   protected readonly orderPendingCancellation = signal<ServiceOrder | null>(null);
-  protected readonly orderBeingScheduled = signal<ServiceOrder | null>(null);
+  protected readonly scheduleModalState = signal<ServiceOrderScheduleModalState | null>(null);
   protected readonly orderForNextContact = signal<ServiceOrder | null>(null);
   protected readonly orderForNote = signal<ServiceOrder | null>(null);
   protected readonly orderForAssignee = signal<ServiceOrder | null>(null);
@@ -190,21 +195,31 @@ export class ServiceOrdersViewComponent {
   }
 
   protected openSchedule(order: ServiceOrder): void {
-    this.orderBeingScheduled.set(order);
+    this.scheduleModalState.set({
+      order,
+      titleKey: 'serviceOrders.scheduleModal.title',
+    });
+  }
+
+  protected openDateConfirmation(order: ServiceOrder): void {
+    this.scheduleModalState.set({
+      order,
+      titleKey: 'serviceOrders.confirmation.confirmDate',
+    });
   }
 
   protected closeScheduleModal(): void {
-    this.orderBeingScheduled.set(null);
+    this.scheduleModalState.set(null);
   }
 
   protected saveSchedule(scheduledAt: string): void {
-    const order = this.orderBeingScheduled();
+    const state = this.scheduleModalState();
 
-    if (!order) {
+    if (!state) {
       return;
     }
 
-    this.store.scheduleOrder(order.id, scheduledAt);
+    this.store.scheduleOrder(state.order.id, scheduledAt);
     this.closeScheduleModal();
   }
 

@@ -22,6 +22,7 @@ export class ServiceOrderActionsMenuComponent {
   readonly order = input.required<ServiceOrder>();
   readonly context = input<ServiceOrderActionsContext>('table');
   readonly scheduleRequested = output<void>();
+  readonly dateConfirmationRequested = output<void>();
   readonly nextContactRequested = output<void>();
   readonly noteRequested = output<void>();
   readonly assigneeRequested = output<void>();
@@ -44,10 +45,21 @@ export class ServiceOrderActionsMenuComponent {
     const status = this.order().status;
     return status !== 'completed' && status !== 'cancelled';
   });
+  protected readonly canConfirmDate = computed(
+    () =>
+      this.context() === 'table' &&
+      this.canChangeOrder() &&
+      Boolean(this.order().scheduledAt.trim()),
+  );
 
   protected requestSchedule(): void {
     this.closeMobileMenu();
     this.scheduleRequested.emit();
+  }
+
+  protected requestDateConfirmation(): void {
+    this.closeMobileMenu();
+    this.dateConfirmationRequested.emit();
   }
 
   protected requestNextContact(): void {

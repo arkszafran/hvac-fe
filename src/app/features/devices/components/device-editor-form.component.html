@@ -83,7 +83,7 @@
 
   <div class="space-y-2.5">
     <label
-      class="flex cursor-pointer items-start gap-3 rounded-[1.05rem] border border-border/90 bg-white px-4 py-3 transition hover:border-primary/28 hover:bg-primary-soft/24"
+      class="flex min-h-11 cursor-pointer items-start gap-3 rounded-field border border-border bg-surface px-4 py-3 transition-colors duration-200 hover:border-action/45 hover:bg-action-soft motion-reduce:transition-none"
     >
       <input
         type="checkbox"
@@ -92,8 +92,12 @@
       />
 
       <span class="min-w-0">
-        <span class="block text-label text-text-main">{{ inspectionCheckboxLabelKey | transloco }}</span>
-        <span class="block text-small text-text-muted">{{ inspectionCheckboxDescriptionKey | transloco }}</span>
+        <span class="block text-label text-text-main">{{
+          inspectionCheckboxLabelKey | transloco
+        }}</span>
+        <span class="block text-small text-text-muted">{{
+          inspectionCheckboxDescriptionKey | transloco
+        }}</span>
       </span>
     </label>
   </div>
@@ -118,7 +122,7 @@
 
   <div class="space-y-2.5">
     <label
-      class="flex cursor-pointer items-start gap-3 rounded-[1.05rem] border border-border/90 bg-white px-4 py-3 transition hover:border-primary/28 hover:bg-primary-soft/24"
+      class="flex min-h-11 cursor-pointer items-start gap-3 rounded-field border border-border bg-surface px-4 py-3 transition-colors duration-200 hover:border-action/45 hover:bg-action-soft motion-reduce:transition-none"
     >
       <input
         type="checkbox"
@@ -129,9 +133,6 @@
       <span class="min-w-0">
         <span class="block text-label text-text-main">
           {{ 'devices.form.customAddressLabel' | transloco }}
-        </span>
-        <span class="block text-small text-text-muted">
-          {{ 'devices.form.customAddressDescription' | transloco }}
         </span>
       </span>
     </label>
@@ -160,13 +161,12 @@
   }
 
   <div class="space-y-2.5">
-    <label
-      class="flex items-center gap-1 text-[13px]/5 font-semibold tracking-[-0.01em] text-text-main"
-    >
+    <label for="device-note" class="flex items-center gap-1 text-label text-text-muted">
       <span>{{ 'devices.form.note' | transloco }}</span>
     </label>
 
     <textarea
+      id="device-note"
       formControlName="note"
       [placeholder]="'devices.form.notePlaceholder' | transloco"
       [class]="textareaClasses"

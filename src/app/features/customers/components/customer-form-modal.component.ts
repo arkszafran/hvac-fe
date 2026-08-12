@@ -9,7 +9,6 @@ import { createEmptyCustomerDraft, CustomerDraft, CustomerType } from '../models
 interface CustomerTypeOption {
   value: CustomerType;
   labelKey: string;
-  descriptionKey: string;
 }
 
 @Component({
@@ -42,12 +41,10 @@ export class CustomerFormModalComponent {
     {
       value: 'individual',
       labelKey: 'customers.types.individual.label',
-      descriptionKey: 'customers.types.individual.description',
     },
     {
       value: 'company',
       labelKey: 'customers.types.company.label',
-      descriptionKey: 'customers.types.company.description',
     },
   ];
   protected readonly customerTypeOptions = computed(() => {
@@ -56,7 +53,6 @@ export class CustomerFormModalComponent {
     return this.customerTypeDefinitions.map((option) => ({
       value: option.value,
       label: this.transloco.translate(option.labelKey),
-      description: this.transloco.translate(option.descriptionKey),
     }));
   });
   protected readonly form = this.formBuilder.nonNullable.group({

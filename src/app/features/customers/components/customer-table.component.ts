@@ -32,6 +32,7 @@ export class CustomerTableComponent {
   });
 
   readonly customers = input<Customer[]>([]);
+  readonly enableContactLinks = input(true);
   readonly customerSelected = output<Customer>();
 
   protected readonly formatName = formatCustomerName;

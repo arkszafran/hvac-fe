@@ -4,9 +4,8 @@ import { DeviceCreateViewComponent } from '../../features/devices/device-create-
 
 @Component({
   selector: 'app-device-create-page',
-  standalone: true,
   imports: [DeviceCreateViewComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: ` <app-device-create-view /> `,
+  templateUrl: './device-create.page.html',
 })
 export class DeviceCreatePageComponent {}

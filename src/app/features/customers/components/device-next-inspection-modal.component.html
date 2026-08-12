@@ -1,0 +1,54 @@
+<ui-modal
+  [open]="open()"
+  [title]="'devices.nextInspectionModal.title' | transloco"
+  description=""
+  (close)="handleClose()"
+>
+  <form class="space-y-5" [formGroup]="form">
+    <label
+      class="flex min-h-11 cursor-pointer items-start gap-3 rounded-field border border-border bg-surface px-4 py-3 transition-colors duration-200 hover:border-action/45 hover:bg-action-soft motion-reduce:transition-none"
+    >
+      <input
+        type="checkbox"
+        formControlName="hasScheduledInspections"
+        class="mt-1 size-4 shrink-0 rounded border-border accent-[var(--color-action)]"
+      />
+
+      <span class="min-w-0">
+        <span class="block text-label text-text-main">
+          {{ inspectionCheckboxLabelKey | transloco }}
+        </span>
+        <span class="mt-0.5 block text-small text-text-muted">
+          {{ inspectionCheckboxDescriptionKey | transloco }}
+        </span>
+      </span>
+    </label>
+
+    @if (form.controls.hasScheduledInspections.value) {
+      <div class="grid gap-4 sm:grid-cols-2">
+        <ui-select
+          [label]="'devices.form.nextInspectionPreset' | transloco"
+          [options]="inspectionPresetOptions()"
+          formControlName="nextInspectionPreset"
+        />
+
+        <ui-input
+          [label]="'devices.form.nextInspectionDate' | transloco"
+          type="datetime-local"
+          required
+          [error]="validationError()"
+          formControlName="nextInspectionDate"
+        />
+      </div>
+    }
+  </form>
+
+  <div modal-footer class="grid gap-3 sm:grid-cols-2">
+    <ui-button type="button" variant="ghost" [block]="true" (pressed)="handleClose()">
+      {{ 'common.actions.cancel' | transloco }}
+    </ui-button>
+    <ui-button type="button" [block]="true" (pressed)="handleSubmit()">
+      {{ 'common.actions.saveChanges' | transloco }}
+    </ui-button>
+  </div>
+</ui-modal>

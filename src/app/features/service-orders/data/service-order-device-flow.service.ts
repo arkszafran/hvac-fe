@@ -251,7 +251,7 @@ export class ServiceOrderDeviceFlowService {
       }
 
       if (plan.autoAction === 'change-current-date' && plan.currentServiceOrderId) {
-        orderToUpdate = this.serviceOrdersStore.scheduleOrder(
+        orderToUpdate = this.serviceOrdersStore.updateInspectionDate(
           plan.currentServiceOrderId,
           this.inspectionDateFromDraft(nextDraft),
         );
@@ -278,7 +278,7 @@ export class ServiceOrderDeviceFlowService {
 
     if (plan.transition === 'change-current-date' && plan.currentServiceOrderId) {
       if (choice?.kind === 'attach') {
-        orderToUpdate = this.serviceOrdersStore.scheduleOrder(
+        orderToUpdate = this.serviceOrdersStore.updateInspectionDate(
           plan.currentServiceOrderId,
           this.inspectionDateFromDraft(nextDraft),
         );

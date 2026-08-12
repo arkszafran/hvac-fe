@@ -4,7 +4,12 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { map } from 'rxjs';
 
-import { UiButtonComponent, UiCardComponent, UiEmptyStateComponent } from '../../ui';
+import {
+  UiBadgeComponent,
+  UiButtonComponent,
+  UiEmptyStateComponent,
+  UiIconComponent,
+} from '../../ui';
 import { DeviceFormModalComponent } from '../customers/components/device-form-modal.component';
 import { DeviceNextInspectionModalComponent } from '../customers/components/device-next-inspection-modal.component';
 import { CustomersStore } from '../customers/data/customers.store';
@@ -14,6 +19,7 @@ import {
   formatDevicePowerKw,
   getDeviceTypeLabel as readDeviceTypeLabel,
 } from '../customers/models/device.model';
+import { toInspectionDateTimeLocalValue } from '../customers/models/device-inspection.model';
 import { ServiceOrderCandidatePickerModalComponent } from '../service-orders/components/service-order-candidate-picker-modal/service-order-candidate-picker-modal.component';
 import { ServiceOrderLinkProposalModalComponent } from '../service-orders/components/service-order-link-proposal-modal/service-order-link-proposal-modal.component';
 import {
@@ -28,227 +34,25 @@ import { Device } from './models/device.model';
 interface DeviceDetailItem {
   labelKey: string;
   value: string;
+  isTechnical?: boolean;
 }
 
 @Component({
   selector: 'app-device-detail-view',
-  standalone: true,
   imports: [
     RouterLink,
     TranslocoPipe,
+    UiBadgeComponent,
     UiButtonComponent,
-    UiCardComponent,
     UiEmptyStateComponent,
+    UiIconComponent,
     DeviceFormModalComponent,
     DeviceNextInspectionModalComponent,
     ServiceOrderLinkProposalModalComponent,
     ServiceOrderCandidatePickerModalComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="space-y-8">
-      @if (device(); as device) {
-        <section class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div class="space-y-1">
-            <nav
-              class="flex flex-wrap items-center gap-2 text-[13px]/5 font-semibold text-text-muted"
-            >
-              <a
-                routerLink="/devices"
-                class="text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
-              >
-                {{ 'devices.detail.breadcrumbs.deviceList' | transloco }}
-              </a>
-              <span aria-hidden="true">/</span>
-              <span class="text-text-main">{{
-                'devices.detail.breadcrumbs.device' | transloco
-              }}</span>
-            </nav>
-
-            <h1 class="text-display tracking-[-0.04em] text-text-main">
-              {{ device.brand }} {{ device.model }}
-            </h1>
-            <p class="text-body text-text-muted">
-              {{ getDeviceTypeLabel(device.type) }} -
-              <a
-                [routerLink]="['/customers', device.customer.id]"
-                class="ui-focus-ring rounded-sm font-semibold text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
-              >
-                {{ customerTitle(device.customer) }}
-              </a>
-            </p>
-          </div>
-
-          <div class="flex flex-wrap items-center gap-3">
-            <ui-button size="sm" (pressed)="isEditDeviceModalOpen.set(true)">
-              {{ 'devices.actions.edit' | transloco }}
-            </ui-button>
-          </div>
-        </section>
-
-        <section>
-          <ui-card>
-            <h2 card-header class="text-h3 tracking-[-0.02em] text-text-main">
-              {{ 'devices.detail.sections.deviceData' | transloco }}
-            </h2>
-
-            <dl class="grid gap-3 sm:grid-cols-2">
-              @for (item of deviceOverviewItems(); track item.labelKey) {
-                <div>
-                  <dt class="text-small font-semibold text-text-muted">
-                    {{ item.labelKey | transloco }}
-                  </dt>
-                  <dd class="text-label text-text-main">{{ item.value }}</dd>
-                </div>
-              }
-
-              <div class="sm:col-span-2">
-                <div
-                  class="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <dt class="text-small font-semibold text-text-muted">
-                    {{ 'devices.detail.fields.nextInspection' | transloco }}
-                  </dt>
-
-                  <ui-button variant="secondary" (pressed)="isNextInspectionModalOpen.set(true)">
-                    {{ 'devices.actions.manageInspections' | transloco }}
-                  </ui-button>
-                </div>
-
-                <dd class="text-label text-text-main">{{ nextInspectionDateLabel() }}</dd>
-                <p class="mt-1 text-small text-text-muted">
-                  {{ nextInspectionStatusLabel() }}
-                </p>
-              </div>
-            </dl>
-          </ui-card>
-        </section>
-
-        <section>
-          <ui-card>
-            <h2 card-header class="text-h3 tracking-[-0.02em] text-text-main">
-              {{ 'devices.detail.sections.locationAndNotes' | transloco }}
-            </h2>
-
-            <div class="space-y-5">
-              <dl class="space-y-4">
-                @for (item of installationFacts(); track item.labelKey) {
-                  <div>
-                    <dt class="text-small font-semibold text-text-muted">
-                      {{ item.labelKey | transloco }}
-                    </dt>
-                    <dd class="whitespace-pre-line text-label text-text-main">
-                      {{ item.value }}
-                    </dd>
-                  </div>
-                }
-              </dl>
-
-              <div>
-                <p class="text-small font-semibold text-text-muted">
-                  {{ 'devices.detail.fields.note' | transloco }}
-                </p>
-                <p class="whitespace-pre-wrap text-label text-text-main">
-                  {{ device.note || ('devices.detail.noNote' | transloco) }}
-                </p>
-              </div>
-            </div>
-          </ui-card>
-        </section>
-
-        <section>
-          <ui-card>
-            <h2 card-header class="text-h3 tracking-[-0.02em] text-text-main">
-              {{ 'devices.detail.sections.serviceHistory' | transloco }}
-            </h2>
-
-            @if (deviceVisits().length) {
-              <div class="space-y-3">
-                @for (visit of deviceVisits(); track visit.id) {
-                  <article class="rounded-[1rem] border border-border/80 bg-white/76 px-4 py-3">
-                    <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <p class="text-label text-text-main">{{ getVisitTypeLabel(visit.type) }}</p>
-                        <p class="text-small text-text-muted">
-                          {{ 'visits.fields.handledBy' | transloco }}:
-                          {{ visit.userName || '--' }}
-                        </p>
-                      </div>
-                      <p class="text-small text-text-muted">{{ formatDate(visit.date) }}</p>
-                    </div>
-
-                    <p class="mt-2 text-body text-text-main">{{ visitNote(visit, device.id) }}</p>
-                  </article>
-                }
-              </div>
-            } @else {
-              <ui-empty-state
-                [title]="'devices.detail.noServiceHistoryTitle' | transloco"
-                [description]="'devices.detail.noServiceHistoryDescription' | transloco"
-              />
-            }
-          </ui-card>
-        </section>
-
-        <app-device-form-modal
-          [open]="isEditDeviceModalOpen()"
-          [initialValue]="editableDeviceDraft()"
-          [modalTitle]="'devices.actions.edit' | transloco"
-          [submitLabel]="'common.actions.saveChanges' | transloco"
-          (close)="isEditDeviceModalOpen.set(false)"
-          (save)="handleUpdateDevice($event)"
-        />
-
-        <app-device-next-inspection-modal
-          [open]="isNextInspectionModalOpen()"
-          [initialEnabled]="!!activeInspection()"
-          [initialDate]="activeInspection()?.scheduledAt ?? ''"
-          (close)="isNextInspectionModalOpen.set(false)"
-          (save)="handleUpdateNextInspectionDate($event)"
-        />
-
-        @if (pendingUpdatePlan(); as updatePlan) {
-          @if (updatePlan.kind === 'single-candidate') {
-            <app-service-order-link-proposal-modal
-              [open]="true"
-              [title]="updatePlan.title"
-              [description]="updatePlan.description"
-              [customerName]="updatePlan.customerName"
-              [deviceName]="updatePlan.deviceName"
-              [order]="updatePlan.candidate"
-              [primaryActionLabel]="updatePlan.primaryActionLabel"
-              [secondaryActionLabel]="updatePlan.createActionLabel"
-              [cancelLabel]="updatePlan.cancelActionLabel"
-              (close)="clearUpdatePlan()"
-              (confirm)="confirmUpdateAttach(updatePlan.candidate.id)"
-              (createSeparate)="confirmUpdateCreateNewInspection()"
-            />
-          } @else if (updatePlan.kind === 'candidate-choice') {
-            <app-service-order-candidate-picker-modal
-              [open]="true"
-              [title]="updatePlan.title"
-              [description]="updatePlan.description"
-              [customerName]="updatePlan.customerName"
-              [deviceName]="updatePlan.deviceName"
-              [candidates]="updatePlan.candidates"
-              [createActionLabel]="updatePlan.createActionLabel"
-              [cancelActionLabel]="updatePlan.cancelActionLabel"
-              (close)="clearUpdatePlan()"
-              (serviceOrderSelected)="confirmUpdateAttach($event)"
-              (createNew)="confirmUpdateCreateNewInspection()"
-            />
-          }
-        }
-      } @else {
-        <ui-empty-state
-          [title]="'devices.detail.notFoundDeviceTitle' | transloco"
-          [description]="'devices.detail.notFoundDeviceDescription' | transloco"
-          [actionLabel]="'devices.detail.backToDevices' | transloco"
-          (action)="navigateToDevices()"
-        />
-      }
-    </div>
-  `,
+  templateUrl: './device-detail-view.component.html',
 })
 export class DeviceDetailViewComponent {
   private readonly route = inject(ActivatedRoute);
@@ -331,26 +135,32 @@ export class DeviceDetailViewComponent {
       {
         labelKey: 'devices.detail.fields.powerKw',
         value: formatDevicePowerKw(device.powerKw, this.transloco),
+        isTechnical: true,
       },
       {
         labelKey: 'devices.detail.fields.installationDate',
         value: this.formatDate(device.installationDate),
+        isTechnical: true,
       },
       {
         labelKey: 'devices.detail.fields.warrantyUntil',
         value: this.formatDate(device.warrantyUntil),
+        isTechnical: true,
       },
       {
         labelKey: 'devices.detail.fields.serialNumber',
         value: this.formatValue(device.serialNumber),
+        isTechnical: true,
       },
       {
         labelKey: 'devices.detail.fields.refrigerant',
         value: this.formatValue(device.refrigerant),
+        isTechnical: true,
       },
       {
         labelKey: 'devices.detail.fields.refrigerantAmount',
         value: this.formatValue(device.refrigerantAmount),
+        isTechnical: true,
       },
     ];
   });
@@ -363,7 +173,7 @@ export class DeviceDetailViewComponent {
     }
 
     return activeInspection.scheduledAt
-      ? this.formatDate(activeInspection.scheduledAt)
+      ? this.formatDateTime(activeInspection.scheduledAt)
       : this.transloco.translate('devices.detail.noInspectionDate');
   });
   protected readonly nextInspectionStatusLabel = computed(() => {
@@ -494,6 +304,19 @@ export class DeviceDetailViewComponent {
     return new Intl.DateTimeFormat(this.activeLanguage() === 'pl' ? 'pl-PL' : 'en-US').format(
       parsedDate,
     );
+  }
+
+  private formatDateTime(value: string): string {
+    const normalizedValue = toInspectionDateTimeLocalValue(value);
+
+    if (!normalizedValue) {
+      return value || '--';
+    }
+
+    return new Intl.DateTimeFormat(this.activeLanguage() === 'pl' ? 'pl-PL' : 'en-US', {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    }).format(new Date(normalizedValue));
   }
 
   private processDeviceUpdate(deviceDraft: DeviceDraft): void {

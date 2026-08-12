@@ -25,17 +25,20 @@ import { matchesCustomerSearch } from '../../customers/utils/customer-search.uti
       [description]="'devices.customerPicker.description' | transloco"
       (close)="close.emit()"
     >
-      <div class="space-y-4">
+      <div class="flex flex-col gap-4">
         <app-customer-toolbar [search]="searchQuery()" (searchChange)="searchQuery.set($event)" />
 
         <app-customer-table
           [customers]="filteredCustomers()"
+          [enableContactLinks]="false"
           (customerSelected)="customerSelected.emit($event)"
         />
       </div>
 
       <div modal-footer class="flex justify-end">
-        <ui-button variant="secondary" (pressed)="close.emit()">{{ 'common.actions.close' | transloco }}</ui-button>
+        <ui-button variant="secondary" (pressed)="close.emit()">{{
+          'common.actions.close' | transloco
+        }}</ui-button>
       </div>
     </ui-modal>
   `,

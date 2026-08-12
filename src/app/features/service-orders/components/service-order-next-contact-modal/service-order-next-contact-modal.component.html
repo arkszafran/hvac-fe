@@ -18,7 +18,7 @@
     />
     <label class="block">
       <span class="text-label text-text-main">
-        {{ 'serviceOrders.noteModal.label' | transloco }}
+        {{ 'serviceOrders.nextContactModal.noteLabel' | transloco }}
       </span>
       <textarea
         [class]="textareaClasses"
@@ -26,11 +26,6 @@
         [attr.placeholder]="'serviceOrders.nextContactModal.notePlaceholder' | transloco"
       ></textarea>
     </label>
-    @if (noteControl.invalid && noteControl.touched) {
-      <p class="text-small text-danger">
-        {{ 'serviceOrders.noteModal.validation' | transloco }}
-      </p>
-    }
   </div>
   <div modal-footer class="grid gap-3 sm:grid-cols-2">
     <ui-button variant="ghost" [block]="true" (pressed)="close.emit()">

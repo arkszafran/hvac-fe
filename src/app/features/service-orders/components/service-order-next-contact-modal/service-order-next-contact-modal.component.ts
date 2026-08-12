@@ -38,7 +38,6 @@ export class ServiceOrderNextContactModalComponent {
   });
   protected readonly noteControl = new FormControl('', {
     nonNullable: true,
-    validators: [Validators.required],
   });
 
   constructor() {
@@ -54,9 +53,8 @@ export class ServiceOrderNextContactModalComponent {
   }
 
   protected saveContact(): void {
-    if (this.dateControl.invalid || this.noteControl.invalid) {
+    if (this.dateControl.invalid) {
       this.dateControl.markAsTouched();
-      this.noteControl.markAsTouched();
       return;
     }
 

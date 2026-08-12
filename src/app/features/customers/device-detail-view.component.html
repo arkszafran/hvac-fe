@@ -203,7 +203,12 @@
             [title]="updatePlan.title"
             [description]="updatePlan.description"
             [customerName]="updatePlan.customerName"
-            [deviceName]="updatePlan.deviceName"
+            [excludedDeviceId]="device.id"
+            [proposedDate]="
+              updatePlan.transition === 'change-current-date'
+                ? (pendingUpdateDraft()?.nextInspectionDate ?? '')
+                : ''
+            "
             [order]="updatePlan.candidate"
             [primaryActionLabel]="updatePlan.primaryActionLabel"
             [secondaryActionLabel]="updatePlan.createActionLabel"

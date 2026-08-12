@@ -1,29 +1,15 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 import { UiInputComponent } from '../../../ui';
 
 @Component({
   selector: 'app-device-toolbar',
-  standalone: true,
-  imports: [FormsModule, TranslocoPipe, UiInputComponent],
+  imports: [ReactiveFormsModule, TranslocoPipe, UiInputComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <div class="flex w-full justify-start px-0.5 pt-1 pb-2">
-      <div class="w-full max-w-[30rem] lg:max-w-[32rem]">
-        <ui-input
-          type="search"
-          [placeholder]="'devices.searchPlaceholder' | transloco"
-          [ngModel]="search()"
-          (ngModelChange)="searchChange.emit($event)"
-        />
-      </div>
-    </div>
-  `,
+  templateUrl: './device-toolbar.component.html',
 })
 export class DeviceToolbarComponent {
-  readonly search = input('');
-
-  readonly searchChange = output<string>();
+  readonly searchControl = input.required<FormControl<string>>();
 }

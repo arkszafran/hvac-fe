@@ -20,6 +20,7 @@ import { toServiceOrderDateTimeLocalValue } from '../../utils/service-order-ui.u
 export class ServiceOrderScheduleModalComponent {
   readonly open = input(false);
   readonly scheduledAt = input('');
+  readonly titleKey = input('serviceOrders.scheduleModal.title');
   readonly close = output<void>();
   readonly saved = output<string>();
 

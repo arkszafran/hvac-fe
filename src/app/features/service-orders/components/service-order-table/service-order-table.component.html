@@ -84,6 +84,7 @@
           <app-service-order-actions-menu
             [order]="order"
             (scheduleRequested)="scheduleRequested.emit(order)"
+            (dateConfirmationRequested)="dateConfirmationRequested.emit(order)"
             (nextContactRequested)="nextContactRequested.emit(order)"
             (noteRequested)="noteRequested.emit(order)"
             (assigneeRequested)="assigneeRequested.emit(order)"
@@ -205,6 +206,7 @@
                 <app-service-order-actions-menu
                   [order]="order"
                   (scheduleRequested)="scheduleRequested.emit(order)"
+                  (dateConfirmationRequested)="dateConfirmationRequested.emit(order)"
                   (nextContactRequested)="nextContactRequested.emit(order)"
                   (noteRequested)="noteRequested.emit(order)"
                   (assigneeRequested)="assigneeRequested.emit(order)"

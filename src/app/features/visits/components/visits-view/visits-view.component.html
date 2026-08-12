@@ -1,65 +1,84 @@
-<div class="space-y-6">
-  <section class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-    <div>
-      <h1 class="text-display tracking-[-0.04em] text-text-main">{{ 'visits.title' | transloco }}</h1>
+<div class="-mx-2 space-y-3 md:mx-0 md:space-y-4">
+  <header class="flex flex-col gap-4 px-2 md:flex-row md:items-end md:justify-between md:px-0">
+    <div class="min-w-0">
+      <h1 class="text-h1 text-text-main">{{ 'visits.title' | transloco }}</h1>
       <p class="mt-1 text-body text-text-muted">
         {{ 'visits.description' | transloco }}
       </p>
     </div>
 
-    <ui-button size="lg" (pressed)="navigateToCreateVisit()">{{ 'visits.actions.add' | transloco }}</ui-button>
-  </section>
+    <ui-button class="shrink-0 self-start md:self-auto" (pressed)="navigateToCreateVisit()">
+      <ui-icon button-icon name="plus" />
+      {{ 'visits.actions.add' | transloco }}
+    </ui-button>
+  </header>
 
-  <div class="rounded-[1.1rem] border border-border/90 bg-white px-4 py-4 shadow-card">
-    <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+  <section
+    class="rounded-card border border-border bg-surface p-2.5"
+    [attr.aria-label]="'visits.fields.search' | transloco"
+  >
+    <div class="grid gap-2.5 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
       <ui-input
         type="search"
-        [label]="'visits.fields.search' | transloco"
+        leadingIcon="search"
         [placeholder]="'visits.fields.searchPlaceholder' | transloco"
         [ngModel]="searchQuery()"
         (ngModelChange)="searchQuery.set($event)"
       />
-      <ui-badge variant="neutral">{{ filteredVisits().length }}</ui-badge>
+      <ui-badge class="justify-self-start sm:justify-self-end" size="sm" variant="neutral">
+        {{ filteredVisits().length }}
+      </ui-badge>
     </div>
-  </div>
+  </section>
 
   @if (filteredVisits().length) {
-    <div class="overflow-hidden rounded-[1.1rem] border border-border/90 bg-white shadow-card">
-      <div class="md:hidden">
-        @for (details of filteredVisits(); track details.visit.id) {
-          <article class="border-b border-border/80 px-4 py-4 last:border-b-0">
-            <div class="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-x-3 gap-y-1">
-              <p class="text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">{{ 'visits.fields.date' | transloco }}</p>
-              <p class="text-label text-text-main">{{ formatDate(details.visit.date) }}</p>
+    <div class="space-y-2.5 min-[1200px]:hidden">
+      @for (details of filteredVisits(); track details.visit.id) {
+        <article class="rounded-card border border-border bg-surface p-3">
+          <div class="flex items-start justify-between gap-3">
+            <p class="font-mono text-mono text-text-main">
+              {{ formatDate(details.visit.date) }}
+            </p>
+            <ui-badge class="shrink-0" size="sm" variant="info">
+              {{ getVisitTypeLabel(details.visit.type) }}
+            </ui-badge>
+          </div>
 
-              <p class="text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">{{ 'visits.fields.customer' | transloco }}</p>
-              <div>
-                <a
-                  [routerLink]="['/customers', details.customer.id]"
-                  class="ui-focus-ring text-label text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
-                >
-                  {{ customerName(details.customer) }}
-                </a>
-                @if (details.customer.phone) {
-                  <a
-                    [href]="phoneHref(details.customer.phone)"
-                    class="ui-focus-ring block w-fit text-[13px]/5 font-medium text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
-                  >
-                    {{ details.customer.phone }}
-                  </a>
-                } @else {
-                  <p class="text-[13px]/5 text-text-main/76">{{ details.customer.email || '--' }}</p>
-                }
-                <p class="text-[13px]/5 text-text-main/76">{{ deviceAddressSummary(details) }}</p>
-              </div>
+          <div class="mt-3 min-w-0 border-t border-border pt-3">
+            <a
+              [routerLink]="['/customers', details.customer.id]"
+              class="ui-focus-ring block max-w-full truncate rounded-sm text-body font-semibold text-primary-strong underline decoration-primary/35 underline-offset-4 transition-colors hover:text-primary hover:decoration-primary motion-reduce:transition-none"
+            >
+              {{ customerName(details.customer) }}
+            </a>
+            @if (details.customer.phone) {
+              <a
+                [href]="phoneHref(details.customer.phone)"
+                class="ui-focus-ring mt-1 block w-fit rounded-sm font-mono text-mono text-action-contrast transition-colors hover:text-action-hover motion-reduce:transition-none"
+              >
+                {{ details.customer.phone }}
+              </a>
+            } @else {
+              <p class="mt-1 truncate text-small text-text-muted">
+                {{ details.customer.email || '--' }}
+              </p>
+            }
+            <p class="mt-1 line-clamp-2 text-small text-text-muted">
+              {{ deviceAddressSummary(details) }}
+            </p>
+          </div>
 
-              <p class="text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">{{ 'visits.fields.devices' | transloco }}</p>
-              <div class="flex flex-col gap-1 text-body text-text-main">
+          <dl class="mt-3 grid gap-3 rounded-field bg-surface-muted px-3 py-2.5 sm:grid-cols-2">
+            <div class="min-w-0">
+              <dt class="text-small text-text-muted">
+                {{ 'visits.fields.devices' | transloco }}
+              </dt>
+              <dd class="mt-1 space-y-1 text-body text-text-main">
                 @for (item of deviceItems(details); track item.device.id) {
-                  <p>
+                  <p class="line-clamp-2">
                     <a
                       [routerLink]="['/customers', details.customer.id, 'devices', item.device.id]"
-                      class="ui-focus-ring font-semibold text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
+                      class="ui-focus-ring rounded-sm font-semibold text-primary-strong underline decoration-primary/35 underline-offset-4 transition-colors hover:text-primary hover:decoration-primary motion-reduce:transition-none"
                     >
                       {{ item.label }}
                     </a>
@@ -68,95 +87,115 @@
                     }
                   </p>
                 }
-              </div>
-
-              <p class="text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">{{ 'visits.fields.type' | transloco }}</p>
-              <p class="text-body text-text-main">{{ getVisitTypeLabel(details.visit.type) }}</p>
-
-              <p class="text-[10px]/4 font-semibold uppercase tracking-[0.14em] text-text-muted">{{ 'visits.fields.handledBy' | transloco }}</p>
-              <p class="text-body text-text-main">{{ details.visit.userName || '--' }}</p>
+              </dd>
             </div>
-          </article>
-        }
-      </div>
 
-      <div class="hidden overflow-x-auto md:block">
-        <table class="min-w-full border-separate border-spacing-0">
-          <thead>
-            <tr>
-              <th class="border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted first:pl-6">
-                {{ 'visits.fields.date' | transloco }}
-              </th>
-              <th class="border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
-                {{ 'visits.fields.customer' | transloco }}
-              </th>
-              <th class="border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted">
-                {{ 'visits.fields.devices' | transloco }}
-              </th>
-              <th class="border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted last:pr-6">
-                {{ 'visits.fields.type' | transloco }}
-              </th>
-              <th class="border-b border-border/90 bg-[linear-gradient(180deg,_rgb(247_250_255/0.96),_rgb(238_244_255/0.94))] px-5 py-4 text-left text-[11px]/5 font-semibold uppercase tracking-[0.18em] text-text-muted last:pr-6">
+            <div class="min-w-0">
+              <dt class="text-small text-text-muted">
                 {{ 'visits.fields.handledBy' | transloco }}
-              </th>
-            </tr>
-          </thead>
+              </dt>
+              <dd class="mt-1 truncate text-body text-text-main">
+                {{ details.visit.userName || '--' }}
+              </dd>
+            </div>
+          </dl>
+        </article>
+      }
+    </div>
 
-          <tbody class="[&_tr:last-child_td]:border-b-0">
-            @for (details of filteredVisits(); track details.visit.id) {
-              <tr class="group/row transition duration-200 hover:bg-primary-soft/18">
-                <td class="border-b border-border/80 bg-white px-5 py-4.5 text-[15px]/6 font-semibold tracking-[-0.02em] text-text-main first:pl-6 group-hover/row:bg-primary-soft/30">
+    <div
+      class="hidden overflow-hidden rounded-card border border-border bg-surface min-[1200px]:block"
+    >
+      <table class="w-full table-fixed border-collapse">
+        <thead class="bg-surface-muted/65">
+          <tr>
+            <th class="w-[13%] px-4 py-3 text-left text-kicker uppercase text-text-muted">
+              {{ 'visits.fields.date' | transloco }}
+            </th>
+            <th class="w-[24%] px-4 py-3 text-left text-kicker uppercase text-text-muted">
+              {{ 'visits.fields.customer' | transloco }}
+            </th>
+            <th class="w-[32%] px-4 py-3 text-left text-kicker uppercase text-text-muted">
+              {{ 'visits.fields.devices' | transloco }}
+            </th>
+            <th class="w-[14%] px-4 py-3 text-left text-kicker uppercase text-text-muted">
+              {{ 'visits.fields.type' | transloco }}
+            </th>
+            <th class="w-[17%] px-4 py-3 text-left text-kicker uppercase text-text-muted">
+              {{ 'visits.fields.handledBy' | transloco }}
+            </th>
+          </tr>
+        </thead>
+
+        <tbody class="[&>tr:last-child>td]:border-b-0">
+          @for (details of filteredVisits(); track details.visit.id) {
+            <tr
+              class="group transition-colors duration-150 hover:bg-action-soft/35 motion-reduce:transition-none"
+            >
+              <td class="border-b border-border px-4 py-4 align-middle">
+                <p class="font-mono text-mono text-text-main">
                   {{ formatDate(details.visit.date) }}
-                </td>
-                <td class="border-b border-border/80 bg-white px-5 py-4.5 group-hover/row:bg-primary-soft/30">
+                </p>
+              </td>
+              <td class="min-w-0 border-b border-border px-4 py-4 align-middle">
+                <a
+                  [routerLink]="['/customers', details.customer.id]"
+                  class="ui-focus-ring block max-w-full truncate rounded-sm text-body font-semibold text-primary-strong underline decoration-primary/35 underline-offset-4 transition-colors hover:text-primary hover:decoration-primary motion-reduce:transition-none"
+                >
+                  {{ customerName(details.customer) }}
+                </a>
+                @if (details.customer.phone) {
                   <a
-                    [routerLink]="['/customers', details.customer.id]"
-                    class="ui-focus-ring text-[15px]/6 font-semibold tracking-[-0.02em] text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
+                    [href]="phoneHref(details.customer.phone)"
+                    class="ui-focus-ring mt-1 block w-fit max-w-full truncate rounded-sm font-mono text-mono text-action-contrast transition-colors hover:text-action-hover motion-reduce:transition-none"
                   >
-                    {{ customerName(details.customer) }}
+                    {{ details.customer.phone }}
                   </a>
-                  @if (details.customer.phone) {
-                    <a
-                      [href]="phoneHref(details.customer.phone)"
-                      class="ui-focus-ring mt-1 block w-fit text-[13px]/5 font-medium text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
-                    >
-                      {{ details.customer.phone }}
-                    </a>
-                  } @else {
-                    <p class="text-[13px]/5 text-text-main/76">{{ details.customer.email || '--' }}</p>
-                  }
-                  <p class="text-[13px]/5 text-text-main/76">
-                    {{ deviceAddressSummary(details) }}
+                } @else {
+                  <p class="mt-1 truncate text-small text-text-muted">
+                    {{ details.customer.email || '--' }}
                   </p>
-                </td>
-                <td class="max-w-[34rem] border-b border-border/80 bg-white px-5 py-4.5 text-[14px]/6 text-text-main group-hover/row:bg-primary-soft/30">
-                  <div class="flex flex-col gap-1">
-                    @for (item of deviceItems(details); track item.device.id) {
-                      <p>
-                        <a
-                          [routerLink]="['/customers', details.customer.id, 'devices', item.device.id]"
-                          class="ui-focus-ring font-semibold text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary hover:decoration-primary"
-                        >
-                          {{ item.label }}
-                        </a>
-                        @if (item.note) {
-                          <span>: {{ item.note }}</span>
-                        }
-                      </p>
-                    }
-                  </div>
-                </td>
-                <td class="border-b border-border/80 bg-white px-5 py-4.5 last:pr-6 group-hover/row:bg-primary-soft/30">
-                  <ui-badge variant="info">{{ getVisitTypeLabel(details.visit.type) }}</ui-badge>
-                </td>
-                <td class="border-b border-border/80 bg-white px-5 py-4.5 text-[14px]/6 text-text-main last:pr-6 group-hover/row:bg-primary-soft/30">
+                }
+                <p class="mt-1 truncate text-small text-text-muted">
+                  {{ deviceAddressSummary(details) }}
+                </p>
+              </td>
+              <td class="min-w-0 border-b border-border px-4 py-4 align-middle">
+                <div class="space-y-1 text-body text-text-main">
+                  @for (item of deviceItems(details); track item.device.id) {
+                    <p class="truncate">
+                      <a
+                        [routerLink]="[
+                          '/customers',
+                          details.customer.id,
+                          'devices',
+                          item.device.id,
+                        ]"
+                        class="ui-focus-ring rounded-sm font-semibold text-primary-strong underline decoration-primary/35 underline-offset-4 transition-colors hover:text-primary hover:decoration-primary motion-reduce:transition-none"
+                      >
+                        {{ item.label }}
+                      </a>
+                      @if (item.note) {
+                        <span>: {{ item.note }}</span>
+                      }
+                    </p>
+                  }
+                </div>
+              </td>
+              <td class="border-b border-border px-4 py-4 align-middle">
+                <ui-badge size="sm" variant="info">
+                  {{ getVisitTypeLabel(details.visit.type) }}
+                </ui-badge>
+              </td>
+              <td class="min-w-0 border-b border-border px-4 py-4 align-middle">
+                <p class="truncate text-body text-text-main">
                   {{ details.visit.userName || '--' }}
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+                </p>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
     </div>
   } @else {
     <ui-empty-state

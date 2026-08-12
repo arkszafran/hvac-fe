@@ -8,6 +8,7 @@ import {
   UiBadgeComponent,
   UiButtonComponent,
   UiEmptyStateComponent,
+  UiIconComponent,
   UiInputComponent,
 } from '../../../../ui';
 import { Customer } from '../../../customers/models/customer.model';
@@ -25,6 +26,7 @@ import { getVisitTypeLabel, VisitType } from '../../models/visit.model';
     UiBadgeComponent,
     UiButtonComponent,
     UiEmptyStateComponent,
+    UiIconComponent,
     UiInputComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -63,7 +65,11 @@ export class VisitsViewComponent {
   }
 
   protected customerName(customer: Customer): string {
-    return customer.companyName || customer.fullName || this.transloco.translate('customers.fallbackName');
+    return (
+      customer.companyName ||
+      customer.fullName ||
+      this.transloco.translate('customers.fallbackName')
+    );
   }
 
   protected formatDate(value: string): string {
@@ -77,7 +83,9 @@ export class VisitsViewComponent {
       return value;
     }
 
-    return new Intl.DateTimeFormat(this.activeLanguage() === 'pl' ? 'pl-PL' : 'en-US').format(parsedDate);
+    return new Intl.DateTimeFormat(this.activeLanguage() === 'pl' ? 'pl-PL' : 'en-US').format(
+      parsedDate,
+    );
   }
 
   protected deviceSummary(details: VisitDetails): string {
@@ -88,17 +96,23 @@ export class VisitsViewComponent {
     return details.devices
       .map((device) => {
         const note = details.visit.devicesNotes.find((item) => item.deviceId === device.id)?.note;
-        const deviceName = `${device.brand} ${device.model}`.trim() || this.transloco.translate('devices.table.device');
+        const deviceName =
+          `${device.brand} ${device.model}`.trim() ||
+          this.transloco.translate('devices.table.device');
 
         return note ? `${deviceName}: ${note}` : deviceName;
       })
       .join(' | ');
   }
 
-  protected deviceItems(details: VisitDetails): Array<{ device: Device; label: string; note: string }> {
+  protected deviceItems(
+    details: VisitDetails,
+  ): Array<{ device: Device; label: string; note: string }> {
     return details.devices.map((device) => ({
       device,
-      label: `${device.brand} ${device.model}`.trim() || this.transloco.translate('devices.table.device'),
+      label:
+        `${device.brand} ${device.model}`.trim() ||
+        this.transloco.translate('devices.table.device'),
       note: details.visit.devicesNotes.find((item) => item.deviceId === device.id)?.note ?? '',
     }));
   }

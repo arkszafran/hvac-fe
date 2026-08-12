@@ -229,24 +229,19 @@
 
       <section class="rounded-card border border-border bg-surface p-4 sm:col-span-2 sm:p-6">
         <div class="flex items-center justify-between gap-4 border-b border-border pb-3">
-          <div class="flex min-w-0 flex-1 items-center justify-between gap-3">
-            <h2 class="truncate text-h3 text-text-main">
-              @switch (details.order.type) {
-                @case ('installation') {
-                  {{ 'serviceOrders.details.installationSectionTitle' | transloco }}
-                }
-                @case ('repair') {
-                  {{ 'serviceOrders.details.repairSectionTitle' | transloco }}
-                }
-                @case ('inspection') {
-                  {{ 'serviceOrders.details.inspectionSectionTitle' | transloco }}
-                }
+          <h2 class="min-w-0 flex-1 truncate text-h3 text-text-main">
+            @switch (details.order.type) {
+              @case ('installation') {
+                {{ 'serviceOrders.details.installationSectionTitle' | transloco }}
               }
-            </h2>
-            <span class="text-body text-text-muted md:hidden">
-              {{ detailItemCount(details.order) }}
-            </span>
-          </div>
+              @case ('repair') {
+                {{ 'serviceOrders.details.repairSectionTitle' | transloco }}
+              }
+              @case ('inspection') {
+                {{ 'serviceOrders.details.inspectionSectionTitle' | transloco }}
+              }
+            }
+          </h2>
           @if (details.order.type === 'inspection') {
             <ui-button
               class="hidden md:block"

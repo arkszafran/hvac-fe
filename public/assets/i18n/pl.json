@@ -781,8 +781,9 @@
     },
     "nextContactModal": {
       "title": "Ustal kolejny kontakt",
-      "description": "Wybierz datę i godzinę kontaktu oraz zapisz ustalenia w notatce.",
+      "description": "Wybierz datę i godzinę kontaktu. Opcjonalnie dodaj notatkę z ustaleniami.",
       "dateValidation": "Data i godzina kolejnego kontaktu są wymagane.",
+      "noteLabel": "Notatka (opcjonalnie)",
       "notePlaceholder": "Wpisz ustalenia dotyczące kolejnego kontaktu"
     },
     "assigneeModal": {
@@ -807,8 +808,12 @@
       "newDateChoiceTitle": "Wybierz przegląd dla urządzenia",
       "newDateChoiceDescription": "Klient ma kilka aktywnych przeglądów. Wybierz jeden z nich albo utwórz nowy przegląd z podanym terminem.",
       "changeSharedInspectionTitle": "Zmienić termin wspólnego przeglądu?",
-      "changeSharedInspectionDescription": "Do tego przeglądu należą też inne urządzenia klienta. Możesz zmienić termin całego przeglądu albo utworzyć osobny przegląd tylko dla tego urządzenia.",
-      "changeSharedInspectionDate": "Zmień termin całego przeglądu",
+      "changeSharedInspectionDescription": "Do tego zlecenia przeglądu należą też inne urządzenia klienta.",
+      "changeSharedInspectionDate": "Zmień termin",
+      "relatedDevicesTitle": "Pozostałe urządzenia w przeglądzie",
+      "deviceNameLabel": "Nazwa",
+      "currentInspectionDate": "Obecny termin przeglądu",
+      "newInspectionDate": "Nowy termin przeglądu",
       "createSeparateWithNewDate": "Utwórz osobny przegląd",
       "undoDateChange": "Cofnij zmianę daty",
       "linkDefaultTitle": "Dołączyć do przeglądu?",
@@ -840,20 +845,17 @@
       "noOrdersTitle": "Brak zleceń",
       "noOrdersDescription": "Zlecenia przypisane do tego klienta pojawią się tutaj.",
       "openOrderDetailsAria": "Otwórz szczegóły zlecenia: {{type}}, {{date}}",
-      "editModalDescription": "Zaktualizuj dane klienta bez opuszczania widoku szczegółów.",
       "notFoundTitle": "Nie znaleźliśmy tego klienta",
       "notFoundDescription": "Profil może jeszcze nie istnieć albo identyfikator jest nieprawidłowy."
     },
     "types": {
       "individual": {
         "label": "Osoba prywatna",
-        "shortLabel": "Klient indywidualny",
-        "description": "Klient indywidualny z adresem domowym lub prywatnym lokalem."
+        "shortLabel": "Klient indywidualny"
       },
       "company": {
         "label": "Firma",
-        "shortLabel": "Firma",
-        "description": "Klient biznesowy z nazwą firmy i osobą kontaktową."
+        "shortLabel": "Firma"
       }
     },
     "table": {
@@ -866,7 +868,6 @@
     },
     "form": {
       "defaultModalTitle": "Dodaj klienta",
-      "defaultModalDescription": "Utwórz nowy profil klienta i od razu przejdź do widoku z jego urządzeniami.",
       "defaultSubmitLabel": "Zapisz klienta",
       "type": "Typ klienta",
       "company": "Firma",
@@ -891,6 +892,8 @@
   },
   "devices": {
     "title": "Urządzenia",
+    "description": "Urządzenia klientów, miejsca instalacji i historia obsługi w jednym miejscu.",
+    "searchLabel": "Wyszukiwanie urządzeń",
     "searchPlaceholder": "Marka, model, klient lub adres instalacji",
     "actions": {
       "add": "Dodaj urządzenie",
@@ -915,7 +918,7 @@
     },
     "inspections": {
       "checkboxLabel": "Włącz przeglądy okresowe",
-      "checkboxDescription": "Po włączeniu trzeba ustawić termin najbliższego przeglądu, będą wysyłane przypomnienia.",
+      "checkboxDescription": "Dla włączonego przeglądu będą wysyłane przypomnienia.",
       "disabled": "Przeglądy wyłączone",
       "enabledNoDate": "Przeglądy włączone, brak terminu",
       "nextInspection": "Następny przegląd: {{date}}",
@@ -949,7 +952,6 @@
       "nextInspectionPreset": "Następny przegląd za",
       "nextInspectionDate": "Termin następnego przeglądu",
       "customAddressLabel": "To urządzenie ma inny adres instalacji niż adres klienta",
-      "customAddressDescription": "Zaznacz, jeśli instalacja jest w innym lokalu, budynku albo mieszkaniu.",
       "installationAddress": "Adres instalacji",
       "installationAddressPlaceholder": "ul. Montażowa 7",
       "note": "Notatka",
@@ -1023,7 +1025,7 @@
       "noPlanningDescription": "Przeglądy są wyłączone albo urządzenie nie ma jeszcze ustawionej daty następnego przeglądu.",
       "noNote": "Brak dodatkowej notatki do tego urządzenia.",
       "entriesCount": "{{count}} wpisy",
-      "noServiceHistoryTitle": "Brak historii serwisu",
+      "noServiceHistoryTitle": "Brak wpisów w historii urządzenia",
       "noServiceHistoryDescription": "Po wykonaniu pierwszych wizyt serwisowych zobaczysz tutaj pełną historię urządzenia.",
       "notFoundDeviceTitle": "Nie znaleźliśmy tego urządzenia",
       "notFoundDeviceDescription": "Sprawdź identyfikator albo wróć do listy urządzeń.",
@@ -1037,6 +1039,7 @@
     "serialNumberLabel": "Numer seryjny: {{serialNumber}}",
     "installationDateLabel": "Data montażu: {{date}}",
     "customerAddress": "Adres klienta",
+    "customInstallationAddress": "Niestandardowy adres instalacji",
     "sameAddressAsCustomer": "Adres instalacji taki sam jak adres klienta",
     "validation": {
       "typeRequired": "Typ urządzenia jest wymagany.",
@@ -1047,13 +1050,12 @@
       "powerNonNegative": "Moc nie może być wartością ujemną."
     },
     "nextInspectionModal": {
-      "title": "Zmień ustawienia przeglądów",
-      "description": "Włącz albo wyłącz przeglądy okresowe i ustaw termin najbliższego przeglądu."
+      "title": "Zmień ustawienia przeglądów"
     },
     "create": {
       "backToList": "Wróć do urządzeń",
       "title": "Dodaj urządzenie",
-      "description": "Wybierz istniejącego klienta albo dodaj nowego, a następnie uzupełnij dane urządzenia.",
+      "customerData": "Dane klienta",
       "deviceData": "Dane urządzenia",
       "pendingCustomerDescription": "Nowy klient zostanie zapisany razem z urządzeniem.",
       "noCustomerSelected": "Nie wybrano klienta",

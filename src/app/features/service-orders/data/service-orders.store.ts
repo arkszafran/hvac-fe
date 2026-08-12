@@ -181,6 +181,17 @@ export class ServiceOrdersStore {
     });
   }
 
+  updateInspectionDate(orderId: string, scheduledAt: string): ServiceOrder | undefined {
+    const order = this.getOrderById(orderId);
+    const normalizedDate = normalizeDateTime(scheduledAt);
+
+    if (!order || order.serviceData.type !== 'inspection' || !normalizedDate) {
+      return undefined;
+    }
+
+    return this.patchOrder(orderId, { scheduledAt: normalizedDate });
+  }
+
   scheduleNextContact(
     orderId: string,
     nextContactAt: string,

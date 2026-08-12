@@ -31,11 +31,10 @@ import {
 } from '../../customers/models/device.model';
 
 const TEXTAREA_CLASSES =
-  'ui-focus-ring block min-h-32 w-full rounded-[0.95rem] border border-border/90 bg-white px-4 py-3.5 text-[15px]/6 text-text-main shadow-[inset_0_1px_0_rgb(255_255_255/0.82),0_1px_2px_rgb(15_23_42/0.05)] backdrop-blur-xl transition duration-200 placeholder:text-text-muted/78 hover:border-primary/24 hover:bg-white focus:border-primary';
+  'ui-focus-ring block min-h-32 w-full resize-y rounded-field border border-transparent bg-surface-muted px-3.5 py-2.5 text-body text-text-main transition-colors duration-200 placeholder:text-text-muted hover:border-border focus:border-action focus:bg-surface motion-reduce:transition-none';
 
 @Component({
   selector: 'app-device-editor-form',
-  standalone: true,
   imports: [ReactiveFormsModule, TranslocoPipe, UiInputComponent, UiSelectComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   exportAs: 'deviceEditorForm',
@@ -141,11 +140,9 @@ export class DeviceEditorFormComponent {
         this.applyInspectionPreset(preset);
       });
 
-    this.form.controls.nextInspectionDate.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe(() => {
-        this.syncInspectionPresetWithDate();
-      });
+    this.form.controls.nextInspectionDate.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.syncInspectionPresetWithDate();
+    });
 
     merge(this.form.valueChanges, this.form.statusChanges)
       .pipe(startWith(null), takeUntilDestroyed())
@@ -233,7 +230,9 @@ export class DeviceEditorFormComponent {
       },
       { emitEvent: false },
     );
-    this.hasCustomInstallationAddress.set(this.form.controls.hasCustomInstallationAddress.getRawValue());
+    this.hasCustomInstallationAddress.set(
+      this.form.controls.hasCustomInstallationAddress.getRawValue(),
+    );
     this.warrantyMonths.set(this.form.controls.warrantyMonths.getRawValue());
     this.hasScheduledInspections.set(this.form.controls.hasScheduledInspections.getRawValue());
     this.requiresInstallationDate.set(Number(this.form.controls.warrantyMonths.getRawValue()) > 0);

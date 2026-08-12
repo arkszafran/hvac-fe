@@ -89,6 +89,7 @@
     [items]="filteredOrders()"
     (detailsRequested)="openDetails($event)"
     (scheduleRequested)="openSchedule($event)"
+    (dateConfirmationRequested)="openDateConfirmation($event)"
     (visitRequested)="createVisit($event)"
     (nextContactRequested)="openNextContact($event)"
     (noteRequested)="openNote($event)"
@@ -132,10 +133,11 @@
     </ui-button>
   </ui-drawer>
 
-  @if (orderBeingScheduled(); as order) {
+  @if (scheduleModalState(); as state) {
     <app-service-order-schedule-modal
       [open]="true"
-      [scheduledAt]="order.scheduledAt"
+      [scheduledAt]="state.order.scheduledAt"
+      [titleKey]="state.titleKey"
       (close)="closeScheduleModal()"
       (saved)="saveSchedule($event)"
     />

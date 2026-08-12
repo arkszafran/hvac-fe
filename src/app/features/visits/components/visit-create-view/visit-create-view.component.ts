@@ -1,13 +1,14 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import {
   UiButtonComponent,
   UiCardComponent,
   UiEmptyStateComponent,
+  UiIconComponent,
   UiInputComponent,
   UiSelectComponent,
   UiSelectOption,
@@ -51,18 +52,18 @@ interface VisitDeviceEntry {
 }
 
 const TEXTAREA_CLASSES =
-  'ui-focus-ring block min-h-28 w-full rounded-[0.95rem] border border-border/90 bg-white px-4 py-3.5 text-[15px]/6 text-text-main shadow-[inset_0_1px_0_rgb(255_255_255/0.82),0_1px_2px_rgb(15_23_42/0.05)] backdrop-blur-xl transition duration-200 placeholder:text-text-muted/78 hover:border-primary/24 hover:bg-white focus:border-primary';
+  'ui-focus-ring block min-h-28 w-full resize-y rounded-field border border-transparent bg-surface-muted px-3.5 py-2.5 text-body text-text-main transition-colors duration-200 placeholder:text-text-muted hover:border-border focus:border-action focus:bg-surface motion-reduce:transition-none';
 
 @Component({
   selector: 'app-visit-create-view',
   standalone: true,
   imports: [
     FormsModule,
-    RouterLink,
     TranslocoPipe,
     UiButtonComponent,
     UiCardComponent,
     UiEmptyStateComponent,
+    UiIconComponent,
     UiInputComponent,
     UiSelectComponent,
     CustomerFormModalComponent,

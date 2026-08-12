@@ -50,6 +50,7 @@ export class ServiceOrderTableComponent {
   readonly items = input<ServiceOrderTableItem[]>([]);
   readonly detailsRequested = output<ServiceOrder>();
   readonly scheduleRequested = output<ServiceOrder>();
+  readonly dateConfirmationRequested = output<ServiceOrder>();
   readonly visitRequested = output<ServiceOrder>();
   readonly nextContactRequested = output<ServiceOrder>();
   readonly noteRequested = output<ServiceOrder>();

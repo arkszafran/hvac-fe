@@ -6,10 +6,10 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
-import { UiButtonComponent, UiCardComponent, UiPageHeaderComponent } from '../../ui';
+import { UiButtonComponent, UiIconComponent } from '../../ui';
 import { CustomerFormModalComponent } from '../customers/components/customer-form-modal.component';
 import { CustomersStore } from '../customers/data/customers.store';
 import { Customer, CustomerDraft } from '../customers/models/customer.model';
@@ -29,13 +29,10 @@ type CustomerSelection =
 
 @Component({
   selector: 'app-device-create-view',
-  standalone: true,
   imports: [
-    RouterLink,
     TranslocoPipe,
     UiButtonComponent,
-    UiCardComponent,
-    UiPageHeaderComponent,
+    UiIconComponent,
     CustomerFormModalComponent,
     DeviceCustomerPickerModalComponent,
     DeviceEditorFormComponent,
@@ -67,6 +64,10 @@ export class DeviceCreateViewComponent {
 
   protected openCustomerPicker(): void {
     this.isCustomerPickerOpen.set(true);
+  }
+
+  protected navigateToDevices(): void {
+    void this.router.navigate(['/devices']);
   }
 
   protected openCustomerCreateModal(): void {

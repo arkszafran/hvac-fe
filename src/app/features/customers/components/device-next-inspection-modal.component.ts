@@ -29,7 +29,6 @@ import { DeviceDraft } from '../models/device.model';
 
 @Component({
   selector: 'app-device-next-inspection-modal',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     TranslocoPipe,
@@ -39,64 +38,7 @@ import { DeviceDraft } from '../models/device.model';
     UiSelectComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <ui-modal
-      [open]="open()"
-      [title]="'devices.nextInspectionModal.title' | transloco"
-      [description]="'devices.nextInspectionModal.description' | transloco"
-      (close)="handleClose()"
-    >
-      <form class="ui-form-stack" [formGroup]="form">
-        <div class="space-y-2.5">
-          <label
-            class="flex cursor-pointer items-start gap-3 rounded-[1.05rem] border border-border/90 bg-white px-4 py-3 transition hover:border-primary/28 hover:bg-primary-soft/24"
-          >
-            <input
-              type="checkbox"
-              formControlName="hasScheduledInspections"
-              class="mt-1 size-4 shrink-0 rounded border-border accent-[var(--color-primary)]"
-            />
-
-            <span class="min-w-0">
-              <span class="block text-label text-text-main">{{
-                inspectionCheckboxLabelKey | transloco
-              }}</span>
-              <span class="block text-small text-text-muted">
-                {{ inspectionCheckboxDescriptionKey | transloco }}
-              </span>
-            </span>
-          </label>
-        </div>
-
-        @if (form.controls.hasScheduledInspections.value) {
-          <div class="grid gap-4 sm:grid-cols-2">
-            <ui-select
-              [label]="'devices.form.nextInspectionPreset' | transloco"
-              [options]="inspectionPresetOptions()"
-              formControlName="nextInspectionPreset"
-            />
-
-            <ui-input
-              [label]="'devices.form.nextInspectionDate' | transloco"
-              type="datetime-local"
-              required
-              [error]="validationError()"
-              formControlName="nextInspectionDate"
-            />
-          </div>
-        }
-      </form>
-
-      <div modal-footer class="grid grid-cols-2 gap-3 sm:flex sm:justify-end">
-        <ui-button type="button" variant="ghost" [block]="true" (pressed)="handleClose()">
-          {{ 'common.actions.cancel' | transloco }}
-        </ui-button>
-        <ui-button type="button" [block]="true" (pressed)="handleSubmit()">
-          {{ 'common.actions.saveChanges' | transloco }}
-        </ui-button>
-      </div>
-    </ui-modal>
-  `,
+  templateUrl: './device-next-inspection-modal.component.html',
 })
 export class DeviceNextInspectionModalComponent {
   private readonly formBuilder = inject(FormBuilder);
