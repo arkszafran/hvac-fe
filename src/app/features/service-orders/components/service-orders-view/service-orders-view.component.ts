@@ -40,7 +40,7 @@ import {
 import { ServiceOrderNoteModalComponent } from '../service-order-note-modal/service-order-note-modal.component';
 import { ServiceOrderTableComponent } from '../service-order-table/service-order-table.component';
 
-const DEFAULT_STATUS_FILTERS: ServiceOrderStatus[] = ['contact_required', 'scheduled'];
+const DEFAULT_STATUS_FILTERS: ServiceOrderStatus[] = ['new', 'contact_required', 'scheduled'];
 const DEFAULT_TYPE_FILTERS: ServiceOrderType[] = ['installation', 'repair', 'inspection'];
 const DEFAULT_DATE_FILTER: ServiceOrderDateFilter = 'today';
 
@@ -192,6 +192,10 @@ export class ServiceOrdersViewComponent {
   }
   protected openDetails(order: ServiceOrder): void {
     void this.router.navigate(['/service-orders', order.id]);
+  }
+
+  protected createOrder(): void {
+    void this.router.navigate(['/service-orders/new']);
   }
 
   protected openSchedule(order: ServiceOrder): void {

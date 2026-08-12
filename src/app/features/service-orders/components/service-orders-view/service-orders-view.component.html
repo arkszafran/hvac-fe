@@ -9,11 +9,18 @@
       </p>
     </div>
 
-    <ui-button class="shrink-0">
+    <ui-button class="shrink-0" (pressed)="createOrder()">
       <ui-icon button-icon name="plus" />
       {{ 'serviceOrders.actions.newOrder' | transloco }}
     </ui-button>
   </header>
+
+  <div class="px-1 md:hidden">
+    <ui-button size="lg" [block]="true" (pressed)="createOrder()">
+      <ui-icon button-icon name="plus" />
+      {{ 'serviceOrders.actions.newOrder' | transloco }}
+    </ui-button>
+  </div>
 
   <nav
     class="flex items-center gap-2 overflow-x-auto px-1 pb-1 md:hidden"

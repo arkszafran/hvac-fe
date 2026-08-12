@@ -592,6 +592,87 @@
   "serviceOrders": {
     "title": "Zlecenia",
     "description": "Dziś czekają 3 telefony i jedna wizyta. Zacznij od góry — najpilniejsze są na wierzchu.",
+    "create": {
+      "title": "Nowe zlecenie",
+      "backToList": "Wróć do zleceń",
+      "sections": {
+        "type": "Rodzaj i termin zlecenia",
+        "customer": "Klient",
+        "installation": "Zakres montażu",
+        "repair": "Urządzenia do naprawy",
+        "inspection": "Urządzenia do przeglądu",
+        "note": "Notatka do zlecenia (opcjonalnie)"
+      },
+      "fields": {
+        "scheduledAt": "Termin wizyty (opcjonalnie)",
+        "scheduledAtHint": "Jeśli termin nie jest jeszcze ustalony, pozostaw to pole puste.",
+        "note": "Notatka (opcjonalnie)",
+        "notePlaceholder": "Dodaj ustalenia, informacje od klienta lub uwagi dla serwisanta"
+      },
+      "actions": {
+        "save": "Utwórz zlecenie",
+        "chooseCustomer": "Klient z systemu",
+        "addCustomer": "Nowy klient",
+        "addRoom": "Dodaj pomieszczenie",
+        "removeRoom": "Usuń pomieszczenie",
+        "chooseDevices": "Urządzenia klienta",
+        "addDevice": "Nowe urządzenie"
+      },
+      "customer": {
+        "newBadge": "Nowy klient",
+        "emptyTitle": "Nie wybrano klienta",
+        "emptyDescription": "Wybierz klienta z listy albo dodaj nowego.",
+        "createTitle": "Dodaj klienta do zlecenia",
+        "createDescription": "Dane klienta zostaną zapisane i przypisane do tego zlecenia.",
+        "editTitle": "Edytuj dane klienta",
+        "editDescription": "Sprawdź i popraw dane nowo dodanego klienta."
+      },
+      "installation": {
+        "description": "Dodaj wszystkie pomieszczenia, w których ma zostać wykonany montaż.",
+        "buildingTypePlaceholder": "Wybierz rodzaj budynku",
+        "area": "Powierzchnia (m²)",
+        "height": "Wysokość (m)",
+        "outdoorPlacePlaceholder": "Wybierz miejsce",
+        "distance": "Odległość od jednostki (m)"
+      },
+      "devices": {
+        "newDevice": "Nowe urządzenie",
+        "newDeviceDescription": "Urządzenie zostanie zapisane przy tworzeniu zlecenia.",
+        "repairDescription": "Wybierz urządzenia klienta lub dodaj nowe. Możesz opisać problem osobno dla każdego urządzenia.",
+        "inspectionDescription": "Wybierz wszystkie urządzenia, które mają zostać objęte przeglądem.",
+        "noExistingDevices": "Ten klient nie ma jeszcze urządzeń w systemie. Dodaj nowe urządzenie.",
+        "existingBadge": "Zapisane w systemie",
+        "newBadge": "Nowe urządzenie",
+        "reportedIssue": "Zgłoszony problem (opcjonalnie)",
+        "reportedIssuePlaceholder": "Opisz objawy, kod błędu lub ustalenia z klientem",
+        "emptyTitle": "Nie dodano urządzeń",
+        "emptyDescription": "Wybierz urządzenia klienta lub dodaj jedno albo kilka nowych.",
+        "createTitle": "Dodaj urządzenie do zlecenia",
+        "editTitle": "Edytuj dane urządzenia",
+        "formDescription": "Uzupełnij dane pozwalające rozpoznać urządzenie podczas realizacji zlecenia."
+      },
+      "photos": {
+        "add": "Dodaj zdjęcia",
+        "remove": "Usuń",
+        "removeAria": "Usuń zdjęcie {{name}}",
+        "buildingLabel": "Zdjęcia całego budynku",
+        "buildingHint": "Dodaj zdjęcia elewacji, miejsca jednostki zewnętrznej lub inne zdjęcia ogólne.",
+        "roomLabel": "Zdjęcia pomieszczenia",
+        "roomHint": "Możesz dodać kilka zdjęć pokazujących układ i miejsce montażu.",
+        "deviceLabel": "Zdjęcia urządzenia lub tabliczki znamionowej",
+        "deviceHint": "Możesz załączyć dowolne zdjęcie pomocne przy realizacji naprawy."
+      },
+      "validation": {
+        "summary": "Uzupełnij wymagane dane klienta i zakresu zlecenia.",
+        "deviceRequired": "Wybierz urządzenie z systemu lub dodaj nowe.",
+        "requiredField": "To pole jest wymagane.",
+        "nonNegativeNumber": "Wpisz prawidłową wartość liczbową."
+      },
+      "toast": {
+        "success": "Zlecenie zostało utworzone.",
+        "error": "Nie udało się utworzyć zlecenia. Sprawdź dane i spróbuj ponownie."
+      }
+    },
     "summary": {
       "contactRequired": "Do kontaktu: {{count}}",
       "scheduled": "Zaplanowane: {{count}}"

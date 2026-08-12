@@ -77,6 +77,8 @@ let nextInputId = 0;
           [disabled]="isDisabled()"
           [readOnly]="readonly()"
           [required]="required()"
+          [attr.min]="min()"
+          [attr.step]="step()"
           [autocomplete]="autocomplete()"
           [attr.aria-invalid]="error() ? 'true' : 'false'"
           [attr.aria-describedby]="describedBy() || null"
@@ -136,6 +138,8 @@ export class UiInputComponent implements ControlValueAccessor {
   readonly trailingIcon = input<UiInputIcon>('none');
   readonly name = input('');
   readonly autocomplete = input('off');
+  readonly min = input<string | number | null>(null);
+  readonly step = input<string | number | null>(null);
   readonly required = input(false, { transform: booleanAttribute });
   readonly readonly = input(false, { transform: booleanAttribute });
   readonly disabled = input(false, { transform: booleanAttribute });

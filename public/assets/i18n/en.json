@@ -592,6 +592,87 @@
   "serviceOrders": {
     "title": "Service orders",
     "description": "Three calls and one visit are waiting today. Start at the top — the most urgent tasks come first.",
+    "create": {
+      "title": "New service order",
+      "backToList": "Back to service orders",
+      "sections": {
+        "type": "Order type and date",
+        "customer": "Customer",
+        "installation": "Installation scope",
+        "repair": "Devices to repair",
+        "inspection": "Devices to inspect",
+        "note": "Service order note (optional)"
+      },
+      "fields": {
+        "scheduledAt": "Visit date (optional)",
+        "scheduledAtHint": "Leave this field empty if the date has not been agreed yet.",
+        "note": "Note (optional)",
+        "notePlaceholder": "Add arrangements, customer information, or notes for the technician"
+      },
+      "actions": {
+        "save": "Create service order",
+        "chooseCustomer": "Customer in system",
+        "addCustomer": "New customer",
+        "addRoom": "Add room",
+        "removeRoom": "Remove room",
+        "chooseDevices": "Customer devices",
+        "addDevice": "New device"
+      },
+      "customer": {
+        "newBadge": "New customer",
+        "emptyTitle": "No customer selected",
+        "emptyDescription": "Choose a customer from the list or add a new one.",
+        "createTitle": "Add customer to the order",
+        "createDescription": "The customer will be saved and assigned to this service order.",
+        "editTitle": "Edit customer details",
+        "editDescription": "Review and correct the newly added customer's details."
+      },
+      "installation": {
+        "description": "Add every room where the installation will be performed.",
+        "buildingTypePlaceholder": "Choose a building type",
+        "area": "Area (m²)",
+        "height": "Height (m)",
+        "outdoorPlacePlaceholder": "Choose a location",
+        "distance": "Distance from the unit (m)"
+      },
+      "devices": {
+        "newDevice": "New device",
+        "newDeviceDescription": "The device will be saved when the order is created.",
+        "repairDescription": "Choose customer devices or add new ones. You can describe the issue separately for every device.",
+        "inspectionDescription": "Choose all devices that should be included in the inspection.",
+        "noExistingDevices": "This customer has no devices in the system yet. Add a new device.",
+        "existingBadge": "Saved in the system",
+        "newBadge": "New device",
+        "reportedIssue": "Reported issue (optional)",
+        "reportedIssuePlaceholder": "Describe symptoms, an error code, or arrangements with the customer",
+        "emptyTitle": "No devices added",
+        "emptyDescription": "Choose customer devices or add one or more new devices.",
+        "createTitle": "Add device to the order",
+        "editTitle": "Edit device details",
+        "formDescription": "Enter the details needed to identify the device while completing the order."
+      },
+      "photos": {
+        "add": "Add photos",
+        "remove": "Remove",
+        "removeAria": "Remove photo {{name}}",
+        "buildingLabel": "Photos of the entire building",
+        "buildingHint": "Add photos of the facade, outdoor unit location, or other general views.",
+        "roomLabel": "Room photos",
+        "roomHint": "You can add several photos showing the layout and installation location.",
+        "deviceLabel": "Device or nameplate photos",
+        "deviceHint": "You can attach any photo that may help while completing the repair."
+      },
+      "validation": {
+        "summary": "Complete the required customer details and order scope.",
+        "deviceRequired": "Choose a device from the system or add a new one.",
+        "requiredField": "This field is required.",
+        "nonNegativeNumber": "Enter a valid numeric value."
+      },
+      "toast": {
+        "success": "The service order has been created.",
+        "error": "The service order could not be created. Check the data and try again."
+      }
+    },
     "summary": {
       "contactRequired": "Contact required: {{count}}",
       "scheduled": "Scheduled: {{count}}"

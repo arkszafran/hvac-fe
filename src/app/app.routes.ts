@@ -117,6 +117,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'service-orders/new',
+        loadComponent: () =>
+          import('./pages/service-orders/service-order-create/service-order-create.page').then(
+            (module) => module.ServiceOrderCreatePageComponent,
+          ),
+      },
+      {
         path: 'service-orders/:serviceOrderId',
         loadComponent: () =>
           import('./pages/service-orders/service-order-detail.page').then(

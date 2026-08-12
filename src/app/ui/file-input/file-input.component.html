@@ -1,0 +1,15 @@
+<input
+  class="peer sr-only"
+  type="file"
+  [id]="inputId()"
+  [accept]="accept()"
+  [multiple]="multiple()"
+  (change)="handleSelection($event)"
+/>
+<label
+  class="inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-button border border-border bg-surface px-4 text-label font-semibold text-text-main transition-colors duration-200 hover:border-action/45 hover:bg-action-soft active:bg-action-soft peer-focus-visible:outline-none peer-focus-visible:ring-3 peer-focus-visible:ring-action/25 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background motion-reduce:transition-none"
+  [attr.for]="inputId()"
+>
+  <ui-icon class="size-4" name="plus" />
+  <span>{{ buttonLabel() }}</span>
+</label>

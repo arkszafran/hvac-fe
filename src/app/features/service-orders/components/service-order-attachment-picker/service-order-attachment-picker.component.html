@@ -1,0 +1,44 @@
+<section class="space-y-3">
+  <div>
+    <h4 class="text-label text-text-main">{{ label() }}</h4>
+    @if (hint()) {
+      <p class="mt-1 text-small text-text-muted">{{ hint() }}</p>
+    }
+  </div>
+
+  @if (photos().length) {
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      @for (photo of photos(); track photo.id) {
+        <article class="overflow-hidden rounded-field border border-border bg-surface-muted">
+          <img
+            class="h-32 w-full object-cover"
+            [src]="photo.url"
+            [alt]="photo.fileName"
+            loading="lazy"
+          />
+          <div class="flex items-center justify-between gap-3 px-3 py-2.5">
+            <span class="min-w-0 truncate text-small text-text-muted">{{ photo.fileName }}</span>
+            <ui-button
+              class="shrink-0"
+              size="lg"
+              variant="ghost"
+              [ariaLabel]="
+                'serviceOrders.create.photos.removeAria' | transloco: { name: photo.fileName }
+              "
+              (pressed)="photoRemoved.emit(photo.id)"
+            >
+              {{ 'serviceOrders.create.photos.remove' | transloco }}
+            </ui-button>
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+  <ui-file-input
+    accept="image/*"
+    multiple
+    [buttonLabel]="'serviceOrders.create.photos.add' | transloco"
+    (filesSelected)="filesAdded.emit($event)"
+  />
+</section>

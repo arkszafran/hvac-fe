@@ -9,6 +9,7 @@ import {
   ServiceOrder,
   ServiceOrderAssignee,
   ServiceOrderCustomer,
+  ServiceOrderData,
   ServiceOrderDevice,
   ServiceOrderNote,
   ServiceOrderStatus,
@@ -25,6 +26,12 @@ export interface RemoveDeviceFromInspectionOrderResult {
   updatedOrder?: ServiceOrder;
   deletedOrder?: ServiceOrder;
   cancelledOrder?: ServiceOrder;
+}
+
+export interface CreateServiceOrderInput {
+  customerId: string;
+  serviceData: ServiceOrderData;
+  scheduledAt?: string;
 }
 
 const OPEN_ORDER_STATUSES: readonly ServiceOrderStatus[] = ['new', 'contact_required', 'scheduled'];
@@ -126,6 +133,33 @@ export class ServiceOrdersStore {
       .map((deviceId) => customer.devices.find((device) => device.id === deviceId))
       .filter((device): device is Device => Boolean(device))
       .map(toServiceOrderDevice);
+  }
+
+  createOrder(input: CreateServiceOrderInput): ServiceOrder | undefined {
+    const customer = this.customersStore.getCustomerById(input.customerId);
+    const scheduledAt = input.scheduledAt?.trim() ? normalizeDateTime(input.scheduledAt) : '';
+
+    if (!customer || !isValidServiceOrderData(input.serviceData)) {
+      return undefined;
+    }
+
+    const now = new Date().toISOString();
+    const order: ServiceOrder = {
+      id: createEntityId('order'),
+      type: input.serviceData.type,
+      source: 'user',
+      status: scheduledAt ? 'scheduled' : 'new',
+      ...toServiceOrderCustomer(customer),
+      serviceData: input.serviceData,
+      orderDate: now,
+      scheduledAt,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    this.ordersState.update((orders) => [order, ...orders]);
+
+    return order;
   }
 
   createInspectionOrder(input: {
@@ -486,6 +520,17 @@ function createInitialNotes(): ServiceOrderNote[] {
 
 function createEntityId(prefix: string): string {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function isValidServiceOrderData(serviceData: ServiceOrderData): boolean {
+  switch (serviceData.type) {
+    case 'installation':
+      return Boolean(serviceData.buildingType && serviceData.rooms.length);
+    case 'repair':
+      return Boolean(serviceData.devices.length);
+    case 'inspection':
+      return Boolean(serviceData.deviceIds.length);
+  }
 }
 
 function normalizeDateTime(value: string): string {

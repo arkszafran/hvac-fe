@@ -1,0 +1,459 @@
+<div>
+  <form class="space-y-4" [formGroup]="orderForm" (ngSubmit)="submit()">
+    <button
+      type="button"
+      class="ui-focus-ring inline-flex min-h-11 items-center gap-2 rounded-button px-2 text-body text-text-main transition-colors hover:bg-surface-muted active:bg-surface-muted motion-reduce:transition-none"
+      (click)="navigateToOrders()"
+    >
+      <ui-icon class="size-4 rotate-180" name="chevron-right" />
+      {{ 'serviceOrders.create.backToList' | transloco }}
+    </button>
+
+    <header class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+      <h1 class="text-h1 text-text-main">
+        {{ 'serviceOrders.create.title' | transloco }}
+      </h1>
+
+      <ui-button class="hidden shrink-0 md:block" size="lg" type="submit">
+        {{ 'serviceOrders.create.actions.save' | transloco }}
+      </ui-button>
+    </header>
+
+    @if (hasValidationErrors()) {
+      <div
+        class="rounded-field border border-danger/30 bg-danger-soft px-4 py-3 text-body text-danger"
+        role="alert"
+      >
+        {{ 'serviceOrders.create.validation.summary' | transloco }}
+      </div>
+    }
+
+    <div class="grid min-w-0 gap-6">
+      <ui-card>
+        <div card-header>
+          <h2 class="text-h3 text-text-main">
+            {{ 'serviceOrders.create.sections.type' | transloco }}
+          </h2>
+        </div>
+
+        <fieldset>
+          <legend class="sr-only">{{ 'serviceOrders.create.sections.type' | transloco }}</legend>
+          <div class="grid gap-3 md:grid-cols-3">
+            @for (option of orderTypeOptions(); track option.value) {
+              <label
+                class="ui-focus-ring flex min-h-14 cursor-pointer items-center gap-3 rounded-field border border-border bg-surface px-4 py-3 transition-colors duration-200 hover:border-action/45 hover:bg-action-soft active:bg-action-soft motion-reduce:transition-none"
+                [class.border-action]="orderType() === option.value"
+                [class.bg-action-soft]="orderType() === option.value"
+              >
+                <input
+                  type="radio"
+                  name="type"
+                  [value]="option.value"
+                  formControlName="type"
+                  class="size-4 shrink-0 accent-[var(--color-primary)]"
+                />
+                <span class="min-w-0 text-label text-text-main">{{ option.label }}</span>
+              </label>
+            }
+          </div>
+        </fieldset>
+
+        <div class="mt-4">
+          <ui-input
+            type="datetime-local"
+            [label]="'serviceOrders.create.fields.scheduledAt' | transloco"
+            [hint]="'serviceOrders.create.fields.scheduledAtHint' | transloco"
+            formControlName="scheduledAt"
+          />
+        </div>
+      </ui-card>
+
+      @if (orderType()) {
+        <ui-card>
+          <div card-header>
+            <h2 class="text-h3 text-text-main">
+              {{ 'serviceOrders.create.sections.customer' | transloco }}
+            </h2>
+          </div>
+
+          @if (selectedCustomer(); as customer) {
+            <div class="rounded-field border border-border bg-surface-muted px-4 py-4">
+              <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <p class="truncate text-body font-semibold text-text-main">
+                      {{ formatCustomerName(customer) }}
+                    </p>
+                    @if (isNewCustomer()) {
+                      <span
+                        class="rounded-full bg-success-soft px-2.5 py-1 text-small font-semibold text-success"
+                      >
+                        {{ 'serviceOrders.create.customer.newBadge' | transloco }}
+                      </span>
+                    }
+                  </div>
+                  <p class="mt-1 text-small text-text-muted">
+                    {{ customer.phone || customer.email || '--' }}
+                  </p>
+                  <p class="mt-1 text-small text-text-muted">
+                    {{ formatCustomerAddress(customer) }}
+                  </p>
+                </div>
+
+                @if (isNewCustomer()) {
+                  <ui-button size="lg" variant="ghost" (pressed)="openCustomerEditForm()">
+                    {{ 'common.actions.edit' | transloco }}
+                  </ui-button>
+                }
+              </div>
+            </div>
+          } @else {
+            <ui-empty-state
+              [title]="'serviceOrders.create.customer.emptyTitle' | transloco"
+              [description]="'serviceOrders.create.customer.emptyDescription' | transloco"
+            />
+          }
+
+          <div class="mt-4 grid grid-cols-2 gap-2">
+            <ui-button
+              size="lg"
+              variant="secondary"
+              [block]="true"
+              (pressed)="isCustomerPickerOpen.set(true)"
+            >
+              {{ 'serviceOrders.create.actions.chooseCustomer' | transloco }}
+            </ui-button>
+            <ui-button
+              size="lg"
+              variant="ghost"
+              [block]="true"
+              (pressed)="openCustomerCreateForm()"
+            >
+              {{ 'serviceOrders.create.actions.addCustomer' | transloco }}
+            </ui-button>
+          </div>
+        </ui-card>
+      }
+
+      @if (orderType() === 'installation' && selectedCustomer()) {
+        <ui-card>
+          <div card-header class="flex items-center justify-between gap-3">
+            <div>
+              <h2 class="text-h3 text-text-main">
+                {{ 'serviceOrders.create.sections.installation' | transloco }}
+              </h2>
+              <p class="mt-1 text-small text-text-muted">
+                {{ 'serviceOrders.create.installation.description' | transloco }}
+              </p>
+            </div>
+          </div>
+
+          <div class="grid gap-6" [formGroup]="installationForm">
+            <ui-select
+              [label]="'serviceOrders.details.buildingType' | transloco"
+              [placeholder]="
+                'serviceOrders.create.installation.buildingTypePlaceholder' | transloco
+              "
+              required
+              [options]="buildingTypeOptions()"
+              [error]="fieldError(installationForm.controls.buildingType)"
+              formControlName="buildingType"
+            />
+
+            <div class="grid gap-4" formArrayName="rooms">
+              @for (room of rooms.controls; track room; let index = $index) {
+                <article
+                  class="rounded-card border border-border bg-surface p-4 sm:p-5"
+                  [formGroupName]="index"
+                >
+                  <div class="flex items-center justify-between gap-3">
+                    <h3 class="text-body font-semibold text-text-main">
+                      {{ 'serviceOrders.details.room' | transloco: { index: index + 1 } }}
+                    </h3>
+                    @if (rooms.length > 1) {
+                      <ui-button size="lg" variant="ghost" (pressed)="removeRoom(index)">
+                        {{ 'serviceOrders.create.actions.removeRoom' | transloco }}
+                      </ui-button>
+                    }
+                  </div>
+
+                  <div class="mt-5 grid gap-4 sm:grid-cols-3">
+                    <ui-input
+                      type="number"
+                      [min]="0.1"
+                      [step]="0.1"
+                      [label]="'serviceOrders.create.installation.area' | transloco"
+                      required
+                      [error]="fieldError(room.controls.area)"
+                      formControlName="area"
+                    />
+                    <ui-input
+                      type="number"
+                      [min]="0.1"
+                      [step]="0.1"
+                      [label]="'serviceOrders.create.installation.height' | transloco"
+                      required
+                      [error]="fieldError(room.controls.height)"
+                      formControlName="height"
+                    />
+                    <ui-input
+                      type="number"
+                      [step]="1"
+                      [label]="'serviceOrders.details.floor' | transloco"
+                      required
+                      [error]="fieldError(room.controls.floor)"
+                      formControlName="floor"
+                    />
+                  </div>
+
+                  <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                    <ui-select
+                      [label]="'serviceOrders.details.outdoorUnitPlace' | transloco"
+                      [placeholder]="
+                        'serviceOrders.create.installation.outdoorPlacePlaceholder' | transloco
+                      "
+                      required
+                      [options]="outdoorUnitPlaceOptions()"
+                      [error]="fieldError(room.controls.outdoorUnitPlace)"
+                      formControlName="outdoorUnitPlace"
+                    />
+                    <ui-input
+                      type="number"
+                      [min]="0"
+                      [step]="0.1"
+                      [label]="'serviceOrders.create.installation.distance' | transloco"
+                      formControlName="estimatedDistanceToOutdoorUnit"
+                    />
+                  </div>
+
+                  <div class="mt-5 border-t border-border pt-5">
+                    <app-service-order-attachment-picker
+                      [label]="'serviceOrders.create.photos.roomLabel' | transloco"
+                      [hint]="'serviceOrders.create.photos.roomHint' | transloco"
+                      [photos]="photosForRoom(room)"
+                      (filesAdded)="addRoomPhotos(roomId(room), $event)"
+                      (photoRemoved)="removeRoomPhoto(roomId(room), $event)"
+                    />
+                  </div>
+                </article>
+              }
+            </div>
+
+            <ui-button size="lg" variant="secondary" (pressed)="addRoom()">
+              <ui-icon button-icon name="plus" />
+              {{ 'serviceOrders.create.actions.addRoom' | transloco }}
+            </ui-button>
+
+            <div class="border-t border-border pt-6">
+              <app-service-order-attachment-picker
+                [label]="'serviceOrders.create.photos.buildingLabel' | transloco"
+                [hint]="'serviceOrders.create.photos.buildingHint' | transloco"
+                [photos]="buildingPhotos()"
+                (filesAdded)="addBuildingPhotos($event)"
+                (photoRemoved)="removeBuildingPhoto($event)"
+              />
+            </div>
+          </div>
+        </ui-card>
+      }
+
+      @if ((orderType() === 'repair' || orderType() === 'inspection') && selectedCustomer()) {
+        <ui-card>
+          <div card-header>
+            <h2 class="text-h3 text-text-main">
+              {{
+                (orderType() === 'repair'
+                  ? 'serviceOrders.create.sections.repair'
+                  : 'serviceOrders.create.sections.inspection'
+                ) | transloco
+              }}
+            </h2>
+            <p class="mt-1 text-small text-text-muted">
+              {{
+                (orderType() === 'repair'
+                  ? 'serviceOrders.create.devices.repairDescription'
+                  : 'serviceOrders.create.devices.inspectionDescription'
+                ) | transloco
+              }}
+            </p>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            @if (canPickExistingDevices()) {
+              <ui-button size="lg" variant="secondary" (pressed)="isDevicePickerOpen.set(true)">
+                {{ 'serviceOrders.create.actions.chooseDevices' | transloco }}
+              </ui-button>
+            }
+            <ui-button size="lg" variant="ghost" (pressed)="openNewDeviceForm()">
+              <ui-icon button-icon name="plus" />
+              {{ 'serviceOrders.create.actions.addDevice' | transloco }}
+            </ui-button>
+          </div>
+
+          @if (!canPickExistingDevices() && !isNewCustomer()) {
+            <p class="mt-3 text-small text-text-muted">
+              {{ 'serviceOrders.create.devices.noExistingDevices' | transloco }}
+            </p>
+          }
+
+          @if (deviceEntries().length) {
+            <div class="mt-4 space-y-3">
+              @for (entry of deviceEntries(); track entry.key) {
+                <article class="rounded-field border border-border bg-surface px-4 py-4">
+                  <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div class="min-w-0">
+                      <p class="truncate text-body font-semibold text-text-main">
+                        {{ entry.label }}
+                      </p>
+                      <p class="mt-1 line-clamp-2 text-small text-text-muted">
+                        {{ entry.description }}
+                      </p>
+                      <p class="mt-1 text-small font-medium text-brand">
+                        {{
+                          (entry.existingDeviceId
+                            ? 'serviceOrders.create.devices.existingBadge'
+                            : 'serviceOrders.create.devices.newBadge'
+                          ) | transloco
+                        }}
+                      </p>
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+                      @if (entry.newDevice) {
+                        <ui-button size="lg" variant="ghost" (pressed)="openDeviceEditForm(entry)">
+                          {{ 'common.actions.edit' | transloco }}
+                        </ui-button>
+                      }
+                      <ui-button size="lg" variant="ghost" (pressed)="removeDevice(entry)">
+                        {{ 'visits.actions.remove' | transloco }}
+                      </ui-button>
+                    </div>
+                  </div>
+
+                  @if (orderType() === 'repair') {
+                    <div class="mt-5 grid gap-5 border-t border-border pt-5 lg:grid-cols-2">
+                      <div class="space-y-1.5">
+                        <label
+                          class="text-label text-text-muted"
+                          [attr.for]="'service-order-issue-' + entry.key"
+                        >
+                          {{ 'serviceOrders.create.devices.reportedIssue' | transloco }}
+                        </label>
+                        <textarea
+                          [id]="'service-order-issue-' + entry.key"
+                          [class]="textareaClasses"
+                          [placeholder]="
+                            'serviceOrders.create.devices.reportedIssuePlaceholder' | transloco
+                          "
+                          [value]="reportedIssues()[entry.key] || ''"
+                          (input)="setReportedIssue(entry.key, $any($event.target).value)"
+                        ></textarea>
+                      </div>
+
+                      <app-service-order-attachment-picker
+                        [label]="'serviceOrders.create.photos.deviceLabel' | transloco"
+                        [hint]="'serviceOrders.create.photos.deviceHint' | transloco"
+                        [photos]="photosForDevice(entry.key)"
+                        (filesAdded)="addDevicePhotos(entry.key, $event)"
+                        (photoRemoved)="removeDevicePhoto(entry.key, $event)"
+                      />
+                    </div>
+                  }
+                </article>
+              }
+            </div>
+          } @else if (submitAttempted()) {
+            <div
+              class="mt-4 rounded-field border border-danger/30 bg-danger-soft px-4 py-3 text-body text-danger"
+              role="alert"
+            >
+              {{ 'serviceOrders.create.validation.deviceRequired' | transloco }}
+            </div>
+          }
+        </ui-card>
+      }
+
+      @if (orderType() && selectedCustomer()) {
+        <ui-card>
+          <div card-header>
+            <h2 class="text-h3 text-text-main">
+              {{ 'serviceOrders.create.sections.note' | transloco }}
+            </h2>
+          </div>
+
+          <textarea
+            id="service-order-note"
+            [class]="textareaClasses"
+            [attr.aria-label]="'serviceOrders.create.sections.note' | transloco"
+            [placeholder]="'serviceOrders.create.fields.notePlaceholder' | transloco"
+            formControlName="note"
+          ></textarea>
+        </ui-card>
+      }
+    </div>
+
+    <div class="grid gap-3 border-t border-border pt-4 sm:flex sm:justify-end">
+      <ui-button size="lg" variant="ghost" [block]="true" (pressed)="navigateToOrders()">
+        {{ 'common.actions.cancel' | transloco }}
+      </ui-button>
+      <ui-button size="lg" type="submit" [block]="true">
+        {{ 'serviceOrders.create.actions.save' | transloco }}
+      </ui-button>
+    </div>
+  </form>
+
+  <app-visit-customer-picker-modal
+    [open]="isCustomerPickerOpen()"
+    [customers]="customers()"
+    (close)="isCustomerPickerOpen.set(false)"
+    (customerSelected)="selectCustomer($event)"
+  />
+
+  <app-customer-form-modal
+    [open]="isCustomerFormOpen()"
+    [initialValue]="customerFormInitialValue()"
+    [modalTitle]="
+      customerFormMode() === 'edit'
+        ? ('serviceOrders.create.customer.editTitle' | transloco)
+        : ('serviceOrders.create.customer.createTitle' | transloco)
+    "
+    [modalDescription]="
+      customerFormMode() === 'edit'
+        ? ('serviceOrders.create.customer.editDescription' | transloco)
+        : ('serviceOrders.create.customer.createDescription' | transloco)
+    "
+    [submitLabel]="
+      customerFormMode() === 'edit'
+        ? ('common.actions.saveChanges' | transloco)
+        : ('serviceOrders.create.actions.addCustomer' | transloco)
+    "
+    (close)="closeCustomerForm()"
+    (save)="handleCustomerFormSave($event)"
+  />
+
+  <app-visit-device-picker-modal
+    [open]="isDevicePickerOpen()"
+    [customer]="selectedCustomer() ?? null"
+    [selectedDeviceIds]="selectedExistingDeviceIds()"
+    (close)="isDevicePickerOpen.set(false)"
+    (selectionSaved)="handleDeviceSelection($event)"
+  />
+
+  <app-device-form-modal
+    [open]="isDeviceFormOpen()"
+    [initialValue]="deviceFormInitialValue()"
+    [modalTitle]="
+      editingDeviceEntry()
+        ? ('serviceOrders.create.devices.editTitle' | transloco)
+        : ('serviceOrders.create.devices.createTitle' | transloco)
+    "
+    [modalDescription]="'serviceOrders.create.devices.formDescription' | transloco"
+    [submitLabel]="
+      editingDeviceEntry()
+        ? ('common.actions.saveChanges' | transloco)
+        : ('serviceOrders.create.actions.addDevice' | transloco)
+    "
+    (close)="closeDeviceForm()"
+    (save)="handleDeviceFormSave($event)"
+  />
+</div>

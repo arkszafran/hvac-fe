@@ -24,4 +24,48 @@ describe('ServiceOrdersStore', () => {
     expect(updatedOrder?.status).toBe(originalOrder?.status);
     expect(updatedOrder?.nextContactAt).toBe('2026-05-11T14:30');
   });
+
+  it('creates a scheduled installation order for an existing customer', () => {
+    const order = store.createOrder({
+      customerId: 'customer-01',
+      scheduledAt: '2026-08-20T11:30',
+      serviceData: {
+        type: 'installation',
+        buildingType: 'house',
+        rooms: [
+          {
+            id: 'room-test',
+            area: 24,
+            height: 2.6,
+            outdoorUnitPlace: 'wall',
+            estimatedDistanceToOutdoorUnit: 5,
+            floor: 1,
+            photos: [],
+          },
+        ],
+        photos: [],
+      },
+    });
+
+    expect(order).toMatchObject({
+      customerId: 'customer-01',
+      type: 'installation',
+      source: 'user',
+      status: 'scheduled',
+      scheduledAt: '2026-08-20T11:30',
+    });
+    expect(store.getOrderById(order?.id ?? '')).toEqual(order);
+  });
+
+  it('does not create a repair order without devices', () => {
+    const order = store.createOrder({
+      customerId: 'customer-01',
+      serviceData: {
+        type: 'repair',
+        devices: [],
+      },
+    });
+
+    expect(order).toBeUndefined();
+  });
 });
