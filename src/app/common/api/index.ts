@@ -4,4 +4,7 @@ export * from './api-error.mapper';
 export * from './api-error.model';
 export * from './api-response.model';
 export * from './authentication';
+export * from './customers';
+export * from './devices';
+export * from './service-orders';
 export * from './users';

@@ -15,6 +15,7 @@ import {
   SKIP_GLOBAL_LOADER,
 } from '../api/api-context.tokens';
 import { AppLoaderService } from '../loader/app-loader.service';
+import { TenantStore } from '../tenancy';
 import { ToastService } from '../../ui/toast/toast.service';
 
 const ACCOUNT_BLOCKED_ERROR_CODES = new Set(['LOGIN_RETRIES_LIMIT_REACHED', 'ACCOUNT_BLOCKED']);
@@ -23,30 +24,35 @@ const PIN_REQUIRED_ERROR_CODE = 'PIN_REQUIRED';
 
 export const apiInterceptor: HttpInterceptorFn = (request, next) => {
   const authService = inject(AuthService);
+  const tenantStore = inject(TenantStore);
   const loader = inject(AppLoaderService);
   const router = inject(Router);
   const toast = inject(ToastService);
   const transloco = inject(TranslocoService);
-  const shouldShowLoader = !request.context.get(SKIP_GLOBAL_LOADER);
+  const requestWithTenant = addTenantHeader(request, tenantStore.selectedTenant()?.id ?? null);
+  const shouldShowLoader = !requestWithTenant.context.get(SKIP_GLOBAL_LOADER);
 
   if (shouldShowLoader) {
     loader.show();
   }
 
-  return next(request).pipe(
+  return next(requestWithTenant).pipe(
     catchError((error: unknown) => {
       const apiError = mapApiError(error);
 
       if (isImmediateAuthRedirectError(apiError)) {
-        return handleApiError(apiError, request, router, toast, authService, transloco);
+        return handleApiError(apiError, requestWithTenant, router, toast, authService, transloco);
       }
 
-      if (readRedirectTo(apiError.details) !== null && !request.context.get(SKIP_API_REDIRECT)) {
-        return handleApiError(apiError, request, router, toast, authService, transloco);
+      if (
+        readRedirectTo(apiError.details) !== null &&
+        !requestWithTenant.context.get(SKIP_API_REDIRECT)
+      ) {
+        return handleApiError(apiError, requestWithTenant, router, toast, authService, transloco);
       }
 
-      if (!shouldRefreshSession(request, apiError)) {
-        return handleApiError(apiError, request, router, toast, authService, transloco);
+      if (!shouldRefreshSession(requestWithTenant, apiError)) {
+        return handleApiError(apiError, requestWithTenant, router, toast, authService, transloco);
       }
 
       return authService.refreshSession().pipe(
@@ -54,17 +60,29 @@ export const apiInterceptor: HttpInterceptorFn = (request, next) => {
           const refreshApiError = mapApiError(refreshError);
 
           if (isImmediateAuthRedirectError(refreshApiError)) {
-            return handleApiError(refreshApiError, request, router, toast, authService, transloco);
+            return handleApiError(
+              refreshApiError,
+              requestWithTenant,
+              router,
+              toast,
+              authService,
+              transloco,
+            );
           }
 
-          return handleApiError(apiError, request, router, toast, authService, transloco);
+          return handleApiError(apiError, requestWithTenant, router, toast, authService, transloco);
         }),
         switchMap(() =>
-          next(markRequestAsAuthRetried(request)).pipe(
+          next(
+            addTenantHeader(
+              markRequestAsAuthRetried(requestWithTenant),
+              tenantStore.selectedTenant()?.id ?? null,
+            ),
+          ).pipe(
             catchError((retryError: unknown) =>
               handleApiError(
                 mapApiError(retryError),
-                request,
+                requestWithTenant,
                 router,
                 toast,
                 authService,
@@ -82,6 +100,18 @@ export const apiInterceptor: HttpInterceptorFn = (request, next) => {
     }),
   );
 };
+
+function addTenantHeader<T>(request: HttpRequest<T>, tenantId: string | null): HttpRequest<T> {
+  if (!tenantId || readApiEndpointPath(request.url) === null) {
+    return request;
+  }
+
+  return request.clone({
+    setHeaders: {
+      'x-tenant-id': tenantId,
+    },
+  });
+}
 
 function isAccountBlockedError(apiError: ApiError): boolean {
   return ACCOUNT_BLOCKED_ERROR_CODES.has(apiError.code);
@@ -122,7 +152,9 @@ function handleApiError(
   }
 
   if (!request.context.get(SKIP_ERROR_TOAST)) {
-    toast.error(apiError.message || transloco.translate(apiError.messageKey ?? 'api.errors.unknown'));
+    toast.error(
+      apiError.message || transloco.translate(apiError.messageKey ?? 'api.errors.unknown'),
+    );
   }
 
   return throwError(() => apiError);
@@ -189,8 +221,7 @@ function matchesPathPrefix(path: string, pathPrefix: string): boolean {
   const normalizedPathPrefix = normalizePath(pathPrefix);
 
   return (
-    normalizedPath === normalizedPathPrefix ||
-    normalizedPath.startsWith(`${normalizedPathPrefix}/`)
+    normalizedPath === normalizedPathPrefix || normalizedPath.startsWith(`${normalizedPathPrefix}/`)
   );
 }
 

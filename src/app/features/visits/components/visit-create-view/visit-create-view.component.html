@@ -264,6 +264,21 @@
         </ui-card>
       }
 
+      <ui-card>
+        <div card-header>
+          <h2 class="text-h3 text-text-main">
+            {{ 'visits.create.sections.photos' | transloco }}
+          </h2>
+        </div>
+
+        <ui-photo-capture
+          [hint]="'visits.create.photosHint' | transloco"
+          [photos]="visitPhotos()"
+          (filesAdded)="addVisitPhotos($event)"
+          (photoRemoved)="removeVisitPhoto($event)"
+        />
+      </ui-card>
+
       @if (visitType() === 'inspection') {
         <ui-card>
           <div card-header>

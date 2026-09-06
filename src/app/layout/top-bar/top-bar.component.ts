@@ -13,6 +13,7 @@ import { TranslocoPipe } from '@jsverse/transloco';
 import { finalize } from 'rxjs';
 
 import { AuthService } from '../../common/authentication';
+import { TenantSwitcherComponent } from '../../features/tenants/components/tenant-switcher/tenant-switcher.component';
 import { UiMenuComponent } from '../../ui';
 import { APP_PRODUCT_NAME } from '../app-navigation';
 import { AppLanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
@@ -24,6 +25,7 @@ import { AppLayoutIconComponent } from '../layout-icon/layout-icon.component';
     RouterLink,
     TranslocoPipe,
     UiMenuComponent,
+    TenantSwitcherComponent,
     AppLanguageSwitcherComponent,
     AppLayoutIconComponent,
   ],

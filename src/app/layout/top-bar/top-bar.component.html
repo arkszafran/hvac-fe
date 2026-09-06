@@ -1,5 +1,9 @@
-<header class="sticky top-0 z-40 border-b border-border/85 bg-[rgb(250_252_255/0.9)] backdrop-blur-xl">
-  <div class="ui-shell flex h-16 items-center justify-between gap-3">
+<header
+  class="sticky top-0 z-40 border-b border-border/85 bg-[rgb(250_252_255/0.9)] backdrop-blur-xl"
+>
+  <div
+    class="ui-shell flex min-h-16 flex-wrap items-center justify-between gap-3 py-2 md:flex-nowrap"
+  >
     <div class="flex min-w-0 items-center gap-2 sm:gap-3">
       <button
         type="button"
@@ -28,13 +32,15 @@
       </a>
     </div>
 
+    <app-tenant-switcher />
+
     <div class="flex items-center gap-2">
       <app-language-switcher />
 
       <button
         type="button"
         [attr.aria-label]="'layout.topBar.notifications' | transloco"
-        class="ui-focus-ring inline-flex size-11 items-center justify-center rounded-[0.95rem] border border-border/90 bg-white text-text-muted shadow-[0_14px_34px_-24px_rgb(15_23_42/0.22)] backdrop-blur-xl transition hover:border-primary/18 hover:bg-primary-soft/45 hover:text-primary-strong active:bg-primary-soft/55"
+        class="ui-focus-ring hidden size-11 items-center justify-center rounded-[0.95rem] border border-border/90 bg-white text-text-muted shadow-[0_14px_34px_-24px_rgb(15_23_42/0.22)] backdrop-blur-xl transition hover:border-primary/18 hover:bg-primary-soft/45 hover:text-primary-strong active:bg-primary-soft/55 sm:inline-flex"
       >
         <app-layout-icon name="bell" />
       </button>

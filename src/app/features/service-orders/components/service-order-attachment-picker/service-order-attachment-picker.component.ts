@@ -1,12 +1,10 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { TranslocoPipe } from '@jsverse/transloco';
-
-import { UiButtonComponent, UiFileInputComponent } from '../../../../ui';
+import { UiPhotoCaptureComponent } from '../../../../ui';
 import { ServiceOrderAttachment } from '../../models/service-order.model';
 
 @Component({
   selector: 'app-service-order-attachment-picker',
-  imports: [TranslocoPipe, UiButtonComponent, UiFileInputComponent],
+  imports: [UiPhotoCaptureComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './service-order-attachment-picker.component.html',
 })

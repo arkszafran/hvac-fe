@@ -48,6 +48,13 @@
       "notifications": "Powiadomienia",
       "userProfile": "Profil użytkownika",
       "accountMenu": "Menu konta",
+      "changeTenant": "Zmień",
+      "changeTenantAria": "Zmień organizację. Obecnie wybrana: {{tenant}}",
+      "tenantModalTitle": "Zmień organizację",
+      "tenantModalDescription": "Wybierz organizację, w której kontekście chcesz pracować.",
+      "tenantListLabel": "Dostępne organizacje",
+      "selectTenantAria": "Wybierz organizację {{tenant}}",
+      "selectedTenant": "Wybrana",
       "logout": "Wyloguj",
       "loggingOut": "Wylogowywanie..."
     }
@@ -76,6 +83,29 @@
     },
     "modal": {
       "close": "Zamknij modal"
+    },
+    "photoCapture": {
+      "takePhoto": "Zrób zdjęcie",
+      "chooseExisting": "Dodaj z galerii",
+      "cameraTitle": "Aparat",
+      "cameraPreview": "Podgląd obrazu z aparatu",
+      "starting": "Uruchamianie aparatu…",
+      "capture": "Zrób zdjęcie",
+      "capturing": "Zapisywanie…",
+      "captured": "Zdjęcie zostało dodane. Możesz wykonać kolejne.",
+      "remove": "Usuń",
+      "removeAria": "Usuń zdjęcie {{name}}",
+      "openPreview": "Otwórz podgląd zdjęcia {{name}}",
+      "errors": {
+        "unsupported": "Ta przeglądarka nie obsługuje podglądu aparatu. Dodaj gotowe zdjęcie z galerii.",
+        "secureContext": "Aparat wymaga bezpiecznego połączenia HTTPS albo uruchomienia aplikacji na localhost.",
+        "permission": "Brak dostępu do aparatu. Zezwól aplikacji na użycie kamery i spróbuj ponownie.",
+        "missing": "Nie znaleziono dostępnego aparatu.",
+        "inUse": "Aparat jest używany przez inną aplikację albo kartę przeglądarki. Zamknij ją i spróbuj ponownie.",
+        "start": "Nie udało się uruchomić aparatu. Spróbuj ponownie lub dodaj zdjęcie z galerii.",
+        "notReady": "Aparat nie jest jeszcze gotowy. Poczekaj chwilę i spróbuj ponownie.",
+        "capture": "Nie udało się zapisać zdjęcia. Spróbuj ponownie."
+      }
     }
   },
   "api": {
@@ -532,6 +562,7 @@
         "typeAndDate": "Rodzaj i data wizyty",
         "customer": "Klient",
         "devicesAndNotes": "Urządzenia i notatki",
+        "photos": "Zdjęcia z wizyty",
         "nextInspection": "Planowanie kolejnego przeglądu"
       },
       "scheduledInspectionQuestion": "Czy to zaplanowany przegląd?",
@@ -539,6 +570,7 @@
       "emptyDevicesDescription": "Dobierz istniejące urządzenia klienta albo dodaj nowe.",
       "commonNoteLabel": "Jedna notatka dla wszystkich urządzeń",
       "commonNoteDescription": "Po odznaczeniu pokażemy osobną notatkę przy każdym urządzeniu.",
+      "photosHint": "Wykonaj zdjęcia na miejscu albo dodaj wcześniej zapisane obrazy. Zdjęcia będą widoczne w historii urządzeń.",
       "scheduleNextLabel": "Zaplanować kolejny przegląd",
       "scheduleNextDescription": "Zapis aktualizuje datę na urządzeniach i tworzy nowy obiekt przeglądu.",
       "newDevice": "Nowe urządzenie",
@@ -796,7 +828,8 @@
     },
     "outdoorUnitPlaces": {
       "wall": "Ściana",
-      "balcony": "Balkon"
+      "balcony": "Balkon",
+      "roof": "Dach"
     },
     "details": {
       "backToList": "Wróć do zleceń",
@@ -840,6 +873,7 @@
       "noDevicePhotos": "Nie dodano zdjęć tego urządzenia.",
       "noDevices": "Brak urządzeń przypisanych do tego przeglądu.",
       "notesTitle": "Historia notatek",
+      "notePhotos": "Zdjęcia do notatki",
       "noNotes": "Do tego zlecenia nie dodano jeszcze notatek.",
       "relatedVisitsTitle": "Powiązane wizyty",
       "notFoundTitle": "Nie znaleziono zlecenia",
@@ -855,7 +889,9 @@
       "description": "Zapisz rozmowę, oględziny albo inne ustalenia dotyczące zlecenia.",
       "label": "Treść notatki",
       "placeholder": "Wpisz najważniejsze ustalenia",
-      "validation": "Treść notatki jest wymagana."
+      "validation": "Treść notatki jest wymagana.",
+      "photosLabel": "Zdjęcia do notatki",
+      "photosHint": "Wykonaj zdjęcia telefonem albo dodaj gotowe obrazy. Zostaną zapisane razem z tą notatką."
     },
     "notePreview": {
       "title": "Notatka do zlecenia"
@@ -1108,6 +1144,8 @@
       "entriesCount": "{{count}} wpisy",
       "noServiceHistoryTitle": "Brak wpisów w historii urządzenia",
       "noServiceHistoryDescription": "Po wykonaniu pierwszych wizyt serwisowych zobaczysz tutaj pełną historię urządzenia.",
+      "visitPhotos": "Zdjęcia z wizyty",
+      "openVisitPhotoAria": "Otwórz zdjęcie z wizyty: {{name}}",
       "notFoundDeviceTitle": "Nie znaleźliśmy tego urządzenia",
       "notFoundDeviceDescription": "Sprawdź identyfikator albo wróć do listy urządzeń.",
       "notFoundCustomerDeviceDescription": "Sprawdź identyfikator albo wróć do listy urządzeń klienta.",

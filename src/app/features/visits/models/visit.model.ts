@@ -1,5 +1,7 @@
 import { TranslocoService } from '@jsverse/transloco';
 
+import type { PhotoAttachment } from '../../../common/models/photo-attachment.model';
+
 export type VisitType = 'installation' | 'repair' | 'inspection';
 
 export interface DeviceNote {
@@ -16,6 +18,7 @@ export interface Visit {
   date: string;
   type: VisitType;
   devicesNotes: DeviceNote[];
+  photos: PhotoAttachment[];
   createdAt: string;
 }
 
@@ -26,6 +29,7 @@ export interface VisitDraft {
   date: string;
   type: VisitType;
   devicesNotes: DeviceNote[];
+  photos: PhotoAttachment[];
 }
 
 export interface VisitTypeOption {

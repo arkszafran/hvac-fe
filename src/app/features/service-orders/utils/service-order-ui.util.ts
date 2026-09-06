@@ -50,6 +50,7 @@ const BUILDING_TYPE_LABEL_KEYS: Record<ServiceOrderBuildingType, string> = {
 const OUTDOOR_UNIT_PLACE_LABEL_KEYS: Record<ServiceOrderOutdoorUnitPlace, string> = {
   wall: 'serviceOrders.outdoorUnitPlaces.wall',
   balcony: 'serviceOrders.outdoorUnitPlaces.balcony',
+  roof: 'serviceOrders.outdoorUnitPlaces.roof',
 };
 
 export function getServiceOrderTypeLabel(

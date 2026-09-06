@@ -11,6 +11,11 @@ import { Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import {
+  createPhotoAttachments,
+  removePhotoAttachment,
+  revokePhotoAttachments,
+} from '../../../../common/models/photo-attachment.model';
+import {
   ToastService,
   UiButtonComponent,
   UiCardComponent,
@@ -240,6 +245,10 @@ export class ServiceOrderCreateViewComponent {
         value: 'balcony',
         label: this.transloco.translate('serviceOrders.outdoorUnitPlaces.balcony'),
       },
+      {
+        value: 'roof',
+        label: this.transloco.translate('serviceOrders.outdoorUnitPlaces.roof'),
+      },
     ];
   });
   protected readonly hasValidationErrors = computed(() => {
@@ -389,15 +398,18 @@ export class ServiceOrderCreateViewComponent {
   }
 
   protected addBuildingPhotos(files: File[]): void {
-    this.buildingPhotos.update((photos) => [...photos, ...createAttachments(files)]);
+    this.buildingPhotos.update((photos) => [
+      ...photos,
+      ...createPhotoAttachments(files, 'order-photo'),
+    ]);
   }
 
   protected removeBuildingPhoto(photoId: string): void {
-    this.buildingPhotos.update((photos) => removeAttachment(photos, photoId));
+    this.buildingPhotos.update((photos) => removePhotoAttachment(photos, photoId));
   }
 
   protected addRoomPhotos(roomId: string, files: File[]): void {
-    const attachments = createAttachments(files);
+    const attachments = createPhotoAttachments(files, 'order-photo');
 
     this.roomPhotos.update((photos) => ({
       ...photos,
@@ -408,12 +420,12 @@ export class ServiceOrderCreateViewComponent {
   protected removeRoomPhoto(roomId: string, photoId: string): void {
     this.roomPhotos.update((photos) => ({
       ...photos,
-      [roomId]: removeAttachment(photos[roomId] ?? [], photoId),
+      [roomId]: removePhotoAttachment(photos[roomId] ?? [], photoId),
     }));
   }
 
   protected addDevicePhotos(deviceKey: string, files: File[]): void {
-    const attachments = createAttachments(files);
+    const attachments = createPhotoAttachments(files, 'order-photo');
 
     this.devicePhotos.update((photos) => ({
       ...photos,
@@ -424,7 +436,7 @@ export class ServiceOrderCreateViewComponent {
   protected removeDevicePhoto(deviceKey: string, photoId: string): void {
     this.devicePhotos.update((photos) => ({
       ...photos,
-      [deviceKey]: removeAttachment(photos[deviceKey] ?? [], photoId),
+      [deviceKey]: removePhotoAttachment(photos[deviceKey] ?? [], photoId),
     }));
   }
 
@@ -633,7 +645,7 @@ export class ServiceOrderCreateViewComponent {
 
   private resetDeviceSelection(): void {
     for (const photos of Object.values(this.devicePhotos())) {
-      revokeAttachments(photos);
+      revokePhotoAttachments(photos);
     }
 
     this.selectedExistingDeviceIds.set([]);
@@ -645,7 +657,7 @@ export class ServiceOrderCreateViewComponent {
   private clearRoomPhotos(roomId: string): void {
     const photosToRemove = this.roomPhotos()[roomId] ?? [];
 
-    revokeAttachments(photosToRemove);
+    revokePhotoAttachments(photosToRemove);
     this.roomPhotos.update((photos) => {
       const { [roomId]: _removed, ...remainingPhotos } = photos;
 
@@ -656,7 +668,7 @@ export class ServiceOrderCreateViewComponent {
   private clearDevicePhotos(deviceKey: string): void {
     const photosToRemove = this.devicePhotos()[deviceKey] ?? [];
 
-    revokeAttachments(photosToRemove);
+    revokePhotoAttachments(photosToRemove);
     this.devicePhotos.update((photos) => {
       const { [deviceKey]: _removed, ...remainingPhotos } = photos;
 
@@ -697,33 +709,4 @@ export class ServiceOrderCreateViewComponent {
 
 function createTempId(prefix: string): string {
   return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-}
-
-function createAttachments(files: File[]): ServiceOrderAttachment[] {
-  return files
-    .filter((file) => file.type.startsWith('image/'))
-    .map((file) => ({
-      id: createTempId('order-photo'),
-      fileName: file.name,
-      url: URL.createObjectURL(file),
-    }));
-}
-
-function removeAttachment(
-  attachments: ServiceOrderAttachment[],
-  attachmentId: string,
-): ServiceOrderAttachment[] {
-  const attachment = attachments.find((item) => item.id === attachmentId);
-
-  if (attachment) {
-    URL.revokeObjectURL(attachment.url);
-  }
-
-  return attachments.filter((item) => item.id !== attachmentId);
-}
-
-function revokeAttachments(attachments: ServiceOrderAttachment[]): void {
-  for (const attachment of attachments) {
-    URL.revokeObjectURL(attachment.url);
-  }
 }

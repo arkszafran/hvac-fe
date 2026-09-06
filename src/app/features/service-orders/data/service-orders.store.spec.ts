@@ -68,4 +68,21 @@ describe('ServiceOrdersStore', () => {
 
     expect(order).toBeUndefined();
   });
+
+  it('keeps photos attached to the note they were added with', () => {
+    const photo = {
+      id: 'note-photo-1',
+      fileName: 'inspection.jpg',
+      url: 'blob:inspection-photo',
+    };
+
+    const note = store.addNote('inspection-01', 'Inspection arrangements', [photo]);
+    const details = store.getOrderDetailsById('inspection-01');
+
+    expect(note?.photos).toEqual([photo]);
+    expect(details?.notes.find((item) => item.id === note?.id)?.photos).toEqual([photo]);
+    expect(
+      details?.notes.filter((item) => item.id !== note?.id).every((item) => !item.photos.length),
+    ).toBe(true);
+  });
 });

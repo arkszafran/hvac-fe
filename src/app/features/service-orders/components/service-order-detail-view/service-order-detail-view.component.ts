@@ -11,6 +11,7 @@ import {
   UiEmptyStateComponent,
   UiIconComponent,
   UiModalComponent,
+  UiPhotoGalleryComponent,
 } from '../../../../ui';
 import { UiMapPinIconComponent } from '../../../../ui/map-pin-icon/map-pin-icon.component';
 import { classNames } from '../../../../ui/utils/classnames';
@@ -39,7 +40,10 @@ import {
   ServiceOrderNextContactFormValue,
   ServiceOrderNextContactModalComponent,
 } from '../service-order-next-contact-modal/service-order-next-contact-modal.component';
-import { ServiceOrderNoteModalComponent } from '../service-order-note-modal/service-order-note-modal.component';
+import {
+  ServiceOrderNoteFormValue,
+  ServiceOrderNoteModalComponent,
+} from '../service-order-note-modal/service-order-note-modal.component';
 import { ServiceOrderRepairDetailsComponent } from '../service-order-repair-details/service-order-repair-details.component';
 import { ServiceOrderScheduleModalComponent } from '../service-order-schedule-modal/service-order-schedule-modal.component';
 
@@ -54,6 +58,7 @@ import { ServiceOrderScheduleModalComponent } from '../service-order-schedule-mo
     UiIconComponent,
     UiMapPinIconComponent,
     UiModalComponent,
+    UiPhotoGalleryComponent,
     ServiceOrderActionsMenuComponent,
     ServiceOrderAssigneeModalComponent,
     ServiceOrderInspectionDetailsComponent,
@@ -196,8 +201,8 @@ export class ServiceOrderDetailViewComponent {
     this.isNoteModalOpen.set(true);
   }
 
-  protected saveNote(content: string): void {
-    this.store.addNote(this.orderId(), content);
+  protected saveNote(value: ServiceOrderNoteFormValue): void {
+    this.store.addNote(this.orderId(), value.content, value.photos);
     this.isNoteModalOpen.set(false);
   }
 

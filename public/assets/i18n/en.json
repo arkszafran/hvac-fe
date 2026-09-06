@@ -48,6 +48,13 @@
       "notifications": "Notifications",
       "userProfile": "User profile",
       "accountMenu": "Account menu",
+      "changeTenant": "Change",
+      "changeTenantAria": "Change organization. Currently selected: {{tenant}}",
+      "tenantModalTitle": "Change organization",
+      "tenantModalDescription": "Choose the organization whose context you want to work in.",
+      "tenantListLabel": "Available organizations",
+      "selectTenantAria": "Select organization {{tenant}}",
+      "selectedTenant": "Selected",
       "logout": "Log out",
       "loggingOut": "Logging out..."
     }
@@ -76,6 +83,29 @@
     },
     "modal": {
       "close": "Close modal"
+    },
+    "photoCapture": {
+      "takePhoto": "Take a photo",
+      "chooseExisting": "Add from gallery",
+      "cameraTitle": "Camera",
+      "cameraPreview": "Live camera preview",
+      "starting": "Starting the camera…",
+      "capture": "Take photo",
+      "capturing": "Saving…",
+      "captured": "The photo was added. You can take another one.",
+      "remove": "Remove",
+      "removeAria": "Remove photo {{name}}",
+      "openPreview": "Open photo preview {{name}}",
+      "errors": {
+        "unsupported": "This browser does not support a live camera preview. Add an existing photo from the gallery.",
+        "secureContext": "Camera access requires a secure HTTPS connection or running the application on localhost.",
+        "permission": "Camera access was denied. Allow camera access and try again.",
+        "missing": "No available camera was found.",
+        "inUse": "The camera is being used by another application or browser tab. Close it and try again.",
+        "start": "The camera could not be started. Try again or add a photo from the gallery.",
+        "notReady": "The camera is not ready yet. Wait a moment and try again.",
+        "capture": "The photo could not be saved. Try again."
+      }
     }
   },
   "api": {
@@ -532,6 +562,7 @@
         "typeAndDate": "Visit type and date",
         "customer": "Customer",
         "devicesAndNotes": "Devices and notes",
+        "photos": "Visit photos",
         "nextInspection": "Next inspection planning"
       },
       "scheduledInspectionQuestion": "Is this a scheduled inspection?",
@@ -539,6 +570,7 @@
       "emptyDevicesDescription": "Select existing customer devices or add new ones.",
       "commonNoteLabel": "One note for all devices",
       "commonNoteDescription": "After clearing this, we will show a separate note for each device.",
+      "photosHint": "Take photos on site or add previously saved images. The photos will be visible in device history.",
       "scheduleNextLabel": "Schedule the next inspection",
       "scheduleNextDescription": "Saving updates the date on devices and creates a new inspection object.",
       "newDevice": "New device",
@@ -796,7 +828,8 @@
     },
     "outdoorUnitPlaces": {
       "wall": "Wall",
-      "balcony": "Balcony"
+      "balcony": "Balcony",
+      "roof": "Roof"
     },
     "details": {
       "backToList": "Back to service orders",
@@ -840,6 +873,7 @@
       "noDevicePhotos": "No photos were added for this device.",
       "noDevices": "No devices are assigned to this inspection.",
       "notesTitle": "Notes history",
+      "notePhotos": "Note photos",
       "noNotes": "No notes have been added to this service order yet.",
       "relatedVisitsTitle": "Related visits",
       "notFoundTitle": "Service order not found",
@@ -855,7 +889,9 @@
       "description": "Record a call, site survey, or other service order arrangements.",
       "label": "Note",
       "placeholder": "Enter the most important arrangements",
-      "validation": "A note is required."
+      "validation": "A note is required.",
+      "photosLabel": "Photos for this note",
+      "photosHint": "Take photos with your phone or add existing images. They will be saved with this note."
     },
     "notePreview": {
       "title": "Service order note"
@@ -1108,6 +1144,8 @@
       "entriesCount": "{{count}} entries",
       "noServiceHistoryTitle": "No entries in the device history",
       "noServiceHistoryDescription": "After the first service visits are completed, you will see the full device history here.",
+      "visitPhotos": "Visit photos",
+      "openVisitPhotoAria": "Open visit photo: {{name}}",
       "notFoundDeviceTitle": "We could not find this device",
       "notFoundDeviceDescription": "Check the identifier or return to the device list.",
       "notFoundCustomerDeviceDescription": "Check the identifier or return to the customer's device list.",

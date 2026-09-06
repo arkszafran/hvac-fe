@@ -9,6 +9,7 @@ import {
   UiButtonComponent,
   UiEmptyStateComponent,
   UiIconComponent,
+  UiPhotoGalleryComponent,
 } from '../../ui';
 import { ServiceOrderCandidatePickerModalComponent } from '../service-orders/components/service-order-candidate-picker-modal/service-order-candidate-picker-modal.component';
 import { ServiceOrderLinkProposalModalComponent } from '../service-orders/components/service-order-link-proposal-modal/service-order-link-proposal-modal.component';
@@ -44,6 +45,7 @@ interface DeviceDetailItem {
     UiButtonComponent,
     UiEmptyStateComponent,
     UiIconComponent,
+    UiPhotoGalleryComponent,
     DeviceFormModalComponent,
     DeviceNextInspectionModalComponent,
     ServiceOrderLinkProposalModalComponent,

@@ -12,6 +12,8 @@ export * from './menu/menu.component';
 export * from './modal/modal.component';
 export * from './multiselect/multiselect.component';
 export * from './page-header/page-header.component';
+export * from './photo-capture/photo-capture.component';
+export * from './photo-gallery/photo-gallery.component';
 export * from './select/select.component';
 export * from './table/table.component';
 export * from './tabs/tabs.component';

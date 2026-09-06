@@ -1,0 +1,64 @@
+@if (selectedTenant(); as currentTenant) {
+  <div class="flex min-w-0 items-center justify-end gap-2 md:max-w-72">
+    <span class="min-w-0 truncate text-label font-semibold text-text-main">
+      {{ currentTenant.name }}
+    </span>
+
+    <button
+      type="button"
+      class="ui-focus-ring inline-flex min-h-11 shrink-0 items-center px-1 text-small font-semibold text-primary-strong underline decoration-primary/35 underline-offset-4 transition hover:text-primary active:text-primary motion-reduce:transition-none"
+      [attr.aria-label]="
+        'layout.topBar.changeTenantAria' | transloco: { tenant: currentTenant.name }
+      "
+      aria-haspopup="dialog"
+      [attr.aria-expanded]="isModalOpen()"
+      (click)="isModalOpen.set(true)"
+    >
+      {{ 'layout.topBar.changeTenant' | transloco }}
+    </button>
+  </div>
+
+  <ui-modal
+    [open]="isModalOpen() && hasMultipleTenants()"
+    [title]="'layout.topBar.tenantModalTitle' | transloco"
+    [description]="'layout.topBar.tenantModalDescription' | transloco"
+    (close)="isModalOpen.set(false)"
+  >
+    <div
+      class="space-y-3"
+      role="group"
+      [attr.aria-label]="'layout.topBar.tenantListLabel' | transloco"
+    >
+      @for (tenant of tenants(); track tenant.id) {
+        <button
+          type="button"
+          class="ui-focus-ring flex min-h-14 w-full items-center justify-between gap-4 rounded-[1rem] border bg-white p-4 text-left transition hover:border-primary/45 hover:bg-primary-soft/35 active:bg-primary-soft/55 motion-reduce:transition-none"
+          [class.border-primary]="tenant.id === currentTenant.id"
+          [class.bg-primary-soft]="tenant.id === currentTenant.id"
+          [class.border-border]="tenant.id !== currentTenant.id"
+          [attr.aria-pressed]="tenant.id === currentTenant.id"
+          [attr.aria-label]="'layout.topBar.selectTenantAria' | transloco: { tenant: tenant.name }"
+          (click)="selectTenant(tenant)"
+        >
+          <span class="min-w-0 truncate text-label font-semibold text-text-main">
+            {{ tenant.name }}
+          </span>
+
+          @if (tenant.id === currentTenant.id) {
+            <span
+              class="shrink-0 rounded-full bg-primary px-2.5 py-1 text-[11px] font-semibold text-white"
+            >
+              {{ 'layout.topBar.selectedTenant' | transloco }}
+            </span>
+          }
+        </button>
+      }
+    </div>
+
+    <div modal-footer>
+      <ui-button type="button" variant="ghost" [block]="true" (pressed)="isModalOpen.set(false)">
+        {{ 'common.actions.close' | transloco }}
+      </ui-button>
+    </div>
+  </ui-modal>
+}

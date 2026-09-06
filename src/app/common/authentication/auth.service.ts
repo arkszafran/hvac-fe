@@ -18,6 +18,7 @@ import {
   type PinLoginDto,
 } from '../api/authentication';
 import { environment } from '../../../environments/environment';
+import { TenantStore } from '../tenancy';
 import { AuthRedirectService } from './auth-redirect.service';
 
 const NEW_USER_SETUP_PATH = 'setup-new-credentails';
@@ -33,6 +34,7 @@ interface SessionHandlingOptions {
 export class AuthService {
   private readonly authenticationApi = inject(AuthenticationApi);
   private readonly authRedirectService = inject(AuthRedirectService);
+  private readonly tenantStore = inject(TenantStore);
   private readonly router = inject(Router);
   private readonly sessionUser = signal<AuthenticationSessionUserDto | null>(null);
   private readonly initialCredentialsPassword = signal<string | null>(null);
@@ -163,6 +165,7 @@ export class AuthService {
     user: AuthenticationSessionUserDto,
     options: SessionHandlingOptions,
   ): void {
+    this.tenantStore.initializeForUser(user);
     this.sessionUser.set(user);
 
     if (!options.shouldRedirect) {
@@ -173,6 +176,7 @@ export class AuthService {
   }
 
   private clearSession(): void {
+    this.tenantStore.clearSession();
     this.sessionUser.set(null);
     this.initialCredentialsPassword.set(null);
   }

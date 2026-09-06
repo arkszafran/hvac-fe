@@ -1,15 +1,29 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import {
+  createPhotoAttachments,
+  PhotoAttachment,
+  removePhotoAttachment,
+  revokePhotoAttachments,
+} from '../../../../common/models/photo-attachment.model';
+import {
   UiButtonComponent,
   UiCardComponent,
   UiEmptyStateComponent,
   UiIconComponent,
   UiInputComponent,
+  UiPhotoCaptureComponent,
   UiSelectComponent,
   UiSelectOption,
 } from '../../../../ui';
@@ -65,6 +79,7 @@ const TEXTAREA_CLASSES =
     UiEmptyStateComponent,
     UiIconComponent,
     UiInputComponent,
+    UiPhotoCaptureComponent,
     UiSelectComponent,
     CustomerFormModalComponent,
     DeviceFormModalComponent,
@@ -77,6 +92,7 @@ const TEXTAREA_CLASSES =
 })
 export class VisitCreateViewComponent {
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
   private readonly customersStore = inject(CustomersStore);
   private readonly serviceOrdersStore = inject(ServiceOrdersStore);
@@ -114,6 +130,7 @@ export class VisitCreateViewComponent {
   protected readonly commonNoteEnabled = signal(true);
   protected readonly commonNote = signal('');
   protected readonly deviceNotes = signal<Record<string, string>>({});
+  protected readonly visitPhotos = signal<PhotoAttachment[]>([]);
   protected readonly scheduleNextInspection = signal(false);
   protected readonly nextInspectionPeriod = signal('');
   protected readonly nextInspectionDate = signal('');
@@ -126,6 +143,7 @@ export class VisitCreateViewComponent {
   protected readonly isDeviceFormOpen = signal(false);
   protected readonly editingDeviceKey = signal('');
   protected readonly isScheduledInspectionPickerOpen = signal(false);
+  private isVisitSaved = false;
 
   protected readonly customers = this.customersStore.customers;
   protected readonly selectedCustomer = computed(() => {
@@ -232,6 +250,12 @@ export class VisitCreateViewComponent {
   }
 
   constructor() {
+    this.destroyRef.onDestroy(() => {
+      if (!this.isVisitSaved) {
+        revokePhotoAttachments(this.visitPhotos());
+      }
+    });
+
     const serviceOrderId = this.route.snapshot.queryParamMap.get('serviceOrderId');
 
     if (serviceOrderId) {
@@ -412,6 +436,17 @@ export class VisitCreateViewComponent {
     }));
   }
 
+  protected addVisitPhotos(files: File[]): void {
+    this.visitPhotos.update((photos) => [
+      ...photos,
+      ...createPhotoAttachments(files, 'visit-photo'),
+    ]);
+  }
+
+  protected removeVisitPhoto(photoId: string): void {
+    this.visitPhotos.update((photos) => removePhotoAttachment(photos, photoId));
+  }
+
   protected setNextInspectionPeriod(period: string): void {
     this.nextInspectionPeriod.set(period);
     this.nextInspectionDate.set(this.addMonths(this.visitDate() || this.today(), Number(period)));
@@ -485,11 +520,14 @@ export class VisitCreateViewComponent {
         deviceId,
         note: notesByDeviceId.get(deviceId) ?? '',
       })),
+      photos: this.visitPhotos(),
     });
 
     if (!visit) {
       return;
     }
+
+    this.isVisitSaved = true;
 
     if (this.sourceServiceOrderId()) {
       this.serviceOrdersStore.completeOrder(this.sourceServiceOrderId());

@@ -1,0 +1,148 @@
+<section class="space-y-3">
+  @if (label() || hint()) {
+    <div>
+      @if (label()) {
+        <h3 class="text-label text-text-main">{{ label() }}</h3>
+      }
+      @if (hint()) {
+        <p class="mt-1 text-small text-text-muted">{{ hint() }}</p>
+      }
+    </div>
+  }
+
+  @if (photos().length) {
+    <div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+      @for (photo of photos(); track photo.id) {
+        <article
+          class="min-w-0 overflow-hidden rounded-field border border-border bg-surface-muted"
+        >
+          <button
+            type="button"
+            class="ui-focus-ring block w-full"
+            [attr.aria-label]="'ui.photoCapture.openPreview' | transloco: { name: photo.fileName }"
+            (click)="selectedPhoto.set(photo)"
+          >
+            <img
+              class="h-32 w-full object-cover sm:h-36"
+              [src]="photo.url"
+              [alt]="photo.fileName"
+              loading="lazy"
+            />
+          </button>
+          <div class="flex min-w-0 items-center justify-between gap-2 px-3 py-2">
+            <span class="min-w-0 truncate text-small text-text-muted">{{ photo.fileName }}</span>
+            <ui-button
+              class="shrink-0"
+              size="sm"
+              variant="ghost"
+              [ariaLabel]="'ui.photoCapture.removeAria' | transloco: { name: photo.fileName }"
+              (pressed)="photoRemoved.emit(photo.id)"
+            >
+              {{ 'ui.photoCapture.remove' | transloco }}
+            </ui-button>
+          </div>
+        </article>
+      }
+    </div>
+  }
+
+  <div class="grid gap-2 sm:flex sm:flex-wrap">
+    <ui-button size="lg" variant="secondary" [block]="true" (pressed)="openCamera()">
+      {{ 'ui.photoCapture.takePhoto' | transloco }}
+    </ui-button>
+    <ui-file-input
+      accept="image/*"
+      [multiple]="multiple()"
+      [buttonLabel]="'ui.photoCapture.chooseExisting' | transloco"
+      (filesSelected)="filesAdded.emit($event)"
+    />
+  </div>
+</section>
+
+<ui-modal
+  size="xl"
+  [open]="isCameraOpen()"
+  [closeOnBackdrop]="false"
+  [title]="'ui.photoCapture.cameraTitle' | transloco"
+  (close)="closeCamera()"
+>
+  <div class="space-y-4">
+    <div
+      class="relative mx-auto flex max-w-full items-center justify-center overflow-hidden rounded-field bg-slate-950"
+      [style.aspect-ratio]="cameraAspectRatio()"
+      [style.width]="cameraFrameWidth()"
+    >
+      <video
+        #cameraPreview
+        autoplay
+        muted
+        playsinline
+        class="size-full object-contain"
+        [attr.aria-label]="'ui.photoCapture.cameraPreview' | transloco"
+        (loadedmetadata)="startCameraPreview()"
+        (playing)="handleCameraReady()"
+        (resize)="updateCameraDimensions()"
+      ></video>
+
+      @if (isCameraStarting()) {
+        <div
+          class="absolute inset-0 flex items-center justify-center bg-slate-950/70 px-6 text-center text-body text-white"
+          role="status"
+        >
+          {{ 'ui.photoCapture.starting' | transloco }}
+        </div>
+      }
+
+      @if (cameraErrorKey()) {
+        <div
+          class="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-slate-950/85 px-6 text-center text-body text-white"
+          role="alert"
+        >
+          <p>{{ cameraErrorKey() | transloco }}</p>
+          <ui-button variant="secondary" size="lg" (pressed)="openCamera()">
+            {{ 'common.actions.retry' | transloco }}
+          </ui-button>
+        </div>
+      }
+    </div>
+
+    <p class="min-h-5 text-center text-small text-success" role="status" aria-live="polite">
+      @if (captureStatusKey()) {
+        {{ captureStatusKey() | transloco }}
+      }
+    </p>
+  </div>
+
+  <div modal-footer class="grid gap-3 sm:grid-cols-2">
+    <ui-button variant="ghost" size="lg" [block]="true" (pressed)="closeCamera()">
+      {{ 'common.actions.close' | transloco }}
+    </ui-button>
+    <ui-button
+      size="lg"
+      [block]="true"
+      [disabled]="isCameraStarting() || !isCameraReady() || !!cameraErrorKey() || isCapturing()"
+      (pressed)="capturePhoto()"
+    >
+      {{ (isCapturing() ? 'ui.photoCapture.capturing' : 'ui.photoCapture.capture') | transloco }}
+    </ui-button>
+  </div>
+</ui-modal>
+
+@if (selectedPhoto(); as photo) {
+  <ui-modal
+    size="fullscreen"
+    [open]="true"
+    [title]="photo.fileName"
+    (close)="selectedPhoto.set(null)"
+  >
+    <div class="flex size-full min-h-0 items-center justify-center overflow-hidden bg-slate-950">
+      <img class="max-h-full max-w-full object-contain" [src]="photo.url" [alt]="photo.fileName" />
+    </div>
+
+    <div modal-footer>
+      <ui-button size="lg" [block]="true" (pressed)="selectedPhoto.set(null)">
+        {{ 'common.actions.close' | transloco }}
+      </ui-button>
+    </div>
+  </ui-modal>
+}

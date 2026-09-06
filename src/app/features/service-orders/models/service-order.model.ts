@@ -1,4 +1,5 @@
 import type { Device } from '../../customers/models/device.model';
+import type { PhotoAttachment } from '../../../common/models/photo-attachment.model';
 
 export type ServiceOrderType = 'installation' | 'repair' | 'inspection';
 export type ServiceOrderSource = 'customer-panel' | 'website-form' | 'user' | 'system';
@@ -10,7 +11,7 @@ export type ServiceOrderStatus =
   | 'cancelled';
 export type ServiceOrderCustomerType = 'company' | 'individual';
 export type ServiceOrderBuildingType = 'apartment-block' | 'house' | 'office-building';
-export type ServiceOrderOutdoorUnitPlace = 'wall' | 'balcony';
+export type ServiceOrderOutdoorUnitPlace = 'wall' | 'balcony' | 'roof';
 export type CustomerConfirmationStatus = 'pending' | 'confirmed' | 'not_confirmed';
 
 export interface ServiceOrderAssignee {
@@ -18,12 +19,7 @@ export interface ServiceOrderAssignee {
   email: string;
 }
 
-export interface ServiceOrderAttachment {
-  id: string;
-  fileName: string;
-  url: string;
-  description?: string;
-}
+export type ServiceOrderAttachment = PhotoAttachment;
 
 export interface ServiceOrderCustomer {
   customerId?: string;
@@ -102,6 +98,7 @@ export interface ServiceOrderNote {
   id: string;
   serviceOrderId: string;
   content: string;
+  photos: PhotoAttachment[];
   authorId: string;
   createdAt: string;
   updatedAt?: string;

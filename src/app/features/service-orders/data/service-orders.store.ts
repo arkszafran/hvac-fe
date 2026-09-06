@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 
 import { CustomersStore } from '../../customers/data/customers.store';
+import type { PhotoAttachment } from '../../../common/models/photo-attachment.model';
 import { Customer } from '../../customers/models/customer.model';
 import { Device } from '../../customers/models/device.model';
 import { SERVICE_ORDER_MOCK_DATA } from './service-order.mock';
@@ -293,7 +294,11 @@ export class ServiceOrdersStore {
     });
   }
 
-  addNote(orderId: string, content: string): ServiceOrderNote | undefined {
+  addNote(
+    orderId: string,
+    content: string,
+    photos: readonly PhotoAttachment[] = [],
+  ): ServiceOrderNote | undefined {
     const normalizedContent = content.trim();
 
     if (!this.getOrderById(orderId) || !normalizedContent) {
@@ -304,6 +309,7 @@ export class ServiceOrdersStore {
       id: createEntityId('order-note'),
       serviceOrderId: orderId,
       content: normalizedContent,
+      photos: [...photos],
       authorId: 'current-user',
       createdAt: new Date().toISOString(),
     };
@@ -513,6 +519,7 @@ function createInitialNotes(): ServiceOrderNote[] {
       id: `order-note-${order.id}`,
       serviceOrderId: order.id,
       content: (order.initialNote ?? order.note)!,
+      photos: [],
       authorId: 'system',
       createdAt: order.createdAt,
     }));

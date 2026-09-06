@@ -37,7 +37,10 @@ import {
   ServiceOrderNextContactFormValue,
   ServiceOrderNextContactModalComponent,
 } from '../service-order-next-contact-modal/service-order-next-contact-modal.component';
-import { ServiceOrderNoteModalComponent } from '../service-order-note-modal/service-order-note-modal.component';
+import {
+  ServiceOrderNoteFormValue,
+  ServiceOrderNoteModalComponent,
+} from '../service-order-note-modal/service-order-note-modal.component';
 import { ServiceOrderTableComponent } from '../service-order-table/service-order-table.component';
 
 const DEFAULT_STATUS_FILTERS: ServiceOrderStatus[] = ['new', 'contact_required', 'scheduled'];
@@ -250,14 +253,14 @@ export class ServiceOrdersViewComponent {
     this.orderForNote.set(order);
   }
 
-  protected saveNote(content: string): void {
+  protected saveNote(value: ServiceOrderNoteFormValue): void {
     const order = this.orderForNote();
 
     if (!order) {
       return;
     }
 
-    this.store.addNote(order.id, content);
+    this.store.addNote(order.id, value.content, value.photos);
     this.orderForNote.set(null);
   }
 

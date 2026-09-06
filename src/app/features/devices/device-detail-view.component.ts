@@ -9,6 +9,7 @@ import {
   UiButtonComponent,
   UiEmptyStateComponent,
   UiIconComponent,
+  UiPhotoGalleryComponent,
 } from '../../ui';
 import { DeviceFormModalComponent } from '../customers/components/device-form-modal.component';
 import { DeviceNextInspectionModalComponent } from '../customers/components/device-next-inspection-modal.component';
@@ -46,6 +47,7 @@ interface DeviceDetailItem {
     UiButtonComponent,
     UiEmptyStateComponent,
     UiIconComponent,
+    UiPhotoGalleryComponent,
     DeviceFormModalComponent,
     DeviceNextInspectionModalComponent,
     ServiceOrderLinkProposalModalComponent,

@@ -6,6 +6,8 @@ import {
   OnDestroy,
   OnInit,
   booleanAttribute,
+  computed,
+  effect,
   inject,
   input,
   output,
@@ -14,6 +16,17 @@ import { DOCUMENT } from '@angular/common';
 import { TranslocoPipe } from '@jsverse/transloco';
 
 let nextModalId = 0;
+let bodyScrollLockCount = 0;
+let bodyOverflowBeforeModal = '';
+
+type UiModalSize = 'md' | 'lg' | 'xl' | 'fullscreen';
+
+const MODAL_SIZE_CLASSES: Record<UiModalSize, string> = {
+  md: 'md:max-w-xl',
+  lg: 'md:max-w-3xl',
+  xl: 'md:max-w-6xl',
+  fullscreen: 'h-dvh max-h-dvh md:h-dvh md:max-h-dvh md:max-w-none !rounded-none !border-0',
+};
 
 @Component({
   selector: 'ui-modal',
@@ -30,12 +43,12 @@ let nextModalId = 0;
           (click)="handleBackdropClick()"
         ></button>
 
-        <div class="absolute inset-0 flex items-end p-3 sm:p-4 md:items-center md:justify-center">
+        <div [class]="containerClasses()">
           <section
             role="dialog"
             aria-modal="true"
             [attr.aria-labelledby]="title() ? titleId : null"
-            class="relative flex max-h-[calc(100dvh-1.5rem)] w-full flex-col overflow-hidden rounded-t-3xl border border-border bg-surface shadow-floating motion-safe:animate-[ui-sheet-up_220ms_cubic-bezier(0.16,1,0.3,1)] sm:max-h-[calc(100dvh-2rem)] md:max-h-[calc(100dvh-3rem)] md:max-w-xl md:rounded-3xl md:motion-safe:animate-[ui-modal-pop_220ms_cubic-bezier(0.16,1,0.3,1)]"
+            [class]="panelClasses()"
           >
             @if (title() || description()) {
               <div
@@ -73,7 +86,7 @@ let nextModalId = 0;
               </div>
             }
 
-            <div class="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 sm:p-6">
+            <div [class]="contentClasses()">
               <ng-content />
             </div>
 
@@ -89,21 +102,42 @@ let nextModalId = 0;
 export class UiModalComponent implements OnInit, OnDestroy {
   private readonly document = inject(DOCUMENT);
   private readonly hostElement = inject(ElementRef<HTMLElement>).nativeElement;
+  private hasBodyScrollLock = false;
 
   readonly open = input(false, { transform: booleanAttribute });
   readonly title = input('');
   readonly description = input('');
   readonly closeOnBackdrop = input(true, { transform: booleanAttribute });
+  readonly size = input<UiModalSize>('md');
 
   readonly close = output<void>();
 
   protected readonly titleId = `ui-modal-title-${++nextModalId}`;
+  protected readonly containerClasses = computed(() =>
+    this.size() === 'fullscreen'
+      ? 'absolute inset-0 flex items-stretch'
+      : 'absolute inset-0 flex items-end p-3 sm:p-4 md:items-center md:justify-center',
+  );
+  protected readonly panelClasses = computed(
+    () =>
+      `relative flex max-h-[calc(100dvh-1.5rem)] w-full flex-col overflow-hidden rounded-t-3xl border border-border bg-surface shadow-floating motion-safe:animate-[ui-sheet-up_220ms_cubic-bezier(0.16,1,0.3,1)] sm:max-h-[calc(100dvh-2rem)] md:max-h-[calc(100dvh-3rem)] md:rounded-3xl md:motion-safe:animate-[ui-modal-pop_220ms_cubic-bezier(0.16,1,0.3,1)] ${MODAL_SIZE_CLASSES[this.size()]}`,
+  );
+  protected readonly contentClasses = computed(() =>
+    this.size() === 'fullscreen'
+      ? 'min-h-0 flex flex-1 overflow-hidden bg-slate-950'
+      : 'min-h-0 flex-1 overflow-y-auto overscroll-contain p-5 sm:p-6',
+  );
+
+  constructor() {
+    effect(() => this.updateBodyScrollLock(this.open()));
+  }
 
   ngOnInit(): void {
     this.document.body.appendChild(this.hostElement);
   }
 
   ngOnDestroy(): void {
+    this.updateBodyScrollLock(false);
     this.hostElement.remove();
   }
 
@@ -117,6 +151,30 @@ export class UiModalComponent implements OnInit, OnDestroy {
   protected handleBackdropClick(): void {
     if (this.closeOnBackdrop()) {
       this.close.emit();
+    }
+  }
+
+  private updateBodyScrollLock(shouldLock: boolean): void {
+    if (shouldLock === this.hasBodyScrollLock) {
+      return;
+    }
+
+    this.hasBodyScrollLock = shouldLock;
+
+    if (shouldLock) {
+      if (bodyScrollLockCount === 0) {
+        bodyOverflowBeforeModal = this.document.body.style.overflow;
+        this.document.body.style.overflow = 'hidden';
+      }
+
+      bodyScrollLockCount += 1;
+      return;
+    }
+
+    bodyScrollLockCount = Math.max(0, bodyScrollLockCount - 1);
+
+    if (bodyScrollLockCount === 0) {
+      this.document.body.style.overflow = bodyOverflowBeforeModal;
     }
   }
 }

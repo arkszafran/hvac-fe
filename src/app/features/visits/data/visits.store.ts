@@ -74,6 +74,7 @@ export class VisitsStore {
         deviceId,
         note: draft.devicesNotes.find((item) => item.deviceId === deviceId)?.note.trim() ?? '',
       })),
+      photos: [...draft.photos],
       createdAt: new Date().toISOString(),
     };
 
