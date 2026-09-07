@@ -1,6 +1,15 @@
-import { Customer } from '../models/customer.model';
+interface CustomerSearchData {
+  type: string;
+  companyName: string;
+  fullName: string;
+  phone: string;
+  email: string;
+  address: string;
+  postalCode: string;
+  city: string;
+}
 
-const SEARCH_FIELDS: Array<keyof Customer> = [
+const SEARCH_FIELDS: Array<keyof CustomerSearchData> = [
   'type',
   'companyName',
   'fullName',
@@ -16,10 +25,11 @@ export function normalizeCustomerSearch(value: string): string {
     .trim()
     .toLowerCase()
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ł/g, 'l');
 }
 
-export function matchesCustomerSearch(customer: Customer, query: string): boolean {
+export function matchesCustomerSearch(customer: CustomerSearchData, query: string): boolean {
   const normalizedQuery = normalizeCustomerSearch(query);
 
   if (!normalizedQuery) {

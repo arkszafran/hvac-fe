@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
+import { CustomerServiceOrderDto } from '../../../../common/api';
 import { UiBadgeComponent, UiEmptyStateComponent, UiIconComponent } from '../../../../ui';
-import { ServiceOrder } from '../../../service-orders/models/service-order.model';
 import {
   formatServiceOrderDate,
   getServiceOrderStatusLabel,
@@ -21,15 +21,15 @@ export class CustomerServiceOrderListComponent {
   private readonly router = inject(Router);
   private readonly transloco = inject(TranslocoService);
 
-  readonly orders = input<ServiceOrder[]>([]);
+  readonly orders = input<CustomerServiceOrderDto[]>([]);
 
   protected readonly getStatusVariant = getServiceOrderStatusVariant;
 
-  protected getTypeLabel(order: ServiceOrder): string {
+  protected getTypeLabel(order: CustomerServiceOrderDto): string {
     return getServiceOrderTypeLabel(order.type, this.transloco);
   }
 
-  protected getStatusLabel(order: ServiceOrder): string {
+  protected getStatusLabel(order: CustomerServiceOrderDto): string {
     return getServiceOrderStatusLabel(order.status, this.transloco);
   }
 
@@ -37,7 +37,7 @@ export class CustomerServiceOrderListComponent {
     return formatServiceOrderDate(value, this.transloco.getActiveLang());
   }
 
-  protected handleRowClick(event: MouseEvent, order: ServiceOrder): void {
+  protected handleRowClick(event: MouseEvent, order: CustomerServiceOrderDto): void {
     if (isInteractiveTarget(event.target)) {
       return;
     }

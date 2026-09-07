@@ -72,6 +72,12 @@
       "emptyTitle": "Brak danych do wyświetlenia",
       "emptyDescription": "Po dodaniu rekordów zobaczysz tutaj ich aktualny stan i najważniejsze szczegóły."
     },
+    "pagination": {
+      "label": "Paginacja",
+      "previous": "Poprzednia strona",
+      "next": "Następna strona",
+      "status": "Strona {{page}} z {{totalPages}}"
+    },
     "toast": {
       "success": "Gotowe",
       "error": "Wystąpił błąd",
@@ -119,7 +125,8 @@
       "validation": "Dane formularza wymagają poprawy.",
       "server": "Wystąpił błąd serwera.",
       "request": "Żądanie zakończyło się błędem.",
-      "requestWithMessage": "Żądanie zakończyło się błędem."
+      "requestWithMessage": "Żądanie zakończyło się błędem.",
+      "tenantNotSelected": "Nie wybrano firmy dla tej operacji."
     }
   },
   "auth": {
@@ -929,7 +936,7 @@
       "changeSharedInspectionDate": "Zmień termin",
       "relatedDevicesTitle": "Pozostałe urządzenia w przeglądzie",
       "deviceNameLabel": "Nazwa",
-      "currentInspectionDate": "Obecny termin przeglądu",
+      "currentInspectionDate": "Termin istniejącego przeglądu",
       "newInspectionDate": "Nowy termin przeglądu",
       "createSeparateWithNewDate": "Utwórz osobny przegląd",
       "undoDateChange": "Cofnij zmianę daty",
@@ -954,6 +961,16 @@
     "actions": {
       "add": "Dodaj klienta",
       "edit": "Edytuj klienta"
+    },
+    "toast": {
+      "created": "Klient został pomyślnie utworzony.",
+      "updated": "Dane klienta zostały pomyślnie zaktualizowane."
+    },
+    "errors": {
+      "loadListTitle": "Nie udało się pobrać klientów",
+      "loadListDescription": "Sprawdź połączenie i spróbuj ponownie pobrać listę klientów.",
+      "loadDetailsTitle": "Nie udało się pobrać danych klienta",
+      "loadDetailsDescription": "Sprawdź połączenie i spróbuj ponownie pobrać dane klienta."
     },
     "detail": {
       "customerData": "Dane klienta",
@@ -1012,6 +1029,14 @@
     "description": "Urządzenia klientów, miejsca instalacji i historia obsługi w jednym miejscu.",
     "searchLabel": "Wyszukiwanie urządzeń",
     "searchPlaceholder": "Marka, model, klient lub adres instalacji",
+    "toast": {
+      "created": "Urządzenie zostało pomyślnie utworzone.",
+      "updated": "Dane urządzenia zostały pomyślnie zaktualizowane."
+    },
+    "errors": {
+      "loadDetailsTitle": "Nie udało się pobrać danych urządzenia",
+      "loadDetailsDescription": "Sprawdź połączenie i spróbuj ponownie pobrać dane urządzenia."
+    },
     "actions": {
       "add": "Dodaj urządzenie",
       "edit": "Edytuj urządzenie",
@@ -1051,7 +1076,7 @@
       "type": "Typ urządzenia",
       "typePlaceholder": "Wybierz typ urządzenia",
       "brand": "Marka",
-      "brandPlaceholder": "Wybierz markę",
+      "brandPlaceholder": "np. Daikin",
       "model": "Model",
       "modelPlaceholder": "np. Stylish FTXA35",
       "powerKw": "Moc (kW)",
@@ -1162,7 +1187,7 @@
     "sameAddressAsCustomer": "Adres instalacji taki sam jak adres klienta",
     "validation": {
       "typeRequired": "Typ urządzenia jest wymagany.",
-      "installationDateRequired": "Data uruchomienia jest wymagana, gdy wybrano gwarancję.",
+      "installationDateRequired": "Data uruchomienia jest wymagana.",
       "nextInspectionDateRequired": "Data następnego przeglądu jest wymagana, gdy przeglądy są włączone.",
       "brandRequired": "Marka jest wymagana.",
       "modelRequired": "Model jest wymagany.",

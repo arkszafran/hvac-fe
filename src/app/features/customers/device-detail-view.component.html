@@ -1,5 +1,12 @@
 <div class="space-y-4">
-  @if (customer(); as customer) {
+  @if (hasLoadError()) {
+    <ui-empty-state
+      [title]="'devices.errors.loadDetailsTitle' | transloco"
+      [description]="'devices.errors.loadDetailsDescription' | transloco"
+      [actionLabel]="'common.actions.retry' | transloco"
+      (action)="retryLoad()"
+    />
+  } @else if (customer(); as customer) {
     @if (device(); as device) {
       <a
         [routerLink]="['/customers', customer.id]"
@@ -163,7 +170,7 @@
                   </div>
 
                   <p class="mt-2 whitespace-pre-wrap text-body text-text-main">
-                    {{ visitNote(visit, device.id) }}
+                    {{ visitNote(visit) }}
                   </p>
                   @if (visit.photos.length) {
                     <div class="mt-3">
@@ -218,6 +225,7 @@
                 : ''
             "
             [order]="updatePlan.candidate"
+            [relatedDevices]="updatePlan.relatedDevices"
             [primaryActionLabel]="updatePlan.primaryActionLabel"
             [secondaryActionLabel]="updatePlan.createActionLabel"
             [cancelLabel]="updatePlan.cancelActionLabel"
@@ -249,7 +257,7 @@
         (action)="navigateToCustomer(customer.id)"
       />
     }
-  } @else {
+  } @else if (hasLoaded()) {
     <ui-empty-state
       [title]="'devices.detail.notFoundCustomerTitle' | transloco"
       [description]="'devices.detail.notFoundCustomerDescription' | transloco"

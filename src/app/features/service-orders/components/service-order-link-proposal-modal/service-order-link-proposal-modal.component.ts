@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import {
@@ -7,9 +7,10 @@ import {
   UiIconComponent,
   UiModalComponent,
 } from '../../../../ui';
-import { Device } from '../../../customers/models/device.model';
-import { ServiceOrdersStore } from '../../data/service-orders.store';
-import { ServiceOrder } from '../../models/service-order.model';
+import {
+  ServiceOrderCandidate,
+  ServiceOrderRelatedDevice,
+} from '../../models/service-order-candidate.model';
 import {
   formatServiceOrderDateTime,
   getServiceOrderStatusLabel,
@@ -24,7 +25,6 @@ import {
 })
 export class ServiceOrderLinkProposalModalComponent {
   private readonly transloco = inject(TranslocoService);
-  private readonly serviceOrdersStore = inject(ServiceOrdersStore);
 
   readonly open = input(false);
   readonly title = input('');
@@ -32,7 +32,8 @@ export class ServiceOrderLinkProposalModalComponent {
   readonly customerName = input('');
   readonly excludedDeviceId = input('');
   readonly proposedDate = input('');
-  readonly order = input<ServiceOrder | null>(null);
+  readonly order = input<ServiceOrderCandidate | null>(null);
+  readonly relatedDevices = input<ServiceOrderRelatedDevice[]>([]);
   readonly primaryActionLabel = input('');
   readonly secondaryActionLabel = input('');
   readonly cancelLabel = input('');
@@ -42,21 +43,6 @@ export class ServiceOrderLinkProposalModalComponent {
   readonly close = output<void>();
 
   protected readonly getStatusVariant = getServiceOrderStatusVariant;
-  protected readonly relatedDevices = computed(() => {
-    const order = this.order();
-
-    if (!order) {
-      return [];
-    }
-
-    const excludedDeviceId = this.excludedDeviceId();
-    const details = this.serviceOrdersStore
-      .orderDetails()
-      .find((item) => item.order.id === order.id);
-
-    return (details?.systemDevices ?? []).filter((device) => device.id !== excludedDeviceId);
-  });
-
   protected modalTitle(): string {
     return this.title() || this.transloco.translate('serviceOrders.deviceFlow.linkDefaultTitle');
   }
@@ -79,7 +65,7 @@ export class ServiceOrderLinkProposalModalComponent {
     return this.cancelLabel() || this.transloco.translate('common.actions.cancel');
   }
 
-  protected statusLabel(order: ServiceOrder): string {
+  protected statusLabel(order: ServiceOrderCandidate): string {
     return getServiceOrderStatusLabel(order.status, this.transloco);
   }
 
@@ -87,21 +73,11 @@ export class ServiceOrderLinkProposalModalComponent {
     return formatServiceOrderDateTime(value, this.transloco.getActiveLang());
   }
 
-  protected relatedDeviceName(device: Device): string {
+  protected relatedDeviceName(device: ServiceOrderRelatedDevice): string {
     return device.brand || '--';
   }
 
-  protected relatedDeviceAddress(device: Device): string {
-    const order = this.order();
-
-    if (!order) {
-      return '--';
-    }
-
-    const addressParts = device.hasCustomInstallationAddress
-      ? [device.address, `${device.postalCode} ${device.city}`.trim()]
-      : [order.address, `${order.postalCode} ${order.city}`.trim()];
-
-    return addressParts.filter(Boolean).join(', ') || '--';
+  protected relatedDeviceAddress(device: ServiceOrderRelatedDevice): string {
+    return device.address || '--';
   }
 }

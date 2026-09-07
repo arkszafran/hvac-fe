@@ -5,14 +5,6 @@
   (close)="close.emit()"
 >
   <div class="space-y-4">
-    <div class="rounded-[1rem] border border-border/80 bg-surface/62 p-4">
-      <p class="text-[11px] font-semibold uppercase tracking-[0.18em] text-text-muted">
-        {{ 'serviceOrders.fields.customer' | transloco }}
-      </p>
-      <p class="mt-2 text-h3 tracking-[-0.02em] text-text-main">{{ customerName() }}</p>
-      <p class="mt-1 text-body text-text-muted">{{ deviceName() }}</p>
-    </div>
-
     @if (candidates().length) {
       <div class="space-y-3">
         @for (order of candidates(); track order.id) {

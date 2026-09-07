@@ -32,10 +32,29 @@
     <app-customer-toolbar [control]="searchControl" />
   </section>
 
-  <app-customer-table
-    [customers]="filteredCustomers()"
-    (customerSelected)="handleCustomerSelected($event)"
-  />
+  @if (hasError()) {
+    <ui-empty-state
+      [title]="'customers.errors.loadListTitle' | transloco"
+      [description]="'customers.errors.loadListDescription' | transloco"
+      [actionLabel]="'common.actions.retry' | transloco"
+      (action)="retryLoad()"
+    />
+  } @else if (hasLoaded()) {
+    <app-customer-table
+      [customers]="customers()"
+      (customerSelected)="handleCustomerSelected($event)"
+    />
+
+    @if (pagination(); as pagination) {
+      @if (pagination.totalPages > 0) {
+        <ui-pagination
+          [page]="pagination.page"
+          [totalPages]="pagination.totalPages"
+          (pageChange)="handlePageChange($event)"
+        />
+      }
+    }
+  }
 
   <app-customer-form-modal
     [open]="isCreateCustomerModalOpen()"

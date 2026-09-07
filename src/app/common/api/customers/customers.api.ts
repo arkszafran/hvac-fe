@@ -23,7 +23,7 @@ export class CustomersApi {
     return this.api.get<CustomersListResponseDto>('/customers', {
       ...options,
       params: {
-        q: query.q,
+        q: query.q ?? '',
         page: query.page,
         sortBy: query.sortBy,
         sortDirection: query.sortDirection,

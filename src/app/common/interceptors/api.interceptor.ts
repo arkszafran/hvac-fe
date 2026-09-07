@@ -21,6 +21,8 @@ import { ToastService } from '../../ui/toast/toast.service';
 const ACCOUNT_BLOCKED_ERROR_CODES = new Set(['LOGIN_RETRIES_LIMIT_REACHED', 'ACCOUNT_BLOCKED']);
 const ACCOUNT_BLOCKED_ROUTE = '/account-blocked';
 const PIN_REQUIRED_ERROR_CODE = 'PIN_REQUIRED';
+const TENANT_REQUIRED_PATH_PREFIXES = ['/customers', '/devices', '/service-orders'] as const;
+const TENANT_NOT_SELECTED_ERROR_CODE = 'TENANT_NOT_SELECTED';
 
 export const apiInterceptor: HttpInterceptorFn = (request, next) => {
   const authService = inject(AuthService);
@@ -29,7 +31,20 @@ export const apiInterceptor: HttpInterceptorFn = (request, next) => {
   const router = inject(Router);
   const toast = inject(ToastService);
   const transloco = inject(TranslocoService);
-  const requestWithTenant = addTenantHeader(request, tenantStore.selectedTenant()?.id ?? null);
+  const tenantId = normalizeTenantId(tenantStore.selectedTenant()?.id);
+
+  if (isTenantRequired(request.url) && tenantId === null) {
+    return handleApiError(
+      createTenantNotSelectedError(request.url),
+      request,
+      router,
+      toast,
+      authService,
+      transloco,
+    );
+  }
+
+  const requestWithTenant = addTenantHeader(request, tenantId);
   const shouldShowLoader = !requestWithTenant.context.get(SKIP_GLOBAL_LOADER);
 
   if (shouldShowLoader) {
@@ -70,14 +85,30 @@ export const apiInterceptor: HttpInterceptorFn = (request, next) => {
             );
           }
 
+          if (refreshApiError.status === 401) {
+            authService.requireLogin();
+
+            return throwError(() => refreshApiError);
+          }
+
           return handleApiError(apiError, requestWithTenant, router, toast, authService, transloco);
         }),
-        switchMap(() =>
-          next(
-            addTenantHeader(
-              markRequestAsAuthRetried(requestWithTenant),
-              tenantStore.selectedTenant()?.id ?? null,
-            ),
+        switchMap(() => {
+          const refreshedTenantId = normalizeTenantId(tenantStore.selectedTenant()?.id);
+
+          if (isTenantRequired(requestWithTenant.url) && refreshedTenantId === null) {
+            return handleApiError(
+              createTenantNotSelectedError(requestWithTenant.url),
+              requestWithTenant,
+              router,
+              toast,
+              authService,
+              transloco,
+            );
+          }
+
+          return next(
+            addTenantHeader(markRequestAsAuthRetried(requestWithTenant), refreshedTenantId),
           ).pipe(
             catchError((retryError: unknown) =>
               handleApiError(
@@ -89,8 +120,8 @@ export const apiInterceptor: HttpInterceptorFn = (request, next) => {
                 transloco,
               ),
             ),
-          ),
-        ),
+          );
+        }),
       );
     }),
     finalize(() => {
@@ -102,7 +133,7 @@ export const apiInterceptor: HttpInterceptorFn = (request, next) => {
 };
 
 function addTenantHeader<T>(request: HttpRequest<T>, tenantId: string | null): HttpRequest<T> {
-  if (!tenantId || readApiEndpointPath(request.url) === null) {
+  if (tenantId === null || !isTenantRequired(request.url)) {
     return request;
   }
 
@@ -111,6 +142,31 @@ function addTenantHeader<T>(request: HttpRequest<T>, tenantId: string | null): H
       'x-tenant-id': tenantId,
     },
   });
+}
+
+function isTenantRequired(url: string): boolean {
+  const endpointPath = readApiEndpointPath(url);
+
+  return (
+    endpointPath !== null &&
+    TENANT_REQUIRED_PATH_PREFIXES.some((pathPrefix) => matchesPathPrefix(endpointPath, pathPrefix))
+  );
+}
+
+function normalizeTenantId(tenantId: string | undefined): string | null {
+  const normalizedTenantId = tenantId?.trim();
+
+  return normalizedTenantId ? normalizedTenantId : null;
+}
+
+function createTenantNotSelectedError(url: string): ApiError {
+  return {
+    status: 0,
+    code: TENANT_NOT_SELECTED_ERROR_CODE,
+    message: '',
+    messageKey: 'api.errors.tenantNotSelected',
+    url,
+  };
 }
 
 function isAccountBlockedError(apiError: ApiError): boolean {

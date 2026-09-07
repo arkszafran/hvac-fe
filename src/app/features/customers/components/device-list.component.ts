@@ -3,10 +3,11 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
+import { CustomerDeviceListItemDto } from '../../../common/api';
 import { UiBadgeComponent, UiButtonComponent, UiIconComponent } from '../../../ui';
-import { ServiceOrdersStore } from '../../service-orders/data/service-orders.store';
+import { fromApiDeviceType } from '../data/customer-api.mapper';
 import { toInspectionDateTimeLocalValue } from '../models/device-inspection.model';
-import { Device, getDeviceTypeLabel } from '../models/device.model';
+import { getDeviceTypeLabel } from '../models/device.model';
 
 @Component({
   selector: 'app-device-list',
@@ -17,16 +18,15 @@ import { Device, getDeviceTypeLabel } from '../models/device.model';
 export class DeviceListComponent {
   private readonly router = inject(Router);
   private readonly transloco = inject(TranslocoService);
-  private readonly serviceOrdersStore = inject(ServiceOrdersStore);
   private readonly activeLanguage = toSignal(this.transloco.langChanges$, {
     initialValue: this.transloco.getActiveLang(),
   });
 
   readonly customerId = input.required<string>();
-  readonly devices = input<Device[]>([]);
-  readonly deviceEditRequested = output<Device>();
+  readonly devices = input<CustomerDeviceListItemDto[]>([]);
+  readonly deviceEditRequested = output<CustomerDeviceListItemDto>();
 
-  protected openDevice(event: MouseEvent, device: Device): void {
+  protected openDevice(event: MouseEvent, device: CustomerDeviceListItemDto): void {
     if (isInteractiveTarget(event.target)) {
       return;
     }
@@ -34,9 +34,9 @@ export class DeviceListComponent {
     void this.router.navigate(['/customers', this.customerId(), 'devices', device.id]);
   }
 
-  protected deviceTypeLabel(device: Device): string {
+  protected deviceTypeLabel(device: CustomerDeviceListItemDto): string {
     this.activeLanguage();
-    return getDeviceTypeLabel(device.type, this.transloco);
+    return getDeviceTypeLabel(fromApiDeviceType(device.type), this.transloco);
   }
 
   protected formatDate(value: string): string {
@@ -68,7 +68,7 @@ export class DeviceListComponent {
     }).format(new Date(normalizedValue));
   }
 
-  protected deviceAddress(device: Device): string {
+  protected deviceAddress(device: CustomerDeviceListItemDto): string {
     if (!device.hasCustomInstallationAddress) {
       return this.transloco.translate('devices.sameAddressAsCustomer');
     }
@@ -79,9 +79,9 @@ export class DeviceListComponent {
     );
   }
 
-  protected inspectionLabel(device: Device): string {
+  protected inspectionLabel(device: CustomerDeviceListItemDto): string {
     this.activeLanguage();
-    const activeInspection = this.serviceOrdersStore.getActiveInspectionOrderByDeviceId(device.id);
+    const activeInspection = device.activeInspection;
 
     if (!activeInspection) {
       return this.transloco.translate('devices.inspections.disabled');

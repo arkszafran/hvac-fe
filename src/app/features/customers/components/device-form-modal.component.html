@@ -15,11 +15,10 @@
     />
 
     <div class="grid gap-4 sm:grid-cols-2">
-      <ui-select
+      <ui-input
         [label]="'devices.form.brand' | transloco"
         [placeholder]="'devices.form.brandPlaceholder' | transloco"
         required
-        [options]="deviceBrandOptions"
         [error]="validationError('brand')"
         formControlName="brand"
       />
@@ -75,7 +74,7 @@
       <ui-input
         [label]="'devices.form.installationDate' | transloco"
         type="date"
-        [required]="requiresInstallationDate()"
+        [required]="requiresInstallationDate"
         [error]="validationError('installationDate')"
         formControlName="installationDate"
       />

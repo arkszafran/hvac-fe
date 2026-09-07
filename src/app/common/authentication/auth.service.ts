@@ -1,7 +1,17 @@
 import { HttpContext } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, catchError, map, of, switchMap, tap, throwError } from 'rxjs';
+import {
+  Observable,
+  catchError,
+  finalize,
+  map,
+  of,
+  shareReplay,
+  switchMap,
+  tap,
+  throwError,
+} from 'rxjs';
 
 import {
   SKIP_AUTH_REFRESH,
@@ -38,6 +48,7 @@ export class AuthService {
   private readonly router = inject(Router);
   private readonly sessionUser = signal<AuthenticationSessionUserDto | null>(null);
   private readonly initialCredentialsPassword = signal<string | null>(null);
+  private refreshSessionRequest: Observable<AuthenticationSessionUserDto> | null = null;
 
   readonly user = this.sessionUser.asReadonly();
   readonly currentInitialCredentialsPassword = this.initialCredentialsPassword.asReadonly();
@@ -134,21 +145,42 @@ export class AuthService {
   refreshSession(
     options: SessionHandlingOptions = { shouldRedirect: false },
   ): Observable<AuthenticationSessionUserDto> {
-    return this.authenticationApi.refresh({ context: createSilentAuthContext() }).pipe(
-      map((response) => response.data),
-      tap((user) => this.handleAuthenticatedUser(user, options)),
-      catchError((error: unknown) => {
-        this.clearSession();
+    if (this.refreshSessionRequest !== null) {
+      return this.refreshSessionRequest;
+    }
 
-        return throwError(() => error);
-      }),
-    );
+    this.refreshSessionRequest = this.authenticationApi
+      .refresh({ context: createSilentAuthContext() })
+      .pipe(
+        switchMap(() =>
+          this.loadSession(options, {
+            context: createSilentAuthContext(),
+          }),
+        ),
+        catchError((error: unknown) => {
+          this.clearSession();
+
+          return throwError(() => error);
+        }),
+        finalize(() => {
+          this.refreshSessionRequest = null;
+        }),
+        shareReplay({ bufferSize: 1, refCount: false }),
+      );
+
+    return this.refreshSessionRequest;
   }
 
   requirePinLogin(): void {
     this.authRedirectService.rememberUrl(this.router.url);
     this.clearSession();
     this.navigateTo(PIN_LOGIN_PATH);
+  }
+
+  requireLogin(): void {
+    this.authRedirectService.rememberUrl(this.router.url);
+    this.clearSession();
+    this.navigateTo(LOGIN_PATH);
   }
 
   private loadSession(

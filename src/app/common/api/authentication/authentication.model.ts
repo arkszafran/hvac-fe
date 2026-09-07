@@ -49,4 +49,4 @@ export interface AuthenticationSessionUserDto {
 
 export type AuthenticationSuccessResponseDto = ApiSuccessResponse<Record<string, never> | null>;
 export type AuthenticationSessionResponseDto = ApiSuccessResponse<AuthenticationSessionUserDto>;
-export type AuthenticationRefreshResponseDto = AuthenticationSessionResponseDto;
+export type AuthenticationRefreshResponseDto = AuthenticationSuccessResponseDto;

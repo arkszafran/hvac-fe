@@ -1,4 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
@@ -13,8 +21,13 @@ interface CustomerTypeOption {
 
 @Component({
   selector: 'app-customer-form-modal',
-  standalone: true,
-  imports: [ReactiveFormsModule, TranslocoPipe, UiButtonComponent, UiInputComponent, UiModalComponent],
+  imports: [
+    ReactiveFormsModule,
+    TranslocoPipe,
+    UiButtonComponent,
+    UiInputComponent,
+    UiModalComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './customer-form-modal.component.html',
 })
@@ -95,9 +108,7 @@ export class CustomerFormModalComponent {
     });
   }
 
-  protected validationError(
-    field: 'address' | 'postalCode' | 'city' | 'phone' | 'email',
-  ): string {
+  protected validationError(field: 'address' | 'postalCode' | 'city' | 'phone' | 'email'): string {
     const control = this.form.controls[field];
 
     if (!control.invalid || (!this.submitAttempted && !control.touched)) {

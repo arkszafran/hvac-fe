@@ -1,0 +1,35 @@
+<nav
+  class="flex items-center justify-center gap-3"
+  [attr.aria-label]="'ui.pagination.label' | transloco"
+>
+  <ui-button
+    variant="secondary"
+    size="lg"
+    iconOnly
+    [disabled]="!hasPreviousPage()"
+    [ariaLabel]="'ui.pagination.previous' | transloco"
+    (pressed)="previousPage()"
+  >
+    <ui-icon button-icon class="rotate-180" name="chevron-right" />
+    {{ 'ui.pagination.previous' | transloco }}
+  </ui-button>
+
+  <span class="min-w-28 text-center text-body text-text-muted" aria-live="polite">
+    {{
+      'ui.pagination.status'
+        | transloco: { page: currentPage(), totalPages: normalizedTotalPages() }
+    }}
+  </span>
+
+  <ui-button
+    variant="secondary"
+    size="lg"
+    iconOnly
+    [disabled]="!hasNextPage()"
+    [ariaLabel]="'ui.pagination.next' | transloco"
+    (pressed)="nextPage()"
+  >
+    <ui-icon button-icon name="chevron-right" />
+    {{ 'ui.pagination.next' | transloco }}
+  </ui-button>
+</nav>

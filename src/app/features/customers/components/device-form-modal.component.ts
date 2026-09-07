@@ -18,7 +18,6 @@ import {
   UiModalComponent,
   UiSelectComponent,
 } from '../../../ui';
-import { DEVICE_BRAND_OPTIONS } from '../data/customer.mock';
 import {
   calculateInspectionDateFromPreset,
   createDeviceInspectionPresetOptions,
@@ -40,7 +39,6 @@ const TEXTAREA_CLASSES =
 
 @Component({
   selector: 'app-device-form-modal',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     TranslocoPipe,
@@ -73,7 +71,6 @@ export class DeviceFormModalComponent {
   });
 
   protected readonly textareaClasses = TEXTAREA_CLASSES;
-  protected readonly deviceBrandOptions = DEVICE_BRAND_OPTIONS;
   protected readonly inspectionCheckboxLabelKey = DEVICE_INSPECTIONS_CHECKBOX_LABEL_KEY;
   protected readonly inspectionCheckboxDescriptionKey = DEVICE_INSPECTIONS_CHECKBOX_DESCRIPTION_KEY;
   protected readonly deviceTypeOptions = computed(() => {
@@ -97,7 +94,7 @@ export class DeviceFormModalComponent {
     model: ['', Validators.required],
     powerKw: ['', Validators.min(0)],
     serialNumber: '',
-    installationDate: '',
+    installationDate: ['', Validators.required],
     warrantyMonths: '0',
     hasScheduledInspections: false,
     nextInspectionPreset: 'custom' as DeviceInspectionPreset,
@@ -114,11 +111,10 @@ export class DeviceFormModalComponent {
   protected readonly hasCustomInstallationAddress = signal(
     this.form.controls.hasCustomInstallationAddress.value,
   );
-  protected readonly warrantyMonths = signal(this.form.controls.warrantyMonths.value);
   protected readonly hasScheduledInspections = signal(
     this.form.controls.hasScheduledInspections.value,
   );
-  protected readonly requiresInstallationDate = computed(() => Number(this.warrantyMonths()) > 0);
+  protected readonly requiresInstallationDate = true;
 
   constructor() {
     this.form.controls.hasCustomInstallationAddress.valueChanges
@@ -133,13 +129,6 @@ export class DeviceFormModalComponent {
             city: '',
           });
         }
-      });
-
-    this.form.controls.warrantyMonths.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe((warrantyMonths) => {
-        this.warrantyMonths.set(warrantyMonths);
-        this.syncInstallationDateValidator(warrantyMonths);
       });
 
     this.form.controls.hasScheduledInspections.valueChanges
@@ -159,7 +148,6 @@ export class DeviceFormModalComponent {
       this.syncInspectionPresetWithDate();
     });
 
-    this.syncInstallationDateValidator(this.form.controls.warrantyMonths.value);
     this.syncNextInspectionDateValidator(this.form.controls.hasScheduledInspections.value);
 
     effect(() => {
@@ -251,18 +239,9 @@ export class DeviceFormModalComponent {
     this.hasCustomInstallationAddress.set(
       this.form.controls.hasCustomInstallationAddress.getRawValue(),
     );
-    this.warrantyMonths.set(this.form.controls.warrantyMonths.getRawValue());
     this.hasScheduledInspections.set(this.form.controls.hasScheduledInspections.getRawValue());
-    this.syncInstallationDateValidator(this.form.controls.warrantyMonths.getRawValue());
     this.syncNextInspectionDateValidator(this.form.controls.hasScheduledInspections.getRawValue());
     this.submitAttempted = false;
-  }
-
-  private syncInstallationDateValidator(warrantyMonths: string): void {
-    this.form.controls.installationDate.setValidators(
-      Number(warrantyMonths) > 0 ? Validators.required : null,
-    );
-    this.form.controls.installationDate.updateValueAndValidity({ emitEvent: false });
   }
 
   private syncNextInspectionDateValidator(hasScheduledInspections: boolean): void {

@@ -8,7 +8,14 @@
     {{ 'devices.detail.backToCustomers' | transloco }}
   </button>
 
-  @if (customer(); as customer) {
+  @if (hasLoadError()) {
+    <ui-empty-state
+      [title]="'customers.errors.loadDetailsTitle' | transloco"
+      [description]="'customers.errors.loadDetailsDescription' | transloco"
+      [actionLabel]="'common.actions.retry' | transloco"
+      (action)="retryLoad()"
+    />
+  } @else if (customer(); as customer) {
     <section class="sm:p-6 md:rounded-card md:border md:border-border md:bg-surface">
       <div class="flex items-start justify-between gap-4">
         <div class="min-w-0">
@@ -170,10 +177,10 @@
       </div>
 
       <div class="mt-4">
-        @if (customer.devices.length) {
+        @if (customerDevices().length) {
           <app-device-list
             [customerId]="customer.id"
-            [devices]="customer.devices"
+            [devices]="customerDevices()"
             (deviceEditRequested)="handleEditDevice($event)"
           />
         } @else {
@@ -219,6 +226,7 @@
           [description]="createPlan.description"
           [customerName]="createPlan.customerName"
           [order]="createPlan.candidate"
+          [relatedDevices]="createPlan.relatedDevices"
           [primaryActionLabel]="createPlan.primaryActionLabel"
           [secondaryActionLabel]="createPlan.createActionLabel"
           [cancelLabel]="createPlan.cancelActionLabel"
@@ -257,6 +265,7 @@
               : ''
           "
           [order]="updatePlan.candidate"
+          [relatedDevices]="updatePlan.relatedDevices"
           [primaryActionLabel]="updatePlan.primaryActionLabel"
           [secondaryActionLabel]="updatePlan.createActionLabel"
           [cancelLabel]="updatePlan.cancelActionLabel"
@@ -280,7 +289,7 @@
         />
       }
     }
-  } @else {
+  } @else if (hasLoaded()) {
     <ui-empty-state
       [title]="'customers.detail.notFoundTitle' | transloco"
       [description]="'customers.detail.notFoundDescription' | transloco"

@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, input, output } from '@angu
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { UiBadgeComponent, UiButtonComponent, UiModalComponent } from '../../../../ui';
-import { ServiceOrder } from '../../models/service-order.model';
+import { ServiceOrderCandidate } from '../../models/service-order-candidate.model';
 import {
   formatServiceOrderDate,
   getServiceOrderStatusLabel,
@@ -23,7 +23,7 @@ export class ServiceOrderCandidatePickerModalComponent {
   readonly description = input('');
   readonly customerName = input('');
   readonly deviceName = input('');
-  readonly candidates = input<ServiceOrder[]>([]);
+  readonly candidates = input<ServiceOrderCandidate[]>([]);
   readonly createActionLabel = input('');
   readonly cancelActionLabel = input('');
 
@@ -50,15 +50,21 @@ export class ServiceOrderCandidatePickerModalComponent {
     return this.cancelActionLabel() || this.transloco.translate('common.actions.cancel');
   }
 
-  protected statusLabel(order: ServiceOrder): string {
+  protected statusLabel(order: ServiceOrderCandidate): string {
     return getServiceOrderStatusLabel(order.status, this.transloco);
   }
 
-  protected formatDate(value: string): string {
-    return formatServiceOrderDate(value, this.transloco.getActiveLang());
+  protected formatDate(value: string | null): string {
+    return formatServiceOrderDate(value ?? '', this.transloco.getActiveLang());
   }
 
-  protected deviceCount(order: ServiceOrder): number {
-    return order.serviceData.type === 'inspection' ? order.serviceData.deviceIds.length : 0;
+  protected deviceCount(order: ServiceOrderCandidate): number {
+    if (order.deviceCount !== undefined) {
+      return order.deviceCount;
+    }
+
+    return order.serviceData?.type === 'inspection'
+      ? (order.serviceData.deviceIds?.length ?? 0)
+      : 0;
   }
 }

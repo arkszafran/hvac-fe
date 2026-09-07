@@ -72,6 +72,12 @@
       "emptyTitle": "No data to display",
       "emptyDescription": "After adding records, you will see their current state and key details here."
     },
+    "pagination": {
+      "label": "Pagination",
+      "previous": "Previous page",
+      "next": "Next page",
+      "status": "Page {{page}} of {{totalPages}}"
+    },
     "toast": {
       "success": "Done",
       "error": "An error occurred",
@@ -119,7 +125,8 @@
       "validation": "Form data needs correction.",
       "server": "A server error occurred.",
       "request": "The request ended with an error.",
-      "requestWithMessage": "The request ended with an error."
+      "requestWithMessage": "The request ended with an error.",
+      "tenantNotSelected": "No tenant is selected for this operation."
     }
   },
   "auth": {
@@ -929,7 +936,7 @@
       "changeSharedInspectionDate": "Change date",
       "relatedDevicesTitle": "Other devices in the inspection",
       "deviceNameLabel": "Name",
-      "currentInspectionDate": "Current inspection date",
+      "currentInspectionDate": "Existing inspection date",
       "newInspectionDate": "New inspection date",
       "createSeparateWithNewDate": "Create separate inspection",
       "undoDateChange": "Undo date change",
@@ -954,6 +961,16 @@
     "actions": {
       "add": "Add customer",
       "edit": "Edit customer"
+    },
+    "toast": {
+      "created": "Customer was created successfully.",
+      "updated": "Customer details were updated successfully."
+    },
+    "errors": {
+      "loadListTitle": "Customers could not be loaded",
+      "loadListDescription": "Check the connection and try loading the customer list again.",
+      "loadDetailsTitle": "Customer details could not be loaded",
+      "loadDetailsDescription": "Check the connection and try loading the customer again."
     },
     "detail": {
       "customerData": "Customer details",
@@ -1012,6 +1029,14 @@
     "description": "Customer devices, installation locations, and service history in one place.",
     "searchLabel": "Search devices",
     "searchPlaceholder": "Brand, model, customer, or installation address",
+    "toast": {
+      "created": "Device was created successfully.",
+      "updated": "Device details were updated successfully."
+    },
+    "errors": {
+      "loadDetailsTitle": "Device details could not be loaded",
+      "loadDetailsDescription": "Check the connection and try loading the device again."
+    },
     "actions": {
       "add": "Add device",
       "edit": "Edit device",
@@ -1051,7 +1076,7 @@
       "type": "Device type",
       "typePlaceholder": "Select device type",
       "brand": "Brand",
-      "brandPlaceholder": "Select brand",
+      "brandPlaceholder": "e.g. Daikin",
       "model": "Model",
       "modelPlaceholder": "e.g. Stylish FTXA35",
       "powerKw": "Power (kW)",
@@ -1162,7 +1187,7 @@
     "sameAddressAsCustomer": "Installation address is the same as the customer address",
     "validation": {
       "typeRequired": "Device type is required.",
-      "installationDateRequired": "Commissioning date is required when warranty is selected.",
+      "installationDateRequired": "Commissioning date is required.",
       "nextInspectionDateRequired": "Next inspection date is required when inspections are enabled.",
       "brandRequired": "Brand is required.",
       "modelRequired": "Model is required.",

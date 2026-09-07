@@ -1,10 +1,18 @@
-import { Customer } from '../models/customer.model';
+export interface CustomerContactData {
+  companyName: string;
+  fullName: string;
+  phone: string;
+  email: string;
+  address: string;
+  postalCode: string;
+  city: string;
+}
 
-export function formatCustomerName(customer: Customer): string {
+export function formatCustomerName(customer: CustomerContactData): string {
   return customer.companyName || customer.fullName || '--';
 }
 
-export function formatCustomerAddress(customer: Customer): string {
+export function formatCustomerAddress(customer: CustomerContactData): string {
   return (
     [customer.address, `${customer.postalCode} ${customer.city}`.trim()]
       .filter(Boolean)
@@ -24,7 +32,7 @@ export function customerEmailHref(email: string): string {
   return normalizedEmail ? `mailto:${normalizedEmail}` : '#';
 }
 
-export function customerMapHref(customer: Customer): string {
+export function customerMapHref(customer: CustomerContactData): string {
   const address = [customer.address, `${customer.postalCode} ${customer.city}`.trim()]
     .filter(Boolean)
     .join(', ');

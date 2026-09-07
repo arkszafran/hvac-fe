@@ -1,23 +1,33 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TranslocoPipe } from '@jsverse/transloco';
+import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
-import { UiButtonComponent, UiIconComponent } from '../../ui';
+import { CustomersApi } from '../../common/api';
+import {
+  ToastService,
+  UiButtonComponent,
+  UiEmptyStateComponent,
+  UiIconComponent,
+  UiPaginationComponent,
+} from '../../ui';
 import { CustomerFormModalComponent } from './components/customer-form-modal.component';
 import { CustomerTableComponent } from './components/customer-table.component';
 import { CustomerToolbarComponent } from './components/customer-toolbar.component';
-import { CustomersStore } from './data/customers.store';
+import { toCreateCustomerDto } from './data/customer-api.mapper';
+import { CustomersListStore } from './data/customers-list.store';
 import { Customer, CustomerDraft } from './models/customer.model';
-import { matchesCustomerSearch } from './utils/customer-search.util';
 
 @Component({
   selector: 'app-customers-view',
   imports: [
     TranslocoPipe,
     UiButtonComponent,
+    UiEmptyStateComponent,
     UiIconComponent,
+    UiPaginationComponent,
     CustomerFormModalComponent,
     CustomerTableComponent,
     CustomerToolbarComponent,
@@ -27,27 +37,48 @@ import { matchesCustomerSearch } from './utils/customer-search.util';
 })
 export class CustomersViewComponent {
   private readonly router = inject(Router);
-  private readonly customersStore = inject(CustomersStore);
+  private readonly customersApi = inject(CustomersApi);
+  private readonly customersListStore = inject(CustomersListStore);
+  private readonly toast = inject(ToastService);
+  private readonly transloco = inject(TranslocoService);
 
-  protected readonly customers = this.customersStore.customers;
+  protected readonly customers = this.customersListStore.customers;
+  protected readonly pagination = this.customersListStore.pagination;
+  protected readonly hasLoaded = this.customersListStore.hasLoaded;
+  protected readonly hasError = this.customersListStore.hasError;
   protected readonly isCreateCustomerModalOpen = signal(false);
-  protected readonly searchControl = new FormControl('', { nonNullable: true });
-  private readonly searchQuery = toSignal(this.searchControl.valueChanges, { initialValue: '' });
-
-  protected readonly filteredCustomers = computed(() => {
-    const query = this.searchQuery();
-
-    return this.customers().filter((customer) => matchesCustomerSearch(customer, query));
+  protected readonly searchControl = new FormControl(this.customersListStore.query(), {
+    nonNullable: true,
   });
 
-  protected handleCreateCustomer(customer: CustomerDraft): void {
-    const createdCustomer = this.customersStore.addCustomer(customer);
+  constructor() {
+    this.searchControl.valueChanges
+      .pipe(debounceTime(350), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe((query) => this.customersListStore.search(query));
 
-    this.isCreateCustomerModalOpen.set(false);
-    void this.router.navigate(['/customers', createdCustomer.id]);
+    this.customersListStore.load();
+  }
+
+  protected handleCreateCustomer(customer: CustomerDraft): void {
+    this.customersApi.createCustomer(toCreateCustomerDto(customer)).subscribe({
+      next: ({ data }) => {
+        this.isCreateCustomerModalOpen.set(false);
+        this.toast.success(this.transloco.translate('customers.toast.created'));
+        void this.router.navigate(['/customers', data.id]);
+      },
+      error: () => undefined,
+    });
   }
 
   protected handleCustomerSelected(customer: Customer): void {
     void this.router.navigate(['/customers', customer.id]);
+  }
+
+  protected handlePageChange(page: number): void {
+    this.customersListStore.goToPage(page);
+  }
+
+  protected retryLoad(): void {
+    this.customersListStore.load();
   }
 }

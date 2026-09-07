@@ -1,10 +1,28 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 import { map } from 'rxjs';
 
 import {
+  CustomerDetailsDto,
+  CustomerDeviceListItemDto,
+  CustomerDto,
+  CustomersApi,
+  DeviceDto,
+  DevicesApi,
+  mapApiError,
+} from '../../common/api';
+import {
+  ToastService,
   UiBadgeComponent,
   UiButtonComponent,
   UiEmptyStateComponent,
@@ -13,19 +31,24 @@ import {
 import { UiMapPinIconComponent } from '../../ui/map-pin-icon/map-pin-icon.component';
 import { ServiceOrderCandidatePickerModalComponent } from '../service-orders/components/service-order-candidate-picker-modal/service-order-candidate-picker-modal.component';
 import { ServiceOrderLinkProposalModalComponent } from '../service-orders/components/service-order-link-proposal-modal/service-order-link-proposal-modal.component';
-import {
-  DeviceCreateServiceOrderPlan,
-  DeviceUpdateServiceOrderPlan,
-  ServiceOrderDeviceFlowService,
-} from '../service-orders/data/service-order-device-flow.service';
-import { ServiceOrdersStore } from '../service-orders/data/service-orders.store';
 import { CustomerFormModalComponent } from './components/customer-form-modal.component';
 import { CustomerServiceOrderListComponent } from './components/customer-service-order-list/customer-service-order-list.component';
 import { DeviceFormModalComponent } from './components/device-form-modal.component';
 import { DeviceListComponent } from './components/device-list.component';
-import { CustomersStore } from './data/customers.store';
-import { Customer, CustomerDraft } from './models/customer.model';
-import { Device, DeviceDraft } from './models/device.model';
+import {
+  toCreateDeviceDto,
+  toDeviceDraft,
+  toUpdateCustomerDto,
+  toUpdateDeviceDto,
+} from './data/customer-api.mapper';
+import {
+  ApiDeviceCreatePlan,
+  ApiDeviceUpdatePlan,
+  CustomerDeviceFlowService,
+  DeviceFlowChoice,
+} from './data/customer-device-flow.service';
+import { CustomerDraft } from './models/customer.model';
+import { DeviceDraft } from './models/device.model';
 import {
   customerEmailHref,
   customerMapHref,
@@ -56,88 +79,58 @@ import {
 export class CustomerDetailViewComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly customersStore = inject(CustomersStore);
-  private readonly serviceOrdersStore = inject(ServiceOrdersStore);
-  private readonly serviceOrderDeviceFlowService = inject(ServiceOrderDeviceFlowService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly customersApi = inject(CustomersApi);
+  private readonly devicesApi = inject(DevicesApi);
+  private readonly deviceFlow = inject(CustomerDeviceFlowService);
+  private readonly toast = inject(ToastService);
   private readonly transloco = inject(TranslocoService);
+  private readonly detailsState = signal<CustomerDetailsDto | null>(null);
+  private readonly hasLoadedState = signal(false);
+  private readonly hasLoadErrorState = signal(false);
+  private readonly editingDeviceState = signal<DeviceDto | null>(null);
 
   protected readonly isEditCustomerModalOpen = signal(false);
   protected readonly isAddDeviceModalOpen = signal(false);
   protected readonly isEditDeviceModalOpen = signal(false);
-  protected readonly editingDeviceId = signal<string | null>(null);
   protected readonly pendingCreateDraft = signal<DeviceDraft | null>(null);
-  protected readonly pendingCreatePlan = signal<DeviceCreateServiceOrderPlan | null>(null);
+  protected readonly pendingCreatePlan = signal<ApiDeviceCreatePlan | null>(null);
   protected readonly pendingUpdateDraft = signal<DeviceDraft | null>(null);
-  protected readonly pendingUpdatePlan = signal<DeviceUpdateServiceOrderPlan | null>(null);
+  protected readonly pendingUpdatePlan = signal<ApiDeviceUpdatePlan | null>(null);
   protected readonly customerId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id') ?? '')),
-    {
-      initialValue: this.route.snapshot.paramMap.get('id') ?? '',
-    },
+    { initialValue: this.route.snapshot.paramMap.get('id') ?? '' },
   );
-
-  protected readonly customer = computed(() =>
-    this.customersStore.getCustomerById(this.customerId()),
-  );
+  protected readonly customer = computed(() => this.detailsState()?.customer ?? null);
+  protected readonly customerDevices = computed(() => this.detailsState()?.devices ?? []);
   protected readonly customerOrders = computed(() =>
-    this.serviceOrdersStore
-      .orders()
-      .filter((order) => order.customerId === this.customerId())
-      .sort((left, right) => right.orderDate.localeCompare(left.orderDate)),
+    [...(this.detailsState()?.serviceOrders ?? [])].sort((left, right) =>
+      right.orderDate.localeCompare(left.orderDate),
+    ),
   );
+  protected readonly hasLoaded = this.hasLoadedState.asReadonly();
+  protected readonly hasLoadError = this.hasLoadErrorState.asReadonly();
+  protected readonly editingDeviceId = computed(() => this.editingDeviceState()?.id ?? null);
   protected readonly editableCustomerDraft = computed<CustomerDraft | null>(() => {
     const customer = this.customer();
 
-    if (!customer) {
-      return null;
-    }
-
-    return {
-      type: customer.type,
-      companyName: customer.companyName,
-      fullName: customer.fullName,
-      phone: customer.phone,
-      email: customer.email,
-      address: customer.address,
-      postalCode: customer.postalCode,
-      city: customer.city,
-    };
+    return customer
+      ? {
+          type: customer.type,
+          companyName: customer.companyName,
+          fullName: customer.fullName,
+          phone: customer.phone,
+          email: customer.email,
+          address: customer.address,
+          postalCode: customer.postalCode,
+          city: customer.city,
+        }
+      : null;
   });
   protected readonly editableDeviceDraft = computed<DeviceDraft | null>(() => {
-    const customer = this.customer();
-    const editingDeviceId = this.editingDeviceId();
+    const device = this.editingDeviceState();
 
-    if (!customer || !editingDeviceId) {
-      return null;
-    }
-
-    const device = customer.devices.find((item) => item.id === editingDeviceId);
-
-    if (!device) {
-      return null;
-    }
-
-    const activeInspection = this.serviceOrdersStore.getActiveInspectionOrderByDeviceId(device.id);
-
-    return {
-      type: device.type,
-      brand: device.brand,
-      model: device.model,
-      powerKw: device.powerKw,
-      serialNumber: device.serialNumber,
-      installationDate: device.installationDate,
-      warrantyMonths: device.warrantyMonths,
-      hasScheduledInspections: Boolean(activeInspection),
-      nextInspectionDate: activeInspection?.scheduledAt ?? '',
-      note: device.note,
-      refrigerant: device.refrigerant,
-      refrigerantAmount: device.refrigerantAmount,
-      location: device.location,
-      hasCustomInstallationAddress: device.hasCustomInstallationAddress,
-      address: device.address,
-      postalCode: device.postalCode,
-      city: device.city,
-    };
+    return device ? toDeviceDraft(device, this.activeInspectionForDevice(device.id)) : null;
   });
 
   protected readonly customerTitle = formatCustomerName;
@@ -146,7 +139,17 @@ export class CustomerDetailViewComponent {
   protected readonly emailHref = customerEmailHref;
   protected readonly mapHref = customerMapHref;
 
-  protected customerTypeLabel(customer: Customer): string {
+  constructor() {
+    effect(() => {
+      const customerId = this.customerId();
+
+      if (customerId) {
+        this.loadCustomerDetails(customerId);
+      }
+    });
+  }
+
+  protected customerTypeLabel(customer: CustomerDto): string {
     return this.transloco.translate(
       customer.type === 'company'
         ? 'customers.types.company.shortLabel'
@@ -161,12 +164,31 @@ export class CustomerDetailViewComponent {
       return;
     }
 
-    this.customersStore.updateCustomer(customer.id, customerDraft);
-    this.isEditCustomerModalOpen.set(false);
+    this.customersApi
+      .updateCustomer(customer.id, toUpdateCustomerDto(customerDraft))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ data }) => {
+          this.detailsState.update((details) =>
+            details ? { ...details, customer: data } : details,
+          );
+          this.isEditCustomerModalOpen.set(false);
+          this.toast.success(this.transloco.translate('customers.toast.updated'));
+        },
+        error: () => undefined,
+      });
   }
 
   protected navigateToCustomers(): void {
     void this.router.navigate(['/customers']);
+  }
+
+  protected retryLoad(): void {
+    const customerId = this.customerId();
+
+    if (customerId) {
+      this.loadCustomerDetails(customerId);
+    }
   }
 
   protected handleAddDevice(deviceDraft: DeviceDraft): void {
@@ -176,53 +198,76 @@ export class CustomerDetailViewComponent {
       return;
     }
 
-    const plan = this.serviceOrderDeviceFlowService.previewCreateDevice(
-      { kind: 'existing', customer },
-      deviceDraft,
-    );
+    this.deviceFlow
+      .previewCreateDevice(customer, this.customerDevices(), deviceDraft)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (plan) => {
+          if (plan.kind === 'single-candidate' || plan.kind === 'candidate-choice') {
+            this.pendingCreateDraft.set(deviceDraft);
+            this.pendingCreatePlan.set(plan);
+            this.isAddDeviceModalOpen.set(false);
+            return;
+          }
 
-    if (plan.kind === 'single-candidate' || plan.kind === 'candidate-choice') {
-      this.pendingCreateDraft.set(deviceDraft);
-      this.pendingCreatePlan.set(plan);
-      this.isAddDeviceModalOpen.set(false);
-      return;
-    }
-
-    this.finishCreateDevice(plan, deviceDraft);
+          this.finishCreateDevice(plan, deviceDraft);
+        },
+        error: () => undefined,
+      });
   }
 
-  protected handleEditDevice(device: Device): void {
-    this.editingDeviceId.set(device.id);
-    this.isEditDeviceModalOpen.set(true);
+  protected handleEditDevice(device: CustomerDeviceListItemDto): void {
+    this.devicesApi
+      .getDeviceDetails(device.id)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ data }) => {
+          if (data.device.customerId !== this.customerId()) {
+            return;
+          }
+
+          this.editingDeviceState.set(data.device);
+          this.isEditDeviceModalOpen.set(true);
+        },
+        error: () => undefined,
+      });
   }
 
   protected handleUpdateDevice(deviceDraft: DeviceDraft): void {
     const customer = this.customer();
-    const device = this.editingDevice();
+    const device = this.editingDeviceState();
 
     if (!customer || !device) {
       return;
     }
 
-    const plan = this.serviceOrderDeviceFlowService.previewUpdateDevice(
-      customer,
-      device,
-      deviceDraft,
-    );
+    this.deviceFlow
+      .previewUpdateDevice(
+        customer,
+        this.customerDevices(),
+        device,
+        this.activeInspectionForDevice(device.id),
+        deviceDraft,
+      )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (plan) => {
+          if (plan.kind === 'single-candidate' || plan.kind === 'candidate-choice') {
+            this.pendingUpdateDraft.set(deviceDraft);
+            this.pendingUpdatePlan.set(plan);
+            this.isEditDeviceModalOpen.set(false);
+            return;
+          }
 
-    if (plan.kind === 'single-candidate' || plan.kind === 'candidate-choice') {
-      this.pendingUpdateDraft.set(deviceDraft);
-      this.pendingUpdatePlan.set(plan);
-      this.isEditDeviceModalOpen.set(false);
-      return;
-    }
-
-    this.finishUpdateDevice(plan, deviceDraft);
+          this.finishUpdateDevice(plan, deviceDraft);
+        },
+        error: () => undefined,
+      });
   }
 
   protected closeEditDeviceModal(): void {
     this.isEditDeviceModalOpen.set(false);
-    this.editingDeviceId.set(null);
+    this.editingDeviceState.set(null);
   }
 
   protected clearCreatePlan(): void {
@@ -233,64 +278,81 @@ export class CustomerDetailViewComponent {
   protected clearUpdatePlan(): void {
     this.pendingUpdateDraft.set(null);
     this.pendingUpdatePlan.set(null);
-    this.editingDeviceId.set(null);
+    this.editingDeviceState.set(null);
   }
 
   protected confirmCreateNewInspection(): void {
-    const plan = this.pendingCreatePlan();
-    const draft = this.pendingCreateDraft();
-
-    if (!plan || !draft) {
-      return;
-    }
-
-    this.finishCreateDevice(plan, draft, { kind: 'create-new' });
+    this.resolvePendingCreate({ kind: 'create-new' });
   }
 
-  protected confirmCreateAttach(inspectionId: string): void {
-    const plan = this.pendingCreatePlan();
-    const draft = this.pendingCreateDraft();
-
-    if (!plan || !draft) {
-      return;
-    }
-
-    this.finishCreateDevice(plan, draft, { kind: 'attach', serviceOrderId: inspectionId });
+  protected confirmCreateAttach(serviceOrderId: string): void {
+    this.resolvePendingCreate({ kind: 'attach', serviceOrderId });
   }
 
   protected confirmUpdateCreateNewInspection(): void {
+    this.resolvePendingUpdate({ kind: 'create-new' });
+  }
+
+  protected confirmUpdateAttach(serviceOrderId: string): void {
+    this.resolvePendingUpdate({ kind: 'attach', serviceOrderId });
+  }
+
+  private loadCustomerDetails(customerId: string): void {
+    this.hasLoadedState.set(false);
+    this.hasLoadErrorState.set(false);
+
+    this.customersApi
+      .getCustomerDetails(customerId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: ({ data }) => {
+          if (customerId !== this.customerId()) {
+            return;
+          }
+
+          this.detailsState.set(data);
+          this.hasLoadedState.set(true);
+        },
+        error: (error: unknown) => {
+          if (customerId !== this.customerId()) {
+            return;
+          }
+
+          this.detailsState.set(null);
+          this.hasLoadedState.set(true);
+          this.hasLoadErrorState.set(mapApiError(error).status !== 404);
+        },
+      });
+  }
+
+  private activeInspectionForDevice(deviceId: string) {
+    return (
+      this.customerDevices().find((device) => device.id === deviceId)?.activeInspection ?? null
+    );
+  }
+
+  private resolvePendingCreate(choice: DeviceFlowChoice): void {
+    const plan = this.pendingCreatePlan();
+    const draft = this.pendingCreateDraft();
+
+    if (plan && draft) {
+      this.finishCreateDevice(plan, draft, choice);
+    }
+  }
+
+  private resolvePendingUpdate(choice: DeviceFlowChoice): void {
     const plan = this.pendingUpdatePlan();
     const draft = this.pendingUpdateDraft();
 
-    if (!plan || !draft) {
-      return;
+    if (plan && draft) {
+      this.finishUpdateDevice(plan, draft, choice);
     }
-
-    this.finishUpdateDevice(plan, draft, { kind: 'create-new' });
-  }
-
-  protected confirmUpdateAttach(inspectionId: string): void {
-    const plan = this.pendingUpdatePlan();
-    const draft = this.pendingUpdateDraft();
-
-    if (!plan || !draft) {
-      return;
-    }
-
-    this.finishUpdateDevice(plan, draft, { kind: 'attach', serviceOrderId: inspectionId });
-  }
-
-  private editingDevice(): Device | undefined {
-    const customer = this.customer();
-    const editingDeviceId = this.editingDeviceId();
-
-    return customer?.devices.find((item) => item.id === editingDeviceId);
   }
 
   private finishCreateDevice(
-    plan: DeviceCreateServiceOrderPlan,
+    plan: ApiDeviceCreatePlan,
     deviceDraft: DeviceDraft,
-    choice?: { kind: 'create-new' } | { kind: 'attach'; serviceOrderId: string },
+    choice?: DeviceFlowChoice,
   ): void {
     const customer = this.customer();
 
@@ -298,46 +360,47 @@ export class CustomerDetailViewComponent {
       return;
     }
 
-    const result = this.serviceOrderDeviceFlowService.commitCreateDevice(
-      { kind: 'existing', customer },
-      deviceDraft,
-      plan,
-      choice,
-    );
+    const serviceOrder = this.deviceFlow.resolveCreateCommand(plan, deviceDraft, choice);
 
-    if (!result) {
-      return;
-    }
-
-    this.clearCreatePlan();
-    this.isAddDeviceModalOpen.set(false);
+    this.devicesApi
+      .createDevice(toCreateDeviceDto(customer.id, deviceDraft, serviceOrder))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.clearCreatePlan();
+          this.isAddDeviceModalOpen.set(false);
+          this.toast.success(this.transloco.translate('devices.toast.created'));
+          this.loadCustomerDetails(customer.id);
+        },
+        error: () => undefined,
+      });
   }
 
   private finishUpdateDevice(
-    plan: DeviceUpdateServiceOrderPlan,
+    plan: ApiDeviceUpdatePlan,
     deviceDraft: DeviceDraft,
-    choice?: { kind: 'create-new' } | { kind: 'attach'; serviceOrderId: string },
+    choice?: DeviceFlowChoice,
   ): void {
     const customer = this.customer();
-    const device = this.editingDevice();
+    const device = this.editingDeviceState();
 
     if (!customer || !device) {
       return;
     }
 
-    const result = this.serviceOrderDeviceFlowService.commitUpdateDevice(
-      customer,
-      device,
-      deviceDraft,
-      plan,
-      choice,
-    );
+    const serviceOrder = this.deviceFlow.resolveUpdateCommand(plan, deviceDraft, choice);
 
-    if (!result) {
-      return;
-    }
-
-    this.clearUpdatePlan();
-    this.closeEditDeviceModal();
+    this.devicesApi
+      .updateDevice(device.id, toUpdateDeviceDto(deviceDraft, serviceOrder))
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.clearUpdatePlan();
+          this.isEditDeviceModalOpen.set(false);
+          this.toast.success(this.transloco.translate('devices.toast.updated'));
+          this.loadCustomerDetails(customer.id);
+        },
+        error: () => undefined,
+      });
   }
 }

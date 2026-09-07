@@ -6,26 +6,18 @@
 >
   @if (order(); as order) {
     <div class="space-y-5">
-      <section class="rounded-field border border-border bg-surface-muted px-4 py-3.5">
-        <p class="text-kicker uppercase text-text-muted">
-          {{ 'serviceOrders.fields.customer' | transloco }}
-        </p>
-        <p class="mt-1 text-body font-semibold text-text-main">{{ customerName() }}</p>
-      </section>
-
       <section class="rounded-field border border-action/20 bg-action-soft px-4 py-3.5">
-        <div class="flex justify-end">
-          <ui-badge size="sm" [variant]="getStatusVariant(order.status)">
-            {{ statusLabel(order) }}
-          </ui-badge>
-        </div>
-
         @if (proposedDate()) {
-          <div class="mt-3 grid items-center gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+          <div class="grid items-center gap-3 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
             <div class="min-w-0 rounded-field bg-surface px-3 py-2.5">
-              <p class="text-kicker uppercase text-brand">
-                {{ 'serviceOrders.deviceFlow.currentInspectionDate' | transloco }}
-              </p>
+              <div class="flex items-center justify-between gap-3">
+                <p class="min-w-0 text-kicker uppercase text-brand">
+                  {{ 'serviceOrders.deviceFlow.currentInspectionDate' | transloco }}
+                </p>
+                <ui-badge class="shrink-0" size="sm" [variant]="getStatusVariant(order.status)">
+                  {{ statusLabel(order) }}
+                </ui-badge>
+              </div>
               <p class="mt-1 font-mono text-mono text-text-main">
                 {{ formatDateTime(order.scheduledAt || order.orderDate) }}
               </p>
@@ -43,10 +35,15 @@
             </div>
           </div>
         } @else {
-          <div class="mt-3 min-w-0 rounded-field bg-surface px-3 py-2.5">
-            <p class="text-kicker uppercase text-brand">
-              {{ 'serviceOrders.deviceFlow.currentInspectionDate' | transloco }}
-            </p>
+          <div class="min-w-0 rounded-field bg-surface px-3 py-2.5">
+            <div class="flex items-center justify-between gap-3">
+              <p class="min-w-0 text-kicker uppercase text-brand">
+                {{ 'serviceOrders.deviceFlow.currentInspectionDate' | transloco }}
+              </p>
+              <ui-badge class="shrink-0" size="sm" [variant]="getStatusVariant(order.status)">
+                {{ statusLabel(order) }}
+              </ui-badge>
+            </div>
             <p class="mt-1 font-mono text-mono text-text-main">
               {{ formatDateTime(order.scheduledAt || order.orderDate) }}
             </p>
