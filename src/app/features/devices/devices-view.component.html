@@ -22,11 +22,30 @@
     <app-device-toolbar [searchControl]="searchControl" />
   </section>
 
-  <app-device-table
-    [devices]="filteredDevices()"
-    (devicePreviewRequested)="handleDevicePreview($event)"
-    (customerPreviewRequested)="selectedCustomer.set($event)"
-  />
+  @if (hasError()) {
+    <ui-empty-state
+      [title]="'devices.errors.loadListTitle' | transloco"
+      [description]="'devices.errors.loadListDescription' | transloco"
+      [actionLabel]="'common.actions.retry' | transloco"
+      (action)="retryLoad()"
+    />
+  } @else if (hasLoaded()) {
+    <app-device-table
+      [devices]="devices()"
+      (devicePreviewRequested)="handleDevicePreview($event)"
+      (customerPreviewRequested)="selectedCustomer.set($event)"
+    />
+
+    @if (pagination(); as pagination) {
+      @if (pagination.totalPages > 0) {
+        <ui-pagination
+          [page]="pagination.page"
+          [totalPages]="pagination.totalPages"
+          (pageChange)="handlePageChange($event)"
+        />
+      }
+    }
+  }
 
   <app-device-customer-modal
     [open]="selectedCustomer() !== null"

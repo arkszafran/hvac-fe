@@ -45,8 +45,8 @@ export class CustomersListStore {
             .listCustomers({
               q: request.query,
               page: request.page,
-              sortBy: 'displayName',
-              sortDirection: 'asc',
+              sortBy: 'createdAt',
+              sortDirection: 'desc',
             })
             .pipe(
               catchError(() => {

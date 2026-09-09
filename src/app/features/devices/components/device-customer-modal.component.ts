@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { UiButtonComponent, UiModalComponent } from '../../../ui';
-import { Customer } from '../../customers/models/customer.model';
+import { CustomerSummaryDto } from '../../../common/api';
 
 @Component({
   selector: 'app-device-customer-modal',
@@ -30,7 +30,12 @@ import { Customer } from '../../customers/models/customer.model';
               <p class="text-[13px]/5 text-text-main/76">{{ customer.fullName }}</p>
             } @else {
               <p class="text-[13px]/5 text-text-main/76">
-                {{ (customer.type === 'company' ? 'customers.types.company.shortLabel' : 'customers.types.individual.shortLabel') | transloco }}
+                {{
+                  (customer.type === 'company'
+                    ? 'customers.types.company.shortLabel'
+                    : 'customers.types.individual.shortLabel'
+                  ) | transloco
+                }}
               </p>
             }
           </section>
@@ -61,7 +66,9 @@ import { Customer } from '../../customers/models/customer.model';
         <ui-button variant="ghost" (pressed)="navigateToCustomerDevices()">
           {{ 'devices.customerModal.allCustomerDevices' | transloco }}
         </ui-button>
-        <ui-button variant="secondary" (pressed)="close.emit()">{{ 'common.actions.close' | transloco }}</ui-button>
+        <ui-button variant="secondary" (pressed)="close.emit()">{{
+          'common.actions.close' | transloco
+        }}</ui-button>
       </div>
     </ui-modal>
   `,
@@ -71,15 +78,19 @@ export class DeviceCustomerModalComponent {
   private readonly transloco = inject(TranslocoService);
 
   readonly open = input(false);
-  readonly customer = input<Customer | null>(null);
+  readonly customer = input<CustomerSummaryDto | null>(null);
 
   readonly close = output<void>();
 
-  protected customerTitle(customer: Customer): string {
-    return customer.companyName || customer.fullName || this.transloco.translate('customers.fallbackName');
+  protected customerTitle(customer: CustomerSummaryDto): string {
+    return (
+      customer.companyName ||
+      customer.fullName ||
+      this.transloco.translate('customers.fallbackName')
+    );
   }
 
-  protected postalAndCity(customer: Customer): string {
+  protected postalAndCity(customer: CustomerSummaryDto): string {
     return `${customer.postalCode || '--'} ${customer.city || ''}`.trim();
   }
 

@@ -93,7 +93,6 @@
 
   <app-device-customer-picker-modal
     [open]="isCustomerPickerOpen()"
-    [customers]="customers()"
     (close)="isCustomerPickerOpen.set(false)"
     (customerSelected)="handleExistingCustomerSelected($event)"
   />

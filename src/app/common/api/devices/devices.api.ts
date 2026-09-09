@@ -6,6 +6,8 @@ import {
   CreateDeviceDto,
   CreateDeviceResponseDto,
   DeviceDetailsResponseDto,
+  DevicesListQueryDto,
+  DevicesListResponseDto,
   UpdateDeviceDto,
   UpdateDeviceResponseDto,
 } from './devices.model';
@@ -13,6 +15,19 @@ import {
 @Injectable({ providedIn: 'root' })
 export class DevicesApi {
   private readonly api = inject(ApiClientService);
+
+  listDevices(
+    query: DevicesListQueryDto = {},
+    options?: ApiRequestOptions,
+  ): Observable<DevicesListResponseDto> {
+    return this.api.get<DevicesListResponseDto>('/devices', {
+      ...options,
+      params: {
+        q: query.q ?? '',
+        page: query.page,
+      },
+    });
+  }
 
   createDevice(
     body: CreateDeviceDto,

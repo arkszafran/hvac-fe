@@ -1,5 +1,5 @@
 import { ApiSuccessResponse } from '../api-response.model';
-import { CustomerType } from '../customers/customers.model';
+import { CustomerType, PaginationResponseDto } from '../customers/customers.model';
 import {
   InspectionServiceOrderDto,
   ServiceOrderType,
@@ -13,11 +13,16 @@ export type UpdateDeviceServiceOrderAction =
   | 'reschedule_inspection'
   | 'move_to_new_inspection';
 
+export interface DevicesListQueryDto {
+  q?: string;
+  page?: number;
+}
+
 export interface CustomerSummaryDto {
   id: string;
   type: CustomerType;
-  companyName: string;
-  fullName: string;
+  companyName: string | null;
+  fullName: string | null;
   phone: string;
   email: string;
   address: string;
@@ -47,6 +52,35 @@ export interface DeviceDto {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface DeviceListItemDto {
+  id: string;
+  customerId: string;
+  type: DeviceType;
+  brand: string;
+  model: string;
+  location: string;
+  hasCustomInstallationAddress: boolean;
+  address: string;
+  postalCode: string;
+  city: string;
+  customer: CustomerSummaryDto;
+}
+
+export interface ClientFilteredDevicesDto {
+  filteringMode: 'client';
+  items: DeviceListItemDto[];
+  totalItems: number;
+}
+
+export interface ServerFilteredDevicesDto {
+  filteringMode: 'server';
+  items: DeviceListItemDto[];
+  pagination: PaginationResponseDto;
+}
+
+export type DevicesListDataDto = ClientFilteredDevicesDto | ServerFilteredDevicesDto;
+export type DevicesListResponseDto = ApiSuccessResponse<DevicesListDataDto>;
 
 export interface PhotoAttachmentDto {
   id: string;
@@ -108,7 +142,6 @@ export interface UpdateDeviceServiceOrderCommandDto {
   serviceOrderId?: string;
   currentServiceOrderId?: string;
   scheduledAt?: string;
-  confirmSharedOrderChange?: boolean;
 }
 
 export type UpdateDeviceDto = Partial<Omit<CreateDeviceDto, 'customerId' | 'serviceOrder'>> & {

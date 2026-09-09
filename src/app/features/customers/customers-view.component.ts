@@ -53,7 +53,7 @@ export class CustomersViewComponent {
 
   constructor() {
     this.searchControl.valueChanges
-      .pipe(debounceTime(350), distinctUntilChanged(), takeUntilDestroyed())
+      .pipe(debounceTime(250), distinctUntilChanged(), takeUntilDestroyed())
       .subscribe((query) => this.customersListStore.search(query));
 
     this.customersListStore.load();

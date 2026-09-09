@@ -1,23 +1,30 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
-import { UiButtonComponent, UiIconComponent } from '../../ui';
-import { Customer } from '../customers/models/customer.model';
+import { CustomerSummaryDto } from '../../common/api';
+import {
+  UiButtonComponent,
+  UiEmptyStateComponent,
+  UiIconComponent,
+  UiPaginationComponent,
+} from '../../ui';
 import { DeviceCustomerModalComponent } from './components/device-customer-modal.component';
 import { DeviceTableComponent } from './components/device-table.component';
 import { DeviceToolbarComponent } from './components/device-toolbar.component';
 import { DevicesStore } from './data/devices.store';
-import { matchesDeviceSearch } from './utils/device-search.util';
 
 @Component({
   selector: 'app-devices-view',
   imports: [
     TranslocoPipe,
     UiButtonComponent,
+    UiEmptyStateComponent,
     UiIconComponent,
+    UiPaginationComponent,
     DeviceCustomerModalComponent,
     DeviceTableComponent,
     DeviceToolbarComponent,
@@ -30,15 +37,21 @@ export class DevicesViewComponent {
   private readonly devicesStore = inject(DevicesStore);
 
   protected readonly devices = this.devicesStore.devices;
-  protected readonly searchControl = new FormControl('', { nonNullable: true });
-  protected readonly selectedCustomer = signal<Customer | null>(null);
-  private readonly searchQuery = toSignal(this.searchControl.valueChanges, { initialValue: '' });
-
-  protected readonly filteredDevices = computed(() => {
-    const query = this.searchQuery();
-
-    return this.devices().filter((device) => matchesDeviceSearch(device, query));
+  protected readonly pagination = this.devicesStore.pagination;
+  protected readonly hasLoaded = this.devicesStore.hasLoaded;
+  protected readonly hasError = this.devicesStore.hasError;
+  protected readonly searchControl = new FormControl(this.devicesStore.query(), {
+    nonNullable: true,
   });
+  protected readonly selectedCustomer = signal<CustomerSummaryDto | null>(null);
+
+  constructor() {
+    this.searchControl.valueChanges
+      .pipe(debounceTime(350), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe((query) => this.devicesStore.search(query));
+
+    this.devicesStore.load();
+  }
 
   protected navigateToCreateDevice(): void {
     void this.router.navigate(['/devices/new']);
@@ -46,5 +59,13 @@ export class DevicesViewComponent {
 
   protected handleDevicePreview(device: { id: string }): void {
     void this.router.navigate(['/devices', device.id]);
+  }
+
+  protected handlePageChange(page: number): void {
+    this.devicesStore.goToPage(page);
+  }
+
+  protected retryLoad(): void {
+    this.devicesStore.load();
   }
 }

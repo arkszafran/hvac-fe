@@ -3,7 +3,7 @@ import { DeviceType } from '../devices/devices.model';
 import { InspectionServiceOrderDto, ServiceOrderDto } from '../service-orders/service-orders.model';
 
 export type CustomerType = 'company' | 'individual';
-export type CustomerSortBy = 'displayName';
+export type CustomerSortBy = 'displayName' | 'createdAt';
 export type SortDirection = 'asc' | 'desc';
 
 export interface CustomersListQueryDto {

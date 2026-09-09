@@ -1031,9 +1031,13 @@
     "searchPlaceholder": "Marka, model, klient lub adres instalacji",
     "toast": {
       "created": "Urządzenie zostało pomyślnie utworzone.",
-      "updated": "Dane urządzenia zostały pomyślnie zaktualizowane."
+      "updated": "Dane urządzenia zostały pomyślnie zaktualizowane.",
+      "createError": "Nie udało się zapisać urządzenia. Spróbuj ponownie.",
+      "updateError": "Nie udało się zapisać zmian urządzenia. Spróbuj ponownie."
     },
     "errors": {
+      "loadListTitle": "Nie udało się pobrać listy urządzeń",
+      "loadListDescription": "Sprawdź połączenie i spróbuj ponownie pobrać listę urządzeń.",
       "loadDetailsTitle": "Nie udało się pobrać danych urządzenia",
       "loadDetailsDescription": "Sprawdź połączenie i spróbuj ponownie pobrać dane urządzenia."
     },

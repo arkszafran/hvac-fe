@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, inject, input, output } from '@angu
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
 import { UiBadgeComponent, UiEmptyStateComponent, UiIconComponent } from '../../../ui';
+import { fromApiDeviceType } from '../../customers/data/customer-api.mapper';
 import { getDeviceTypeLabel } from '../../customers/models/device.model';
 import {
   Device,
@@ -29,7 +30,7 @@ export class DeviceTableComponent {
   protected readonly getDeviceInstallationAddress = getDeviceInstallationAddress;
 
   protected getDeviceTypeLabel(device: Device): string {
-    return getDeviceTypeLabel(device.type, this.transloco);
+    return getDeviceTypeLabel(fromApiDeviceType(device.type), this.transloco);
   }
 
   protected installationDescription(device: Device): string {

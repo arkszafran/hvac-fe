@@ -1,0 +1,41 @@
+<ui-modal
+  [open]="open()"
+  [title]="'devices.customerPicker.title' | transloco"
+  [description]="'devices.customerPicker.description' | transloco"
+  (close)="close.emit()"
+>
+  <div class="flex flex-col gap-4">
+    <app-customer-toolbar [control]="searchControl" />
+
+    @if (hasError()) {
+      <ui-empty-state
+        [title]="'customers.errors.loadListTitle' | transloco"
+        [description]="'customers.errors.loadListDescription' | transloco"
+        [actionLabel]="'common.actions.retry' | transloco"
+        (action)="retryLoad()"
+      />
+    } @else if (hasLoaded()) {
+      <app-customer-table
+        [customers]="customers()"
+        [enableContactLinks]="false"
+        (customerSelected)="customerSelected.emit($event)"
+      />
+
+      @if (pagination(); as pagination) {
+        @if (pagination.totalPages > 0) {
+          <ui-pagination
+            [page]="pagination.page"
+            [totalPages]="pagination.totalPages"
+            (pageChange)="handlePageChange($event)"
+          />
+        }
+      }
+    }
+  </div>
+
+  <div modal-footer class="flex justify-end">
+    <ui-button variant="secondary" (pressed)="close.emit()">
+      {{ 'common.actions.close' | transloco }}
+    </ui-button>
+  </div>
+</ui-modal>

@@ -141,7 +141,7 @@ export class CustomerDeviceFlowService {
         kind: 'apply',
         command: {
           action: 'detach_inspection',
-          currentServiceOrderId: activeInspection.id,
+          serviceOrderId: activeInspection.id,
         },
       };
     }
@@ -200,7 +200,6 @@ export class CustomerDeviceFlowService {
             action: 'reschedule_inspection',
             currentServiceOrderId: plan.currentServiceOrderId,
             scheduledAt: inspectionDateFromDraft(draft),
-            confirmSharedOrderChange: true,
           }
         : {
             action: 'move_to_new_inspection',

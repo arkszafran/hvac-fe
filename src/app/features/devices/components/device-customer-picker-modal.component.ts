@@ -1,59 +1,74 @@
-import { ChangeDetectionStrategy, Component, computed, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  effect,
+  inject,
+  input,
+  output,
+  untracked,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl } from '@angular/forms';
 import { TranslocoPipe } from '@jsverse/transloco';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
-import { UiButtonComponent, UiModalComponent } from '../../../ui';
+import {
+  UiButtonComponent,
+  UiEmptyStateComponent,
+  UiModalComponent,
+  UiPaginationComponent,
+} from '../../../ui';
 import { CustomerTableComponent } from '../../customers/components/customer-table.component';
 import { CustomerToolbarComponent } from '../../customers/components/customer-toolbar.component';
+import { CustomersListStore } from '../../customers/data/customers-list.store';
 import { Customer } from '../../customers/models/customer.model';
-import { matchesCustomerSearch } from '../../customers/utils/customer-search.util';
 
 @Component({
   selector: 'app-device-customer-picker-modal',
-  standalone: true,
   imports: [
     TranslocoPipe,
     UiButtonComponent,
+    UiEmptyStateComponent,
     UiModalComponent,
+    UiPaginationComponent,
     CustomerTableComponent,
     CustomerToolbarComponent,
   ],
+  providers: [CustomersListStore],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  template: `
-    <ui-modal
-      [open]="open()"
-      [title]="'devices.customerPicker.title' | transloco"
-      [description]="'devices.customerPicker.description' | transloco"
-      (close)="close.emit()"
-    >
-      <div class="flex flex-col gap-4">
-        <app-customer-toolbar [search]="searchQuery()" (searchChange)="searchQuery.set($event)" />
-
-        <app-customer-table
-          [customers]="filteredCustomers()"
-          [enableContactLinks]="false"
-          (customerSelected)="customerSelected.emit($event)"
-        />
-      </div>
-
-      <div modal-footer class="flex justify-end">
-        <ui-button variant="secondary" (pressed)="close.emit()">{{
-          'common.actions.close' | transloco
-        }}</ui-button>
-      </div>
-    </ui-modal>
-  `,
+  templateUrl: './device-customer-picker-modal.component.html',
 })
 export class DeviceCustomerPickerModalComponent {
+  private readonly customersStore = inject(CustomersListStore);
+
   readonly open = input(false);
-  readonly customers = input<Customer[]>([]);
 
   readonly close = output<void>();
   readonly customerSelected = output<Customer>();
 
-  protected readonly searchQuery = signal('');
-  protected readonly filteredCustomers = computed(() => {
-    const query = this.searchQuery();
+  protected readonly customers = this.customersStore.customers;
+  protected readonly pagination = this.customersStore.pagination;
+  protected readonly hasLoaded = this.customersStore.hasLoaded;
+  protected readonly hasError = this.customersStore.hasError;
+  protected readonly searchControl = new FormControl('', { nonNullable: true });
 
-    return this.customers().filter((customer) => matchesCustomerSearch(customer, query));
-  });
+  constructor() {
+    effect(() => {
+      if (this.open()) {
+        untracked(() => this.customersStore.load());
+      }
+    });
+
+    this.searchControl.valueChanges
+      .pipe(debounceTime(350), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe((query) => this.customersStore.search(query));
+  }
+
+  protected retryLoad(): void {
+    this.customersStore.load();
+  }
+
+  protected handlePageChange(page: number): void {
+    this.customersStore.goToPage(page);
+  }
 }

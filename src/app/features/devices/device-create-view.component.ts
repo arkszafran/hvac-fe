@@ -1,25 +1,31 @@
+import { HttpContext } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   computed,
   inject,
   signal,
   viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { map, of, switchMap, tap } from 'rxjs';
 
-import { UiButtonComponent, UiIconComponent } from '../../ui';
+import { CustomersApi, DevicesApi, SKIP_ERROR_TOAST } from '../../common/api';
+import { ToastService, UiButtonComponent, UiIconComponent } from '../../ui';
 import { CustomerFormModalComponent } from '../customers/components/customer-form-modal.component';
-import { CustomersStore } from '../customers/data/customers.store';
+import { toCreateCustomerDto, toCreateDeviceDto } from '../customers/data/customer-api.mapper';
+import {
+  ApiDeviceCreatePlan,
+  CustomerDeviceFlowService,
+  DeviceFlowChoice,
+} from '../customers/data/customer-device-flow.service';
 import { Customer, CustomerDraft } from '../customers/models/customer.model';
 import { DeviceDraft } from '../customers/models/device.model';
 import { ServiceOrderCandidatePickerModalComponent } from '../service-orders/components/service-order-candidate-picker-modal/service-order-candidate-picker-modal.component';
 import { ServiceOrderLinkProposalModalComponent } from '../service-orders/components/service-order-link-proposal-modal/service-order-link-proposal-modal.component';
-import {
-  DeviceCreateServiceOrderPlan,
-  ServiceOrderDeviceFlowService,
-} from '../service-orders/data/service-order-device-flow.service';
 import { DeviceCustomerPickerModalComponent } from './components/device-customer-picker-modal.component';
 import { DeviceEditorFormComponent } from './components/device-editor-form.component';
 
@@ -44,18 +50,20 @@ type CustomerSelection =
 })
 export class DeviceCreateViewComponent {
   private readonly router = inject(Router);
-  private readonly customersStore = inject(CustomersStore);
-  private readonly serviceOrderDeviceFlowService = inject(ServiceOrderDeviceFlowService);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly customersApi = inject(CustomersApi);
+  private readonly devicesApi = inject(DevicesApi);
+  private readonly deviceFlow = inject(CustomerDeviceFlowService);
+  private readonly toast = inject(ToastService);
   private readonly transloco = inject(TranslocoService);
 
   protected readonly deviceForm = viewChild(DeviceEditorFormComponent);
-  protected readonly customers = this.customersStore.customers;
   protected readonly isCustomerPickerOpen = signal(false);
   protected readonly isCustomerCreateModalOpen = signal(false);
   protected readonly customerSelection = signal<CustomerSelection | null>(null);
   protected readonly isDeviceFormValid = signal(false);
   protected readonly deviceDraft = signal<DeviceDraft | null>(null);
-  protected readonly pendingInspectionPlan = signal<DeviceCreateServiceOrderPlan | null>(null);
+  protected readonly pendingInspectionPlan = signal<ApiDeviceCreatePlan | null>(null);
 
   protected readonly canSave = computed(
     () =>
@@ -168,7 +176,7 @@ export class DeviceCreateViewComponent {
     return this.customerSelection() !== null;
   }
 
-  protected async handleSave(): Promise<void> {
+  protected handleSave(): void {
     const selection = this.customerSelection();
     const deviceDraft = this.deviceDraft();
 
@@ -177,44 +185,61 @@ export class DeviceCreateViewComponent {
       return;
     }
 
-    const plan = this.serviceOrderDeviceFlowService.previewCreateDevice(selection, deviceDraft);
-
-    if (plan.kind === 'single-candidate' || plan.kind === 'candidate-choice') {
-      this.pendingInspectionPlan.set(plan);
+    if (selection.kind === 'new') {
+      this.applyCreatePlan(
+        hasInspectionIntent(deviceDraft) ? { kind: 'auto-create' } : { kind: 'save-only' },
+      );
       return;
     }
 
-    await this.finishCreateDevice(plan);
+    this.customersApi
+      .getCustomerDetails(selection.customer.id)
+      .pipe(
+        switchMap(({ data }) =>
+          this.deviceFlow.previewCreateDevice(data.customer, data.devices, deviceDraft),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (plan) => this.applyCreatePlan(plan),
+        error: () => undefined,
+      });
   }
 
   protected closeInspectionPlan(): void {
     this.pendingInspectionPlan.set(null);
   }
 
-  protected async createSeparateInspection(): Promise<void> {
+  protected createSeparateInspection(): void {
     const plan = this.pendingInspectionPlan();
 
     if (!plan) {
       return;
     }
 
-    await this.finishCreateDevice(plan, { kind: 'create-new' });
+    this.finishCreateDevice(plan, { kind: 'create-new' });
   }
 
-  protected async attachToInspection(inspectionId?: string): Promise<void> {
+  protected attachToInspection(inspectionId?: string): void {
     const plan = this.pendingInspectionPlan();
 
     if (!plan || !inspectionId) {
       return;
     }
 
-    await this.finishCreateDevice(plan, { kind: 'attach', serviceOrderId: inspectionId });
+    this.finishCreateDevice(plan, { kind: 'attach', serviceOrderId: inspectionId });
   }
 
-  private async finishCreateDevice(
-    plan: DeviceCreateServiceOrderPlan,
-    choice?: { kind: 'create-new' } | { kind: 'attach'; serviceOrderId: string },
-  ): Promise<void> {
+  private applyCreatePlan(plan: ApiDeviceCreatePlan): void {
+    if (plan.kind === 'single-candidate' || plan.kind === 'candidate-choice') {
+      this.pendingInspectionPlan.set(plan);
+      return;
+    }
+
+    this.finishCreateDevice(plan);
+  }
+
+  private finishCreateDevice(plan: ApiDeviceCreatePlan, choice?: DeviceFlowChoice): void {
     const selection = this.customerSelection();
     const deviceDraft = this.deviceDraft();
 
@@ -222,18 +247,49 @@ export class DeviceCreateViewComponent {
       return;
     }
 
-    const result = this.serviceOrderDeviceFlowService.commitCreateDevice(
-      selection,
-      deviceDraft,
-      plan,
-      choice,
-    );
+    const serviceOrder = this.deviceFlow.resolveCreateCommand(plan, deviceDraft, choice);
+    const customerId$ =
+      selection.kind === 'existing'
+        ? of(selection.customer.id)
+        : this.customersApi
+            .createCustomer(toCreateCustomerDto(selection.draft), {
+              context: new HttpContext().set(SKIP_ERROR_TOAST, true),
+            })
+            .pipe(
+              map(({ data }) => data),
+              tap((customer) =>
+                this.customerSelection.set({
+                  kind: 'existing',
+                  customer: { ...customer, devices: [] },
+                }),
+              ),
+              map((customer) => customer.id),
+            );
 
-    if (!result) {
-      return;
-    }
-
-    this.pendingInspectionPlan.set(null);
-    await this.router.navigate(['/devices', result.device.id]);
+    customerId$
+      .pipe(
+        switchMap((customerId) =>
+          this.devicesApi.createDevice(toCreateDeviceDto(customerId, deviceDraft, serviceOrder), {
+            context: new HttpContext().set(SKIP_ERROR_TOAST, true),
+          }),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: ({ data }) => {
+          this.pendingInspectionPlan.set(null);
+          this.toast.success(this.transloco.translate('devices.toast.created'));
+          void this.router.navigate(['/devices', data.device.id]);
+        },
+        error: () => {
+          this.toast.error(this.transloco.translate('devices.toast.createError'));
+        },
+      });
   }
+}
+
+function hasInspectionIntent(
+  draft: Pick<DeviceDraft, 'hasScheduledInspections' | 'nextInspectionDate'>,
+): boolean {
+  return draft.hasScheduledInspections && Boolean(draft.nextInspectionDate.trim());
 }

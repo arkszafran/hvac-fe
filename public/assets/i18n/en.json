@@ -1031,9 +1031,13 @@
     "searchPlaceholder": "Brand, model, customer, or installation address",
     "toast": {
       "created": "Device was created successfully.",
-      "updated": "Device details were updated successfully."
+      "updated": "Device details were updated successfully.",
+      "createError": "The device could not be saved. Try again.",
+      "updateError": "The device changes could not be saved. Try again."
     },
     "errors": {
+      "loadListTitle": "The device list could not be loaded",
+      "loadListDescription": "Check the connection and try loading the device list again.",
       "loadDetailsTitle": "Device details could not be loaded",
       "loadDetailsDescription": "Check the connection and try loading the device again."
     },

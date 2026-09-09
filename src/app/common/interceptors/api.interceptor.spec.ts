@@ -28,6 +28,8 @@ describe('apiInterceptor', () => {
   const requirePinLogin = vi.fn<AuthService['requirePinLogin']>();
   const translate = vi.fn<(key: string) => string>();
   const showErrorToast = vi.fn<(message: string) => void>();
+  const showLoader = vi.fn<() => void>();
+  const hideLoader = vi.fn<() => void>();
   let selectedTenantId: string | null;
 
   beforeEach(() => {
@@ -38,6 +40,8 @@ describe('apiInterceptor', () => {
     translate.mockReset();
     translate.mockImplementation((key) => key);
     showErrorToast.mockReset();
+    showLoader.mockReset();
+    hideLoader.mockReset();
 
     TestBed.configureTestingModule({
       providers: [
@@ -45,7 +49,7 @@ describe('apiInterceptor', () => {
         { provide: Router, useValue: { navigateByUrl: vi.fn() } },
         { provide: TranslocoService, useValue: { translate } },
         { provide: ToastService, useValue: { error: showErrorToast } },
-        { provide: AppLoaderService, useValue: { show: vi.fn(), hide: vi.fn() } },
+        { provide: AppLoaderService, useValue: { show: showLoader, hide: hideLoader } },
         {
           provide: TenantStore,
           useValue: {
@@ -61,6 +65,7 @@ describe('apiInterceptor', () => {
     ['POST', '/customers'],
     ['GET', '/customers/customer-1'],
     ['PATCH', '/customers/customer-1'],
+    ['GET', '/devices'],
     ['POST', '/devices'],
     ['GET', '/devices/device-1'],
     ['PATCH', '/devices/device-1'],
@@ -81,6 +86,13 @@ describe('apiInterceptor', () => {
     const request = await interceptRequest(`${environment.api.baseUrl}/authentication/session`);
 
     expect(request.headers.has('x-tenant-id')).toBe(false);
+  });
+
+  it('shows the global loader for a devices API request', async () => {
+    await interceptRequest(`${environment.api.baseUrl}/devices`);
+
+    expect(showLoader).toHaveBeenCalledOnce();
+    expect(hideLoader).toHaveBeenCalledOnce();
   });
 
   it('does not send a tenant-scoped request before a tenant is selected', async () => {

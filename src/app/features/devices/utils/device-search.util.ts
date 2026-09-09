@@ -1,14 +1,15 @@
 import { Device } from '../models/device.model';
+import { normalizeCustomerSearch } from '../../customers/utils/customer-search.util';
 
 export function matchesDeviceSearch(device: Device, query: string): boolean {
-  const normalizedQuery = query.trim().toLocaleLowerCase('pl-PL');
+  const normalizedQuery = normalizeCustomerSearch(query);
 
   if (!normalizedQuery) {
     return true;
   }
 
   return getSearchableFields(device).some((value) =>
-    value.toLocaleLowerCase('pl-PL').includes(normalizedQuery),
+    normalizeCustomerSearch(value).includes(normalizedQuery),
   );
 }
 
@@ -27,5 +28,5 @@ function getSearchableFields(device: Device): string[] {
     device.customer.address,
     device.customer.postalCode,
     device.customer.city,
-  ].filter(Boolean);
+  ].filter((value): value is string => typeof value === 'string' && Boolean(value));
 }
