@@ -70,6 +70,11 @@ describe('apiInterceptor', () => {
     ['GET', '/devices/device-1'],
     ['PATCH', '/devices/device-1'],
     ['GET', '/service-orders'],
+    ['GET', '/service-orders/service-order-1'],
+    ['GET', '/visits'],
+    ['POST', '/visits'],
+    ['POST', '/attachments/upload-requests'],
+    ['GET', '/attachments/attachment-1/download-url'],
   ] as const)('adds x-tenant-id to %s %s requests', async (method, path) => {
     const request = await interceptRequest(`${environment.api.baseUrl}${path}`, method);
 

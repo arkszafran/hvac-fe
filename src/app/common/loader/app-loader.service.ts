@@ -20,4 +20,14 @@ export class AppLoaderService {
 
     return source$.pipe(finalize(() => this.hide()));
   }
+
+  async trackPromise<T>(promise: Promise<T>): Promise<T> {
+    this.show();
+
+    try {
+      return await promise;
+    } finally {
+      this.hide();
+    }
+  }
 }

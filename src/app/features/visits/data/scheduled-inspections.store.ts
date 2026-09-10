@@ -4,30 +4,28 @@ import { EMPTY, Subject, catchError, switchMap } from 'rxjs';
 
 import {
   PaginationResponseDto,
-  VisitListItemDto,
-  VisitsApi,
-  VisitsListResponseDto,
+  ServiceOrderListItemDto,
+  ServiceOrdersApi,
+  ServiceOrdersListResponseDto,
 } from '../../../common/api';
 
-interface VisitsListRequest {
+interface ScheduledInspectionsRequest {
   query: string;
   page: number;
 }
 
-@Injectable({ providedIn: 'root' })
-export class VisitsStore {
-  private readonly visitsApi = inject(VisitsApi);
-  private readonly requestSubject = new Subject<VisitsListRequest>();
+@Injectable()
+export class ScheduledInspectionsStore {
+  private readonly serviceOrdersApi = inject(ServiceOrdersApi);
+  private readonly requestSubject = new Subject<ScheduledInspectionsRequest>();
   private readonly queryState = signal('');
   private readonly pageState = signal(1);
-  private readonly visitsState = signal<VisitListItemDto[]>([]);
+  private readonly inspectionsState = signal<ServiceOrderListItemDto[]>([]);
   private readonly paginationState = signal<PaginationResponseDto | null>(null);
   private readonly hasLoadedState = signal(false);
   private readonly hasErrorState = signal(false);
 
-  readonly query = this.queryState.asReadonly();
-  readonly page = this.pageState.asReadonly();
-  readonly visits = this.visitsState.asReadonly();
+  readonly inspections = this.inspectionsState.asReadonly();
   readonly pagination = this.paginationState.asReadonly();
   readonly hasLoaded = this.hasLoadedState.asReadonly();
   readonly hasError = this.hasErrorState.asReadonly();
@@ -36,12 +34,14 @@ export class VisitsStore {
     this.requestSubject
       .pipe(
         switchMap((request) =>
-          this.visitsApi
-            .listVisits({
+          this.serviceOrdersApi
+            .listServiceOrders({
+              type: 'inspection',
+              statuses: ['scheduled'],
               q: request.query,
               page: request.page,
-              sortBy: 'performedOn',
-              sortDirection: 'desc',
+              sortBy: 'scheduledAt',
+              sortDirection: 'asc',
             })
             .pipe(
               catchError(() => {
@@ -57,7 +57,7 @@ export class VisitsStore {
   }
 
   load(): void {
-    this.request(this.page());
+    this.request(this.pageState());
   }
 
   search(query: string): void {
@@ -70,7 +70,7 @@ export class VisitsStore {
     const totalPages = this.pagination()?.totalPages ?? 1;
     const nextPage = Math.min(Math.max(1, Math.trunc(page)), Math.max(1, totalPages));
 
-    if (nextPage === this.page()) {
+    if (nextPage === this.pageState()) {
       return;
     }
 
@@ -80,13 +80,13 @@ export class VisitsStore {
 
   private request(page: number): void {
     this.hasErrorState.set(false);
-    this.requestSubject.next({ query: this.query(), page });
+    this.requestSubject.next({ query: this.queryState(), page });
   }
 
-  private applyResponse(response: VisitsListResponseDto): void {
+  private applyResponse(response: ServiceOrdersListResponseDto): void {
     this.hasLoadedState.set(true);
     this.hasErrorState.set(false);
-    this.visitsState.set(response.data.items);
+    this.inspectionsState.set(response.data.items);
     this.paginationState.set(response.data.pagination);
     this.pageState.set(response.data.pagination.page);
   }

@@ -5,16 +5,21 @@ export interface PhotoAttachment {
   description?: string;
 }
 
+export interface LocalPhotoAttachment extends PhotoAttachment {
+  file: File;
+}
+
 export function createPhotoAttachments(
   files: readonly File[],
   idPrefix = 'photo',
-): PhotoAttachment[] {
+): LocalPhotoAttachment[] {
   return files
     .filter((file) => file.type.startsWith('image/'))
     .map((file) => ({
       id: createPhotoId(idPrefix),
       fileName: file.name,
       url: URL.createObjectURL(file),
+      file,
     }));
 }
 

@@ -18,8 +18,8 @@
       </p>
     </div>
 
-    <ui-button class="hidden shrink-0 md:block" (pressed)="submit()">
-      {{ 'visits.actions.save' | transloco }}
+    <ui-button class="hidden shrink-0 md:block" [disabled]="isSubmitting()" (pressed)="submit()">
+      {{ (isSubmitting() ? 'visits.actions.saving' : 'visits.actions.save') | transloco }}
     </ui-button>
   </header>
 
@@ -45,6 +45,7 @@
           [label]="'visits.fields.visitType' | transloco"
           [placeholder]="'visits.fields.visitTypePlaceholder' | transloco"
           required
+          [disabled]="!!sourceServiceOrderId()"
           [options]="visitTypeOptions()"
           [ngModel]="visitType()"
           (ngModelChange)="setVisitType($event)"
@@ -90,11 +91,11 @@
 
             @if (selectedScheduledInspection(); as details) {
               <div class="rounded-field border border-action/20 bg-action-soft px-4 py-3.5">
-                <p class="text-label text-text-main">{{ customerName(details.systemCustomer) }}</p>
+                <p class="text-label text-text-main">{{ customerName(selectedCustomer()) }}</p>
                 <p class="text-small text-text-muted">
                   {{
                     'visits.create.selectedScheduledInspection'
-                      | transloco: { count: details.systemDevices.length }
+                      | transloco: { count: details.devices.length }
                   }}
                 </p>
               </div>
@@ -179,7 +180,7 @@
                     </p>
                   </div>
 
-                  @if (!isVisitFromScheduledInspection()) {
+                  @if (entry.newDevice || !isVisitFromScheduledInspection()) {
                     <div class="flex flex-wrap gap-2">
                       @if (entry.newDevice?.source === 'service-order') {
                         <ui-button size="sm" variant="ghost" (pressed)="openDeviceEditForm(entry)">
@@ -190,9 +191,11 @@
                           {{ 'visits.actions.editData' | transloco }}
                         </ui-button>
                       }
-                      <ui-button size="sm" variant="ghost" (pressed)="removeDevice(entry)">
-                        {{ 'visits.actions.remove' | transloco }}
-                      </ui-button>
+                      @if (!isVisitFromScheduledInspection()) {
+                        <ui-button size="sm" variant="ghost" (pressed)="removeDevice(entry)">
+                          {{ 'visits.actions.remove' | transloco }}
+                        </ui-button>
+                      }
                     </div>
                   }
                 </div>
@@ -335,14 +338,14 @@
     <ui-button variant="ghost" size="lg" [block]="true" (pressed)="navigateToVisits()">{{
       'common.actions.cancel' | transloco
     }}</ui-button>
-    <ui-button size="lg" [block]="true" (pressed)="submit()">
-      {{ 'visits.actions.save' | transloco }}
+    <ui-button size="lg" [block]="true" [disabled]="isSubmitting()" (pressed)="submit()">
+      {{ (isSubmitting() ? 'visits.actions.saving' : 'visits.actions.save') | transloco }}
     </ui-button>
   </div>
 
   <app-visit-customer-picker-modal
     [open]="isCustomerPickerOpen()"
-    [customers]="customers()"
+    [apiBacked]="true"
     (close)="isCustomerPickerOpen.set(false)"
     (customerSelected)="selectCustomer($event)"
   />
@@ -401,7 +404,6 @@
 
   <app-visit-scheduled-inspection-picker-modal
     [open]="isScheduledInspectionPickerOpen()"
-    [inspections]="scheduledInspections()"
     (close)="isScheduledInspectionPickerOpen.set(false)"
     (inspectionSelected)="selectScheduledInspection($event)"
   />

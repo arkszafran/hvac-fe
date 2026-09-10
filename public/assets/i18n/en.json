@@ -27,6 +27,14 @@
       "delete": "Delete"
     }
   },
+  "attachments": {
+    "download": {
+      "error": "At least one attachment could not be loaded."
+    },
+    "upload": {
+      "error": "The file {{fileName}} could not be uploaded."
+    }
+  },
   "layout": {
     "productTagline": "Lightweight SaaS for HVAC service teams",
     "languageSwitcher": {
@@ -531,6 +539,7 @@
     "actions": {
       "add": "Add visit",
       "save": "Save visit",
+      "saving": "Saving...",
       "chooseCustomer": "Choose customer",
       "addCustomer": "Add customer",
       "chooseDevices": "Choose devices",
@@ -556,7 +565,9 @@
     },
     "list": {
       "emptyTitle": "No visits",
-      "emptyDescription": "Add the first visit after a physical installer visit at the customer's site."
+      "emptyDescription": "Add the first visit after a physical installer visit at the customer's site.",
+      "loadErrorTitle": "Visits could not be loaded",
+      "loadErrorDescription": "Check your connection and try again."
     },
     "create": {
       "breadcrumbs": {
@@ -597,11 +608,15 @@
         "scheduledInspection": "Choose whether the inspection was scheduled.",
         "customer": "Choose or add a customer.",
         "device": "Add at least one device.",
+        "deviceData": "Complete the required details of new devices.",
         "nextInspectionDate": "Enter the next inspection date.",
         "required": "Complete the required visit details."
       },
       "serviceOrderNotes": {
         "error": "Request error: {{error}}."
+      },
+      "toast": {
+        "success": "The visit has been saved."
       }
     },
     "types": {
@@ -711,6 +726,10 @@
         "success": "The service order has been created.",
         "error": "The service order could not be created. Check the data and try again."
       }
+    },
+    "errors": {
+      "loadListTitle": "Service orders could not be loaded",
+      "loadListDescription": "Check your connection and try again."
     },
     "summary": {
       "contactRequired": "Contact required: {{count}}",

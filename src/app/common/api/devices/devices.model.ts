@@ -1,4 +1,5 @@
 import { ApiSuccessResponse } from '../api-response.model';
+import { PhotoAttachmentDto } from '../attachments/attachments.model';
 import { CustomerType, PaginationResponseDto } from '../customers/customers.model';
 import {
   InspectionServiceOrderDto,
@@ -81,13 +82,6 @@ export interface ServerFilteredDevicesDto {
 
 export type DevicesListDataDto = ClientFilteredDevicesDto | ServerFilteredDevicesDto;
 export type DevicesListResponseDto = ApiSuccessResponse<DevicesListDataDto>;
-
-export interface PhotoAttachmentDto {
-  id: string;
-  fileName: string;
-  url: string;
-  description?: string;
-}
 
 export interface DeviceVisitDto {
   id: string;

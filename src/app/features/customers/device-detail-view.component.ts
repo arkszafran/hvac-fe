@@ -28,6 +28,7 @@ import {
   DevicesApi,
   mapApiError,
 } from '../../common/api';
+import { AttachmentDownloadService, ResolvedPhotoGroup } from '../../common/attachments';
 import {
   ToastService,
   UiBadgeComponent,
@@ -60,13 +61,18 @@ interface DeviceDetailItem {
   isTechnical?: boolean;
 }
 
+type DeviceVisitViewDto = ResolvedPhotoGroup<DeviceVisitDto>;
+type DeviceDetailsViewDto = Omit<DeviceDetailsDto, 'visits'> & {
+  visits: DeviceVisitViewDto[];
+};
+
 interface DeviceRouteParams {
   customerId: string;
   deviceId: string;
 }
 
 type DeviceDetailsLoadResult =
-  | { kind: 'success'; details: DeviceDetailsDto }
+  | { kind: 'success'; details: DeviceDetailsViewDto }
   | { kind: 'not-found' }
   | { kind: 'error'; hasLoadError: boolean };
 
@@ -93,13 +99,14 @@ export class DeviceDetailViewComponent {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly devicesApi = inject(DevicesApi);
+  private readonly attachmentDownloads = inject(AttachmentDownloadService);
   private readonly deviceFlow = inject(CustomerDeviceFlowService);
   private readonly toast = inject(ToastService);
   private readonly transloco = inject(TranslocoService);
   private readonly reloadDetails = new Subject<void>();
   private readonly customerIdState = signal(this.route.snapshot.paramMap.get('customerId') ?? '');
   private readonly deviceIdState = signal(this.route.snapshot.paramMap.get('deviceId') ?? '');
-  private readonly deviceDetailsState = signal<DeviceDetailsDto | null>(null);
+  private readonly deviceDetailsState = signal<DeviceDetailsViewDto | null>(null);
   private readonly hasLoadedState = signal(false);
   private readonly hasLoadErrorState = signal(false);
   private readonly activeLanguage = toSignal(this.transloco.langChanges$, {
@@ -342,13 +349,23 @@ export class DeviceDetailViewComponent {
     }
 
     return this.devicesApi.getDeviceDetails(routeParams.deviceId).pipe(
-      map(
-        ({ data }): DeviceDetailsLoadResult =>
-          data.device.customerId === routeParams.customerId &&
-          data.customer.id === routeParams.customerId
-            ? { kind: 'success', details: data }
-            : { kind: 'not-found' },
-      ),
+      switchMap(({ data }) => {
+        if (
+          data.device.customerId !== routeParams.customerId ||
+          data.customer.id !== routeParams.customerId
+        ) {
+          return of<DeviceDetailsLoadResult>({ kind: 'not-found' });
+        }
+
+        return this.attachmentDownloads.resolvePhotoGroups(data.visits).pipe(
+          map(
+            (visits): DeviceDetailsLoadResult => ({
+              kind: 'success',
+              details: { ...data, visits },
+            }),
+          ),
+        );
+      }),
       catchError((error: unknown) =>
         of<DeviceDetailsLoadResult>({
           kind: 'error',

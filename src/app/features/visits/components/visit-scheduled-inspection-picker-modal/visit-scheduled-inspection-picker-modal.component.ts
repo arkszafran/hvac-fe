@@ -1,79 +1,88 @@
 import {
   ChangeDetectionStrategy,
   Component,
-  computed,
+  effect,
   inject,
   input,
   output,
-  signal,
+  untracked,
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
-import { UiInputComponent, UiModalComponent } from '../../../../ui';
-import { ServiceOrderDetails } from '../../../service-orders/data/service-orders.store';
+import { ServiceOrderListItemDto } from '../../../../common/api';
+import {
+  UiEmptyStateComponent,
+  UiInputComponent,
+  UiModalComponent,
+  UiPaginationComponent,
+} from '../../../../ui';
 import { formatServiceOrderDate } from '../../../service-orders/utils/service-order-ui.util';
+import { ScheduledInspectionsStore } from '../../data/scheduled-inspections.store';
 
 @Component({
   selector: 'app-visit-scheduled-inspection-picker-modal',
-  standalone: true,
-  imports: [FormsModule, TranslocoPipe, UiInputComponent, UiModalComponent],
+  imports: [
+    ReactiveFormsModule,
+    TranslocoPipe,
+    UiEmptyStateComponent,
+    UiInputComponent,
+    UiModalComponent,
+    UiPaginationComponent,
+  ],
+  providers: [ScheduledInspectionsStore],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './visit-scheduled-inspection-picker-modal.component.html',
 })
 export class VisitScheduledInspectionPickerModalComponent {
   private readonly transloco = inject(TranslocoService);
+  private readonly store = inject(ScheduledInspectionsStore);
 
   readonly open = input(false);
-  readonly inspections = input<ServiceOrderDetails[]>([]);
-
   readonly close = output<void>();
-  readonly inspectionSelected = output<ServiceOrderDetails>();
+  readonly inspectionSelected = output<ServiceOrderListItemDto>();
 
-  protected readonly searchQuery = signal('');
-  protected readonly filteredInspections = computed(() => {
-    const query = normalizeValue(this.searchQuery());
+  protected readonly inspections = this.store.inspections;
+  protected readonly pagination = this.store.pagination;
+  protected readonly hasLoaded = this.store.hasLoaded;
+  protected readonly hasError = this.store.hasError;
+  protected readonly searchControl = new FormControl('', { nonNullable: true });
 
-    return this.inspections().filter((details) => {
-      if (!query) {
-        return true;
+  constructor() {
+    effect(() => {
+      if (this.open()) {
+        untracked(() => this.store.load());
       }
-
-      return normalizeValue(
-        [
-          this.customerName(details),
-          details.order.address,
-          details.order.postalCode,
-          details.order.city,
-          details.systemDevices.map((device) => `${device.brand} ${device.model}`).join(' '),
-        ].join(' '),
-      ).includes(query);
     });
-  });
+
+    this.searchControl.valueChanges
+      .pipe(debounceTime(350), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe((query) => this.store.search(query));
+  }
+
+  protected retryLoad(): void {
+    this.store.load();
+  }
+
+  protected handlePageChange(page: number): void {
+    this.store.goToPage(page);
+  }
 
   protected formatInspectionDate(value: string): string {
     return formatServiceOrderDate(value, this.transloco.getActiveLang());
   }
 
-  protected customerName(details: ServiceOrderDetails): string {
+  protected customerName(details: ServiceOrderListItemDto): string {
     return (
-      details.order.companyName ||
-      details.order.fullName ||
+      details.customer.companyName ||
+      details.customer.fullName ||
       this.transloco.translate('customers.fallbackName')
     );
   }
 
-  protected devicesLabel(details: ServiceOrderDetails): string {
-    return details.systemDevices
-      .map((device) => `${device.brand} ${device.model}`.trim())
-      .join(', ');
+  protected devicesLabel(details: ServiceOrderListItemDto): string {
+    return details.devices.map((device) => `${device.brand} ${device.model}`.trim()).join(', ');
   }
-}
-
-function normalizeValue(value: string): string {
-  return value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim();
 }

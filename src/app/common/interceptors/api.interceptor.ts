@@ -21,7 +21,13 @@ import { ToastService } from '../../ui/toast/toast.service';
 const ACCOUNT_BLOCKED_ERROR_CODES = new Set(['LOGIN_RETRIES_LIMIT_REACHED', 'ACCOUNT_BLOCKED']);
 const ACCOUNT_BLOCKED_ROUTE = '/account-blocked';
 const PIN_REQUIRED_ERROR_CODE = 'PIN_REQUIRED';
-const TENANT_REQUIRED_PATH_PREFIXES = ['/customers', '/devices', '/service-orders'] as const;
+const TENANT_REQUIRED_PATH_PREFIXES = [
+  '/attachments',
+  '/customers',
+  '/devices',
+  '/service-orders',
+  '/visits',
+] as const;
 const TENANT_NOT_SELECTED_ERROR_CODE = 'TENANT_NOT_SELECTED';
 
 export const apiInterceptor: HttpInterceptorFn = (request, next) => {

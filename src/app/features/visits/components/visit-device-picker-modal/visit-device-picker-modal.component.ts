@@ -1,4 +1,13 @@
-import { ChangeDetectionStrategy, Component, computed, effect, inject, input, output, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
 
@@ -34,13 +43,15 @@ export class VisitDevicePickerModalComponent {
         return true;
       }
 
-      return normalizeValue([
-        device.brand,
-        device.model,
-        device.serialNumber,
-        device.location,
-        this.deviceAddress(device),
-      ].join(' ')).includes(query);
+      return normalizeValue(
+        [
+          device.brand,
+          device.model,
+          device.serialNumber,
+          device.location,
+          this.deviceAddress(device),
+        ].join(' '),
+      ).includes(query);
     });
   });
 
@@ -65,13 +76,17 @@ export class VisitDevicePickerModalComponent {
   }
 
   protected deviceName(device: Device): string {
-    return `${device.brand} ${device.model}`.trim() || this.transloco.translate('devices.table.device');
+    return (
+      `${device.brand} ${device.model}`.trim() || this.transloco.translate('devices.table.device')
+    );
   }
 
   protected deviceAddress(device: Device): string {
     const customer = this.customer();
     const street = device.hasCustomInstallationAddress ? device.address : customer?.address;
-    const postalCode = device.hasCustomInstallationAddress ? device.postalCode : customer?.postalCode;
+    const postalCode = device.hasCustomInstallationAddress
+      ? device.postalCode
+      : customer?.postalCode;
     const city = device.hasCustomInstallationAddress ? device.city : customer?.city;
 
     return [street, `${postalCode ?? ''} ${city ?? ''}`.trim()].filter(Boolean).join(', ') || '--';

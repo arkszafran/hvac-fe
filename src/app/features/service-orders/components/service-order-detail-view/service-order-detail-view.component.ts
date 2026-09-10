@@ -114,6 +114,10 @@ export class ServiceOrderDetailViewComponent {
   protected readonly phoneHref = serviceOrderPhoneHref;
   protected readonly inspectionConfirmation = getServiceOrderInspectionConfirmation;
 
+  constructor() {
+    this.visitsStore.load();
+  }
+
   protected getTypeLabel(order: ServiceOrder): string {
     this.activeLanguage();
     return getServiceOrderTypeLabel(order.type, this.transloco);

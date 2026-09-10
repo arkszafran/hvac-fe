@@ -316,7 +316,7 @@
         <div class="mt-4 space-y-2">
           @for (visit of relatedVisits(); track visit.id) {
             <article class="rounded-field bg-surface-muted px-4 py-3">
-              <p class="text-body text-text-main">{{ formatDate(visit.date) }}</p>
+              <p class="text-body text-text-main">{{ formatDate(visit.performedOn) }}</p>
             </article>
           }
         </div>

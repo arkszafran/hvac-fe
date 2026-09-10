@@ -1,26 +1,31 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { FormsModule } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { TranslocoPipe, TranslocoService } from '@jsverse/transloco';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
+import {
+  VisitCustomerSummaryDto,
+  VisitDeviceDto,
+  VisitDeviceSummaryDto,
+  VisitListItemDto,
+} from '../../../../common/api';
 import {
   UiBadgeComponent,
   UiButtonComponent,
   UiEmptyStateComponent,
   UiIconComponent,
   UiInputComponent,
+  UiPaginationComponent,
 } from '../../../../ui';
-import { Customer } from '../../../customers/models/customer.model';
-import { Device } from '../../../customers/models/device.model';
-import { VisitDetails, VisitsStore } from '../../data/visits.store';
+import { VisitsStore } from '../../data/visits.store';
 import { getVisitTypeLabel, VisitType } from '../../models/visit.model';
 
 @Component({
   selector: 'app-visits-view',
-  standalone: true,
   imports: [
-    FormsModule,
+    ReactiveFormsModule,
     RouterLink,
     TranslocoPipe,
     UiBadgeComponent,
@@ -28,6 +33,7 @@ import { getVisitTypeLabel, VisitType } from '../../models/visit.model';
     UiEmptyStateComponent,
     UiIconComponent,
     UiInputComponent,
+    UiPaginationComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './visits-view.component.html',
@@ -40,19 +46,21 @@ export class VisitsViewComponent {
     initialValue: this.transloco.getActiveLang(),
   });
 
-  protected readonly searchQuery = signal('');
-  protected readonly visitDetails = this.visitsStore.visitDetails;
-  protected readonly filteredVisits = computed(() => {
-    const query = normalizeValue(this.searchQuery());
-
-    return this.visitDetails().filter((details) => {
-      if (!query) {
-        return true;
-      }
-
-      return normalizeValue(this.searchText(details)).includes(query);
-    });
+  protected readonly visits = this.visitsStore.visits;
+  protected readonly pagination = this.visitsStore.pagination;
+  protected readonly hasLoaded = this.visitsStore.hasLoaded;
+  protected readonly hasError = this.visitsStore.hasError;
+  protected readonly searchControl = new FormControl(this.visitsStore.query(), {
+    nonNullable: true,
   });
+
+  constructor() {
+    this.searchControl.valueChanges
+      .pipe(debounceTime(350), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe((query) => this.visitsStore.search(query));
+
+    this.visitsStore.load();
+  }
 
   protected getVisitTypeLabel(type: VisitType): string {
     this.activeLanguage();
@@ -64,7 +72,19 @@ export class VisitsViewComponent {
     void this.router.navigate(['/visits/new']);
   }
 
-  protected customerName(customer: Customer): string {
+  protected retryLoad(): void {
+    this.visitsStore.load();
+  }
+
+  protected handlePageChange(page: number): void {
+    this.visitsStore.goToPage(page);
+  }
+
+  protected totalVisits(): number {
+    return this.pagination()?.totalItems ?? this.visits().length;
+  }
+
+  protected customerName(customer: VisitCustomerSummaryDto): string {
     return (
       customer.companyName ||
       customer.fullName ||
@@ -88,45 +108,22 @@ export class VisitsViewComponent {
     );
   }
 
-  protected deviceSummary(details: VisitDetails): string {
-    if (!details.devices.length) {
-      return '--';
-    }
-
-    return details.devices
-      .map((device) => {
-        const note = details.visit.devicesNotes.find((item) => item.deviceId === device.id)?.note;
-        const deviceName =
-          `${device.brand} ${device.model}`.trim() ||
-          this.transloco.translate('devices.table.device');
-
-        return note ? `${deviceName}: ${note}` : deviceName;
-      })
-      .join(' | ');
+  protected deviceItems(visit: VisitListItemDto): VisitDeviceDto[] {
+    return visit.devices;
   }
 
-  protected deviceItems(
-    details: VisitDetails,
-  ): Array<{ device: Device; label: string; note: string }> {
-    return details.devices.map((device) => ({
-      device,
-      label:
-        `${device.brand} ${device.model}`.trim() ||
-        this.transloco.translate('devices.table.device'),
-      note: details.visit.devicesNotes.find((item) => item.deviceId === device.id)?.note ?? '',
-    }));
+  protected deviceName(device: VisitDeviceSummaryDto): string {
+    return (
+      `${device.brand} ${device.model}`.trim() || this.transloco.translate('devices.table.device')
+    );
   }
 
-  protected deviceAddressSummary(details: VisitDetails): string {
+  protected deviceAddressSummary(visit: VisitListItemDto): string {
     const addresses = Array.from(
-      new Set(details.devices.map((device) => this.deviceAddress(details.customer, device))),
+      new Set(visit.devices.map(({ device }) => this.deviceAddress(visit.customer, device))),
     ).filter((address) => address !== '--');
 
-    if (!addresses.length) {
-      return '--';
-    }
-
-    return addresses.join(' | ');
+    return addresses.join(' | ') || '--';
   }
 
   protected phoneHref(phone: string): string {
@@ -135,22 +132,7 @@ export class VisitsViewComponent {
     return normalizedPhone ? `tel:${normalizedPhone}` : '#';
   }
 
-  private searchText(details: VisitDetails): string {
-    return [
-      this.customerName(details.customer),
-      details.customer.fullName,
-      details.customer.phone,
-      details.customer.email,
-      details.customer.address,
-      details.customer.postalCode,
-      details.customer.city,
-      details.visit.userName,
-      details.devices.map((device) => this.deviceAddress(details.customer, device)).join(' '),
-      this.deviceSummary(details),
-    ].join(' ');
-  }
-
-  private deviceAddress(customer: Customer, device: Device): string {
+  private deviceAddress(customer: VisitCustomerSummaryDto, device: VisitDeviceSummaryDto): string {
     const street = device.hasCustomInstallationAddress ? device.address : customer.address;
     const cityLine = device.hasCustomInstallationAddress
       ? `${device.postalCode} ${device.city}`.trim()
@@ -158,12 +140,4 @@ export class VisitsViewComponent {
 
     return [street, cityLine].filter(Boolean).join(', ') || '--';
   }
-}
-
-function normalizeValue(value: string): string {
-  return value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim();
 }

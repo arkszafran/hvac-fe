@@ -27,6 +27,14 @@
       "delete": "Kasuj"
     }
   },
+  "attachments": {
+    "download": {
+      "error": "Nie udało się pobrać co najmniej jednego załącznika."
+    },
+    "upload": {
+      "error": "Nie udało się przesłać pliku {{fileName}}."
+    }
+  },
   "layout": {
     "productTagline": "Lekki SaaS dla serwisu HVAC",
     "languageSwitcher": {
@@ -531,6 +539,7 @@
     "actions": {
       "add": "Dodaj wizytę",
       "save": "Zapisz wizytę",
+      "saving": "Zapisywanie...",
       "chooseCustomer": "Wybierz klienta",
       "addCustomer": "Dodaj klienta",
       "chooseDevices": "Wybierz urządzenia",
@@ -556,7 +565,9 @@
     },
     "list": {
       "emptyTitle": "Brak wizyt",
-      "emptyDescription": "Dodaj pierwszą wizytę po fizycznej wizycie instalatora u klienta."
+      "emptyDescription": "Dodaj pierwszą wizytę po fizycznej wizycie instalatora u klienta.",
+      "loadErrorTitle": "Nie udało się pobrać wizyt",
+      "loadErrorDescription": "Sprawdź połączenie i spróbuj ponownie."
     },
     "create": {
       "breadcrumbs": {
@@ -597,11 +608,15 @@
         "scheduledInspection": "Wybierz, czy przegląd był zaplanowany.",
         "customer": "Wybierz lub dodaj klienta.",
         "device": "Dodaj przynajmniej jedno urządzenie.",
+        "deviceData": "Uzupełnij wymagane dane nowych urządzeń.",
         "nextInspectionDate": "Podaj datę kolejnego przeglądu.",
         "required": "Uzupełnij wymagane dane wizyty."
       },
       "serviceOrderNotes": {
         "error": "Błąd ze zgłoszenia: {{error}}."
+      },
+      "toast": {
+        "success": "Wizyta została zapisana."
       }
     },
     "types": {
@@ -711,6 +726,10 @@
         "success": "Zlecenie zostało utworzone.",
         "error": "Nie udało się utworzyć zlecenia. Sprawdź dane i spróbuj ponownie."
       }
+    },
+    "errors": {
+      "loadListTitle": "Nie udało się pobrać zleceń",
+      "loadListDescription": "Sprawdź połączenie i spróbuj ponownie."
     },
     "summary": {
       "contactRequired": "Do kontaktu: {{count}}",

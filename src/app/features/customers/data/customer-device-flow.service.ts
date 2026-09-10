@@ -225,7 +225,7 @@ export class CustomerDeviceFlowService {
         active: true,
         excludeDeviceId,
       })
-      .pipe(map(({ data }) => data.map((order) => toCandidate(order, devices))));
+      .pipe(map(({ data }) => data.items.map(({ order }) => toCandidate(order, devices))));
   }
 
   private createCreatePlan(

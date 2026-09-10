@@ -21,6 +21,7 @@ import {
   SKIP_ERROR_TOAST,
   mapApiError,
 } from '../../common/api';
+import { AttachmentDownloadService, ResolvedPhotoGroup } from '../../common/attachments';
 import {
   ToastService,
   UiBadgeComponent,
@@ -57,6 +58,11 @@ interface DeviceDetailItem {
   isTechnical?: boolean;
 }
 
+type DeviceVisitViewDto = ResolvedPhotoGroup<DeviceVisitDto>;
+type DeviceDetailsViewDto = Omit<DeviceDetailsDto, 'visits'> & {
+  visits: DeviceVisitViewDto[];
+};
+
 @Component({
   selector: 'app-device-detail-view',
   imports: [
@@ -80,10 +86,11 @@ export class DeviceDetailViewComponent {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly devicesApi = inject(DevicesApi);
+  private readonly attachmentDownloads = inject(AttachmentDownloadService);
   private readonly deviceFlow = inject(CustomerDeviceFlowService);
   private readonly toast = inject(ToastService);
   private readonly transloco = inject(TranslocoService);
-  private readonly deviceDetailsState = signal<DeviceDetailsDto | null>(null);
+  private readonly deviceDetailsState = signal<DeviceDetailsViewDto | null>(null);
   private readonly hasLoadedState = signal(false);
   private readonly hasLoadErrorState = signal(false);
   private readonly activeLanguage = toSignal(this.transloco.langChanges$, {
@@ -425,8 +432,17 @@ export class DeviceDetailViewComponent {
             return;
           }
 
-          this.deviceDetailsState.set(data);
-          this.hasLoadedState.set(true);
+          this.attachmentDownloads
+            .resolvePhotoGroups(data.visits)
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe((visits) => {
+              if (deviceId !== this.deviceId()) {
+                return;
+              }
+
+              this.deviceDetailsState.set({ ...data, visits });
+              this.hasLoadedState.set(true);
+            });
         },
         error: (error: unknown) => {
           if (deviceId !== this.deviceId()) {

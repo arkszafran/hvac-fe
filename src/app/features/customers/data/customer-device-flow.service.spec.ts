@@ -141,7 +141,15 @@ describe('CustomerDeviceFlowService lazy customer details', () => {
         data: { customer: CUSTOMER, devices: [SIBLING_DEVICE], serviceOrders: [] },
       }),
     );
-    listServiceOrders.mockReturnValue(of({ success: true, data: [] }));
+    listServiceOrders.mockReturnValue(
+      of({
+        success: true,
+        data: {
+          items: [],
+          pagination: { page: 1, pageSize: 20, totalItems: 0, totalPages: 0 },
+        },
+      }),
+    );
     const draft: DeviceDraft = {
       ...BASE_DRAFT,
       hasScheduledInspections: true,
