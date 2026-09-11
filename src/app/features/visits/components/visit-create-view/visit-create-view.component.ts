@@ -276,18 +276,23 @@ export class VisitCreateViewComponent {
 
   protected selectCustomer(customer: Customer): void {
     this.isCustomerPickerOpen.set(false);
+    this.selectedCustomerState.set(customer);
+    this.pendingCustomerDraft.set(null);
+    this.customerCreatedInVisit.set(false);
+    this.selectedExistingDeviceIds.set([]);
+    this.newDeviceDrafts.set([]);
+    this.selectedScheduledInspectionState.set(undefined);
 
     this.customersApi
       .getCustomerDetails(customer.id)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response) => {
+          if (this.selectedCustomer()?.id !== customer.id || this.pendingCustomerDraft()) {
+            return;
+          }
+
           this.selectedCustomerState.set(toVisitCustomer(response.data));
-          this.pendingCustomerDraft.set(null);
-          this.customerCreatedInVisit.set(false);
-          this.selectedExistingDeviceIds.set([]);
-          this.newDeviceDrafts.set([]);
-          this.selectedScheduledInspectionState.set(undefined);
         },
         error: () => undefined,
       });
